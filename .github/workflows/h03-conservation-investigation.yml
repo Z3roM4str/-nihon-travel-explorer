@@ -1,0 +1,136 @@
+name: H03 conservación dirigida
+on:
+  pull_request:
+    branches: [main, claude/final-audit-data-recovery-fixes-l60xs9]
+    paths:
+      - ".github/workflows/h03-conservation-investigation.yml"
+      - "app/scripts/h03-conservation-investigation.mjs"
+      - "app/scripts/final-audit-data-recovery-check.mjs"
+      - "app/src/**"
+      - "app/package-lock.json"
+      - "app/scripts/h03-webkit-storage-engine-probe.mjs"
+      - "app/scripts/h03-webkit-network-restart-probe.mjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: h03-conservation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  engine:
+    name: WebKit sin producto load=${{ matrix.load }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        load: ["0", "1"]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - name: Contrafactual nativo, sin Nihon ni escrituras al recargar
+        env:
+          NIHON_H03_LOAD: ${{ matrix.load }}
+          NIHON_H03_ENGINE_REPETITIONS: "12"
+          NIHON_EVIDENCE_OUT: h03-engine
+          DEBUG: pw:browser
+        run: node scripts/h03-webkit-storage-engine-probe.mjs > h03-engine.log 2>&1
+      - name: Contrato causal de reinicio nativo en perfiles aislados
+        if: always()
+        env:
+          NIHON_H03_LOAD: ${{ matrix.load }}
+          NIHON_H03_RESTART_REPETITIONS: "3"
+          NIHON_H03_RESTART_RECENT: "1"
+          NIHON_H03_RESTART_WRITE_AGES: "700,3000,25000"
+          NIHON_EVIDENCE_OUT: h03-restart
+          DEBUG: pw:browser
+        run: node scripts/h03-webkit-network-restart-probe.mjs > h03-restart.log 2>&1
+      - name: Lectura SQLite independiente de todos los perfiles nativos preservados
+        if: always()
+        run: python3 scripts/inspect-h03-sqlite.py h03-restart > h03-restart-independent-sqlite.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h03-engine-load${{ matrix.load }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            app/h03-engine/
+            app/h03-engine.log
+            app/h03-restart/
+            app/h03-restart.log
+            app/h03-restart-independent-sqlite.json
+          retention-days: 30
+          if-no-files-found: error
+  investigate:
+    name: WebKit H03 HEAD load=${{ matrix.load }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        load: ["0", "1"]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - run: npm run build
+      - name: Reset real, 390 px, controles e instrumentación externa, con y sin carga
+        env:
+          NIHON_BROWSER: webkit
+          NIHON_GATE_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+          NIHON_H03_LOAD: ${{ matrix.load }}
+          NIHON_H03_REPETITIONS: "24"
+          NIHON_H03_TRACE_MODE: console
+          DEBUG: pw:browser
+          NIHON_H03_PRIMER: "1"
+          NIHON_H03_PROFILE_DIAGNOSTICS: "1"
+          NIHON_EVIDENCE_OUT: h03-investigation
+        run: node scripts/h03-conservation-investigation.mjs > h03-investigation.log 2>&1
+      - name: Lectura SQLite independiente, incluidos fallos y cierres tempranos
+        if: always()
+        run: python3 scripts/inspect-h03-sqlite.py h03-investigation > h03-independent-sqlite.json
+      - name: Evidencia correlacionada descargable por separado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h03-metadata-load${{ matrix.load }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            app/h03-investigation/*.json
+            app/h03-investigation/*.ndjson
+            app/h03-investigation/*.mjs
+            app/h03-independent-sqlite.json
+            app/h03-investigation.log
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h03-external-head-load${{ matrix.load }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            app/h03-investigation/
+            app/h03-investigation.log
+            app/h03-independent-sqlite.json
+          retention-days: 30
+          if-no-files-found: error

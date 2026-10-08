@@ -1,0 +1,845 @@
+{
+  "browser": "chromium",
+  "results": [
+    {
+      "id": "H01",
+      "label": "tras importar y navegar, los viajeros restaurados siguen en el almacenamiento",
+      "ok": true,
+      "extra": "Viajera del respaldo,Jun"
+    },
+    {
+      "id": "H01",
+      "label": "los intereses restaurados (JP-203) se conservan y el nuevo (JP-021) se añade",
+      "ok": true,
+      "extra": "JP-021,JP-203"
+    },
+    {
+      "id": "H01",
+      "label": "el itinerario restaurado (JP-203, Hotel del respaldo) no se sobrescribe",
+      "ok": true,
+      "extra": "[\"JP-203\"]"
+    },
+    {
+      "id": "H01",
+      "label": "volver a Viaje tampoco devuelve el itinerario anterior",
+      "ok": true,
+      "extra": "[\"JP-203\"]"
+    },
+    {
+      "id": "H01",
+      "label": "tras recargar sigue todo lo restaurado más el interés añadido",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H02",
+      "label": "fixture: ambas pestañas parten de los mismos IDs de viajeros",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H02",
+      "label": "tras guardar un lugar en A y otro en B, el documento conserva ambos",
+      "ok": true,
+      "extra": "JP-021,JP-044"
+    },
+    {
+      "id": "H02",
+      "label": "A, recargada, muestra los dos lugares en Quiero ir",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H02",
+      "label": "itinerario: añadir un día en A y otro en B conserva ambos (3 días)",
+      "ok": true,
+      "extra": "días=3"
+    },
+    {
+      "id": "H02",
+      "label": "itinerario: la parada y el hotel del documento se conservan",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "borrador-invalido: el documento original no se modifica tras montar y recargar",
+      "ok": true,
+      "extra": "iguales"
+    },
+    {
+      "id": "H04",
+      "label": "borrador-invalido: la interfaz informa del problema con una salida explícita",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-invalidos: el documento original no se modifica tras montar y recargar",
+      "ok": true,
+      "extra": "iguales"
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-invalidos: la interfaz informa del problema con una salida explícita",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "borrador-futuro: el documento original no se modifica tras montar y recargar",
+      "ok": true,
+      "extra": "iguales"
+    },
+    {
+      "id": "H04",
+      "label": "borrador-futuro: la interfaz informa del problema con una salida explícita",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "borrador-no-json: el documento original no se modifica tras montar y recargar",
+      "ok": true,
+      "extra": "iguales"
+    },
+    {
+      "id": "H04",
+      "label": "borrador-no-json: la interfaz informa del problema con una salida explícita",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-futuros: el documento original no se modifica tras montar y recargar",
+      "ok": true,
+      "extra": "iguales"
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-futuros: la interfaz informa del problema con una salida explícita",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "viajeros inválidos: el itinerario válido sigue íntegro tras usar la app",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "V1 válida: se migra y conserva la parada, sin aviso de protección",
+      "ok": true,
+      "extra": "v8"
+    },
+    {
+      "id": "H04",
+      "label": "«Descargar copia» entrega el contenido original sin modificar",
+      "ok": true,
+      "extra": "nihon-datos-conservados-2026-10-08.json"
+    },
+    {
+      "id": "H04",
+      "label": "tras «Empezar de nuevo» el original queda guardado en una copia aparte",
+      "ok": true,
+      "extra": "claves=2"
+    },
+    {
+      "id": "H04",
+      "label": "tras recuperar, el aviso desaparece y la app guarda con normalidad",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "tras recuperar, los cambios nuevos se persisten",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "con la escritura fallando, «Empezar de nuevo» no borra el original",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "con la escritura fallando, el aviso sigue y explica que no se cambió nada",
+      "ok": true,
+      "extra": "Hay datos almacenados que Nihon no puede leer El itinerario, almacenado en este navegador, es de una versión más reciente de Nihon y esta no sabe leerlo. Los hemos dejado exactamente como estaban: no "
+    },
+    {
+      "id": "H04",
+      "label": "restablecida la escritura, la recuperación se completa y conserva copia",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "X1",
+      "label": "importar en A con B abierta: la mutación posterior de B conserva el respaldo",
+      "ok": true,
+      "extra": "JP-021,JP-203"
+    },
+    {
+      "id": "X1",
+      "label": "importar en A con B abierta: el itinerario restaurado sigue intacto",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "X2",
+      "label": "conflicto tras recuperar: ambos intereses sobreviven",
+      "ok": true,
+      "extra": "JP-021,JP-044"
+    },
+    {
+      "id": "X2",
+      "label": "la pestaña B también sale de la protección tras la recuperación",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "X3",
+      "label": "recarga con almacenamiento protegido: el aviso persiste y el original está intacto",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 76 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 96 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=7"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 79 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=4"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 99 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=1"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 76 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    }
+  ],
+  "diagnostics": [],
+  "evidence": {
+    "h01": {
+      "imported": {
+        "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Viajera del respaldo\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-203\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "draft": "{\"version\":8,\"routeIds\":[\"JP-203\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-203\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel del respaldo\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+      },
+      "after": {
+        "travellers": {
+          "version": 1,
+          "travellers": [
+            {
+              "id": "p1",
+              "label": "Viajera del respaldo"
+            },
+            {
+              "id": "p2",
+              "label": "Jun"
+            }
+          ],
+          "activeTravellerId": "p1",
+          "interests": [
+            {
+              "placeId": "JP-203",
+              "stances": [
+                {
+                  "travellerId": "p1",
+                  "stance": "interested"
+                }
+              ],
+              "carriedOver": false
+            },
+            {
+              "placeId": "JP-021",
+              "stances": [
+                {
+                  "travellerId": "p1",
+                  "stance": "interested"
+                }
+              ],
+              "carriedOver": false
+            }
+          ],
+          "_w": [
+            "fhdlsna11"
+          ]
+        },
+        "draft": {
+          "version": 8,
+          "routeIds": [
+            "JP-203"
+          ],
+          "days": [
+            {
+              "id": "d1",
+              "placeIds": [
+                "JP-203"
+              ],
+              "accommodationBoundary": {
+                "start": {
+                  "kind": "unselected"
+                },
+                "end": {
+                  "kind": "unselected"
+                }
+              }
+            }
+          ],
+          "startDate": "2027-02-22",
+          "endDate": "2027-02-25",
+          "visitStartTimes": {},
+          "accommodations": [
+            {
+              "id": "a1",
+              "label": "Hotel del respaldo",
+              "location": {
+                "lat": 35.68,
+                "lng": 139.76
+              }
+            }
+          ],
+          "accommodationLegs": [],
+          "interHubSegments": [],
+          "zoneAccommodationChoices": []
+        }
+      }
+    },
+    "h02": {
+      "stored": {
+        "version": 1,
+        "travellers": [
+          {
+            "id": "trv-ff48044b-cb5a-4b35-887e-43b091a918fa",
+            "label": "Persona 1"
+          },
+          {
+            "id": "trv-d7b60645-3114-4d82-b12a-e85afaa73626",
+            "label": "Persona 2"
+          }
+        ],
+        "activeTravellerId": "trv-ff48044b-cb5a-4b35-887e-43b091a918fa",
+        "interests": [
+          {
+            "placeId": "JP-021",
+            "stances": [
+              {
+                "travellerId": "trv-ff48044b-cb5a-4b35-887e-43b091a918fa",
+                "stance": "interested"
+              }
+            ],
+            "carriedOver": false
+          },
+          {
+            "placeId": "JP-044",
+            "stances": [
+              {
+                "travellerId": "trv-ff48044b-cb5a-4b35-887e-43b091a918fa",
+                "stance": "interested"
+              }
+            ],
+            "carriedOver": false
+          }
+        ],
+        "_w": [
+          "qkw5s9ro1",
+          "kyi8u12d2",
+          "98b9ggk71"
+        ]
+      },
+      "itinerary": {
+        "version": 8,
+        "routeIds": [
+          "JP-044"
+        ],
+        "days": [
+          {
+            "id": "d1",
+            "placeIds": [
+              "JP-044"
+            ],
+            "accommodationBoundary": {
+              "start": {
+                "kind": "unselected"
+              },
+              "end": {
+                "kind": "unselected"
+              }
+            }
+          },
+          {
+            "id": "day-c8571433-5199-4705-9878-c1ea2fe6aed6",
+            "placeIds": [],
+            "accommodationBoundary": {
+              "start": {
+                "kind": "unselected"
+              },
+              "end": {
+                "kind": "unselected"
+              }
+            }
+          },
+          {
+            "id": "day-baff1da6-39eb-4ec4-b71f-6043033f7c03",
+            "placeIds": [],
+            "accommodationBoundary": {
+              "start": {
+                "kind": "unselected"
+              },
+              "end": {
+                "kind": "unselected"
+              }
+            }
+          }
+        ],
+        "startDate": "2027-02-22",
+        "endDate": "2027-02-25",
+        "visitStartTimes": {},
+        "accommodations": [
+          {
+            "id": "a1",
+            "label": "Hotel conservado",
+            "location": {
+              "lat": 35.68,
+              "lng": 139.76
+            }
+          }
+        ],
+        "accommodationLegs": [],
+        "interHubSegments": [],
+        "zoneAccommodationChoices": [],
+        "_w": [
+          "a4386lhz1",
+          "qxw4nfmy1"
+        ]
+      }
+    },
+    "h04-borrador-invalido": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel conservado\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":\"damaged\",\"zoneAccommodationChoices\":[]}"
+    },
+    "h04-viajeros-invalidos": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"missing-traveller\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel conservado\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    },
+    "h04-borrador-futuro": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel conservado\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    },
+    "h04-borrador-no-json": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{not json"
+    },
+    "h04-viajeros-futuros": {
+      "travellers": "{\"version\":2,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel conservado\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    },
+    "h03Snapshots": [
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-22c9b138-026d-4d80-85fd-5301be9cb491\",\"label\":\"Persona 1\"},{\"id\":\"trv-0763f3cc-460d-425b-81fb-f2c5670cb19c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-22c9b138-026d-4d80-85fd-5301be9cb491\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-22c9b138-026d-4d80-85fd-5301be9cb491\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"vxw9nwbj1\",\"x6qzk6dp2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-22c9b138-026d-4d80-85fd-5301be9cb491\",\"label\":\"Persona 1\"},{\"id\":\"trv-0763f3cc-460d-425b-81fb-f2c5670cb19c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-22c9b138-026d-4d80-85fd-5301be9cb491\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-22c9b138-026d-4d80-85fd-5301be9cb491\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"vxw9nwbj1\",\"x6qzk6dp2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d47c07be-9401-419a-bea1-4ea0e3b8ff8e\",\"label\":\"Persona 1\"},{\"id\":\"trv-cc20a477-f98c-40ee-8881-8771664ac590\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d47c07be-9401-419a-bea1-4ea0e3b8ff8e\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d47c07be-9401-419a-bea1-4ea0e3b8ff8e\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1l3bx85x1\",\"yk1y465a2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d47c07be-9401-419a-bea1-4ea0e3b8ff8e\",\"label\":\"Persona 1\"},{\"id\":\"trv-cc20a477-f98c-40ee-8881-8771664ac590\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d47c07be-9401-419a-bea1-4ea0e3b8ff8e\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d47c07be-9401-419a-bea1-4ea0e3b8ff8e\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1l3bx85x1\",\"yk1y465a2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-cd4c7ab2-190b-461d-8cd8-2456025112cc\",\"label\":\"Persona 1\"},{\"id\":\"trv-f9275215-3b95-4f86-835a-8e66f587f94e\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-cd4c7ab2-190b-461d-8cd8-2456025112cc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-cd4c7ab2-190b-461d-8cd8-2456025112cc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"iav3x3dy1\",\"yebcebvi2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-cd4c7ab2-190b-461d-8cd8-2456025112cc\",\"label\":\"Persona 1\"},{\"id\":\"trv-f9275215-3b95-4f86-835a-8e66f587f94e\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-cd4c7ab2-190b-461d-8cd8-2456025112cc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-cd4c7ab2-190b-461d-8cd8-2456025112cc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"iav3x3dy1\",\"yebcebvi2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-00b6830d-3617-4a14-ae7f-fbd6d59e89cb\",\"label\":\"Persona 1\"},{\"id\":\"trv-05619a7c-904c-45a8-a747-6839a8b1f6e0\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-00b6830d-3617-4a14-ae7f-fbd6d59e89cb\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-00b6830d-3617-4a14-ae7f-fbd6d59e89cb\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"icppsnz51\",\"l8ve7e5o2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-00b6830d-3617-4a14-ae7f-fbd6d59e89cb\",\"label\":\"Persona 1\"},{\"id\":\"trv-05619a7c-904c-45a8-a747-6839a8b1f6e0\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-00b6830d-3617-4a14-ae7f-fbd6d59e89cb\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-00b6830d-3617-4a14-ae7f-fbd6d59e89cb\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"icppsnz51\",\"l8ve7e5o2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-503]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-869098e6-f6c1-4bb9-8ea2-dcd1a08ac452\",\"label\":\"Persona 1\"},{\"id\":\"trv-1323fbb2-2876-4b24-b822-ce815b4c37f8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-869098e6-f6c1-4bb9-8ea2-dcd1a08ac452\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-869098e6-f6c1-4bb9-8ea2-dcd1a08ac452\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"f4b46gjv1\",\"dsxwk5wy2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-869098e6-f6c1-4bb9-8ea2-dcd1a08ac452\",\"label\":\"Persona 1\"},{\"id\":\"trv-1323fbb2-2876-4b24-b822-ce815b4c37f8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-869098e6-f6c1-4bb9-8ea2-dcd1a08ac452\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-869098e6-f6c1-4bb9-8ea2-dcd1a08ac452\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"f4b46gjv1\",\"dsxwk5wy2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-609be4a4-4943-4ec3-a8be-353659682f5b\",\"label\":\"Persona 1\"},{\"id\":\"trv-19f0fd2b-e9a6-4e62-bb1b-76062ed76cd4\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-609be4a4-4943-4ec3-a8be-353659682f5b\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-609be4a4-4943-4ec3-a8be-353659682f5b\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"mes67swn1\",\"eyl3tx6o2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-609be4a4-4943-4ec3-a8be-353659682f5b\",\"label\":\"Persona 1\"},{\"id\":\"trv-19f0fd2b-e9a6-4e62-bb1b-76062ed76cd4\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-609be4a4-4943-4ec3-a8be-353659682f5b\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-609be4a4-4943-4ec3-a8be-353659682f5b\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"mes67swn1\",\"eyl3tx6o2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9f7cab30-ded9-4c01-ad7f-8ab510fcfba3\",\"label\":\"Persona 1\"},{\"id\":\"trv-eb8e0ca0-8ce3-47fa-940d-79942c1d2efd\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9f7cab30-ded9-4c01-ad7f-8ab510fcfba3\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9f7cab30-ded9-4c01-ad7f-8ab510fcfba3\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"2kozyz5u1\",\"xp4du0eh2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9f7cab30-ded9-4c01-ad7f-8ab510fcfba3\",\"label\":\"Persona 1\"},{\"id\":\"trv-eb8e0ca0-8ce3-47fa-940d-79942c1d2efd\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9f7cab30-ded9-4c01-ad7f-8ab510fcfba3\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9f7cab30-ded9-4c01-ad7f-8ab510fcfba3\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"2kozyz5u1\",\"xp4du0eh2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-66b2b8b5-e469-4432-9d1e-4ca0e25f3100\",\"label\":\"Persona 1\"},{\"id\":\"trv-62d655e3-1da7-493e-87e5-b8dc39dae5ea\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-66b2b8b5-e469-4432-9d1e-4ca0e25f3100\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-66b2b8b5-e469-4432-9d1e-4ca0e25f3100\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"uf9jsf0t1\",\"lxo4702g2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-66b2b8b5-e469-4432-9d1e-4ca0e25f3100\",\"label\":\"Persona 1\"},{\"id\":\"trv-62d655e3-1da7-493e-87e5-b8dc39dae5ea\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-66b2b8b5-e469-4432-9d1e-4ca0e25f3100\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-66b2b8b5-e469-4432-9d1e-4ca0e25f3100\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"uf9jsf0t1\",\"lxo4702g2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-4164b494-d43c-436d-81b0-65031e0e1a8b\",\"label\":\"Persona 1\"},{\"id\":\"trv-f07f13d7-ef23-44d8-8ba2-e53301e53146\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-4164b494-d43c-436d-81b0-65031e0e1a8b\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-4164b494-d43c-436d-81b0-65031e0e1a8b\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"4f5tgvaf1\",\"1d4k2uva2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-4164b494-d43c-436d-81b0-65031e0e1a8b\",\"label\":\"Persona 1\"},{\"id\":\"trv-f07f13d7-ef23-44d8-8ba2-e53301e53146\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-4164b494-d43c-436d-81b0-65031e0e1a8b\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-4164b494-d43c-436d-81b0-65031e0e1a8b\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"4f5tgvaf1\",\"1d4k2uva2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      }
+    ]
+  }
+}

@@ -443,7 +443,7 @@ describe("usePlanningDraft.ts / planning-draft-v5.ts — Phase 3D-U delegates to
   it("moveDay never calls withDays and never rebuilds a day matrix by hand", async () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     const moveDayStart = hook.indexOf("const moveDay = useCallback");
-    const moveDayEnd = hook.indexOf("}, []);", moveDayStart) + "}, []);".length;
+    const moveDayEnd = hook.indexOf("}, [setDraft]);", moveDayStart) + "}, [setDraft]);".length;
     const moveDayBody = hook.slice(moveDayStart, moveDayEnd);
     expect(moveDayBody).toContain("withDayMoved(current, dayId, direction)");
     expect(moveDayBody).not.toContain("withDays(");
@@ -475,14 +475,15 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
   it("Phase 3D-U: moveDay delegates to withDayMoved through the same canonical setDraft, with no parallel day-order state", async () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     expect(hook).toMatch(
-      /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\(current\) => withDayMoved\(current, dayId, direction\)\);\s*\}, \[\]\);/
+      /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\s*\(current\) => withDayMoved\(current, dayId, direction\),\s*guard\(\(doc\) => Boolean\(doc\.days\?\.some\(\(day\) => day\.id === dayId\)\), STALE_DAY_MESSAGE\)\s*\);\s*\}, \[setDraft, guard\]\);/
     );
     // No second day-order vector/state anywhere in the hook. Scanned against the hook's CODE:
     // the doc comments legitimately use words like "reordered" to describe what the mutations do
     // and do not do, and prose about the invariant is not a violation of it.
     const hookCode = hook.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
     expect(hookCode).not.toMatch(/dayOrder/i);
-    expect(hookCode).not.toMatch(/useState[^)]*[Oo]rder/);
+    // Sólo las LLAMADAS a `useState` (el import ya no está libre de él: el aviso de rechazo por identidad es su único uso).
+    expect(hookCode).not.toMatch(/useState\s*[<(][^)]*[Oo]rder/);
   });
 
   it("projects the ordinal matrix through the pure projection, not by hand", async () => {
@@ -494,8 +495,8 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     expect(hook).toMatch(/function randomDayId\(\): string \{/);
     expect(hook).toMatch(/crypto\.randomUUID\(\)/);
-    expect(hook).toMatch(/withNewEmptyDay\(current, randomDayId\)/);
-    expect(hook).toMatch(/withInitialDays\(current, days, randomDayId\)/);
+    expect(hook).toMatch(/withNewEmptyDay\(current, \(\) => id\)/);
+    expect(hook).toMatch(/withInitialDays\(current, days, \(\) => ids\[index\+\+\] \?\? randomDayId\(\)\)/);
     const body = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("function randomInterHubSegmentId"));
     // "Date.now" is pinned here too (corrective pass, Finding 1): a day id must never encode
     // creation time, on the `randomUUID` path OR on any fallback.

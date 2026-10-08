@@ -44,6 +44,7 @@ export function PersonToken({
     return (
       <span
         className={`person-token person-token--both person-token--${size} ${className}`.trim()}
+        role="img"
         aria-label="Los dos queréis ir"
         title="Los dos queréis ir"
       >

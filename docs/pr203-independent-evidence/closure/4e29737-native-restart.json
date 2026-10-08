@@ -1,0 +1,1276 @@
+[
+  {
+    "load": 0,
+    "sha": "4e29737b38dd7d9ae3791f318618bc207a10d4af",
+    "productCodeLoaded": false,
+    "nativeStorageMocked": false,
+    "loadWorkers": 0,
+    "purpose": "Explicit NetworkProcess restart: demonstrate ephemeral storage lifetime versus an existing disk-backed original",
+    "results": [
+      {
+        "profileKind": "ephemeral",
+        "iteration": 1,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": null,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": null,
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 8565,
+          "ppid": 8553,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 8606,
+            "ppid": 8553,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": null,
+        "diskBefore": null,
+        "diskAfterRestart": null,
+        "diskAfterClose": null,
+        "reopened": null,
+        "persistedBefore": null,
+        "persistedAfterRestart": null,
+        "persistedAfterClose": null,
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "ephemeral",
+        "iteration": 2,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": null,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": null,
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 8651,
+          "ppid": 8553,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 8695,
+            "ppid": 8553,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": null,
+        "diskBefore": null,
+        "diskAfterRestart": null,
+        "diskAfterClose": null,
+        "reopened": null,
+        "persistedBefore": null,
+        "persistedAfterRestart": null,
+        "persistedAfterClose": null,
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "ephemeral",
+        "iteration": 3,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": null,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": null,
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 8739,
+          "ppid": 8553,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 8781,
+            "ppid": 8553,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": null,
+        "diskBefore": null,
+        "diskAfterRestart": null,
+        "diskAfterClose": null,
+        "reopened": null,
+        "persistedBefore": null,
+        "persistedAfterRestart": null,
+        "persistedAfterClose": null,
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "persistent",
+        "iteration": 1,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": 25000,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 8941,
+          "ppid": 8930,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 9030,
+            "ppid": 8930,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "diskBefore": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-1/before-kill",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+              "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterRestart": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-1/after-restart-before-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterClose": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-1/after-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "reopened": {
+          "raw": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "before": [],
+          "after": [
+            {
+              "pid": 9099,
+              "ppid": 9088
+            }
+          ],
+          "initScripts": false,
+          "reseeded": false
+        },
+        "persistedBefore": [
+          {
+            "database": "storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterRestart": [
+          {
+            "database": "storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterClose": [
+          {
+            "database": "storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "persistent",
+        "iteration": 2,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": 25000,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 9290,
+          "ppid": 9279,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 9378,
+            "ppid": 9279,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "diskBefore": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-2/before-kill",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+              "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterRestart": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-2/after-restart-before-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterClose": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-2/after-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "reopened": {
+          "raw": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "before": [],
+          "after": [
+            {
+              "pid": 9450,
+              "ppid": 9439
+            }
+          ],
+          "initScripts": false,
+          "reseeded": false
+        },
+        "persistedBefore": [
+          {
+            "database": "storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterRestart": [
+          {
+            "database": "storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterClose": [
+          {
+            "database": "storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "persistent",
+        "iteration": 3,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": 25000,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 9642,
+          "ppid": 9630,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 9736,
+            "ppid": 9630,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "diskBefore": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-3/before-kill",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+              "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterRestart": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-3/after-restart-before-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterClose": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-3/after-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "reopened": {
+          "raw": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "before": [],
+          "after": [
+            {
+              "pid": 9804,
+              "ppid": 9793
+            }
+          ],
+          "initScripts": false,
+          "reseeded": false
+        },
+        "persistedBefore": [
+          {
+            "database": "storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterRestart": [
+          {
+            "database": "storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterClose": [
+          {
+            "database": "storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "diskQueryable": true,
+        "ok": true
+      }
+    ]
+  },
+  {
+    "load": 1,
+    "sha": "4e29737b38dd7d9ae3791f318618bc207a10d4af",
+    "productCodeLoaded": false,
+    "nativeStorageMocked": false,
+    "loadWorkers": 2,
+    "purpose": "Explicit NetworkProcess restart: demonstrate ephemeral storage lifetime versus an existing disk-backed original",
+    "results": [
+      {
+        "profileKind": "ephemeral",
+        "iteration": 1,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": null,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": null,
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 8686,
+          "ppid": 8672,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 8728,
+            "ppid": 8672,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": null,
+        "diskBefore": null,
+        "diskAfterRestart": null,
+        "diskAfterClose": null,
+        "reopened": null,
+        "persistedBefore": null,
+        "persistedAfterRestart": null,
+        "persistedAfterClose": null,
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "ephemeral",
+        "iteration": 2,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": null,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": null,
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 8773,
+          "ppid": 8672,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 8817,
+            "ppid": 8672,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": null,
+        "diskBefore": null,
+        "diskAfterRestart": null,
+        "diskAfterClose": null,
+        "reopened": null,
+        "persistedBefore": null,
+        "persistedAfterRestart": null,
+        "persistedAfterClose": null,
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "ephemeral",
+        "iteration": 3,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": null,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": null,
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 8861,
+          "ppid": 8672,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 8907,
+            "ppid": 8672,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": null,
+        "diskBefore": null,
+        "diskAfterRestart": null,
+        "diskAfterClose": null,
+        "reopened": null,
+        "persistedBefore": null,
+        "persistedAfterRestart": null,
+        "persistedAfterClose": null,
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "persistent",
+        "iteration": 1,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": 25000,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 9077,
+          "ppid": 9066,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 9173,
+            "ppid": 9066,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "diskBefore": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-1/before-kill",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+              "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterRestart": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-1/after-restart-before-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterClose": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-1/after-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "reopened": {
+          "raw": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "before": [],
+          "after": [
+            {
+              "pid": 9240,
+              "ppid": 9229
+            }
+          ],
+          "initScripts": false,
+          "reseeded": false
+        },
+        "persistedBefore": [
+          {
+            "database": "storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterRestart": [
+          {
+            "database": "storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterClose": [
+          {
+            "database": "storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "persistent",
+        "iteration": 2,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": 25000,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 9431,
+          "ppid": 9420,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 9523,
+            "ppid": 9420,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "diskBefore": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-2/before-kill",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+              "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterRestart": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-2/after-restart-before-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterClose": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-2/after-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "reopened": {
+          "raw": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "before": [],
+          "after": [
+            {
+              "pid": 9592,
+              "ppid": 9581
+            }
+          ],
+          "initScripts": false,
+          "reseeded": false
+        },
+        "persistedBefore": [
+          {
+            "database": "storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterRestart": [
+          {
+            "database": "storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterClose": [
+          {
+            "database": "storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "diskQueryable": true,
+        "ok": true
+      },
+      {
+        "profileKind": "persistent",
+        "iteration": 3,
+        "recentWrite": true,
+        "checkpoint": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[]}",
+        "minimumWriteAgeMs": 25000,
+        "before": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}"
+        },
+        "after": {
+          "local": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "session": null
+        },
+        "initialNavigationError": "Error: page.reload: WebKit encountered an internal error\nCall log:\n  - waiting for navigation until \"load\"\n",
+        "killed": {
+          "pid": 9785,
+          "ppid": 9774,
+          "executable": "WPENetworkProcess"
+        },
+        "current": [
+          {
+            "pid": 9872,
+            "ppid": 9774,
+            "executable": "WPENetworkProcess"
+          }
+        ],
+        "restarted": true,
+        "expectedLocal": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "diskBefore": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-3/before-kill",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+              "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterRestart": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-3/after-restart-before-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "diskAfterClose": {
+          "directory": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-restart/persistent-3/after-close",
+          "databases": [
+            {
+              "path": "HSTS/hsts-storage.sqlite",
+              "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+              "records": [],
+              "schema": [
+                [
+                  "soup_hsts_policies",
+                  "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+                ]
+              ]
+            },
+            {
+              "path": "storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+              "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+              "records": [
+                {
+                  "key": "nihon.travellers.v1",
+                  "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+                  "keyHex": null,
+                  "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+                }
+              ],
+              "schema": [
+                [
+                  "ItemTable",
+                  "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+                ]
+              ]
+            }
+          ],
+          "errors": []
+        },
+        "reopened": {
+          "raw": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+          "before": [],
+          "after": [
+            {
+              "pid": 9940,
+              "ppid": 9929
+            }
+          ],
+          "initScripts": false,
+          "reseeded": false
+        },
+        "persistedBefore": [
+          {
+            "database": "storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterRestart": [
+          {
+            "database": "storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "persistedAfterClose": [
+          {
+            "database": "storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"synthetic-p1\",\"label\":\"Synthetic\"}],\"activeTravellerId\":\"synthetic-p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"synthetic-p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+            "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a002200730079006e007400680065007400690063002d007000310022002c0022006c006100620065006c0022003a002200530079006e0074006800650074006900630022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a002200730079006e007400680065007400690063002d007000310022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d007d00"
+          }
+        ],
+        "diskQueryable": true,
+        "ok": true
+      }
+    ]
+  }
+]

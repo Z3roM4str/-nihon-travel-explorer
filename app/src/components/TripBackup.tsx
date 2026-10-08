@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { BackupProblem, RestoreSummary } from "../lib/portable-backup";
-import type { ImportPreview, ImportState } from "../usePortableBackup";
+import type { ExportOutcome, ImportPreview, ImportState, ProtectedDocument } from "../usePortableBackup";
+import { getPersistenceState, subscribePersistence } from "../lib/device-storage";
 
 import "./TripBackup.css";
 /**
@@ -24,14 +25,20 @@ import "./TripBackup.css";
  */
 export function TripBackup({
   importState,
+  protectedDocuments,
   onExport,
+  onDownloadOriginals,
+  onRetryPersistence,
   onChooseFile,
   onConfirm,
   onReset,
   onFinishRestore,
 }: {
   importState: ImportState;
-  onExport: () => string;
+  protectedDocuments: readonly ProtectedDocument[];
+  onExport: () => Promise<ExportOutcome>;
+  onDownloadOriginals: () => { ok: boolean };
+  onRetryPersistence: () => unknown;
   onChooseFile: (file: File) => void;
   onConfirm: (preview: ImportPreview) => void;
   onReset: () => void;
@@ -43,7 +50,11 @@ export function TripBackup({
   const problemRef = useRef<HTMLDivElement>(null);
   const restoredRef = useRef<HTMLDivElement>(null);
   const previousPhase = useRef<ImportState["phase"]>("idle");
-  const [exported, setExported] = useState<string | null>(null);
+  const [exported, setExported] = useState<ExportOutcome | null>(null);
+  const [originalsResult, setOriginalsResult] = useState<"ok" | "failed" | null>(null);
+  // Ronda 2: con datos protegidos o con una escritura fallida pendiente, el respaldo normal no representaría el viaje.
+  const persistenceState = useSyncExternalStore(subscribePersistence, getPersistenceState, getPersistenceState);
+  const exportBlocked = protectedDocuments.length > 0 ? "protected" : persistenceState === "error" ? "unsaved" : null;
 
   /**
    * B26 — foco. Al llegar a cada fase el foco va al bloque que hay que leer o decidir (la
@@ -67,7 +78,7 @@ export function TripBackup({
       ref={rootRef}
       onKeyDown={(event) => {
         // Escape retrocede un paso pendiente, nunca lo confirma. Tras restaurar no hay retroceso:
-        // ver `usePortableBackup.finishRestore` (la app DEBE recargar antes de tocar nada más).
+        // ver `usePortableBackup.finishRestore` (ya no es obligatoria: los hooks releen al restaurar).
         if (event.key !== "Escape") return;
         if (importState.phase === "preview" || importState.phase === "rejected" || importState.phase === "failed") {
           event.stopPropagation();
@@ -87,16 +98,65 @@ export function TripBackup({
             Guarda vuestras decisiones de Nihon en un archivo que podéis conservar o abrir en otro
             dispositivo. No se envía a ningún sitio: el archivo queda en vuestro dispositivo.
           </p>
-          <button
-            type="button"
-            className="button button--secondary trip-backup__export"
-            onClick={() => setExported(onExport())}
-          >
-            Exportar respaldo
-          </button>
-          {exported && (
+          {exportBlocked === "protected" ? (
+            <div className="trip-backup__problem" data-export-blocked="protected">
+              <p>
+                <strong>No se puede exportar un respaldo normal ahora.</strong> Hay datos guardados que Nihon no
+                puede leer (están dañados o son de una versión más reciente). Lo que la aplicación muestra es un
+                estado inicial vacío, no vuestro viaje; un respaldo hecho con él lo sustituiría por nada.
+              </p>
+              <p>
+                Vuestros datos originales siguen intactos. Descarga una copia de lo conservado y guárdala: es lo
+                que permite recuperarlos.
+              </p>
+              <button
+                type="button"
+                className="button button--secondary trip-backup__export"
+                onClick={() => setOriginalsResult(onDownloadOriginals().ok ? "ok" : "failed")}
+              >
+                Descargar copia de lo conservado
+              </button>
+              {originalsResult === "ok" && (
+                <p className="trip-backup__result" role="status">Copia de lo conservado descargada.</p>
+              )}
+              {originalsResult === "failed" && (
+                <p className="trip-backup__result" role="alert">
+                  El navegador no ha podido entregar la copia. Tus datos siguen intactos; vuelve a intentarlo.
+                </p>
+              )}
+            </div>
+          ) : exportBlocked === "unsaved" ? (
+            <div className="trip-backup__problem" data-export-blocked="unsaved">
+              <p>
+                <strong>No se puede exportar un respaldo ahora.</strong> Hay cambios sin guardar o pendientes de
+                comprobar, así que el respaldo podría no incluirlos y parecería completo sin serlo. Las copias
+                pendientes y los datos almacenados se conservan por separado.
+              </p>
+              <button type="button" className="button button--secondary" onClick={() => onRetryPersistence()}>
+                Volver a intentarlo
+              </button>
+              <button type="button" className="button button--secondary" onClick={() => setOriginalsResult(onDownloadOriginals().ok ? "ok" : "failed")}>
+                Descargar copia de lo conservado
+              </button>
+              {originalsResult === "failed" && <p role="alert">El navegador no ha podido entregar la copia. Tus datos siguen intactos.</p>}
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="button button--secondary trip-backup__export"
+              onClick={() => { void onExport().then(setExported); }}
+            >
+              Exportar respaldo
+            </button>
+          )}
+          {exported && exported.ok && !exportBlocked && (
             <p className="trip-backup__result" role="status">
-              Archivo generado: <strong>{exported}</strong>
+              Archivo generado: <strong>{exported.fileName}</strong>
+            </p>
+          )}
+          {exported && !exported.ok && exported.reason === "download-failed" && !exportBlocked && (
+            <p className="trip-backup__result" role="alert">
+              El navegador no ha podido entregar el archivo. No se ha cambiado nada; vuelve a intentarlo.
             </p>
           )}
         </section>

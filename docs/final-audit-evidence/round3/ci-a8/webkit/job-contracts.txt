@@ -1,0 +1,10 @@
+2026-10-07T04:00:47.6850648Z HEAD is now at a8a97ba test: retain strict H03 assertions and trace native data across reloads
+2026-10-07T04:00:51.6872094Z ##[group]Run echo "SHA certificado: $(git rev-parse HEAD)"
+2026-10-07T04:00:51.6873072Z [36;1mecho "SHA certificado: $(git rev-parse HEAD)"[0m
+2026-10-07T04:01:24.7086485Z Downloading WebKit 26.5 (playwright webkit v2336) from https://cdn.playwright.dev/dbazure/download/playwright/builds/webkit/2336/webkit-ubuntu-24.04.zip
+2026-10-07T04:01:29.0994732Z WebKit 26.5 (playwright webkit v2336) downloaded to /home/runner/.cache/ms-playwright/webkit-2336
+2026-10-07T04:01:53.8850773Z [2m Test Files [22m [1m[32m121 passed[39m[22m[90m (121)[39m
+2026-10-07T04:01:53.8880078Z [2m      Tests [22m [1m[32m3455 passed[39m[22m[90m (3455)[39m
+2026-10-07T04:03:39.7738055Z WebKit 26.5
+2026-10-07T04:06:02.4633259Z B27 Viaje · Días gate: PASS (A–K; 8 viewports; WebKit 26.5).
+2026-10-07T04:07:41.1528804Z B29 Day Tools gate: PASS (169 checks; WebKit 26.5; 8 viewports).

@@ -1,0 +1,852 @@
+{
+  "browser": "chromium",
+  "results": [
+    {
+      "id": "H05",
+      "label": "@320: Reservas tiene texto que medir (203 nodos, 36 de procedencia/fecha)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H05",
+      "label": "@320: todo el texto de Reservas alcanza su contraste mínimo",
+      "ok": true,
+      "extra": "mín 4.61"
+    },
+    {
+      "id": "H05",
+      "label": "@320: el Resumen (mismos tokens) tampoco baja de su mínimo",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H05",
+      "label": "@390: Reservas tiene texto que medir (203 nodos, 36 de procedencia/fecha)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H05",
+      "label": "@390: todo el texto de Reservas alcanza su contraste mínimo",
+      "ok": true,
+      "extra": "mín 4.61"
+    },
+    {
+      "id": "H05",
+      "label": "@390: el Resumen (mismos tokens) tampoco baja de su mínimo",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H05",
+      "label": "@430: Reservas tiene texto que medir (203 nodos, 36 de procedencia/fecha)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H05",
+      "label": "@430: todo el texto de Reservas alcanza su contraste mínimo",
+      "ok": true,
+      "extra": "mín 4.61"
+    },
+    {
+      "id": "H05",
+      "label": "@430: el Resumen (mismos tokens) tampoco baja de su mínimo",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H05",
+      "label": "@768: Reservas tiene texto que medir (203 nodos, 36 de procedencia/fecha)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H05",
+      "label": "@768: todo el texto de Reservas alcanza su contraste mínimo",
+      "ok": true,
+      "extra": "mín 4.61"
+    },
+    {
+      "id": "H05",
+      "label": "@768: el Resumen (mismos tokens) tampoco baja de su mínimo",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H05",
+      "label": "@1440: Reservas tiene texto que medir (203 nodos, 36 de procedencia/fecha)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H05",
+      "label": "@1440: todo el texto de Reservas alcanza su contraste mínimo",
+      "ok": true,
+      "extra": "mín 4.61"
+    },
+    {
+      "id": "H05",
+      "label": "@1440: el Resumen (mismos tokens) tampoco baja de su mínimo",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H06",
+      "label": "hay marcadores de sólo glifo que comprobar",
+      "ok": true,
+      "extra": "17"
+    },
+    {
+      "id": "H06",
+      "label": "ningún elemento genérico lleva aria-label sin rol (patrón de aria-prohibited-attr)",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H06",
+      "label": "cada marcador de sólo glifo es role=img con un nombre no vacío",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H06",
+      "label": "el nombre conserva la procedencia (nivel · detalle)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H06",
+      "label": "el glifo es el único contenido (sin aria-hidden anidado ni texto anunciable aparte)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H06",
+      "label": "la variante con texto visible no añade rol ni aria-label (sin anuncio doble)",
+      "ok": true,
+      "extra": "22 marcadores con texto"
+    },
+    {
+      "id": "H06",
+      "label": "el nombre procede de UN solo atributo (title y aria-label a la vez duplican la descripción)",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H06",
+      "label": "árbol AX (Chromium): rol img con nombre de procedencia",
+      "ok": true,
+      "extra": "image «Registrado»"
+    },
+    {
+      "id": "H06",
+      "label": "árbol AX (Chromium): el nombre no se repite como descripción",
+      "ok": true,
+      "extra": "descripción «»"
+    },
+    {
+      "id": "H07",
+      "label": "@320: hay campos de formulario en Herramientas que medir",
+      "ok": true,
+      "extra": "6"
+    },
+    {
+      "id": "H07",
+      "label": "@320: selectores y entradas miden ≥44px de alto",
+      "ok": true,
+      "extra": "mín 44.0px"
+    },
+    {
+      "id": "H07",
+      "label": "@320: ningún control se solapa con otro",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@320: ningún control queda recortado ni hay overflow horizontal de la página",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@320: los campos aceptan foco con anillo visible y quedan dentro de la vista",
+      "ok": true,
+      "extra": "6/6"
+    },
+    {
+      "id": "H07",
+      "label": "@390: hay campos de formulario en Herramientas que medir",
+      "ok": true,
+      "extra": "6"
+    },
+    {
+      "id": "H07",
+      "label": "@390: selectores y entradas miden ≥44px de alto",
+      "ok": true,
+      "extra": "mín 44.0px"
+    },
+    {
+      "id": "H07",
+      "label": "@390: ningún control se solapa con otro",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@390: ningún control queda recortado ni hay overflow horizontal de la página",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@390: los campos aceptan foco con anillo visible y quedan dentro de la vista",
+      "ok": true,
+      "extra": "6/6"
+    },
+    {
+      "id": "H07",
+      "label": "@430: hay campos de formulario en Herramientas que medir",
+      "ok": true,
+      "extra": "6"
+    },
+    {
+      "id": "H07",
+      "label": "@430: selectores y entradas miden ≥44px de alto",
+      "ok": true,
+      "extra": "mín 44.0px"
+    },
+    {
+      "id": "H07",
+      "label": "@430: ningún control se solapa con otro",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@430: ningún control queda recortado ni hay overflow horizontal de la página",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@430: los campos aceptan foco con anillo visible y quedan dentro de la vista",
+      "ok": true,
+      "extra": "6/6"
+    },
+    {
+      "id": "H07",
+      "label": "@768: hay campos de formulario en Herramientas que medir",
+      "ok": true,
+      "extra": "6"
+    },
+    {
+      "id": "H07",
+      "label": "@768: selectores y entradas miden ≥44px de alto",
+      "ok": true,
+      "extra": "mín 44.0px"
+    },
+    {
+      "id": "H07",
+      "label": "@768: ningún control se solapa con otro",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@768: ningún control queda recortado ni hay overflow horizontal de la página",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@768: los campos aceptan foco con anillo visible y quedan dentro de la vista",
+      "ok": true,
+      "extra": "6/6"
+    },
+    {
+      "id": "H07",
+      "label": "@1440: hay campos de formulario en Herramientas que medir",
+      "ok": true,
+      "extra": "6"
+    },
+    {
+      "id": "H07",
+      "label": "@1440: selectores y entradas miden ≥44px de alto",
+      "ok": true,
+      "extra": "mín 44.0px"
+    },
+    {
+      "id": "H07",
+      "label": "@1440: ningún control se solapa con otro",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@1440: ningún control queda recortado ni hay overflow horizontal de la página",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "id": "H07",
+      "label": "@1440: los campos aceptan foco con anillo visible y quedan dentro de la vista",
+      "ok": true,
+      "extra": "6/6"
+    }
+  ],
+  "evidence": {
+    "h05": [
+      {
+        "width": 320,
+        "nodes": 203,
+        "bad": []
+      },
+      {
+        "width": 390,
+        "nodes": 203,
+        "bad": []
+      },
+      {
+        "width": 430,
+        "nodes": 203,
+        "bad": []
+      },
+      {
+        "width": 768,
+        "nodes": 203,
+        "bad": []
+      },
+      {
+        "width": 1440,
+        "nodes": 203,
+        "bad": []
+      }
+    ],
+    "h06": [
+      {
+        "name": "ciudad",
+        "labelledGeneric": [],
+        "glyphOnly": [],
+        "withText": []
+      },
+      {
+        "name": "ficha",
+        "labelledGeneric": [],
+        "glyphOnly": [
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado · CALENDARIO / CONDICIÓN PENDIENTE",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Registrado",
+            "hiddenChildren": 0,
+            "text": "◧"
+          }
+        ],
+        "withText": [
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          }
+        ]
+      },
+      {
+        "name": "guardados",
+        "labelledGeneric": [],
+        "glyphOnly": [
+          {
+            "role": "img",
+            "label": null,
+            "title": "Estimado · sólo tiempo dentro de cada lugar, sin traslados",
+            "hiddenChildren": 0,
+            "text": "◇"
+          }
+        ],
+        "withText": []
+      },
+      {
+        "name": "orden",
+        "labelledGeneric": [],
+        "glyphOnly": [
+          {
+            "role": "img",
+            "label": null,
+            "title": "Nihon dice",
+            "hiddenChildren": 0,
+            "text": "✎"
+          }
+        ],
+        "withText": []
+      },
+      {
+        "name": "resumen",
+        "labelledGeneric": [],
+        "glyphOnly": [
+          {
+            "role": "img",
+            "label": null,
+            "title": "Estimado",
+            "hiddenChildren": 0,
+            "text": "◇"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Estimado",
+            "hiddenChildren": 0,
+            "text": "◇"
+          },
+          {
+            "role": "img",
+            "label": null,
+            "title": "Estimado",
+            "hiddenChildren": 0,
+            "text": "◇"
+          }
+        ],
+        "withText": [
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          }
+        ]
+      },
+      {
+        "name": "reservas",
+        "labelledGeneric": [],
+        "glyphOnly": [],
+        "withText": [
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          },
+          {
+            "role": null,
+            "label": null,
+            "hasText": true
+          }
+        ]
+      },
+      {
+        "ax": {
+          "role": "image",
+          "name": "Registrado",
+          "description": "",
+          "childCount": 1
+        }
+      }
+    ],
+    "h07": [
+      {
+        "width": 320,
+        "fields": [
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona dos puntos consecutivos de hu",
+            "w": 288,
+            "h": 44
+          },
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona modoShinkansenLimited Express",
+            "w": 288,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "",
+            "name": "",
+            "w": 288,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 140,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 140,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 288,
+            "h": 44
+          }
+        ],
+        "overlaps": []
+      },
+      {
+        "width": 390,
+        "fields": [
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona dos puntos consecutivos de hu",
+            "w": 175,
+            "h": 44
+          },
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona modoShinkansenLimited Express",
+            "w": 175,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "",
+            "name": "",
+            "w": 203.5,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 175,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 175,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 182.2,
+            "h": 44
+          }
+        ],
+        "overlaps": []
+      },
+      {
+        "width": 430,
+        "fields": [
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona dos puntos consecutivos de hu",
+            "w": 195,
+            "h": 44
+          },
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona modoShinkansenLimited Express",
+            "w": 195,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "",
+            "name": "",
+            "w": 243.5,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 195,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 195,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 222.2,
+            "h": 44
+          }
+        ],
+        "overlaps": []
+      },
+      {
+        "width": 768,
+        "fields": [
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona dos puntos consecutivos de hu",
+            "w": 188.5,
+            "h": 44
+          },
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona modoShinkansenLimited Express",
+            "w": 188.5,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "",
+            "name": "",
+            "w": 188.5,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 181.4,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 181.4,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 181.4,
+            "h": 44
+          }
+        ],
+        "overlaps": []
+      },
+      {
+        "width": 1440,
+        "fields": [
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona dos puntos consecutivos de hu",
+            "w": 188.5,
+            "h": 44
+          },
+          {
+            "tag": "select",
+            "cls": "",
+            "name": "Selecciona modoShinkansenLimited Express",
+            "w": 188.5,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "",
+            "name": "",
+            "w": 188.5,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 181.4,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 181.4,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "cls": "accommodation-manager__input",
+            "name": "",
+            "w": 181.4,
+            "h": 44
+          }
+        ],
+        "overlaps": []
+      }
+    ]
+  }
+}

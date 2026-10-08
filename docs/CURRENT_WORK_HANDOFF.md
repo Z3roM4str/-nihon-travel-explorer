@@ -1,5 +1,12 @@
 # Handoff reanudable — P-06 v2 INTEGRADO en main; pendientes del proyecto clasificados
 
+## Correcciones de la auditoría final independiente (2026-10-06, PR sin fusionar)
+
+Rama `claude/final-audit-data-recovery-fixes-l60xs9` sobre `52503a9` (árbol `app/` idéntico a `32787a1`). Corrige H01–H07 de la auditoría
+y deja la investigación del gate de rendimiento: [FINAL_AUDIT_FIXES.md](FINAL_AUDIT_FIXES.md),
+[FINAL_AUDIT_PERFORMANCE_INVESTIGATION.md](FINAL_AUDIT_PERFORMANCE_INVESTIGATION.md), evidencia en `final-audit-evidence/`.
+**Nada de esto está publicado**: freeze de Vercel intacto, sin autorización de publicación; la producción sigue en `dpl_Fu2dABdW5xohuo6cV9kMkyeh6whV` (`32787a1`).
+
 ## CIERRE FINAL PARA REVISIÓN (2026-10-06) — baseline de esta entrega
 
 - **SHA integrado en `main`:** `32787a1661665f53bba5dfcf73d630709a698ad2` (merge commit de [#199](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/199); cierra [#197](https://github.com/Z3roM4str/-nihon-travel-explorer/issues/197)). Línea definitiva: **Claude**; Astra queda fuera.

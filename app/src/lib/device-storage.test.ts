@@ -1,10 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   deviceStorage,
   getPersistenceState,
   resetPersistenceForTests,
   retryPersistence,
   subscribePersistence,
+  registerPersistenceRetry,
+  getPersistenceProblems,
 } from "./device-storage";
 
 /**
@@ -38,12 +40,14 @@ let behaviour: Behaviour;
 let data: Map<string, string>;
 
 beforeEach(() => {
+  vi.stubGlobal("navigator", undefined);
   resetPersistenceForTests();
   behaviour = { fail: false };
   data = installStorage(behaviour);
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   delete (globalThis as { localStorage?: unknown }).localStorage;
 });
 
@@ -81,13 +85,13 @@ describe("DDR-03 — estado de persistencia", () => {
     expect(getPersistenceState()).toBe("error");
   });
 
-  it("leer nunca enciende el aviso: no había nada que perder", () => {
+  it("una lectura fallida se lanza para que el propietario la clasifique como protegida", () => {
     (globalThis as { localStorage?: unknown }).localStorage = {
       getItem: () => {
         throw new DOMException("blocked", "SecurityError");
       },
     };
-    expect(deviceStorage.getItem("nihon.travellers.v1")).toBeNull();
+    expect(() => deviceStorage.getItem("nihon.travellers.v1")).toThrow("blocked");
     expect(getPersistenceState()).toBe("ok");
   });
 
@@ -113,79 +117,73 @@ describe("DDR-03 — estado de persistencia", () => {
   });
 });
 
-describe("DDR-03 — «Reintentar» escribe de verdad", () => {
-  it("si vuelve a fallar, el estado de error PERMANECE", () => {
+describe("DDR-03 — reintento seguro", () => {
+  it("una preferencia que vuelve a fallar sigue pendiente", async () => {
     behaviour.fail = true;
-    try {
-      deviceStorage.setItem("nihon.travellers.v1", '{"a":1}');
-    } catch {
-      /* esperado */
-    }
-    expect(retryPersistence()).toBe("error");
-    expect(getPersistenceState()).toBe("error");
+    expect(() => deviceStorage.setItem("nihon.zoneComparison.v1", "preference")).toThrow();
+    expect(await retryPersistence()).toBe("error");
+    expect(data.has("nihon.zoneComparison.v1")).toBe(false);
   });
-
-  it("si tiene éxito, vuelve el estado normal Y persiste la carga exacta que había fallado", () => {
+  it("reintenta la preferencia exacta sólo si su preimagen no cambió", async () => {
+    const key = "nihon.zoneComparison.v1";
     behaviour.fail = true;
-    const payload = '{"travellers":[{"id":"trv-1"}]}';
-    try {
-      deviceStorage.setItem("nihon.travellers.v1", payload);
-    } catch {
-      /* esperado */
-    }
-    expect(getPersistenceState()).toBe("error");
-
+    expect(() => deviceStorage.setItem(key, "preference")).toThrow();
     behaviour.fail = false;
-    expect(retryPersistence()).toBe("ok");
-    expect(getPersistenceState()).toBe("ok");
-    // Lo que se escribe son los datos de la persona, tal cual se intentaron guardar.
-    expect(data.get("nihon.travellers.v1")).toBe(payload);
+    expect(await retryPersistence()).toBe("ok");
+    expect(data.get(key)).toBe("preference");
   });
-
-  it("reintenta TODAS las claves pendientes, no sólo la última", () => {
+  it("conserva una preferencia externa sin sobrescribirla", async () => {
+    const key = "nihon.zoneComparison.v1";
     behaviour.fail = true;
-    for (const [key, value] of [
-      ["nihon.travellers.v1", '{"t":1}'],
-      ["nihon.manualPlanningDraft", '{"d":1}'],
-    ] as const) {
-      try {
-        deviceStorage.setItem(key, value);
-      } catch {
-        /* esperado */
-      }
-    }
+    expect(() => deviceStorage.setItem(key, "local")).toThrow();
     behaviour.fail = false;
-    expect(retryPersistence()).toBe("ok");
-    expect(data.get("nihon.travellers.v1")).toBe('{"t":1}');
-    expect(data.get("nihon.manualPlanningDraft")).toBe('{"d":1}');
+    data.set(key, "external");
+    expect(await retryPersistence()).toBe("error");
+    expect(data.get(key)).toBe("external");
+    expect(getPersistenceProblems()[0].message).toContain("otra pestaña");
   });
-
-  it("nunca descarta ni reinicia datos: sólo reescribe lo que no se pudo guardar", () => {
-    deviceStorage.setItem("nihon.manualPlanningDraft", '{"ya":"estaba"}');
+  it("sin propietario no escribe un payload canónico viejo ni una versión futura", async () => {
+    const key = "nihon.travellers.v1";
     behaviour.fail = true;
-    try {
-      deviceStorage.setItem("nihon.travellers.v1", '{"nuevo":1}');
-    } catch {
-      /* esperado */
-    }
+    expect(() => deviceStorage.setItem(key, "old snapshot")).toThrow();
     behaviour.fail = false;
-    retryPersistence();
-    // Lo que ya estaba en disco sigue ahí, sin tocar.
-    expect(data.get("nihon.manualPlanningDraft")).toBe('{"ya":"estaba"}');
-    expect(data.get("nihon.travellers.v1")).toBe('{"nuevo":1}');
+    data.set(key, '{"version":2}');
+    expect(await retryPersistence()).toBe("error");
+    expect(data.get(key)).toBe('{"version":2}');
+    expect(getPersistenceProblems()[0].message).toContain("originales");
   });
-
+  it("delega TODAS las claves canónicas a los propietarios, no a sus payloads fallidos", async () => {
+    const keys = ["nihon.travellers.v1", "nihon.manualPlanningDraft"];
+    behaviour.fail = true;
+    for (const key of keys) expect(() => deviceStorage.setItem(key, "old")).toThrow();
+    behaviour.fail = false;
+    for (const key of keys) registerPersistenceRetry(key, async () => { deviceStorage.setItem(key, "reconciled " + key); });
+    expect(await retryPersistence()).toBe("ok");
+    for (const key of keys) expect(data.get(key)).toBe("reconciled " + key);
+  });
+  it("un propietario fallido mantiene el aviso y nunca dispara una escritura directa", async () => {
+    const key = "nihon.manualPlanningDraft";
+    data.set(key, "original"); behaviour.fail = true;
+    expect(() => deviceStorage.setItem(key, "old")).toThrow(); behaviour.fail = false;
+    registerPersistenceRetry(key, async () => { throw new Error("lock failed"); });
+    expect(await retryPersistence()).toBe("error");
+    expect(data.get(key)).toBe("original");
+  });
+  it("el rollback cancela sólo las pendientes de la importación y conserva las previas", async () => {
+    const key = "nihon.travellers.v1", draft = "nihon.manualPlanningDraft";
+    behaviour.fail = true;
+    expect(() => deviceStorage.setItem(key, "prior local")).toThrow();
+    const finish = deviceStorage.beginPendingScope([key, draft]);
+    expect(() => deviceStorage.setItem(draft, "failed import")).toThrow();
+    finish("rollback"); behaviour.fail = false;
+    registerPersistenceRetry(key, async () => deviceStorage.setItem(key, "prior reconciled"));
+    expect(await retryPersistence()).toBe("ok");
+    expect(data.get(key)).toBe("prior reconciled"); expect(data.has(draft)).toBe(false);
+  });
   it("una escritura posterior con éxito sobre la misma clave también recupera el estado", () => {
     behaviour.fail = true;
-    try {
-      deviceStorage.setItem("nihon.travellers.v1", '{"viejo":1}');
-    } catch {
-      /* esperado */
-    }
-    expect(getPersistenceState()).toBe("error");
-    behaviour.fail = false;
-    // Ese estado ya llegó al disco por la vía normal: no queda nada pendiente que recuperar.
-    deviceStorage.setItem("nihon.travellers.v1", '{"nuevo":1}');
+    expect(() => deviceStorage.setItem("nihon.travellers.v1", "old")).toThrow();
+    behaviour.fail = false; deviceStorage.setItem("nihon.travellers.v1", "new");
     expect(getPersistenceState()).toBe("ok");
   });
 });
@@ -203,7 +201,7 @@ describe("DDR-03 — una sola fuente de verdad", () => {
     for (const writer of writers) {
       const code = await readFile(new URL(writer, import.meta.url), "utf8");
       const withoutComments = code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-      expect(withoutComments, writer).toContain("deviceStorage");
+      expect(withoutComments, writer).toContain(writer.endsWith("useZonePlanChoice.ts") ? "usePlanningDraft(savedIds)" : "deviceStorage");
       expect(withoutComments, writer).not.toMatch(/localStorage\.(setItem|removeItem)/);
     }
   });

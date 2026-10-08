@@ -10,6 +10,8 @@
 .trip-reservations details { margin-block: var(--space-3); }
 .trip-summary summary, .trip-reservations summary { cursor: pointer; }
 .trip-reservations__date { background: var(--surface-sunken); padding: var(--space-2); }
+/* Auditoría final (H05): `--ink-500` sobre `--surface-sunken` = 4,28:1; `--ink-700` es el token existente más oscuro. */
+.trip-reservations__date .evidence-mark { color: var(--ink-700); }
 .trip-summary .whole-trip-composition { display: grid; gap: var(--space-4); }
 .trip-summary .whole-trip-composition__group { margin: 0; }
 .trip-timeline { min-width: 0; margin-block: var(--space-6); }

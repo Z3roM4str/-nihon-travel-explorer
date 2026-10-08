@@ -1,0 +1,18 @@
+OK   [E1] con un documento inválido NO se ofrece «Exportar respaldo» (no se exporta el estado vacío como el viaje)
+OK   [E1] se explica por qué y que los originales siguen intactos
+OK   [E1] la copia ofrecida contiene lo ORIGINAL: el borrador dañado byte a byte y los viajeros íntegros (nihon.travellers.v1,nihon.manualPlanningDraft)
+OK   [E1] el original dañado y los viajeros no se tocaron
+OK   [E1] sólo se produjo la descarga de la copia (ningún respaldo normal) (1)
+OK   [E2] tras recargar sigue bloqueado y sin botón de respaldo normal
+OK   [E2] tras recargar y mutar, el original dañado sigue sin tocarse
+OK   [E2] la clave de recuperación previa no se borró
+OK   [E2] sigue sin descargarse ningún respaldo normal (0)
+OK   [E3] con datos válidos el respaldo normal se genera y contiene el viaje (nihon-backup-2026-10-07.json)
+OK   [E3] la interfaz confirma el archivo
+OK   [E4] si el navegador no entrega el archivo se dice (alerta) y no se afirma «Archivo generado»
+OK   [E4] no hubo descarga
+OK   [E5] con la escritura fallando no se ofrece exportar: lo último no está guardado
+OK   [E5] no se descargó nada
+OK   [E5] restablecida la escritura y reintentado, el respaldo incluye lo último (JP-021) (JP-044,JP-021)
+
+16/16 comprobaciones OK (chromium)

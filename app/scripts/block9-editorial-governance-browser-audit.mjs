@@ -163,7 +163,7 @@ async function auditViewport(browser, name, url) {
   const summary = axes.locator("summary");
   check(
     "the disclosure summary is itself tagged criterio (now: marca ✎ «Nihon dice»)",
-    (await summary.locator(".evidence-mark").getAttribute("aria-label").catch(() => null)) === "Nihon dice",
+    (await summary.locator(".evidence-mark").getAttribute("title").catch(() => null)) === "Nihon dice",
     (await summary.innerText()).trim()
   );
   const summaryBox = await summary.boundingBox();

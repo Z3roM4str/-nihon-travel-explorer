@@ -1,0 +1,788 @@
+{
+  "browser": "chromium",
+  "viewport": "móvil 390×844@2",
+  "runs": 5,
+  "budget": 3500000,
+  "results": [
+    {
+      "hub": "Tokio",
+      "runs": [
+        {
+          "hub": "Tokio",
+          "gate": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 1
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "shibuya-scramble-crossing-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1673,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Tokio",
+          "gate": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "shibuya-scramble-crossing-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1673,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Tokio",
+          "gate": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "shibuya-scramble-crossing-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1673,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Tokio",
+          "gate": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "shibuya-scramble-crossing-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1673,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Tokio",
+          "gate": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499770,
+            "images": 55,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "shibuya-scramble-crossing-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1673,
+            "loadedCount": 5
+          }
+        }
+      ]
+    },
+    {
+      "hub": "Kioto",
+      "runs": [
+        {
+          "hub": "Kioto",
+          "gate": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kiyomizu-dera-stage-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 2020,
+            "loadedCount": 6
+          }
+        },
+        {
+          "hub": "Kioto",
+          "gate": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kiyomizu-dera-stage-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 2020,
+            "loadedCount": 6
+          }
+        },
+        {
+          "hub": "Kioto",
+          "gate": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kiyomizu-dera-stage-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 2020,
+            "loadedCount": 6
+          }
+        },
+        {
+          "hub": "Kioto",
+          "gate": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kiyomizu-dera-stage-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 2020,
+            "loadedCount": 6
+          }
+        },
+        {
+          "hub": "Kioto",
+          "gate": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3499450,
+            "images": 47,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kiyomizu-dera-stage-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 2020,
+            "loadedCount": 6
+          }
+        }
+      ]
+    },
+    {
+      "hub": "Osaka",
+      "runs": [
+        {
+          "hub": "Osaka",
+          "gate": {
+            "bytes": 3630174,
+            "images": 54,
+            "overBudget": true
+          },
+          "byRequestStart": {
+            "bytes": 3630174,
+            "images": 54,
+            "overBudget": true
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 11,
+            "eager": [
+              "dotonbori-night-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 4
+          }
+        },
+        {
+          "hub": "Osaka",
+          "gate": {
+            "bytes": 3630174,
+            "images": 54,
+            "overBudget": true
+          },
+          "byRequestStart": {
+            "bytes": 3630174,
+            "images": 54,
+            "overBudget": true
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 11,
+            "eager": [
+              "dotonbori-night-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 4
+          }
+        },
+        {
+          "hub": "Osaka",
+          "gate": {
+            "bytes": 3356478,
+            "images": 50,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3356478,
+            "images": 50,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 11,
+            "eager": [
+              "dotonbori-night-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 4
+          }
+        },
+        {
+          "hub": "Osaka",
+          "gate": {
+            "bytes": 3356478,
+            "images": 50,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3356478,
+            "images": 50,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 11,
+            "eager": [
+              "dotonbori-night-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 4
+          }
+        },
+        {
+          "hub": "Osaka",
+          "gate": {
+            "bytes": 3356478,
+            "images": 50,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3356478,
+            "images": 50,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 11,
+            "eager": [
+              "dotonbori-night-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 4
+          }
+        }
+      ]
+    },
+    {
+      "hub": "Okinawa",
+      "runs": [
+        {
+          "hub": "Okinawa",
+          "gate": {
+            "bytes": 2903352,
+            "images": 45,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 2903352,
+            "images": 45,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kokusai-dori-naha-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Okinawa",
+          "gate": {
+            "bytes": 3177048,
+            "images": 49,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3177048,
+            "images": 49,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kokusai-dori-naha-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Okinawa",
+          "gate": {
+            "bytes": 2903352,
+            "images": 45,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 2903352,
+            "images": 45,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kokusai-dori-naha-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Okinawa",
+          "gate": {
+            "bytes": 3177048,
+            "images": 49,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 3177048,
+            "images": 49,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kokusai-dori-naha-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 5
+          }
+        },
+        {
+          "hub": "Okinawa",
+          "gate": {
+            "bytes": 2903352,
+            "images": 45,
+            "overBudget": false
+          },
+          "byRequestStart": {
+            "bytes": 2903352,
+            "images": 45,
+            "overBudget": false
+          },
+          "leakedFromBeforeClick": {
+            "bytes": 0,
+            "images": 0,
+            "files": []
+          },
+          "startedAfterClickButNotInGate": {
+            "bytes": 0,
+            "images": 0
+          },
+          "home": {
+            "bytesAtClear": 694198,
+            "imagesAtClear": 11,
+            "clearToClickMs": 0
+          },
+          "duplicates": 0,
+          "lazy": {
+            "vh": 844,
+            "total": 12,
+            "eager": [
+              "kokusai-dori-naha-800w.webp"
+            ],
+            "far": [],
+            "farthestLoaded": 1652,
+            "loadedCount": 5
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 //   reservas · herramientas del viaje · recarga. Sólo interacciones reales de la UI (tap/clic/teclado/arrastre).
 // Uso: node scripts/p06-v2-journeys-check.mjs [--viewport=phone|desktop]   (NIHON_BROWSER=webkit para WebKit)
 import { launch, newPage, tripFixture, makeChecker, byHub, closeDaysOverlays } from "./lib/modern-trip.mjs";
+import { readSettledPlanningDraft } from "./lib/settled-planning-draft.mjs";
 
 const { check, summary } = makeChecker("P-06 v2 recorridos");
 const only = (process.argv.find((a) => a.startsWith("--viewport=")) ?? "").split("=")[1];
@@ -24,7 +25,8 @@ try {
     await page.getByRole("button", { name: "Viaje", exact: true }).click();
     const root = page.locator(".destination-panel:not([hidden])");
     await root.locator(".day-card[data-day-id]").first().waitFor();
-    const draft = () => page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft")));
+    // Las escrituras del documento son diferidas (Web Lock): se espera a que el almacenamiento se asiente antes de leerlo.
+    const draft = () => readSettledPlanningDraft(page);
     const act = (loc) => (touch ? loc.tap() : loc.click());
     const noOverflow = async (tag) => check(`${tag}: sin desbordamiento horizontal`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     const sheet = page.locator(".sheet");

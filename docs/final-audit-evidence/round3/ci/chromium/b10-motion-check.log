@@ -1,0 +1,20 @@
+OK   [S01] @keyframes: sólo sheet-rise, mark, skeleton y los DDR registrados
+OK   [S02] animation: cada uso es un movimiento clasificado; sólo el skeleton es infinito
+OK   [S03] transition: sólo press, los DDR registrados y ninguna sobre :hover de tarjetas
+OK   [S04] tarjetas de Explorar sin transición de hover (corregido en B10.1)
+OK   [S05] valores de press y mark según 03 §6
+OK   [S06] regla global prefers-reduced-motion: animaciones y transiciones ≤ 100 ms, scroll-behavior auto
+OK   [S07] JS: todo movimiento programático respeta reduced-motion (mapa, galería)
+OK   [S08] transiciones funcionales (B10-M1…M6): nombre, valores y disparador exactos de docs/B10_MOTION_SPEC.md
+# navegador: chromium 151.0.7922.34
+OK   [B-normal-sheet] normal: la hoja de Filtros usa sheet-rise (320 ms)
+OK   [B-normal-mark] normal: marcar «Quiero ir» dispara sólo mark (220 ms) y un toast clasificado
+OK   [B-normal-loop] normal: ninguna animación infinita viva fuera del skeleton
+OK   [B-normal-gallery] normal: la galería navega
+OK   [B-reduced-sheet] reduced: la hoja de Filtros usa sheet-rise (≤ 100 ms)
+OK   [B-reduced-mark] reduced: marcar «Quiero ir» dispara sólo mark (≤ 100 ms) y un toast clasificado
+OK   [B-reduced-loop] reduced: ninguna animación infinita viva fuera del skeleton
+OK   [B-reduced-gallery] reduced: la galería salta sin animar (scroll instantáneo)
+OK   [B-onboarding] onboarding: fundido clasificado (B10-M2); con reduced-motion sin animación
+
+17 OK · 0 FAIL

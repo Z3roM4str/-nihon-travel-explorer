@@ -162,8 +162,8 @@ async function auditViewport(browser, viewport) {
   const marks = await detail.locator(".quick-fact .evidence-mark, .detail-row .evidence-mark").count();
   const values = await detail.locator(".quick-fact__value, .detail-row__value").count();
   check("05 §5 pt.10: cada valor práctico lleva su EvidenceMark", marks >= values && values > 0, `${marks}/${values}`);
-  const markLabel = await detail.locator(".detail-row .evidence-mark").first().getAttribute("aria-label");
-  check("04 §2: el marcador sólo-glifo conserva su texto en `aria-label`", markLabel === "Registrado", markLabel);
+  const markLabel = await detail.locator(".detail-row .evidence-mark").first().getAttribute("title");
+  check("04 §2: el marcador sólo-glifo conserva su texto en `title` (H06: un span genérico no admite aria-label)", markLabel === "Registrado", markLabel);
   const upper = await detail.evaluate((root) =>
     [...root.querySelectorAll(".place-detail__section h3, .detail-row dt, .quick-fact__label")].filter(
       (node) => getComputedStyle(node).textTransform === "uppercase"

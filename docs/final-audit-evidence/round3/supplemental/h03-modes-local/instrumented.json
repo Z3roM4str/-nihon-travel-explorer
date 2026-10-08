@@ -1,0 +1,2156 @@
+{
+  "browser": "chromium",
+  "results": [
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 76 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 96 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 79 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 99 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=1"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 76 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    }
+  ],
+  "diagnostics": [],
+  "evidence": {
+    "h03Snapshots": [
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "ZoneComparison @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "ZoneComparison @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-503]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "ZoneComparison @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      },
+      {
+        "tag": "ZoneComparison @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}",
+        "survives": true,
+        "nativeTrace": true
+      }
+    ],
+    "h03Native": [
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347617022,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347617480,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347617874,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347617874,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347617875,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347617875,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[],\"_w\":[\"t8nnir791\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618123,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[],\"_w\":[\"t8nnir791\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618323,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[],\"_w\":[\"t8nnir791\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618324,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[],\"_w\":[\"t8nnir791\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618324,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[],\"_w\":[\"t8nnir791\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347618324,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618331,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618353,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618645,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347618896,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347619146,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347619387,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347619397,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347619555,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347619771,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347619948,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620331,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620617,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620618,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620619,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620631,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620631,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620631,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620650,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620883,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347620908,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"label\":\"Persona 1\"},{\"id\":\"trv-494be0ba-bd8f-4eb9-8d12-9c3d72799de7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-2f8f8b82-40bb-4af8-baba-defd9dd354fc\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"t8nnir791\",\"cb4yqrol2\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347621838,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347622405,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347622850,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347622850,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347622851,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347622851,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[],\"_w\":[\"5wu7ufr11\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623219,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[],\"_w\":[\"5wu7ufr11\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623436,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[],\"_w\":[\"5wu7ufr11\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623437,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[],\"_w\":[\"5wu7ufr11\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623437,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[],\"_w\":[\"5wu7ufr11\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347623437,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623442,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623525,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623748,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347623999,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347624250,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347624509,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347624510,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347624705,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347624961,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625214,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625453,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625736,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625737,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625738,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625765,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625766,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625766,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347625777,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347626017,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347626029,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"label\":\"Persona 1\"},{\"id\":\"trv-3667fde1-8386-42ea-ac09-c791040fe8ec\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-e191cea8-a330-4355-8f5f-0f2af41c2a1c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"5wu7ufr11\",\"uwwtgcdj2\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "ZoneComparison @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347626929,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347627291,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347627720,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347627720,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347627721,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347627721,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[],\"_w\":[\"rmm7goc61\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347627872,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[],\"_w\":[\"rmm7goc61\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628003,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[],\"_w\":[\"rmm7goc61\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628004,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[],\"_w\":[\"rmm7goc61\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628004,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[],\"_w\":[\"rmm7goc61\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347628004,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628018,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628051,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628177,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628241,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628241,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628242,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628254,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628254,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628254,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628255,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628505,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628506,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628756,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628757,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347628994,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629008,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629008,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629071,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629071,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629218,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629404,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629504,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629845,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629892,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629892,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629900,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347629900,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347630210,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347630213,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347630436,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347630703,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"label\":\"Persona 1\"},{\"id\":\"trv-bad659c4-a182-4680-9eee-1c4938aae475\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9ed07a45-ceb8-46bb-af0b-f57716d30c97\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"rmm7goc61\",\"4xhv83s32\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "ZoneComparison @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347631607,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347632052,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347632543,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347632543,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347632543,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347632543,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[],\"_w\":[\"tss4th7w1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632704,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[],\"_w\":[\"tss4th7w1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632787,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[],\"_w\":[\"tss4th7w1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632787,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[],\"_w\":[\"tss4th7w1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632787,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[],\"_w\":[\"tss4th7w1\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347632787,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632795,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632798,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632800,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347632988,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633037,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633058,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633059,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633059,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633066,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633069,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633070,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633070,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633288,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633317,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633322,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633538,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633567,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633572,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633795,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633796,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633823,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633824,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633844,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633845,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347633952,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347634160,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347634282,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347634710,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347634872,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347634905,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347634925,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347634925,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347635171,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347635204,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347635343,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347635598,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0e22d7a8-19e6-469b-97b3-16a9f2268b08\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-90b2af7e-0cf0-43c0-89fa-696d2dd5c53f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"tss4th7w1\",\"42fltn7u2\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-503]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347636350,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347636741,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347637069,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347637070,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347637070,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347637070,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[],\"_w\":[\"m53juyjh1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637257,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[],\"_w\":[\"m53juyjh1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637355,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[],\"_w\":[\"m53juyjh1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637356,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[],\"_w\":[\"m53juyjh1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637356,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[],\"_w\":[\"m53juyjh1\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347637356,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637378,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637381,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637607,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347637857,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347638108,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347638222,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347638352,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347638509,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347638601,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639223,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639419,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639420,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639423,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639505,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639507,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639507,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639523,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639763,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347639780,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"label\":\"Persona 1\"},{\"id\":\"trv-0cf1c687-4399-4a2b-9051-4e8dc12c3d76\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-98302ea4-9a0e-42fa-ace3-39bb6e8ac63f\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"m53juyjh1\",\"ydxyhe1k2\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347640664,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347641111,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347641448,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347641448,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347641448,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347641448,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[],\"_w\":[\"p7r8h9y31\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641591,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[],\"_w\":[\"p7r8h9y31\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641681,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[],\"_w\":[\"p7r8h9y31\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641681,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[],\"_w\":[\"p7r8h9y31\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641681,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[],\"_w\":[\"p7r8h9y31\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347641681,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641686,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641706,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641711,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641931,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347641957,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347642182,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347642208,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347642432,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347642459,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347642621,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347642758,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347642868,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643128,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643315,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643603,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643604,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643604,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643716,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643717,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643717,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347643968,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347644163,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347644221,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347644420,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"label\":\"Persona 1\"},{\"id\":\"trv-8e3d2b3b-3227-47b0-9107-35460b5ff48c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-d9c92ad5-962f-4c2d-b0c8-13437fb48c1d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"p7r8h9y31\",\"koihkncu2\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347645264,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347645810,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347646339,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347646340,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347646340,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347646340,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[],\"_w\":[\"1247xj8u1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347646555,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[],\"_w\":[\"1247xj8u1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347646620,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[],\"_w\":[\"1247xj8u1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347646620,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[],\"_w\":[\"1247xj8u1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347646621,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[],\"_w\":[\"1247xj8u1\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347646621,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347646622,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347646623,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347646871,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347647122,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347647376,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347647544,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347647628,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347647855,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347647970,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347648314,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347648915,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649166,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649167,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649168,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649200,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649200,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649200,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649247,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649452,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347649503,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"label\":\"Persona 1\"},{\"id\":\"trv-f33f4556-b5fe-4ee5-82f8-7d8c11209831\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-28ce775c-4326-4acd-80f5-33a02126d820\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"1247xj8u1\",\"gpeyq83b2\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "ZoneComparison @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347650238,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347650482,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347650786,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347650786,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347650786,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347650786,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[],\"_w\":[\"e5jf7o4d1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347650917,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[],\"_w\":[\"e5jf7o4d1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651069,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[],\"_w\":[\"e5jf7o4d1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651069,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[],\"_w\":[\"e5jf7o4d1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651069,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[],\"_w\":[\"e5jf7o4d1\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347651069,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651142,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651152,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651320,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651429,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651473,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651473,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651474,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651510,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651510,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651511,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651570,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651762,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347651826,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652013,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652077,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652237,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652273,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652312,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652313,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652544,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347652860,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347653317,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347653570,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347653753,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347653754,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347653759,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347653760,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347654049,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347654049,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347654122,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347654377,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"label\":\"Persona 1\"},{\"id\":\"trv-1fcbd89d-4534-469e-8761-a65c5513b516\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-11ea37d6-0dfa-4f17-99f9-57a60dc62efe\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"e5jf7o4d1\",\"j8vbb3ng2\"]}"
+          }
+        ]
+      },
+      {
+        "tag": "ZoneComparison @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}",
+        "after250ms": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}",
+        "trace": [
+          {
+            "kind": "get",
+            "at": 1791347654944,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347655158,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347655549,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347655549,
+            "value": null
+          },
+          {
+            "kind": "get",
+            "at": 1791347655549,
+            "value": null
+          },
+          {
+            "kind": "set",
+            "at": 1791347655549,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[],\"_w\":[\"10og0ghj1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347655858,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[],\"_w\":[\"10og0ghj1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656223,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[],\"_w\":[\"10og0ghj1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656225,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[],\"_w\":[\"10og0ghj1\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656225,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[],\"_w\":[\"10og0ghj1\"]}"
+          },
+          {
+            "kind": "set",
+            "at": 1791347656225,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656227,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656259,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656548,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656552,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656650,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656651,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656654,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656664,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656664,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656664,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656800,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347656916,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657051,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657167,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657301,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657386,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657422,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657442,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657443,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657538,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657673,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347657946,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347658152,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347658222,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347658223,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347658231,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347658231,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347658522,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347658523,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347659026,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          },
+          {
+            "kind": "get",
+            "at": 1791347659279,
+            "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"label\":\"Persona 1\"},{\"id\":\"trv-c14c5045-3ec6-4440-97fd-ead4d492ebe8\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-b1f4900d-60e2-457c-9fa8-13cda6dbee4c\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"10og0ghj1\",\"tvzon38d2\"]}"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,427 @@
+{
+  "browser": "chromium",
+  "results": [
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 76 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=8"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 96 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=8"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 79 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=3"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 99 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [proxy-reset]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el servidor realmente falló al servir el módulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=1"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": "sirvió 76 peticiones tras el fallo"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-503]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: el fallo no deja la aplicación en blanco",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: aparece un mensaje de recuperación visible",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: la navegación sigue utilizable",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440 [inspector]: el interés guardado sobrevive a la recarga",
+      "ok": true,
+      "extra": null
+    }
+  ],
+  "diagnostics": [],
+  "evidence": {
+    "h03Snapshots": [
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-642e311e-035f-4a81-a024-f04e53534810\",\"label\":\"Persona 1\"},{\"id\":\"trv-4e083157-f8e8-4bfe-9b71-1dac4709e800\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-642e311e-035f-4a81-a024-f04e53534810\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-642e311e-035f-4a81-a024-f04e53534810\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"dxlysa7g1\",\"c38myf142\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-642e311e-035f-4a81-a024-f04e53534810\",\"label\":\"Persona 1\"},{\"id\":\"trv-4e083157-f8e8-4bfe-9b71-1dac4709e800\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-642e311e-035f-4a81-a024-f04e53534810\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-642e311e-035f-4a81-a024-f04e53534810\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"dxlysa7g1\",\"c38myf142\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-568dc94d-5c1e-45a1-96f0-2491f2c3e66d\",\"label\":\"Persona 1\"},{\"id\":\"trv-27b64ac8-c160-402c-b2f2-35f3d537ee96\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-568dc94d-5c1e-45a1-96f0-2491f2c3e66d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-568dc94d-5c1e-45a1-96f0-2491f2c3e66d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"bt2g834x1\",\"4s2ow1iv2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-568dc94d-5c1e-45a1-96f0-2491f2c3e66d\",\"label\":\"Persona 1\"},{\"id\":\"trv-27b64ac8-c160-402c-b2f2-35f3d537ee96\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-568dc94d-5c1e-45a1-96f0-2491f2c3e66d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-568dc94d-5c1e-45a1-96f0-2491f2c3e66d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"bt2g834x1\",\"4s2ow1iv2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @390 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-c05f1188-231a-4191-9c0a-0cfebe5f815e\",\"label\":\"Persona 1\"},{\"id\":\"trv-48965f00-1263-43f1-bc2c-ea14f028491d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-c05f1188-231a-4191-9c0a-0cfebe5f815e\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-c05f1188-231a-4191-9c0a-0cfebe5f815e\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"zpuo0noj1\",\"nq96lnj52\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-c05f1188-231a-4191-9c0a-0cfebe5f815e\",\"label\":\"Persona 1\"},{\"id\":\"trv-48965f00-1263-43f1-bc2c-ea14f028491d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-c05f1188-231a-4191-9c0a-0cfebe5f815e\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-c05f1188-231a-4191-9c0a-0cfebe5f815e\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"zpuo0noj1\",\"nq96lnj52\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @1440 [proxy-reset]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-138ec402-0668-4ca6-810b-21e9014db712\",\"label\":\"Persona 1\"},{\"id\":\"trv-94d2e49b-f817-4417-bd07-0e116b48da77\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-138ec402-0668-4ca6-810b-21e9014db712\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-138ec402-0668-4ca6-810b-21e9014db712\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"bl0l2x091\",\"ba9zb5p62\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-138ec402-0668-4ca6-810b-21e9014db712\",\"label\":\"Persona 1\"},{\"id\":\"trv-94d2e49b-f817-4417-bd07-0e116b48da77\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-138ec402-0668-4ca6-810b-21e9014db712\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-138ec402-0668-4ca6-810b-21e9014db712\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"bl0l2x091\",\"ba9zb5p62\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [proxy-503]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9d102baf-b9d9-447c-b03d-afcc94b19160\",\"label\":\"Persona 1\"},{\"id\":\"trv-b229dbb0-7dbb-40ae-a1a6-577282bf947b\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9d102baf-b9d9-447c-b03d-afcc94b19160\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9d102baf-b9d9-447c-b03d-afcc94b19160\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"ghf44dmp1\",\"vjiy3dbg2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-9d102baf-b9d9-447c-b03d-afcc94b19160\",\"label\":\"Persona 1\"},{\"id\":\"trv-b229dbb0-7dbb-40ae-a1a6-577282bf947b\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-9d102baf-b9d9-447c-b03d-afcc94b19160\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-9d102baf-b9d9-447c-b03d-afcc94b19160\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"ghf44dmp1\",\"vjiy3dbg2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-0d5304e9-5fa4-40ab-a44b-0f7b0c385c79\",\"label\":\"Persona 1\"},{\"id\":\"trv-dfc3a2bd-a7a8-450c-a9c3-2d2e48ac9ca6\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-0d5304e9-5fa4-40ab-a44b-0f7b0c385c79\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-0d5304e9-5fa4-40ab-a44b-0f7b0c385c79\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"yhhx92iz1\",\"mkgh0wjk2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-0d5304e9-5fa4-40ab-a44b-0f7b0c385c79\",\"label\":\"Persona 1\"},{\"id\":\"trv-dfc3a2bd-a7a8-450c-a9c3-2d2e48ac9ca6\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-0d5304e9-5fa4-40ab-a44b-0f7b0c385c79\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-0d5304e9-5fa4-40ab-a44b-0f7b0c385c79\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"yhhx92iz1\",\"mkgh0wjk2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "OrderedSequenceBuilder @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-02bc0e1e-0618-44df-a5ff-f378e8ebdc3a\",\"label\":\"Persona 1\"},{\"id\":\"trv-2afe0f7f-34b6-49b7-b95a-cc38ccec568d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-02bc0e1e-0618-44df-a5ff-f378e8ebdc3a\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-02bc0e1e-0618-44df-a5ff-f378e8ebdc3a\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"lk7ora1b1\",\"yfifiq282\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-02bc0e1e-0618-44df-a5ff-f378e8ebdc3a\",\"label\":\"Persona 1\"},{\"id\":\"trv-2afe0f7f-34b6-49b7-b95a-cc38ccec568d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-02bc0e1e-0618-44df-a5ff-f378e8ebdc3a\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-02bc0e1e-0618-44df-a5ff-f378e8ebdc3a\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"lk7ora1b1\",\"yfifiq282\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @390 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-c58f059e-3c17-4c75-8c13-dbee158429af\",\"label\":\"Persona 1\"},{\"id\":\"trv-a9b2b65c-97e6-4bf5-a076-989db6b410d4\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-c58f059e-3c17-4c75-8c13-dbee158429af\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-c58f059e-3c17-4c75-8c13-dbee158429af\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"glqrikwy1\",\"ukr7tj8h2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-c58f059e-3c17-4c75-8c13-dbee158429af\",\"label\":\"Persona 1\"},{\"id\":\"trv-a9b2b65c-97e6-4bf5-a076-989db6b410d4\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-c58f059e-3c17-4c75-8c13-dbee158429af\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-c58f059e-3c17-4c75-8c13-dbee158429af\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"glqrikwy1\",\"ukr7tj8h2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      },
+      {
+        "tag": "ZoneComparison @1440 [inspector]",
+        "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-6e0beac3-7a59-42b3-8daf-aa86fd6db7d3\",\"label\":\"Persona 1\"},{\"id\":\"trv-008adf29-b3e5-4a38-8a4d-1dd8e05e8b8f\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-6e0beac3-7a59-42b3-8daf-aa86fd6db7d3\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-6e0beac3-7a59-42b3-8daf-aa86fd6db7d3\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"s38odzi61\",\"mrljfb4k2\"]}",
+        "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-6e0beac3-7a59-42b3-8daf-aa86fd6db7d3\",\"label\":\"Persona 1\"},{\"id\":\"trv-008adf29-b3e5-4a38-8a4d-1dd8e05e8b8f\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-6e0beac3-7a59-42b3-8daf-aa86fd6db7d3\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-6e0beac3-7a59-42b3-8daf-aa86fd6db7d3\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"s38odzi61\",\"mrljfb4k2\"]}",
+        "survives": true,
+        "nativeTrace": false
+      }
+    ]
+  }
+}

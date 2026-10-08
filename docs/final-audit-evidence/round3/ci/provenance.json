@@ -1,0 +1,55 @@
+{
+  "certified_sha": "4117e72c605656d24dbe7b25995c00cb1a84ef24",
+  "app_tree": "6f6bbda6cc6fb903a662f5da29ca99ab767ca668",
+  "src_tree": "bf880b5a72ec9cf1c40c26725ab28688465e32bc",
+  "run": {
+    "id": 37566049602,
+    "status": "completed",
+    "conclusion": "success",
+    "attempt": 1,
+    "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37566049602"
+  },
+  "jobs": [
+    {
+      "id": 112613958686,
+      "name": "webkit",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37566049602/job/112613958686"
+    },
+    {
+      "id": 112613958853,
+      "name": "chromium",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37566049602/job/112613958853"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11459640399,
+      "name": "p06-webkit-4117e72c605656d24dbe7b25995c00cb1a84ef24",
+      "digest": "sha256:ba6a199f16327ed5a515fea277e3b9c56e2bfeca1a065c9e2a64dafb278fdf73",
+      "head_sha": "4117e72c605656d24dbe7b25995c00cb1a84ef24"
+    },
+    {
+      "id": 11459215101,
+      "name": "queue-probe-chromium-4117e72c605656d24dbe7b25995c00cb1a84ef24",
+      "digest": "sha256:d1ef649b24193f3aa2e355c3f66362c6ceb6753ba989b3c45b99a7e91fe698d7",
+      "head_sha": "4117e72c605656d24dbe7b25995c00cb1a84ef24"
+    },
+    {
+      "id": 11458743466,
+      "name": "queue-probe-webkit-4117e72c605656d24dbe7b25995c00cb1a84ef24",
+      "digest": "sha256:2c3932848b3bec44d9d42031000324fdb1ca181a638386822de3919a4ca06ec1",
+      "head_sha": "4117e72c605656d24dbe7b25995c00cb1a84ef24"
+    },
+    {
+      "id": 11458164928,
+      "name": "p06-chromium-4117e72c605656d24dbe7b25995c00cb1a84ef24",
+      "digest": "sha256:e3e32e5bfbb8782bae4762de7d2c420aa22590002679c53bfcd78a29255b5caa",
+      "head_sha": "4117e72c605656d24dbe7b25995c00cb1a84ef24"
+    }
+  ],
+  "scope": "Fresh synthetic browser contexts on localhost; no user profile or production data."
+}

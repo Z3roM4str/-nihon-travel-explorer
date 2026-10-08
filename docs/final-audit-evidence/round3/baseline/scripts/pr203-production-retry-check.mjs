@@ -1,0 +1,31 @@
+import { chromium } from 'playwright';
+import { preview } from 'vite';
+import { writeFileSync } from 'node:fs';
+const TK='nihon.travellers.v1';
+const seed={version:1,travellers:[{id:'p1',label:'Synthetic A'},{id:'p2',label:'Synthetic B'}],activeTravellerId:'p1',interests:[]};
+const server=await preview({preview:{host:'127.0.0.1',port:4302,strictPort:true},logLevel:'error'});
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium'});
+const ctx=await browser.newContext();
+await ctx.addInitScript(({TK,seed})=>{
+ if(!localStorage.getItem('__seedReview')){localStorage.setItem('__seedReview','1');localStorage.setItem('nihon.onboarding.seen.v1','1');localStorage.setItem(TK,JSON.stringify(seed));}
+ const real=Storage.prototype.setItem;
+ Storage.prototype.setItem=function(k,v){if(window.failReview&&k===TK)throw new DOMException('quota','QuotaExceededError');return real.call(this,k,v);};
+},{TK,seed});
+const a=await ctx.newPage();await a.goto('http://127.0.0.1:4302');
+await a.getByRole('button',{name:'Quiero ir: Tokyo National Museum',exact:true}).waitFor();
+await a.evaluate(()=>window.failReview=true);
+await a.getByRole('button',{name:'Quiero ir: Tokyo National Museum',exact:true}).click();
+await a.locator('.persistence-notice').waitFor();
+const b=await ctx.newPage();await b.route('**/blank-review',r=>r.fulfill({contentType:'text/html',body:'<html>Remote synthetic writer</html>'}));await b.goto('http://127.0.0.1:4302/blank-review');
+await a.bringToFront();
+const future=JSON.stringify({...seed,version:2,marker:'protected original'});
+await b.evaluate(({TK,future})=>localStorage.setItem(TK,future),{TK,future});
+await a.locator('[data-storage-protection]').waitFor();
+const detected=await a.locator('[data-storage-protection]').innerText();
+await a.evaluate(()=>window.failReview=false);
+await a.locator('.persistence-notice').getByRole('button',{name:'Reintentar',exact:true}).click();
+const actual=await a.evaluate(k=>localStorage.getItem(k),TK);
+const result={buildSha:'d26d86ba183fe9c23a06a21720e6a7450a637345',protectionVisibleBeforeRetry:true,detected,preserved:actual===future,actual};
+console.log(JSON.stringify(result,null,2));writeFileSync('/workspace/scratch/pr203-production-retry.json',JSON.stringify(result,null,2));
+await ctx.close();await browser.close();await server.close();
+if(!result.preserved)process.exitCode=1;

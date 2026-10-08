@@ -1,0 +1,151 @@
+pinned-StorageAreaMap.cpp
+80:
+81: String StorageAreaMap::item(const String& key)
+82: {
+83:     return ensureMap().getItem(key);
+84: }
+85:
+86: void StorageAreaMap::setItem(LocalFrame& sourceFrame, StorageAreaImpl* sourceArea, const String& key, const String& value, bool& quotaException)
+87: {
+88:     auto& map = ensureMap();
+89:     ASSERT(!map.isShared());
+90:
+91:     String oldValue;
+92:     quotaException = false;
+93:     map.setItem(key, value, oldValue, quotaException);
+94:     if (quotaException)
+95:         return;
+96:
+97:     if (oldValue == value)
+98:         return;
+99:
+100:     m_pendingValueChanges.add(key);
+101:
+102:     if (!m_remoteAreaIdentifier) {
+103:         RELEASE_LOG_ERROR(Storage, "StorageAreaMap::setItem failed because storage map ID is invalid");
+104:         return;
+105:     }
+106:
+107:     auto callback = [weakThis = WeakPtr { *this }, seed = m_currentSeed, key](bool hasError, auto&& allItems) mutable {
+108:         if (weakThis)
+109:             weakThis->didSetItem(seed, key, hasError, WTF::move(allItems));
+110:     };
+111:     Ref connection = WebProcess::singleton().ensureNetworkProcessConnection().connection();
+112:     connection->sendWithAsyncReply(Messages::NetworkStorageManager::SetItem(*m_remoteAreaIdentifier, sourceArea->identifier(), key, value, protect(sourceFrame.document())->url().string()), WTF::move(callback));
+113: }
+pinned-SQLiteStorageArea.cpp
+43: WTF_MAKE_TZONE_ALLOCATED_IMPL(SQLiteStorageArea);
+44:
+45: constexpr Seconds transactionDuration { 500_ms };
+46: constexpr unsigned maximumSizeForValuesKeptInMemory { 1 * KB };
+84:     assertIsCurrent(m_queue.get());
+85: }
+86:
+87: void SQLiteStorageArea::close()
+88: {
+89:     assertIsCurrent(m_queue.get());
+90:
+91:     m_cache = std::nullopt;
+92:     m_cacheSize = std::nullopt;
+93:     commitTransactionIfNecessary();
+94:     for (size_t i = 0; i < static_cast<size_t>(StatementType::Invalid); ++i)
+95:         m_cachedStatements[i] = nullptr;
+96:     m_database = nullptr;
+97: }
+98:
+99: SQLiteStorageArea::~SQLiteStorageArea()
+223:
+224: void SQLiteStorageArea::startTransactionIfNecessary()
+225: {
+226:     ASSERT(m_database);
+227:
+228:     if (!m_transaction || m_transaction->wasRolledBackBySqlite())
+229:         m_transaction = makeUnique<WebCore::SQLiteTransaction>(*protect(m_database));
+230:
+231:     if (m_transaction->inProgress())
+232:         return;
+233:     m_transaction->begin();
+234:
+235:     m_queue->dispatchAfter(transactionDuration, [weakThis = WeakPtr { *this }] {
+236:         if (RefPtr protectedThis = weakThis.get())
+237:             protectedThis->commitTransactionIfNecessary();
+238:     });
+239: }
+240:
+372: Expected<void, StorageError> SQLiteStorageArea::setItem(std::optional<IPC::Connection::UniqueID> connection, std::optional<StorageAreaImplIdentifier> storageAreaImplID, String&& key, String&& value, const String& urlString)
+373: {
+374:     assertIsCurrent(m_queue.get());
+375:
+376:     if (!prepareDatabase(ShouldCreateIfNotExists::Yes))
+377:         return makeUnexpected(StorageError::Database);
+378:
+379:     if (!requestSpace(key, value))
+380:         return makeUnexpected(StorageError::QuotaExceeded);
+381:
+382:     startTransactionIfNecessary();
+383:
+384:     auto getItemResult = getItem(key);
+385:
+386:     String oldValue;
+387:     if (getItemResult.has_value()) {
+388:         oldValue = getItemResult.value();
+389:     } else if (getItemResult.error() != StorageError::ItemNotFound)
+390:         return makeUnexpected(getItemResult.error()); // Database error.
+391:
+392:     int result = SQLITE_OK;
+393:     // Ensure that statement goes out of scope before handleDatabaseErrorIfNeeded(). Otherwise, we may get a CheckedPtr verification failure.
+394:     {
+395:         CheckedPtr statement = cachedStatement(StatementType::SetItem).get();
+396:         if (!statement || statement->bindText(1, key) || statement->bindBlob(2, value)) {
+397:             RELEASE_LOG_ERROR(Storage, "SQLiteStorageArea::setItem failed on creating statement (%d) - %" PUBLIC_LOG_STRING, m_database->lastError(), m_database->lastErrorMsg());
+398:             return makeUnexpected(StorageError::Database);
+399:         }
+400:
+401:         result = statement->step();
+402:     }
+403:
+404:     if (result != SQLITE_DONE) {
+405:         RELEASE_LOG_ERROR(Storage, "SQLiteStorageArea::setItem failed on stepping statement (%d) - %" PUBLIC_LOG_STRING, m_database->lastError(), m_database->lastErrorMsg());
+406:         handleDatabaseErrorIfNeeded(result);
+407:         return makeUnexpected(StorageError::Database);
+408:     }
+409:
+410:     if (connection && storageAreaImplID)
+411:         dispatchEvents(*connection, *storageAreaImplID, key, oldValue, value, urlString);
+412:     updateCacheIfNeeded(key, value);
+413:
+414:     return { };
+415: }
+416:
+417: Expected<void, StorageError> SQLiteStorageArea::removeItem(IPC::Connection::UniqueID connection, StorageAreaImplIdentifier storageAreaImplID, const String& key, const String& urlString)
+418: {
+506: void SQLiteStorageArea::commitTransactionIfNecessary()
+507: {
+508:     if (auto transaction = std::exchange(m_transaction, nullptr))
+509:         transaction->commit();
+510: }
+511:
+512: void SQLiteStorageArea::handleLowMemoryWarning()
+pinned-NetworkStorageManager.cpp
+1719: void NetworkStorageManager::setItem(IPC::Connection& connection, StorageAreaIdentifier identifier, StorageAreaImplIdentifier implIdentifier, String&& key, String&& value, String&& urlString, CompletionHandler<void(bool, HashMap<String, String>&&)>&& completionHandler)
+1720: {
+1721:     ASSERT(!RunLoop::isMain());
+1722:
+1723:     bool hasError = false;
+1724:     HashMap<String, String> allItems;
+1725:     RefPtr storageArea = m_storageAreaRegistry->getStorageArea(identifier);
+1726:     if (!storageArea)
+1727:         return completionHandler(hasError, WTF::move(allItems));
+1728:
+1729:     MESSAGE_CHECK_COMPLETION(canConnectionAccessSiteForWebStorage(connection, WebCore::RegistrableDomain { storageArea->origin().topOrigin }), connection, completionHandler(hasError, WTF::move(allItems)));
+1730:
+1731:     MESSAGE_CHECK_COMPLETION(isStorageAreaTypeEnabled(connection, storageArea->storageType()), connection, completionHandler(true, HashMap<String, String> { }));
+1732:
+1733:     auto result = storageArea->setItem(connection.uniqueID(), implIdentifier, WTF::move(key), WTF::move(value), WTF::move(urlString));
+1734:     hasError = !result;
+1735:     if (hasError)
+1736:         allItems = storageArea->allItems();
+1737:     completionHandler(hasError, WTF::move(allItems));
+1738:
+1739:     writeOriginToFileIfNecessary(storageArea->origin(), storageArea.get());
+1740: }

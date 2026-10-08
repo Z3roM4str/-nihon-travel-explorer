@@ -353,7 +353,7 @@ describe("persistence and domain isolation", () => {
   it("remains the implementation under the hook's canonical draft, with no second storage key", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     expect(hook).toContain('from "./lib/planning-draft-v8"');
-    expect(hook).toContain("useState<ManualPlanningDraftV8>");
+    expect(hook).toContain("StoredDocumentAdapter<ManualPlanningDraftV8>");
     expect(hook).not.toContain('from "./lib/planning-draft-v7"');
 
     const v8 = await readFile(new URL("./planning-draft-v8.ts", import.meta.url), "utf8");

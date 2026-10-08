@@ -536,9 +536,12 @@ async function auditViewport(browser, name, url) {
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
   check("a corrupt document does not break the app", pageErrors.length === 0, pageErrors.join(" | "));
-  const recovered = await readJson(page, TRAVELLERS_KEY);
-  check("it is replaced by a fresh roster rather than a repaired one", recovered?.version === 1);
-  check("with two travellers and no invented opinions", recovered?.travellers?.length === 2 && recovered?.interests?.length === 0);
+  // Auditoría final (H04): un documento ilegible YA NO se sustituye en silencio. Se conserva tal cual, la
+  // aplicación arranca con un plantel inicial EN MEMORIA y avisa (`[data-storage-protection]`); la salida
+  // explícita está cubierta por `final-audit-data-recovery-check.mjs`.
+  const recovered = await page.evaluate((key) => localStorage.getItem(key), TRAVELLERS_KEY);
+  check("it is preserved as found, not replaced or repaired", recovered === "{not json");
+  check("and the app says so, with an explicit way out", (await page.locator("[data-storage-protection]").count()) === 1);
 
   // An orphan stance is refused outright rather than silently reattributed.
   await page.evaluate(
@@ -555,9 +558,10 @@ async function auditViewport(browser, name, url) {
   );
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
-  const afterOrphan = await readJson(page, TRAVELLERS_KEY);
-  check("an orphan stance is rejected, not reattributed", afterOrphan?.interests?.length === 0);
-  check("and the roster is rebuilt cleanly", afterOrphan?.travellers?.length === 2);
+  const afterOrphanRaw = await page.evaluate((key) => localStorage.getItem(key), TRAVELLERS_KEY);
+  const afterOrphan = JSON.parse(afterOrphanRaw);
+  check("an orphan stance is rejected, not reattributed (the document is preserved untouched)", afterOrphan?.interests?.[0]?.stances?.[0]?.travellerId === "ghost" && afterOrphan?.travellers?.length === 1);
+  check("and the app says so rather than rebuilding over it", (await page.locator("[data-storage-protection]").count()) === 1);
 
   // ── J. A pre-Block-5 list is carried over, unclaimed ─────────────────────────────────────────
   await page.evaluate(

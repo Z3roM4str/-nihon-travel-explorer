@@ -3,10 +3,12 @@
 name: P-06 certificación
 on:
   pull_request:
-    branches: [main]
+    branches: [main, claude/final-audit-data-recovery-fixes-l60xs9]
     paths:
       - ".github/workflows/p06-certification.yml"
       - "app/**"
+      - "docs/FINAL_AUDIT_FIXES.md"
+      - "docs/final-audit-evidence/round3/**"
   workflow_dispatch:
 
 permissions:
@@ -48,9 +50,42 @@ jobs:
           node -e "console.log('lockfile playwright', require('./package-lock.json').packages['node_modules/playwright'].version)"
       - name: Instalar ${{ matrix.browser }} y sus dependencias del sistema (sólo en este runner)
         run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Leer sólo las dos bases históricas de D5 para ejecutar sus contratos
+        run: |
+          git fetch --no-tags --depth=1 origin b854db384c952e827b86d1bb35cac7caa70b035a 2a10ad3f11cd91a7d739e85307f04da9411bf5d1
+          git cat-file -e b854db384c952e827b86d1bb35cac7caa70b035a^{commit}
+          git cat-file -e 2a10ad3f11cd91a7d739e85307f04da9411bf5d1^{commit}
+      - name: Pruebas unitarias y de contrato
+        run: npm test
       - name: Build
         run: npm run build
+      - name: H03 estricto con evidencia nativa de conservación entre recargas
+        run: |
+          mkdir -p p06-certify-logs/${{ matrix.browser }}/h03-probe
+          NIHON_H03_NATIVE_TRACE=1 NIHON_ONLY=H03 NIHON_BROWSER=${{ matrix.browser }} NIHON_EVIDENCE_OUT=p06-certify-logs/${{ matrix.browser }}/h03-probe node scripts/final-audit-data-recovery-check.mjs > p06-certify-logs/${{ matrix.browser }}/h03-probe/probe.log 2>&1
+      - name: Evidencia inmediata H03
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h03-probe-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: app/p06-certify-logs/${{ matrix.browser }}/h03-probe
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Ventana dirigida de protección tras publicación y lock retenido
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p p06-certify-logs/${{ matrix.browser }}/queue-probe
+          NIHON_ONLY=queued-write-protection-invalid,queued-write-protection-future,queued-protection-repeated-publication-before-release NIHON_BROWSER=${{ matrix.browser }} NIHON_EVIDENCE_OUT=p06-certify-logs/${{ matrix.browser }}/queue-probe node scripts/final-audit-persistence-regressions-check.mjs > p06-certify-logs/${{ matrix.browser }}/queue-probe/probe.log 2>&1
+      - name: Evidencia inmediata de la ventana dirigida
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: queue-probe-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: app/p06-certify-logs/${{ matrix.browser }}/queue-probe
+          if-no-files-found: warn
+          retention-days: 30
       - name: Certificación P-06 en ${{ matrix.browser }}
+        if: ${{ !cancelled() }}
         run: scripts/p06-v2-certify.sh ${{ matrix.browser }}
       - name: Resumen
         if: always()

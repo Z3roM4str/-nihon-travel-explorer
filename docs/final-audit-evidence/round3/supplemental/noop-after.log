@@ -1,0 +1,3 @@
+sha=c5ba08e7629ceffda2d007ef8c045ee8b7f16f8c dirty=true browser=chromium regression-source=Codex-d26d86b
+{"id":"recovered-lock-clears-safe-noop-problem-without-writing","correct":true,"rejected":{"ok":false,"reason":"unsaved"},"recovered":{"ok":true,"fileName":"nihon-backup-2026-10-07.json"},"remaining":[]}
+Persistence regressions: 1 pass, 0 fail (expected guarantees)

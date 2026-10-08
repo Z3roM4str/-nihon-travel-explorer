@@ -1,0 +1,3 @@
+sha=86e8dfbcb8661d06965611ff1e0b5b954d41093d dirty=true browser=chromium regression-source=Codex-d26d86b
+{"id":"restore-null-draft-does-not-resurrect-old-shortlist","correct":false,"actualRoute":[]}
+Persistence regressions: 0 pass, 1 fail (expected guarantees)

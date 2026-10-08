@@ -1,0 +1,135 @@
+
+> app@1.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /workspace/nihon-pr203-review/app
+
+ ✓ src/components/TripOverview.b31.test.tsx (14 tests) 796ms
+   ✓ B31 reservation presentation, separate from unchanged domain calculations > removes renderable Dato literals throughout production source, ignoring tests and comments  740ms
+ ✓ src/block18-shell.test.ts (62 tests) 213ms
+ ✓ src/block17-design-foundation.test.ts (21 tests) 301ms
+ ✓ src/lib/reservation-mechanism-calendar.test.ts (58 tests) 129ms
+ ✓ src/components/OrderedSequenceBuilder.test.ts (80 tests) 115ms
+ ✓ src/lib/evidence-complete-two-pair-block-swap.test.ts (121 tests) 97ms
+ ✓ src/bundle-architecture.test.ts (9 tests) 72ms
+ ✓ src/lib/evidence-complete-four-place-interior-reversal.test.ts (118 tests) 52ms
+ ✓ src/components/DivergenceView.test.ts (29 tests) 52ms
+ ✓ src/components/OrderedSequenceBuilder.inter-hub.test.ts (9 tests) 27ms
+ ✓ server/transit.test.ts (17 tests) 48ms
+ ✓ src/data/place-images.test.ts (24 tests) 62ms
+ ✓ src/lib/reservation-mechanism-evidence.test.ts (36 tests) 12ms
+ ✓ src/lib/evidence-complete-local-relocation.test.ts (85 tests) 66ms
+ ✓ src/lib/transfer.test.ts (64 tests) 93ms
+ ✓ src/data/photography-runtime-projection.test.ts (4 tests) 33ms
+ ✓ src/components/OrderedSequenceBuilder.reservation-window-reference.test.ts (7 tests) 15ms
+ ✓ src/lib/zone-provenance.test.ts (27 tests) 53ms
+ ✓ src/lib/recorded-interval-fit.test.ts (98 tests) 66ms
+ ✓ src/lib/zone-airport-link.test.ts (25 tests) 12ms
+ ✓ src/lib/transit.test.ts (24 tests) 22ms
+ ✓ src/d5-normative-vocabulary.test.ts (22 tests) 65ms
+ ✓ src/photography-derivatives.test.ts (14 tests) 79ms
+ ✓ src/components/OrderedSequenceBuilder.trip-bounds.test.ts (22 tests) 35ms
+ ✓ src/lib/source-freshness.test.ts (38 tests) 23ms
+ ✓ src/components/PlaceCard.test.ts (36 tests) 32ms
+ ✓ src/components/OrderedSequenceBuilder.two-pair-block-swap.test.ts (1 test) 9ms
+ ✓ src/lib/civil-date.test.ts (39 tests) 30ms
+ ✓ src/lib/zone-plan-link.test.ts (26 tests) 12ms
+ ✓ src/lib/accommodation-commute.test.ts (25 tests) 17ms
+ ✓ src/components/PlaceGallery.test.ts (10 tests) 9ms
+ ✓ src/lib/temporal-availability.test.ts (44 tests) 40ms
+ ✓ src/components/TravellerLayer.test.ts (30 tests) 40ms
+ ✓ src/lib/reservation-mechanism-reference-date-presentation.test.ts (15 tests) 8ms
+ ✓ src/block1-ux.test.ts (23 tests) 19ms
+ ✓ src/lib/zone-accommodation-choice.test.ts (23 tests) 6ms
+ ✓ src/lib/reservation-mechanism-presentation.test.ts (23 tests) 32ms
+ ✓ src/lib/feb-mar-status.test.ts (48 tests) 27ms
+ ✓ src/lib/portable-backup.test.ts (53 tests) 35ms
+ ✓ src/components/OrderedSequenceBuilder.official-reservation-calendar.test.ts (20 tests) 23ms
+ ✓ src/lib/evidence-complete-local-swap.test.ts (100 tests) 34ms
+ ✓ src/lib/reservation-mechanism-reference-date.test.ts (43 tests) 20ms
+ ✓ src/lib/travellers.test.ts (68 tests) 19ms
+ ✓ src/lib/reservation-lead-time.test.ts (42 tests) 29ms
+ ✓ src/lib/planning-draft-v5.test.ts (153 tests) 33ms
+ ✓ src/dataset-contract.test.ts (6 tests) 26ms
+ ✓ src/lib/recorded-hours.test.ts (54 tests) 25ms
+ ✓ src/lib/evidence-complete-interior-transposition.test.ts (106 tests) 33ms
+ ✓ src/lib/planning-draft-v6.test.ts (76 tests) 30ms
+ ✓ src/components/ZoneSources.test.ts (35 tests) 30ms
+ ✓ src/lib/trip-bounds.test.ts (55 tests) 21ms
+ ✓ scripts/block22-b6-5-sync.test.mjs (11 tests) 25ms
+ ✓ src/components/ZonePlanSection.test.ts (34 tests) 32ms
+ ✓ src/lib/zone-editorial-governance.test.ts (26 tests) 24ms
+ ✓ src/b10-structure.test.ts (5 tests) 18ms
+ ✓ src/components/OrderedSequenceBuilder.stable-day-identity.test.ts (32 tests) 25ms
+ ✓ src/components/FilterPanel.test.ts (3 tests) 10ms
+ ✓ src/App.test.ts (9 tests) 25ms
+ ✓ src/lib/interest-level.test.ts (14 tests) 10ms
+ ✓ src/lib/reservation-window-reference.test.ts (16 tests) 6ms
+ ✓ src/lib/planning-draft-v8.test.ts (69 tests) 20ms
+ ✓ src/lib/planning-draft-v4.test.ts (47 tests) 14ms
+ ✓ src/lib/quiero-ir.test.ts (12 tests) 9ms
+ ✓ src/lib/whole-trip-composition.test.ts (35 tests) 22ms
+ ✓ src/lib/reservation-planning.test.ts (18 tests) 11ms
+ ✓ src/lib/reservation-deadline.test.ts (69 tests) 21ms
+ ✓ src/block20-place-detail.test.ts (24 tests) 29ms
+ ✓ src/b26-nosotros.test.ts (20 tests) 19ms
+ ✓ src/lib/planning-block.test.ts (33 tests) 18ms
+ ✓ src/lib/accommodation-zone.test.ts (30 tests) 13ms
+ ✓ src/components/PlaceDetail.test.ts (12 tests) 15ms
+ ✓ src/lib/reservation-mechanism-date-derivation.test.ts (40 tests) 13ms
+ ✓ src/components/OrderedSequenceBuilder.official-reservation-reference-date.test.ts (15 tests) 21ms
+ ✓ src/lib/planning-draft.test.ts (117 tests) 19ms
+ ✓ src/block21-global-search.test.ts (3 tests) 4ms
+ ✓ src/lib/reservation-mechanism-calendar-presentation.test.ts (7 tests) 18ms
+ ✓ src/lib/reservation.test.ts (53 tests) 17ms
+ ✓ src/lib/onboarding.test.ts (15 tests) 15ms
+ ✓ src/components/DayOrderToolPanel.test.ts (8 tests) 16ms
+ ✓ src/lib/planning-draft-v7.test.ts (27 tests) 16ms
+ ✓ src/lib/provenance-claim-class.test.ts (36 tests) 16ms
+ ✓ src/lib/map-grouping.test.ts (13 tests) 8ms
+ ✓ src/components/OrderedSequenceBuilder.local-swap.test.ts (5 tests) 16ms
+ ✓ src/lib/hours-closure-composition.test.ts (34 tests) 16ms
+ ✓ src/lib/trip-bounds-consumers.test.ts (17 tests) 15ms
+ ✓ src/lib/device-storage.test.ts (16 tests) 11ms
+ ✓ src/photography-depth.test.ts (12 tests) 12ms
+ ✓ src/components/OrderedSequenceBuilder.local-relocation.test.ts (5 tests) 11ms
+ ✓ src/lib/inter-hub-segment.test.ts (36 tests) 8ms
+ ✓ src/lib/day-weekday-signal.test.ts (13 tests) 10ms
+ ✓ src/lib/day-assignment.test.ts (23 tests) 8ms
+ ✓ src/useStoredDocument.persistence.test.ts (7 tests) 11ms
+ ✓ src/lib/divergence-presentation.test.ts (21 tests) 18ms
+ ✓ src/components/OrderedSequenceBuilder.interior-transposition.test.ts (3 tests) 12ms
+ ✓ src/components/OrderedSequenceBuilder.whole-trip.test.ts (9 tests) 19ms
+ ✓ src/block24-ddr3-home-collections.test.ts (4 tests) 15ms
+ ✓ src/lib/planning-draft-day-order.test.ts (12 tests) 9ms
+ ✓ src/lib/traveller-presentation.test.ts (24 tests) 10ms
+ ✓ src/lib/stored-document.test.ts (14 tests) 9ms
+ ✓ src/lib/day-sleep-line.test.ts (5 tests) 3ms
+ ✓ src/lib/access-points.test.ts (9 tests) 5ms
+ ✓ src/lib/interest-divergence.test.ts (33 tests) 11ms
+ ✓ src/lib/sequence-comparison.test.ts (19 tests) 7ms
+ ✓ src/lib/selection.test.ts (21 tests) 8ms
+ ✓ src/components/ZoneComparison.b30.test.ts (6 tests) 7ms
+ ✓ src/components/ExplorerHome.test.ts (4 tests) 3ms
+ ✓ src/components/OrderedSequenceBuilder.four-place-interior-reversal.test.ts (1 test) 6ms
+ ✓ src/p04-national-map-reachability.test.ts (2 tests) 7ms
+ ✓ src/lib/transfer-display.test.ts (8 tests) 4ms
+ ✓ src/lib/ordered-sequence.test.ts (13 tests) 6ms
+ ✓ src/lib/hub-view.test.ts (6 tests) 4ms
+ ✓ src/lib/map-chrome.test.ts (6 tests) 4ms
+ ✓ src/components/RegionNavigator.test.ts (4 tests) 12ms
+ ✓ src/lib/day-order-tool.test.ts (7 tests) 4ms
+ ✓ src/lib/sequence-drop-position.test.ts (1 test) 2ms
+ ✓ src/lib/planning-draft-v8.reorder.test.ts (4 tests) 6ms
+ ✓ src/lib/zone-journey-context.test.ts (2 tests) 2ms
+ ✓ src/lib/photography-attribution.test.ts (4 tests) 2ms
+ ✓ src/components/NationalExplorer.test.ts (3 tests) 3ms
+ ✓ src/lib/reservation-window-reference-presentation.test.ts (3 tests) 3ms
+ ✓ src/components/PlaceMap.test.ts (2 tests) 2ms
+
+ Test Files  121 passed (121)
+      Tests  3453 passed (3453)
+   Start at  02:53:49
+   Duration  34.93s (transform 3.72s, setup 0ms, collect 9.80s, tests 4.03s, environment 17ms, prepare 6.37s)
+

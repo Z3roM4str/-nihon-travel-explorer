@@ -357,7 +357,9 @@ try {
    * ciudades y entre recargas— es el mismo; se lee del modelo vigente, para la persona activa.
    */
   const readSaved = () =>
-    page.evaluate(() => {
+    page.evaluate(async () => {
+      // Las escrituras del documento son diferidas (Web Lock): se espera a que el almacenamiento se asiente antes de leerlo.
+      await new Promise((resolve) => { let last = localStorage.getItem("nihon.travellers.v1"), calm = 0; const tick = () => { const now = localStorage.getItem("nihon.travellers.v1"); if (now !== last) { last = now; calm = 0; } else calm += 1; if (calm >= 3) resolve(); else setTimeout(tick, 40); }; setTimeout(tick, 40); });
       const raw = localStorage.getItem("nihon.travellers.v1");
       if (!raw) return [];
       const doc = JSON.parse(raw);

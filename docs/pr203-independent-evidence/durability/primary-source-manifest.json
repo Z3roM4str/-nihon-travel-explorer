@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/WebKit/WebKit/343e13bf22dca9d0ec227801419aab0f9001a32f/Source/WebKit/WebProcess/WebStorage/StorageAreaMap.cpp",
+    "file": "pinned-StorageAreaMap.cpp",
+    "sha256": "df161dc371a15f768ba2c97e0d8501ef68a54446acd87cb47e60b8d785da42da"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/WebKit/WebKit/343e13bf22dca9d0ec227801419aab0f9001a32f/Source/WebKit/NetworkProcess/storage/SQLiteStorageArea.cpp",
+    "file": "pinned-SQLiteStorageArea.cpp",
+    "sha256": "68fa253cb22e3e068705e667844f9d316c75415853e66cadb18b038143f031c2"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/WebKit/WebKit/343e13bf22dca9d0ec227801419aab0f9001a32f/Source/WebKit/NetworkProcess/storage/NetworkStorageManager.cpp",
+    "file": "pinned-NetworkStorageManager.cpp",
+    "sha256": "4812f0751edc4f49ca14b3ee2b8e045d17c853501f153340229c37a6d9a97340"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/WebKit/WebKit/343e13bf22dca9d0ec227801419aab0f9001a32f/Source/WebKit/NetworkProcess/storage/LocalStorageManager.cpp",
+    "file": "pinned-LocalStorageManager.cpp",
+    "sha256": "74e225cbf5b2ada6bf78fb86143953fddc5c4ffc4a495f2bb4cf1a764c8ec076"
+  }
+]
