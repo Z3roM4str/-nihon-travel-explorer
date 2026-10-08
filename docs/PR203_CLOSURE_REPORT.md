@@ -36,13 +36,16 @@ No se declara resuelto ningún caso histórico: ningún verde posterior se usa c
 
 **Anomalía `retry-queued-retained-events-invalid`.** Secuencia plausible, ahora demostrada a nivel de plataforma: pestaña B retiene el lock y publica un documento protegido; la pestaña A (reintento en cola) recibe el lock; en WebKit su `localStorage` aún devuelve el valor anterior tras ceder una tarea; Nihon lo clasifica como válido y escribe encima, y `exportBackup` responde `ok`.
 
-Medición sin código de Nihon (`app/scripts/webstorage-lock-staleness-probe.mjs`, 500 traspasos por carga, WebKit 26.5 Linux, run [37801132736](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37801132736)):
+Medición sin código de Nihon (`app/scripts/webstorage-lock-staleness-probe.mjs`, 500 traspasos por carga; «carga» = 4 hilos ocupados en el mismo runner). Runs de CI [37801132736](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37801132736) (sin margen), [37802868237](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37802868237) y [37804384206](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37804384206) (con el margen de 32 ms):
 
-| Motor / carga | Obsoleto al conceder | Obsoleto tras 1 tarea (lo que cubría Nihon) | Retraso máx. |
+| Motor / carga | Obsoleto tras 1 tarea (lo que cubría Nihon) | Obsoleto tras los 32 ms | Retraso máx. observado |
 |---|---|---|---|
-| WebKit, sin carga | 23/500 | **17/500 (3,4 %)** | 3 ms |
-| WebKit, 4 hilos ocupados | 230/500 | **221/500 (44 %)** | 6 ms |
-| Chromium (ambas cargas) | 0/500 | 0/500 | 0 |
+| WebKit 26.5 Linux, sin carga | 17/500 · 6/500 · 7/500 | 0 · 0 | 3 ms |
+| WebKit 26.5 Linux, con carga | **221/500 (44 %)** · 210/500 · 237/500 | **1/500** · 0/500 | 6 ms |
+| WebKit 26.5 macOS (puerto Playwright), ambas cargas | 0/500 · 3/500 | 0 · 0 | 1 ms |
+| Chromium Linux, ambas cargas | 0/500 | — | 0 |
+
+Hay **un** traspaso con carga (de 1.000 con el margen) que superó los 32 ms; la primera ejecución no medía la cola y en la siguiente no se repitió, así que su duración se desconoce. Es la razón de que el margen sea una mitigación y no una garantía (D5).
 
 Corrección (mínima, sin arquitectura nueva): `runExclusive` intenta primero `ifAvailable`; si hubo titular, espera 32 ms antes de la tarea (5× el máximo medido). La ruta sin contención no cambia. Regresiones: `storage-lock.test.ts` (5), reintento en cola con invalidación tardía para JSON inválido y versión futura (2, **rojas sin la corrección**, verdes con ella) y reaplicación por linaje cuando la lectura obsoleta dura más de un turno (1). Esa última prueba demuestra que entre dos pestañas de Nihon, aunque una sobrescriba, la otra detecta que su escritura falta y la reaplica sin duplicar.
 
@@ -53,7 +56,7 @@ Corrección (mínima, sin arquitectura nueva): `runExclusive` intenta primero `i
 
 ## 3. Safari real
 
-Safari 26.6.1 (20624.5.1.18.3), macOS 15.7.9, GitHub Actions (`macos-15`), run [37801132736](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37801132736), una pulsación por variante, cada una en un origen nuevo, con una página de control sin Nihon:
+Safari 26.6.1 (20624.5.1.18.3), macOS 15.7.9, GitHub Actions (`macos-15`), runs [37801132736](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37801132736) y [37804384206](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37804384206) (resultado idéntico; el segundo, sobre el código final), una pulsación por variante, cada una en un origen nuevo, con una página de control sin Nihon:
 
 | Variante | Control (sin Nihon) | Nihon |
 |---|---|---|
@@ -76,9 +79,9 @@ Conclusión: **no es un defecto de interfaz y no es que Nihon ignore el gesto: e
 | Pruebas nuevas sin la corrección | 2 rojas (reintento en cola, JSON inválido y versión futura), como se esperaba |
 | Gates Chromium locales con la corrección | persistencia 33/33, pestañas obsoletas 16/16, exportación y recuperación H01–H04 rc=0 |
 | Primer intento local de esos gates | **Falló (rc=1)**: faltaba `npm run build` en mi entorno (`ERR_HTTP_RESPONSE_CODE_FAILURE`) y un directorio de evidencia; no era el producto; repetido tras compilar |
-| Sonda de frescura, primera ejecución en CI | Ubuntu WebKit/Chromium OK (tabla arriba); **macOS WebKit no terminó** (`waitForFunction` usa rAF, que una página en segundo plano no recibe); cancelada, corregida (sondeo por temporizador, página al frente) |
-| Sonda Safari | completada (tabla §3) |
-| Validación final sobre el árbol dividido (`b53c7c9`) | {{CI_FINAL}} |
+| Sonda de frescura, primera ejecución en CI | Ubuntu WebKit/Chromium OK (tabla arriba); **macOS WebKit no terminó en 17 min** (`waitForFunction` usa rAF, que una página en segundo plano no recibe); cancelada, corregida (sondeo por temporizador, página al frente) y repetida: terminó en 16 min, 0 obsoletos tras el margen |
+| Sonda Safari | Completada (tabla §3). **Un intento de CI falló** (`timed out` al crear la sesión de `safaridriver`, antes de ninguna variante: runner, run 37802868237); se repitió el job entero sin cambios y completó. Ninguna aserción se reintentó |
+| Validación final sobre el árbol dividido (`b53c7c9`) | `P-06 certificación` ([37802873449](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37802873449), lanzada a mano sobre `b53c7c9`, ya con el árbol dividido): **success en WebKit y Chromium** (incluye `npm test`, build y los gates `final-audit-*`/`h03-reload-classification`). Los commits posteriores sólo tocan una sonda manual y esta documentación; el producto no cambia |
 | No ejecutado | iPhone real; cierre/reapertura de Safari; Apple Events (permisos); repetir baterías WPE |
 
 ## 6. Archivos y PR

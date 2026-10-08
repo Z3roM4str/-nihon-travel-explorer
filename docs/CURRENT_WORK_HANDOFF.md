@@ -1,5 +1,7 @@
 # Handoff reanudable — P-06 v2 INTEGRADO en main; pendientes del proyecto clasificados
 
+> **Cierre de #203 (8 oct 2026):** informe único en [PR203_CLOSURE_REPORT.md](PR203_CLOSURE_REPORT.md); comprobación manual en iPhone en [IPHONE_SYNTHETIC_CHECK.md](IPHONE_SYNTHETIC_CHECK.md); dónde quedó la evidencia en [PR203_EVIDENCE_INDEX.md](PR203_EVIDENCE_INDEX.md).
+
 ## Correcciones de la auditoría final independiente (2026-10-06, PR sin fusionar)
 
 Rama `claude/final-audit-data-recovery-fixes-l60xs9` sobre `52503a9` (árbol `app/` idéntico a `32787a1`). Corrige H01–H07 de la auditoría
