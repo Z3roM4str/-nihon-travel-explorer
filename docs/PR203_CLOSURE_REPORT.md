@@ -8,7 +8,7 @@ Rama de trabajo: `claude/sweet-mendel-v8st6b` (parte de `2fd30db`, el SHA audita
 
 1. **Un defecto del producto, nuevo y demostrado, corregido:** tras recibir un Web Lock que hubo que esperar, WebKit seguía devolviendo `localStorage` obsoleto aun después de la tarea que Nihon cedía (3,4 % de traspasos sin carga, 44 % con carga, siempre ≤ 6 ms). Era un mecanismo plausible de `retry-queued-retained-events-invalid`.
 2. **Safari WebDriver: causa encontrada y no es de Nihon.** El clic nativo no entrega ningún evento a la página ni siquiera en una página de control sin Nihon; con teclado la introducción se cierra y el recorrido completo pasa en Safari 26.6.1 real.
-3. **Integración:** 404 → 78 ficheros respecto de `main`, sin perder ni alterar evidencia.
+3. **Integración:** 404 → 79 ficheros respecto de `main`, sin perder ni alterar evidencia.
 4. **Sin iPhone ni reapertura de perfil real**: queda **una** intervención manual (guía de 10 min en `docs/IPHONE_SYNTHETIC_CHECK.md`).
 
 ## 1. Clasificación definitiva
@@ -69,7 +69,7 @@ Conclusión: **no es un defecto de interfaz y no es que Nihon ignore el gesto: e
 
 ## 4. Integración
 
-`git diff --shortstat main` : 404 → **78 ficheros**. Detalle y destino de cada clase en `docs/PR203_EVIDENCE_INDEX.md`. La evidencia (5 MB), 4 workflows y 17 scripts de investigación se retiran del árbol en **un commit revertible**; siguen íntegros en `2fd30db` y en `refs/pull/203/head`, y los informes enlazan allí. Se retiraron de la integración porque `webstorage-durability` y `h03-conservation-investigation` contienen contratos rojos por diseño y se dispararían en cada PR futuro que toque `app/`. **Recomendación:** etiquetar `2fd30db` (`evidence/pr203-2fd30db`) antes de cerrar #203. No se abrió ningún PR nuevo: la rama contiene a `2fd30db` como ancestro, así que `claude/final-audit-data-recovery-fixes-l60xs9` puede avanzar a esta rama (fast-forward) y #203 pasa a mostrar sólo el código.
+`git diff --shortstat main` : 404 → **79 ficheros**. Detalle y destino de cada clase en `docs/PR203_EVIDENCE_INDEX.md`. La evidencia (5 MB), 4 workflows y 17 scripts de investigación se retiran del árbol en **un commit revertible**; siguen íntegros en `2fd30db` y en `refs/pull/203/head`, y los informes enlazan allí. Se retiraron de la integración porque `webstorage-durability` y `h03-conservation-investigation` contienen contratos rojos por diseño y se dispararían en cada PR futuro que toque `app/`. **Recomendación:** etiquetar `2fd30db` (`evidence/pr203-2fd30db`) antes de cerrar #203. No se abrió ningún PR nuevo: la rama contiene a `2fd30db` como ancestro, así que `claude/final-audit-data-recovery-fixes-l60xs9` puede avanzar a esta rama (fast-forward) y #203 pasa a mostrar sólo el código.
 
 ## 5. Pruebas ejecutadas y resultados (incluidos fallos)
 
