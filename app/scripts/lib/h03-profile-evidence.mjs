@@ -8,7 +8,7 @@ export function snapshotProfile(profile, destination) {
   cpSync(profile, destination, { recursive: true });
   const python = `
 import pathlib,sqlite3,json,hashlib,sys
-root=pathlib.Path(sys.argv[1]); databases=[]; errors=[]
+root=pathlib.Path(sys.argv[1]).resolve(); databases=[]; errors=[]
 def text(v):
  if isinstance(v,bytes):
   try:return v.decode('utf-16-le' if b'\\x00' in v else 'utf-8')
