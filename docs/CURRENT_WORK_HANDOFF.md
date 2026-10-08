@@ -4,7 +4,7 @@
 
 Rama `claude/final-audit-data-recovery-fixes-l60xs9` sobre `52503a9` (árbol `app/` idéntico a `32787a1`). Corrige H01–H07 de la auditoría
 y deja la investigación del gate de rendimiento: [FINAL_AUDIT_FIXES.md](FINAL_AUDIT_FIXES.md),
-[FINAL_AUDIT_PERFORMANCE_INVESTIGATION.md](FINAL_AUDIT_PERFORMANCE_INVESTIGATION.md), evidencia en `final-audit-evidence/`.
+[FINAL_AUDIT_PERFORMANCE_INVESTIGATION.md](FINAL_AUDIT_PERFORMANCE_INVESTIGATION.md), evidencia histórica en [`final-audit-evidence/`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/) (retirada del árbol; ver [PR203_EVIDENCE_INDEX.md](PR203_EVIDENCE_INDEX.md)).
 **Nada de esto está publicado**: freeze de Vercel intacto, sin autorización de publicación; la producción sigue en `dpl_Fu2dABdW5xohuo6cV9kMkyeh6whV` (`32787a1`).
 
 ## CIERRE FINAL PARA REVISIÓN (2026-10-06) — baseline de esta entrega

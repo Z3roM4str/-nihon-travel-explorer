@@ -90,10 +90,10 @@ Para fusionar con seguridad:
 
 ## 6. Evidencia conservada
 
-- [`round5-failed-cases.json`](pr203-independent-evidence/round5-failed-cases.json): extracción de los tres casos, originales, valores posteriores, PIDs, escrituras observadas y peticiones.
-- [`artifact-hashes.json`](pr203-independent-evidence/artifact-hashes.json): SHA-256 de los cuatro ZIP descargados; los dos del run rojo coinciden con los digest publicados por GitHub.
-- [`local/`](pr203-independent-evidence/local/): resultados locales y limitaciones de ejecución.
-- [`classification-negative-check.mjs`](pr203-independent-evidence/classification-negative-check.mjs): control mínimo reproducible contra el HEAD original; `NIHON_AUDIT_REF=WORKTREE` verifica la corrección.
+- [`round5-failed-cases.json`](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/pr203-independent-evidence/round5-failed-cases.json): extracción de los tres casos, originales, valores posteriores, PIDs, escrituras observadas y peticiones.
+- [`artifact-hashes.json`](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/pr203-independent-evidence/artifact-hashes.json): SHA-256 de los cuatro ZIP descargados; los dos del run rojo coinciden con los digest publicados por GitHub.
+- [`local/`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/pr203-independent-evidence/local/): resultados locales y limitaciones de ejecución.
+- [`classification-negative-check.mjs`](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/pr203-independent-evidence/classification-negative-check.mjs): control mínimo reproducible contra el HEAD original; `NIHON_AUDIT_REF=WORKTREE` verifica la corrección.
 - Logs originales y artefactos íntegros descargados: `/workspace/pr203-audit-raw/`; ZIP: `/workspace/attachments/`. Las copias compactas versionadas no reemplazan esos originales.
 
 **Conclusión final: NO APTO en el HEAD de referencia.** El camino de cierre es el contraste de persistencia reciente indicado y la validación dirigida de las correcciones del arnés; no una investigación abierta ni un cambio de comportamiento para obtener verde.

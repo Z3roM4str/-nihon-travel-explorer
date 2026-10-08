@@ -10,7 +10,7 @@ independiente, atribuyendo cada respuesta al instante en que empezó su petició
 3.315.340 B (Osaka), pero el informe dejó la causa como hipótesis. Este documento la separa de la hipótesis.
 
 **No se aumentó ningún presupuesto, no se tocó ningún asset ni dato, y los resultados originales se conservan**
-(`docs/final-audit-evidence/base/performance-original.{log,json}`, y el log del informe de auditoría).
+([`docs/final-audit-evidence/base/performance-original.{log,json}`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/base/), retirados del árbol, y el log del informe de auditoría).
 
 ## 1. Contrato de la medición (definido, porque no estaba escrito en el código)
 

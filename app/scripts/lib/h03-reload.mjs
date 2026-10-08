@@ -2,7 +2,7 @@
  * H03 — pulsar «Recargar la página» y clasificar un timeout con pruebas objetivas, no por suposición.
  *
  * Un timeout esperando a que desaparezca el documento anterior NO demuestra por sí solo que el producto no recargara. Medido en
- * WebKit 26.5 (Playwright/WPE, libsoup; docs/final-audit-evidence/round5-h03): en todos los atascos `beforeunload` se dispara
+ * WebKit 26.5 (Playwright/WPE, libsoup; docs/final-audit-evidence/round5-h03 (retirado del árbol; en el commit 2fd30db, ver docs/PR203_EVIDENCE_INDEX.md)): en todos los atascos `beforeunload` se dispara
  * (`location.reload()` se ejecutó) y el driver ve la petición de documento, pero esa petición NUNCA llega al servidor local y la
  * navegación queda pendiente sin terminar ni fallar. Se reproduce con una recarga simple y SIN código de Nihon.
  *

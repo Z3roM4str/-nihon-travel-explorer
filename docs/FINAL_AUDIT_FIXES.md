@@ -3,12 +3,12 @@
 **Base auditada:** `32787a1661665f53bba5dfcf73d630709a698ad2` (el árbol `app/` de `main` `52503a9` es idéntico).
 **Rama:** `claude/final-audit-data-recovery-fixes-l60xs9` (la rama designada para la sesión).
 **Alcance:** sólo fiabilidad; sin funcionalidades nuevas, sin cambios de datos (JP-126 queda como seguimiento), sin tocar Vercel,
-Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](final-audit-evidence/).
+Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/).
 
 ## Ronda 5 (2026-10-07): causa del atasco de «Recargar la página» en WebKit
 
 **Causa localizada en el motor (WebKit/libsoup de Playwright), demostrada con y sin código de Nihon; el producto no cambia.**
-Detalle, cifras y reproducción: [`final-audit-evidence/round5-h03/README.md`](final-audit-evidence/round5-h03/README.md).
+Detalle, cifras y reproducción: [`final-audit-evidence/round5-h03/README.md`](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round5-h03/README.md).
 
 - En los 60 atascos medidos (WebKit 26.5, perfil persistente nuevo por repetición, servidor caído por RESET) `beforeunload` se dispara
   (`location.reload()` se ejecutó), el driver ve la petición de documento y **el servidor no la recibe nunca**; la página anterior
@@ -95,7 +95,7 @@ nuevo por caso y conserva el mismo perfil durante la recuperación. No restaura
 payloads ni storageState ni resembra. Las aserciones y esperas originales son
 idénticas; reset/503 siguen siendo estrictos, el inspector sigue diagnóstico.
 No hay cambios de producto, funcionalidades, dependencias ni datos existentes.
-Evidencia, firmas y reproducción: [round4-h03/README.md](final-audit-evidence/round4-h03/README.md).
+Evidencia, firmas y reproducción: [round4-h03/README.md](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round4-h03/README.md).
 
 La matriz dirigida del HEAD exacto verifica 24 resets a 390 px sin carga y 24 con
 carga; el contrato de reinicio nativo y la certificación Chromium/WebKit se
@@ -112,8 +112,8 @@ exacta del producto y de los gates instrumentados: `a8a97ba3ed311fb77288d6e7d568
 [37569278763](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37569278763), intento 1,
 Chromium y WebKit **success**. Ambos ejecutaron **33/33 regresiones**, **3455/3455 pruebas** sin
 omisiones, build y toda la matriz con `rc=0`. Evidencia descargada y ZIP verificados:
-[ci-a8/provenance.json](final-audit-evidence/round3/ci-a8/provenance.json),
-[failure-to-pass-a8.json](final-audit-evidence/round3/failure-to-pass-a8.json).
+[ci-a8/provenance.json](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round3/ci-a8/provenance.json),
+[failure-to-pass-a8.json](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round3/failure-to-pass-a8.json).
 
 El CI anterior de `acb38425fdd2902ff701358e92d04d935e33b6a1` falló **una aserción estricta H03**:
 interés guardado tras recarga con reset a 390 px (34/35 estrictas; 24/24 diagnósticos). Se conserva
@@ -144,7 +144,7 @@ bloqueo. Freeze vigente; sin merge, deployment, cambios de Vercel ni datos exist
 La revisión independiente sobre **`d26d86ba183fe9c23a06a21720e6a7450a637345`** encontró cinco fallos.
 Se recuperaron y ejecutaron los scripts de Codex antes de editar: **6/14 pasan, 8/14 fallan**; el botón
 real de reintento también sobrescribe el futuro. Evidencia y diferencias de fixtures:
-[round3/README.md](final-audit-evidence/round3/README.md). Esta sección sustituye las garantías y
+[round3/README.md](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round3/README.md). Esta sección sustituye las garantías y
 limitaciones de persistencia de las rondas anteriores; H03 y sus aserciones estrictas permanecen intactos.
 
 | Hallazgo | Causa y mecanismo | Corrección | Falla → pasa |
@@ -170,8 +170,8 @@ del inspector** separados, 0 `DIAG-FAIL`, sin cobertura parcial. Timeout adicion
 explícitamente el máximo original de 5 s en ese fixture; producto y gate estricto H03 intactos.
 WebKit de Playwright **26.5**, sin certificación de Safari físico. Evidencia exacta, hashes de los ZIP,
 logs por gate y comparación de los 14 escenarios originales:
-[round3/README.md](final-audit-evidence/round3/README.md),
-[failure-to-pass.json](final-audit-evidence/round3/failure-to-pass.json).
+[round3/README.md](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round3/README.md),
+[failure-to-pass.json](https://github.com/Z3roM4str/-nihon-travel-explorer/blob/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round3/failure-to-pass.json).
 
 La validación descubrió otra ventana dentro del hallazgo 2: WebKit concedía el lock antes de procesar
 la invalidación de caché. Se conservan el fallo de `6166c47` y las trazas de `363e5b0` (mismo producto),
@@ -226,7 +226,7 @@ Tokio y Kioto siguen a 230 B y 550 B del límite real.
 **HEAD verificado:** `87f9ae6078d721043df4c0bfb49843ecea723d4e` · CI [run 37544893802](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37544893802) (chromium y webkit en verde) ·
 artefactos: [webkit](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37544893802/artifacts/11450028908) (`p06-webkit-87f9ae6…`), job
 [webkit](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37544893802/job/112546422645) y [chromium](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37544893802/job/112546422971).
-Copias de los logs por gate en [`final-audit-evidence/round2/`](final-audit-evidence/round2/) (el log del job sólo conserva las últimas líneas de cada gate; el detalle está en el artefacto).
+Copias de los logs por gate en [`final-audit-evidence/round2/`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/round2/) (el log del job sólo conserva las últimas líneas de cada gate; el detalle está en el artefacto).
 
 ### 1. Operaciones desde pestañas obsoletas (sustituye la limitación «por índice»)
 

@@ -1,14 +1,7 @@
-name: Closure targeted probes (Safari gesture, lock staleness)
-# Two hypothesis-driven probes, each defined in its script header. They are NOT batteries and carry no
+name: Sondas dirigidas (gesto en Safari, frescura de localStorage)
+# Manual only (workflow_dispatch). Two hypothesis-driven probes, each defined in its script header. They are NOT batteries and carry no
 # retries: Safari gets one gesture per variant, the staleness probe is a fixed sample.
 on:
-  push:
-    branches: [claude/sweet-mendel-v8st6b]
-    paths:
-      - ".github/workflows/closure-targeted-probes.yml"
-      - "app/scripts/safari-intro-gesture-probe.py"
-      - "app/scripts/webstorage-lock-staleness-probe.mjs"
-      - "app/src/lib/storage-lock.ts"
   workflow_dispatch:
 permissions:
   contents: read

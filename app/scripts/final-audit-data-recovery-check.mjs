@@ -545,7 +545,7 @@ function startFlakyProxy(targetPort) {
 /**
  * PIDs de los procesos de red de WebKit (Linux). Se usan SOLO para clasificar un fallo del motor con una prueba objetiva: si el
  * proceso de red se reemplaza durante el escenario, WebKit ha perdido su sesión de red (libsoup avisa con «SOUP_IS_SESSION_FEATURE»
- * y «internallyFailedLoadTimerFired») y las peticiones en vuelo pueden quedar sin respuesta ni error. Ver docs/final-audit-evidence/round5-h03.
+ * y «internallyFailedLoadTimerFired») y las peticiones en vuelo pueden quedar sin respuesta ni error. Ver docs/final-audit-evidence/round5-h03 (retirado del árbol; en el commit 2fd30db, ver docs/PR203_EVIDENCE_INDEX.md).
  */
 const networkProcessIds = () => {
   if (BROWSER !== "webkit") return [];
