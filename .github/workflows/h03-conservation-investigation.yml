@@ -53,6 +53,7 @@ jobs:
           NIHON_H03_LOAD: ${{ matrix.load }}
           NIHON_H03_RESTART_REPETITIONS: "3"
           NIHON_H03_RESTART_RECENT: "1"
+          NIHON_H03_RESTART_WRITE_AGES: "700,3000,25000"
           NIHON_EVIDENCE_OUT: h03-restart
           DEBUG: pw:browser
         run: node scripts/h03-webkit-network-restart-probe.mjs > h03-restart.log 2>&1
