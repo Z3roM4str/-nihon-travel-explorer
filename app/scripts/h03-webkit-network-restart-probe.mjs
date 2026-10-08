@@ -13,6 +13,10 @@ const out = resolve(process.env.NIHON_EVIDENCE_OUT ?? "/tmp/nihon-h03-restart");
 mkdirSync(out, { recursive: true });
 const repetitions = Number(process.env.NIHON_H03_RESTART_REPETITIONS ?? 3);
 if (!Number.isInteger(repetitions) || repetitions < 1 || repetitions > 12) throw new Error("Invalid repetition bound");
+// Diagnóstico independiente de los tres timeouts de Ronda 5: el contrato original sólo comprobaba datos
+// asentados mediante un cierre previo. Este modo distingue ese checkpoint de una escritura más reciente.
+// La espera pertenece al contrafactual nativo, nunca al gate H03 ni a la recuperación del producto.
+const recentWrite = process.env.NIHON_H03_RESTART_RECENT === "1";
 const processes = () => readdirSync("/proc").filter(p => /^\d+$/.test(p)).flatMap(p => {
   try {
     const executable = readlinkSync(`/proc/${p}/exe`).split("/").at(-1);
@@ -26,6 +30,7 @@ await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 const browser = await webkit.launch();
 const original = JSON.stringify({ version: 1, travellers: [{ id: "synthetic-p1", label: "Synthetic" }], activeTravellerId: "synthetic-p1", interests: [{ placeId: "JP-044", stances: [{ travellerId: "synthetic-p1", stance: "interested" }], carriedOver: false }] });
+const checkpoint = recentWrite ? JSON.stringify({ ...JSON.parse(original), interests: [] }) : original;
 const results = [];
 const loadWorkers = process.env.NIHON_H03_LOAD === "1" ? Array.from({ length: Math.min(2, availableParallelism()) }, () => new Worker(
   'function load() { const until = performance.now() + 20; while (performance.now() < until) Math.sqrt(Math.random()); setTimeout(load, 10); } load();', { eval: true })) : [];
@@ -40,13 +45,14 @@ try {
         // asynchronous database transaction survived a deliberate process kill.
         const seed = await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } });
         const seedPage = await seed.newPage(); await seedPage.goto(base);
-        await seedPage.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), original);
+        await seedPage.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), checkpoint);
         await seed.close();
         baseline.clear(); for (const p of processes()) baseline.add(p.pid);
         context = await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } });
       } else context = await browser.newContext({ viewport: { width: 390, height: 900 } });
       const page = await context.newPage(); page.setDefaultTimeout(8000); await page.goto(base);
-      if (!profile) await page.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), original);
+      if (!profile || recentWrite) await page.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), original);
+      if (profile && recentWrite) await page.waitForTimeout(25000);
       await page.evaluate(value => sessionStorage.setItem("synthetic.session.sentinel", value), original);
       const before = await page.evaluate(() => ({ local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
       const candidates = processes().filter(p => !baseline.has(p.pid));
@@ -64,7 +70,7 @@ try {
       const current = processes().filter(p => p.ppid === victim.ppid);
       const restarted = current.some(p => p.pid !== victim.pid) && !current.some(p => p.pid === victim.pid);
       const expectedLocal = profile ? original : null;
-      const result = { profileKind, iteration, before, after, initialNavigationError, killed: victim, current, restarted, expectedLocal, ok: before.local === original && restarted && after.local === expectedLocal };
+      const result = { profileKind, iteration, recentWrite, checkpoint, writeAgeMs: profile && recentWrite ? 25000 : null, before, after, initialNavigationError, killed: victim, current, restarted, expectedLocal, ok: before.local === original && restarted && after.local === expectedLocal };
       results.push(result); console.log(JSON.stringify(result));
     } catch (error) { const result = { profileKind, iteration, ok: false, error: String(error) }; results.push(result); console.log(JSON.stringify(result)); }
     finally { await context?.close(); if (profile) rmSync(profile, { recursive: true, force: true }); }
