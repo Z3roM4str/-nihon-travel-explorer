@@ -110,7 +110,13 @@ async function newContext(storage = {}, viewport = { width: 390, height: 844 }, 
     if (profile) rmSync(profile, { recursive: true, force: true });
     throw error;
   }
-  if (profile) context.once("close", () => rmSync(profile, { recursive: true, force: true }));
+  if (profile) {
+    context.h03Profile = profile;
+    context.once("close", () => {
+      // The directed audit owns cleanup only when it will inspect these synthetic files AFTER the verdict.
+      if (process.env.NIHON_H03_PROFILE_DIAGNOSTICS !== "1") rmSync(profile, { recursive: true, force: true });
+    });
+  }
   await context.addInitScript(
     ({ storage: seed }) => {
       // Se siembra una sola vez por pestaña: una recarga NO debe volver a pisar el almacenamiento.

@@ -82,10 +82,18 @@ const helper = `
 import { createWriteStream, readdirSync, readFileSync, readlinkSync } from "node:fs";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
+import { snapshotProfile, storageValues, readProfileInNewProcess } from "./lib/h03-profile-evidence.mjs";
 const traceStream = createWriteStream(process.env.NIHON_EXTERNAL_TRACE_FILE);
 let caseNumber = 0, caseStart = 0, traced = false;
 const observedState = new Map();
 const caseContexts = new Set(), caseProxies = new Set();
+const caseProfiles = new Map();
+function profileBeforeClose(context) {
+  const meta = caseProfiles.get(context);
+  if (!meta || meta.beforeClose) return;
+  const dir = process.env.NIHON_EVIDENCE_OUT + '/profile-case-' + caseNumber;
+  meta.beforeClose = snapshotProfile(meta.profile, dir + '/before-close');
+}
 function processSnapshot() {
   if (process.platform !== 'linux') return [];
   const entries = [];
@@ -149,6 +157,7 @@ const contextCall = source.includes('  const context = await newContext({}, { wi
   : '  const context = await newContext({}, { width, height: 900 });';
 source = replaceOnce(source, contextCall, `${contextCall}
   caseContexts.add(context); context.once('close', () => caseContexts.delete(context));
+  if (process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1' && context.h03Profile) caseProfiles.set(context, { profile: context.h03Profile, base, before: null });
   observedState.clear();
   attachObserver(context);
   if (traced) await context.addInitScript(${observeNative.toString()}, { buffered: process.env.NIHON_H03_TRACE_MODE === 'buffered' });`);
@@ -156,25 +165,30 @@ source = replaceOnce(source, "  const base = proxy ? proxy.url : BASE_URL;", `  
   if (proxy) {
     caseProxies.add(proxy);
     const close = proxy.close;
-    proxy.close = () => close().finally(() => caseProxies.delete(proxy));
+    proxy.auditClose = () => close().finally(() => caseProxies.delete(proxy));
+    proxy.close = () => process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1' ? Promise.resolve() : proxy.auditClose();
   }`);
-source = replaceOnce(source, "  const before = await raw(page, TK);", "  const before = await raw(page, TK);\n  observeHost('before-failure', { before });");
+source = replaceOnce(source, "  const before = await raw(page, TK);", "  const before = await raw(page, TK);\n  observeHost('before-failure', { before });\n  if (caseProfiles.has(context)) caseProfiles.get(context).before = before;");
 source = replaceOnce(source, "  await page.evaluate(() => { window.__beforeReload = true; });", "  observeHost('before-reload', { observed: Object.fromEntries(observedState) });\n  await page.evaluate(() => { window.__beforeReload = true; });");
 source = replaceOnce(source, "    if (state.failing && state.pattern.test(req.url ?? \"\")) {", `    if (req.url === '/__h03_independent_storage_probe__') { res.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' }); res.end('<!doctype html><title>isolated backend probe</title>'); return; }
     if (state.failing && state.pattern.test(req.url ?? "")) {`);
 // Diagnostic probe is only performed AFTER all original strict assertions have
 // failed. It cannot turn their verdict green or refresh the first gate read.
 source = replaceOnce(source, "  await context.close();\n  if (proxy) await proxy.close();\n}\n\nasync function h03()", `  if (results.slice(caseStart).some(r => !r.ok)) {
-    const probe = await context.newPage();
-    await probe.goto(base + '/__h03_independent_storage_probe__');
-    observeHost('independent-backend-after-verdict', { value: await raw(probe, TK) });
-    await probe.close();
+    if (caseProfiles.has(context)) profileBeforeClose(context);
+    else {
+      const probe = await context.newPage();
+      await probe.goto(base + '/__h03_independent_storage_probe__');
+      observeHost('independent-backend-after-verdict', { value: await raw(probe, TK) });
+      await probe.close();
+    }
   }
   await context.close();
   if (proxy) await proxy.close();
 }
 
 async function h03()`);
+source = replaceOnce(source, "    await context.close();\n    if (proxy) await proxy.close();\n    return;", "    if (caseProfiles.has(context)) profileBeforeClose(context);\n    await context.close();\n    if (proxy) await proxy.close();\n    return;");
 source += `
 // Alternate untouched native controls and externally observed cases. No changes
 // to h03Scenario's assertions, 700 ms settling time, or 8 s recovery timeout.
@@ -182,6 +196,7 @@ if (process.env.NIHON_H03_PRIMER === "1") {
   for (const [id, fn] of [["H01", h01], ["H02a", h02Interests], ["H02b", h02Itinerary], ["H04a", h04Variants], ["H04b", h04Recovery], ["H04c", h04WriteFailure], ["X", interactions]]) await guarded(id, id, fn);
 }
 for (caseNumber = 1; caseNumber <= ${repetitions}; caseNumber++) {
+  caseProfiles.clear();
   traced = caseNumber % 3 !== 1;
   observeHost('case-start', { mode: 'proxy-reset', surface: 'OrderedSequenceBuilder', width: 390 });
   const start = results.length;
@@ -206,11 +221,25 @@ for (caseNumber = 1; caseNumber <= ${repetitions}; caseNumber++) {
       observeHost('failed-case-probe', { url: page.url(), state });
     }
     for (const proxy of caseProxies) observeHost('failed-proxy-state', { state: proxy.state });
+    for (const [context, meta] of caseProfiles) {
+      try {
+        profileBeforeClose(context);
+        await context.close();
+        const dir = process.env.NIHON_EVIDENCE_OUT + '/profile-case-' + caseNumber;
+        const afterClose = snapshotProfile(meta.profile, dir + '/after-close');
+        const reopened = await readProfileInNewProcess({ browserType: webkit, profile: meta.profile, url: meta.base + '/__h03_independent_storage_probe__' });
+        const entry = { case: caseNumber, expected: meta.before, beforeClose: meta.beforeClose, afterClose,
+          persistedBeforeClose: storageValues(meta.beforeClose), persistedAfterClose: storageValues(afterClose), reopened };
+        (evidence.h03ProfilePostVerdict ??= []).push(entry);
+        observeHost('profile-storage-after-verdict', entry);
+      } catch (error) { observeHost('profile-storage-diagnostic-error', { error: String(error) }); }
+    }
   }
   // Only after the original verdict: a timeout must not leave its context/proxy
   // running and contaminate subsequent isolated repetitions.
   await Promise.all([...caseContexts].map(context => context.close()));
-  await Promise.all([...caseProxies].map(proxy => proxy.close()));
+  await Promise.all([...caseProxies].map(proxy => proxy.auditClose()));
+  for (const meta of caseProfiles.values()) rmSync(meta.profile, { recursive: true, force: true });
 }
 await browser.close();
 await server.close();
