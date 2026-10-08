@@ -3,7 +3,7 @@
 name: P-06 certificación
 on:
   pull_request:
-    branches: [main]
+    branches: [main, claude/final-audit-data-recovery-fixes-l60xs9]
     paths:
       - ".github/workflows/p06-certification.yml"
       - "app/**"

@@ -1,7 +1,7 @@
 name: H03 conservación dirigida
 on:
   pull_request:
-    branches: [main]
+    branches: [main, claude/final-audit-data-recovery-fixes-l60xs9]
     paths:
       - ".github/workflows/h03-conservation-investigation.yml"
       - "app/scripts/h03-conservation-investigation.mjs"
@@ -52,6 +52,8 @@ jobs:
         env:
           NIHON_H03_LOAD: ${{ matrix.load }}
           NIHON_H03_RESTART_REPETITIONS: "3"
+          NIHON_H03_RESTART_RECENT: "1"
+          NIHON_H03_RESTART_WRITE_AGES: "700,3000,25000"
           NIHON_EVIDENCE_OUT: h03-restart
           DEBUG: pw:browser
         run: node scripts/h03-webkit-network-restart-probe.mjs > h03-restart.log 2>&1
@@ -99,6 +101,7 @@ jobs:
           NIHON_H03_TRACE_MODE: console
           DEBUG: pw:browser
           NIHON_H03_PRIMER: "1"
+          NIHON_H03_PROFILE_DIAGNOSTICS: "1"
           NIHON_EVIDENCE_OUT: h03-investigation
         run: node scripts/h03-conservation-investigation.mjs > h03-investigation.log 2>&1
       - uses: actions/upload-artifact@v4

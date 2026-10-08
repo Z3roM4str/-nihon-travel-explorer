@@ -110,7 +110,13 @@ async function newContext(storage = {}, viewport = { width: 390, height: 844 }, 
     if (profile) rmSync(profile, { recursive: true, force: true });
     throw error;
   }
-  if (profile) context.once("close", () => rmSync(profile, { recursive: true, force: true }));
+  if (profile) {
+    context.h03Profile = profile;
+    context.once("close", () => {
+      // The directed audit owns cleanup only when it will inspect these synthetic files AFTER the verdict.
+      if (process.env.NIHON_H03_PROFILE_DIAGNOSTICS !== "1") rmSync(profile, { recursive: true, force: true });
+    });
+  }
   await context.addInitScript(
     ({ storage: seed }) => {
       // Se siembra una sola vez por pestaña: una recarga NO debe volver a pisar el almacenamiento.
@@ -611,9 +617,8 @@ async function h03Scenario(surface, width, mode, strict) {
   const rootHtml = await page.evaluate(() => document.getElementById("root").innerHTML.length);
   const alert = page.locator("[data-lazy-failure]");
   const visible = (await alert.count()) > 0 && (await alert.first().isVisible());
-  // Sin aviso Y con el proceso de red de WebKit reemplazado durante el escenario: el motor perdió su sesión de red con la
-  // importación en vuelo (nunca se resolvió ni se rechazó). Es una prueba objetiva y se declara como cobertura parcial; sin
-  // ella, la falta de aviso sigue siendo un fallo estricto. El límite de 700 ms se conserva: el aviso sano tarda ~350 ms.
+  // Un reemplazo del proceso correlaciona con importaciones perdidas, pero no acredita causalidad ni recuperación.
+  // Se conserva como evidencia; no exime del contrato del producto ni transforma una salida ausente en éxito.
   const engineLostImport = !visible && Boolean(proxy) && networkReplaced();
   if (engineLostImport) {
     evidence.h03EngineFaults ??= [];
@@ -621,11 +626,11 @@ async function h03Scenario(surface, width, mode, strict) {
   }
   if (proxy) verdict(strict, "H03", `${tag}: el servidor realmente falló al servir el módulo`, proxy.state.hits > 0, `peticiones rechazadas=${proxy.state.hits}`);
   verdict(strict, "H03", `${tag}: el fallo no deja la aplicación en blanco`, rootHtml > 500);
-  verdict(strict && !engineLostImport, "H03", `${tag}: aparece un mensaje de recuperación visible`, visible, engineLostImport ? "WebKit reemplazó su proceso de red con la importación en vuelo; no atribuible al producto" : undefined);
+  verdict(strict, "H03", `${tag}: aparece un mensaje de recuperación visible`, visible, engineLostImport ? "proceso de red reemplazado; causa de la importación pendiente no certificada" : undefined);
   verdict(strict, "H03", `${tag}: la navegación sigue utilizable`, await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Explorar" }).isVisible());
   verdict(strict, "H03", `${tag}: los datos guardados no cambian`, (await raw(page, TK)) === before);
   if (!visible) {
-    verdict(strict && !engineLostImport, "H03", `${tag}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
+    verdict(strict, "H03", `${tag}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
     await context.close();
     if (proxy) await proxy.close();
     return;

@@ -1,0 +1,157 @@
+{
+  "sha": "4e29737b38dd7d9ae3791f318618bc207a10d4af",
+  "run": 37714147665,
+  "artifacts": [
+    {
+      "id": 11522913900,
+      "sha256": "178521a3f46ac7bea30467e7138ad257b64a17a056498ff11e512d6e12f02ba6"
+    },
+    {
+      "id": 11523038528,
+      "sha256": "68b3878d03210561d2174406ee443ae02982857318449917abb44c8ee7a63312"
+    },
+    {
+      "id": 11523307662,
+      "sha256": "76d3b5269c7a8651f272e52a20e073e1ad8c77f4e79224baaa9a30514de2e4b1"
+    },
+    {
+      "id": 11523243055,
+      "sha256": "0d54d47e8bd107693c94f8dde2156ea18c980936181961cc43d5451279af591a"
+    }
+  ],
+  "stress": [
+    {
+      "load": 0,
+      "passed": 200,
+      "failed": 1,
+      "diagnostics": [],
+      "failures": [
+        {
+          "id": "H03",
+          "label": "directed original scenario \u2014 excepci\u00f3n",
+          "ok": false,
+          "extra": "page.waitForFunction: Timeout 8000ms exceeded. |     at waitReplaced (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:23:35) |     at pressOfferedReload (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:37:15) |     at async h03Scenario (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/s"
+        }
+      ],
+      "provenance": {
+        "head": "4e29737b38dd7d9ae3791f318618bc207a10d4af",
+        "gateRef": "4e29737b38dd7d9ae3791f318618bc207a10d4af",
+        "productSourceTree": "bf880b5a72ec9cf1c40c26725ab28688465e32bc",
+        "originalHash": "2a9655b5925ecd2427961e018eadaa33712f71626a581d81928f2ca0daa769c1",
+        "observedHash": "9b99777bcb94631cbed099ddb731e483cebae02e32a13a823edc6a3bcb7c2de1",
+        "repetitions": 24,
+        "originalAssertionsAndWaitsPreserved": true,
+        "assertionSignatureHash": "a39789e70411d4707aef3fd4ef4614209f026909917fd0da07f336208774dee4",
+        "nativeTrace": false,
+        "dirtyBeforeEvidence": false,
+        "instrumentation": "Existing native call values via console -> Node NDJSON, UI attribute observer; no additional Storage reads/writes. Observer overhead remains; every third case is a native control.",
+        "traceMode": "console",
+        "processObservation": "Linux /proc PID/PPid/comm/executable basename at existing gate reads and navigation phases, outside the page; no command lines, full executable paths, or credentials. Includes renamed children.",
+        "primer": true,
+        "load": false
+      }
+    },
+    {
+      "load": 1,
+      "passed": 202,
+      "failed": 0,
+      "diagnostics": [
+        {
+          "id": "H03",
+          "label": "OrderedSequenceBuilder @390 [proxy-reset]: WebKit no envi\u00f3 la recarga ofrecida (pulsaci\u00f3n 1: petici\u00f3n del documento principal emitida=true; lleg\u00f3 al servidor=0); se pulsa de nuevo",
+          "ok": false,
+          "extra": null
+        },
+        {
+          "id": "H03",
+          "label": "OrderedSequenceBuilder @390 [proxy-reset]: WebKit no envi\u00f3 la recarga ofrecida (pulsaci\u00f3n 2: petici\u00f3n del documento principal emitida=true; lleg\u00f3 al servidor=0); se pulsa de nuevo",
+          "ok": false,
+          "extra": null
+        }
+      ],
+      "failures": [],
+      "provenance": {
+        "head": "4e29737b38dd7d9ae3791f318618bc207a10d4af",
+        "gateRef": "4e29737b38dd7d9ae3791f318618bc207a10d4af",
+        "productSourceTree": "bf880b5a72ec9cf1c40c26725ab28688465e32bc",
+        "originalHash": "2a9655b5925ecd2427961e018eadaa33712f71626a581d81928f2ca0daa769c1",
+        "observedHash": "9b99777bcb94631cbed099ddb731e483cebae02e32a13a823edc6a3bcb7c2de1",
+        "repetitions": 24,
+        "originalAssertionsAndWaitsPreserved": true,
+        "assertionSignatureHash": "a39789e70411d4707aef3fd4ef4614209f026909917fd0da07f336208774dee4",
+        "nativeTrace": false,
+        "dirtyBeforeEvidence": false,
+        "instrumentation": "Existing native call values via console -> Node NDJSON, UI attribute observer; no additional Storage reads/writes. Observer overhead remains; every third case is a native control.",
+        "traceMode": "console",
+        "processObservation": "Linux /proc PID/PPid/comm/executable basename at existing gate reads and navigation phases, outside the page; no command lines, full executable paths, or credentials. Includes renamed children.",
+        "primer": true,
+        "load": true
+      }
+    }
+  ],
+  "case13": {
+    "originalDiagnostic": {
+      "case": 13,
+      "expected": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"label\":\"Persona 1\"},{\"id\":\"trv-6b1cfc91-4004-4b58-82c0-703da2eabbd0\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"xt291mj21\",\"wacfxaag2\"]}",
+      "beforeClose": {
+        "directory": "h03-investigation/profile-case-13/before-close",
+        "databases": [],
+        "errors": [
+          {
+            "path": "HSTS/hsts-storage.sqlite",
+            "error": "relative path can't be expressed as a file URI"
+          },
+          {
+            "path": "storage/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/LocalStorage/localstorage.sqlite3",
+            "error": "relative path can't be expressed as a file URI"
+          }
+        ]
+      },
+      "afterClose": {
+        "directory": "h03-investigation/profile-case-13/after-close",
+        "databases": [],
+        "errors": [
+          {
+            "path": "HSTS/hsts-storage.sqlite",
+            "error": "relative path can't be expressed as a file URI"
+          },
+          {
+            "path": "storage/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/LocalStorage/localstorage.sqlite3",
+            "error": "relative path can't be expressed as a file URI"
+          }
+        ]
+      },
+      "persistedBeforeClose": [],
+      "persistedAfterClose": [],
+      "reopened": {
+        "raw": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"label\":\"Persona 1\"},{\"id\":\"trv-6b1cfc91-4004-4b58-82c0-703da2eabbd0\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"xt291mj21\",\"wacfxaag2\"]}",
+        "before": [],
+        "after": [
+          {
+            "pid": 7928,
+            "ppid": 7916
+          }
+        ],
+        "initScripts": false,
+        "reseeded": false
+      }
+    },
+    "independentSQLiteReadings": [
+      {
+        "path": "stress-load0/h03-investigation/profile-case-13/after-close/storage/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/LocalStorage/localstorage.sqlite3",
+        "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"label\":\"Persona 1\"},{\"id\":\"trv-6b1cfc91-4004-4b58-82c0-703da2eabbd0\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"xt291mj21\",\"wacfxaag2\"]}",
+        "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a0022007400720076002d00660033003300390031003400330066002d0033006200660032002d0034003500340030002d0038006200640036002d0061006500330034003900660034003000300064003200640022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000310022007d002c007b0022006900640022003a0022007400720076002d00360062003100630066006300390031002d0034003000300034002d0034006200350038002d0038003200630030002d0037003000330064006100320065006100620062006400300022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000320022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a0022007400720076002d00660033003300390031003400330066002d0033006200660032002d0034003500340030002d0038006200640036002d0061006500330034003900660034003000300064003200640022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a0022007400720076002d00660033003300390031003400330066002d0033006200660032002d0034003500340030002d0038006200640036002d0061006500330034003900660034003000300064003200640022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d002c0022005f00770022003a005b002200780074003200390031006d006a003200310022002c00220077006100630066007800610061006700320022005d007d00",
+        "sha256": "e825fc61851b2c5693fa7c4f0fe49161cbf6581bbe09f879e9d60456cdb5e4e1",
+        "exactExpected": true
+      },
+      {
+        "path": "stress-load0/h03-investigation/profile-case-13/before-close/storage/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/Y4ZHipCZwDSwrZifO4f5tc75EatWwejYXtxtBR5ZyJ8/LocalStorage/localstorage.sqlite3",
+        "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"label\":\"Persona 1\"},{\"id\":\"trv-6b1cfc91-4004-4b58-82c0-703da2eabbd0\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f339143f-3bf2-4540-8bd6-ae349f400d2d\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"xt291mj21\",\"wacfxaag2\"]}",
+        "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a0022007400720076002d00660033003300390031003400330066002d0033006200660032002d0034003500340030002d0038006200640036002d0061006500330034003900660034003000300064003200640022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000310022007d002c007b0022006900640022003a0022007400720076002d00360062003100630066006300390031002d0034003000300034002d0034006200350038002d0038003200630030002d0037003000330064006100320065006100620062006400300022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000320022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a0022007400720076002d00660033003300390031003400330066002d0033006200660032002d0034003500340030002d0038006200640036002d0061006500330034003900660034003000300064003200640022002c00220069006e00740065007200650073007400730022003a005b007b00220070006c006100630065004900640022003a0022004a0050002d0030003400340022002c0022007300740061006e0063006500730022003a005b007b002200740072006100760065006c006c00650072004900640022003a0022007400720076002d00660033003300390031003400330066002d0033006200660032002d0034003500340030002d0038006200640036002d0061006500330034003900660034003000300064003200640022002c0022007300740061006e006300650022003a00220069006e007400650072006500730074006500640022007d005d002c00220063006100720072006900650064004f0076006500720022003a00660061006c00730065007d005d002c0022005f00770022003a005b002200780074003200390031006d006a003200310022002c00220077006100630066007800610061006700320022005d007d00",
+        "sha256": "e825fc61851b2c5693fa7c4f0fe49161cbf6581bbe09f879e9d60456cdb5e4e1",
+        "exactExpected": true
+      }
+    ],
+    "note": "Automatic reader used relative paths and reported errors. Independent reads used absolute read-only paths on downloaded copies. Fixed in follow-up; no gate assertion changed."
+  }
+}

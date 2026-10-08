@@ -1,0 +1,1 @@
+{"ref":"6a87a7f5b35e8e73603288b5a716bdd8e4f706e6","expected":"fallo estricto sin reintento: primera pulsación sin navegación","outcome":"aceptó 2 pulsaciones","reports":["pulsación 1: petición de documento emitida=false; llegó al servidor=0; proceso de red reemplazado=true"],"passed":false}

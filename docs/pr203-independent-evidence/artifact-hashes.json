@@ -1,0 +1,22 @@
+[
+  {
+    "artifact": 11519357128,
+    "sha256": "cb1b7c36ee851d2f0756ede5ede20739353f3093dfe5acc1a163bce933e6542b",
+    "bytes": 239450
+  },
+  {
+    "artifact": 11517481148,
+    "sha256": "5001be53b927a2f03a4b1b2481e666d36f43f31e2ab6d5fa187a215a580b161d",
+    "bytes": 231539
+  },
+  {
+    "artifact": 11520126545,
+    "sha256": "18bdbd38df0c082009a9be72d80ae010b0e853b3deda33a875789dfd0a277e87",
+    "bytes": 3233357
+  },
+  {
+    "artifact": 11516263920,
+    "sha256": "0f04fc56f8fac372992a7e0175e6672aa8a91757bfff87b4afdd7f7ec9262392",
+    "bytes": 13210
+  }
+]

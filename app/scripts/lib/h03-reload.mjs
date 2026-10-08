@@ -9,14 +9,16 @@
  * Reglas (el límite de espera es explícito y no se amplía):
  *   - la recarga ocurre dentro del límite                                       → listo;
  *   - límite superado, petición de documento emitida y NO recibida por el servidor
- *     (o el proceso de red del motor se reemplazó)                              → `report(detalle)` (cobertura parcial) y
+ *                                                                             → `report(detalle)` (cobertura parcial) y
  *                                                                                 se pulsa otra vez, como haría una persona;
  *   - cada reintento exige su propia prueba del motor y hay como máximo `maxPresses` (3) pulsaciones; la última es ESTRICTA;
  *   - límite superado sin esa prueba (la petición llegó al servidor, o no se emitió) → se propaga el error (fallo estricto).
  */
-export async function pressOfferedReload({ page, alert, proxy = null, networkReplaced = () => false, report, timeoutMs = 8000, maxPresses = 3 }) {
+export async function pressOfferedReload({ page, alert, proxy = null, report, timeoutMs = 8000, maxPresses = 3 }) {
   const navigations = [];
-  const onRequest = (request) => { if (request.isNavigationRequest()) navigations.push(Date.now()); };
+  const onRequest = (request) => {
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) navigations.push(Date.now());
+  };
   page.on("request", onRequest);
   const waitReplaced = () => page.waitForFunction(() => window.__beforeReload === undefined, undefined, { timeout: timeoutMs });
   const button = () => alert.first().getByRole("button", { name: /Recargar/ });
@@ -37,10 +39,11 @@ export async function pressOfferedReload({ page, alert, proxy = null, networkRep
       } catch (error) {
         const reachedServer = proxy ? proxy.state.documents - documentsBefore : null;
         const lostRequest = Boolean(proxy) && navigations.length > 0 && reachedServer === 0;
-        const replaced = networkReplaced();
-        const detail = `pulsación ${attempt}: petición de documento emitida=${navigations.length > 0}; llegó al servidor=${reachedServer ?? "n/d"}; proceso de red reemplazado=${replaced}`;
+        const detail = `pulsación ${attempt}: petición del documento principal emitida=${navigations.length > 0}; llegó al servidor=${reachedServer ?? "n/d"}`;
         // Sin prueba del motor, o sin pulsaciones que ofrecer: fallo estricto. Cada reintento exige su propia prueba.
-        if ((!lostRequest && !replaced) || attempt === maxPresses) throw error;
+        // Un PID nuevo puede corresponder a un fallo anterior o a otro contexto. No demuestra que esta pulsación
+        // navegara ni exonera una petición que sí llegó al servidor. Esos casos siguen siendo fallos estrictos.
+        if (!lostRequest || attempt === maxPresses) throw error;
         faults.push(detail);
         report?.(detail);
       }

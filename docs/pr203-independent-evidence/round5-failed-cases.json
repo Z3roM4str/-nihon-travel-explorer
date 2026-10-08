@@ -1,0 +1,193 @@
+{
+  "run": 37699345002,
+  "artifact": 11517481148,
+  "productTree": "bf880b5a72ec9cf1c40c26725ab28688465e32bc",
+  "cases": [
+    {
+      "case": 1,
+      "instrumented": false,
+      "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-de8a72ff-36d6-4569-9be2-f07957066f83\",\"label\":\"Persona 1\"},{\"id\":\"trv-88c977a3-fbad-46d5-91c0-41358b3fc6b7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-de8a72ff-36d6-4569-9be2-f07957066f83\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-de8a72ff-36d6-4569-9be2-f07957066f83\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"g7qomwhl1\",\"omm0zaqn2\"]}",
+      "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-de8a72ff-36d6-4569-9be2-f07957066f83\",\"label\":\"Persona 1\"},{\"id\":\"trv-88c977a3-fbad-46d5-91c0-41358b3fc6b7\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-de8a72ff-36d6-4569-9be2-f07957066f83\",\"interests\":[],\"_w\":[\"g7qomwhl1\"]}",
+      "pendingAfter": {},
+      "oldDocumentStillAlive": true,
+      "networkBefore": [
+        {
+          "pid": 6310,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 6299
+        }
+      ],
+      "networkAfter": [
+        {
+          "pid": 6412,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 6299
+        }
+      ],
+      "canonicalWritesObserved": [],
+      "proxyAfter": {
+        "failing": false,
+        "kind": "reset",
+        "pattern": {},
+        "hits": 2,
+        "served": 28,
+        "documents": 1
+      },
+      "navigationRequests": [
+        {
+          "url": "http://127.0.0.1:36901/",
+          "hostAt": 1791413985244
+        },
+        {
+          "url": "http://127.0.0.1:36901/",
+          "hostAt": 1791413991159
+        },
+        {
+          "url": "http://127.0.0.1:36901/",
+          "hostAt": 1791413996177
+        },
+        {
+          "url": "http://127.0.0.1:36901/",
+          "hostAt": 1791414004188
+        }
+      ],
+      "strictFailures": {
+        "id": "H03",
+        "label": "directed original scenario — excepción",
+        "ok": false,
+        "extra": "page.waitForFunction: Timeout 8000ms exceeded. |     at waitReplaced (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:21:35) |     at pressOfferedReload (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:35:15) |     at async h03Scenario (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/s"
+      }
+    },
+    {
+      "case": 9,
+      "instrumented": true,
+      "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"label\":\"Persona 1\"},{\"id\":\"trv-94366582-16ff-4f1c-a663-3a3aab0e160b\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"vtcq3r3h1\",\"ggoi8jv62\"]}",
+      "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"label\":\"Persona 1\"},{\"id\":\"trv-94366582-16ff-4f1c-a663-3a3aab0e160b\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"interests\":[],\"_w\":[\"vtcq3r3h1\"]}",
+      "pendingAfter": {},
+      "oldDocumentStillAlive": true,
+      "networkBefore": [
+        {
+          "pid": 7226,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7215
+        }
+      ],
+      "networkAfter": [
+        {
+          "pid": 7325,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7215
+        }
+      ],
+      "canonicalWritesObserved": [
+        {
+          "at": 1791414049880,
+          "kind": "storage",
+          "method": "setItem",
+          "key": "nihon.travellers.v1",
+          "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"label\":\"Persona 1\"},{\"id\":\"trv-94366582-16ff-4f1c-a663-3a3aab0e160b\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"interests\":[],\"_w\":[\"vtcq3r3h1\"]}"
+        },
+        {
+          "at": 1791414050594,
+          "kind": "storage",
+          "method": "setItem",
+          "key": "nihon.travellers.v1",
+          "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"label\":\"Persona 1\"},{\"id\":\"trv-94366582-16ff-4f1c-a663-3a3aab0e160b\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-cd0e0429-6da7-4cc1-8ad0-44aa91eff470\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"vtcq3r3h1\",\"ggoi8jv62\"]}"
+        }
+      ],
+      "proxyAfter": {
+        "failing": false,
+        "kind": "reset",
+        "pattern": {},
+        "hits": 2,
+        "served": 27,
+        "documents": 1
+      },
+      "navigationRequests": [
+        {
+          "url": "http://127.0.0.1:34339/",
+          "hostAt": 1791414048903
+        },
+        {
+          "url": "http://127.0.0.1:34339/",
+          "hostAt": 1791414054550
+        },
+        {
+          "url": "http://127.0.0.1:34339/",
+          "hostAt": 1791414059571
+        },
+        {
+          "url": "http://127.0.0.1:34339/",
+          "hostAt": 1791414067581
+        }
+      ],
+      "strictFailures": {
+        "id": "H03",
+        "label": "directed original scenario — excepción",
+        "ok": false,
+        "extra": "page.waitForFunction: Timeout 8000ms exceeded. |     at waitReplaced (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:21:35) |     at pressOfferedReload (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:35:15) |     at async h03Scenario (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/s"
+      }
+    },
+    {
+      "case": 19,
+      "instrumented": false,
+      "before": "{\"version\":1,\"travellers\":[{\"id\":\"trv-642d0df8-b8b5-4b0b-87c4-9700842b4c81\",\"label\":\"Persona 1\"},{\"id\":\"trv-27dd9438-f47a-467d-baaf-4314e8c1813c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-642d0df8-b8b5-4b0b-87c4-9700842b4c81\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-642d0df8-b8b5-4b0b-87c4-9700842b4c81\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"3c63nhgc1\",\"xf7z15s72\"]}",
+      "after": "{\"version\":1,\"travellers\":[{\"id\":\"trv-642d0df8-b8b5-4b0b-87c4-9700842b4c81\",\"label\":\"Persona 1\"},{\"id\":\"trv-27dd9438-f47a-467d-baaf-4314e8c1813c\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-642d0df8-b8b5-4b0b-87c4-9700842b4c81\",\"interests\":[],\"_w\":[\"3c63nhgc1\"]}",
+      "pendingAfter": {},
+      "oldDocumentStillAlive": true,
+      "networkBefore": [
+        {
+          "pid": 8358,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 8347
+        }
+      ],
+      "networkAfter": [
+        {
+          "pid": 8462,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 8347
+        }
+      ],
+      "canonicalWritesObserved": [],
+      "proxyAfter": {
+        "failing": false,
+        "kind": "reset",
+        "pattern": {},
+        "hits": 7,
+        "served": 27,
+        "documents": 1
+      },
+      "navigationRequests": [
+        {
+          "url": "http://127.0.0.1:38769/",
+          "hostAt": 1791414121818
+        },
+        {
+          "url": "http://127.0.0.1:38769/",
+          "hostAt": 1791414127540
+        },
+        {
+          "url": "http://127.0.0.1:38769/",
+          "hostAt": 1791414132562
+        },
+        {
+          "url": "http://127.0.0.1:38769/",
+          "hostAt": 1791414140573
+        }
+      ],
+      "strictFailures": {
+        "id": "H03",
+        "label": "directed original scenario — excepción",
+        "ok": false,
+        "extra": "page.waitForFunction: Timeout 8000ms exceeded. |     at waitReplaced (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:21:35) |     at pressOfferedReload (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/scripts/lib/h03-reload.mjs:35:15) |     at async h03Scenario (/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/s"
+      }
+    }
+  ]
+}

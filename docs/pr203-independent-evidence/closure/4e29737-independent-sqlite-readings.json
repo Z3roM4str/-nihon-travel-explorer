@@ -1,0 +1,110 @@
+[
+  {
+    "path": "load0/h03-restart/persistent-1/after-close/storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-1/after-restart-before-close/storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-1/before-kill/storage/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/RUbNGodg648F-ZhA0gYUdfwLeCT3z0uM1pYO4QouhM8/LocalStorage/localstorage.sqlite3",
+    "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-2/after-close/storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-2/after-restart-before-close/storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-2/before-kill/storage/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/ujnRQkOG0xgdKkI2OUq2Omjz3U7Li151fbR4FRFH_-c/LocalStorage/localstorage.sqlite3",
+    "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-3/after-close/storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-3/after-restart-before-close/storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load0/h03-restart/persistent-3/before-kill/storage/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/qn6xuThTyh0gC596VAPEh-NYKvKPgnadbn9sEY7FHLY/LocalStorage/localstorage.sqlite3",
+    "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-1/after-close/storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-1/after-restart-before-close/storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-1/before-kill/storage/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/QdM_Qd0zjCc3K-0HVMcKMnKFiisCGnhGUbZ2cLNt2bc/LocalStorage/localstorage.sqlite3",
+    "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-2/after-close/storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-2/after-restart-before-close/storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-2/before-kill/storage/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/8AgqYVHZLAVCYO8t1QzmKOnwuC8erOV4YY0J4Zqedyc/LocalStorage/localstorage.sqlite3",
+    "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-3/after-close/storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-3/after-restart-before-close/storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+    "sha256": "eb57029e8795cc0cec3d7199c9f6d202948c7d4731407b1f2a3750c8c7645951",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  },
+  {
+    "path": "load1/h03-restart/persistent-3/before-kill/storage/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/ynumOPyKLA97iXgccWWuzsQxzqZuY7iHxyic6sXt8aQ/LocalStorage/localstorage.sqlite3",
+    "sha256": "0b6c027d9cbcc8473cc26f82dadd6aaff2b14136b41fe0090713629cdd2b0e24",
+    "jp044": true,
+    "rawSha256": "330c68633846d8e42037b033700f2b01aa51c51e7a6701a71297dd3c40e02b4f"
+  }
+]

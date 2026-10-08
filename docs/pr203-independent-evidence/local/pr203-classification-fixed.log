@@ -1,0 +1,10 @@
+OK   [T1] recarga emitida pero perdida antes de llegar al servidor → cobertura parcial y 2.ª pulsación (esperado=2 intentos; obtenido=2 intentos; informes=1; documentos recibidos por el servidor=1)
+OK   [T2] la recarga llega al servidor y no recibe respuesta → fallo estricto (esperado=lanza; obtenido=lanza; informes=0; documentos recibidos por el servidor=1)
+OK   [T3] el botón no emite ninguna navegación → fallo estricto (esperado=lanza; obtenido=lanza; informes=0; documentos recibidos por el servidor=0)
+OK   [T4] recarga sana → un intento y sin informe (esperado=1 intento; obtenido=1 intento; informes=0; documentos recibidos por el servidor=1)
+OK   [T5] recarga perdida en las tres pulsaciones → fallo estricto en la última (esperado=lanza; obtenido=lanza; informes=2; documentos recibidos por el servidor=0)
+OK   [T7] recarga perdida dos veces y la tercera funciona → cobertura parcial y 3 pulsaciones (esperado=3 intentos; obtenido=3 intentos; informes=2; documentos recibidos por el servidor=1)
+OK   [T6] proceso de red reemplazado + petición recibida sin respuesta → fallo estricto (esperado=lanza; obtenido=lanza; informes=0; documentos recibidos por el servidor=1)
+OK   [T8] proceso de red reemplazado + botón que no navega → fallo estricto (esperado=lanza; obtenido=lanza; informes=0; documentos recibidos por el servidor=0)
+
+8/8 comprobaciones OK (chromium)
