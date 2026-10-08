@@ -22,6 +22,7 @@ const results=[];
 async function setup(extra={}) {
   const ctx = await browser.newContext();
   await ctx.addInitScript(({TK,DK,t,d,extra})=>{
+    if (location.pathname === '/blank-independent-reader') return;
     if (!localStorage.getItem('__reviewSeed')) {
       localStorage.setItem('__reviewSeed','1');
       localStorage.setItem(TK,JSON.stringify(t)); localStorage.setItem(DK,JSON.stringify(d));
@@ -29,8 +30,8 @@ async function setup(extra={}) {
     }
     const real=Storage.prototype.setItem, get=Storage.prototype.getItem;
     window.reviewStorageTrace=[];
-    Storage.prototype.getItem=function(k){const v=get.call(this,k);if(window.recordReviewStorage&&this===localStorage&&k===DK)window.reviewStorageTrace.push({kind:'get',at:Date.now(),value:v});return v;};
-    Storage.prototype.setItem=function(k,v){if((window.failReviewWrites && (k===TK || k===DK)) || window.failReviewKey===k) throw new DOMException('synthetic quota','QuotaExceededError');const result=real.call(this,k,v);if(window.recordReviewStorage&&this===localStorage&&k===DK)window.reviewStorageTrace.push({kind:'set',at:Date.now(),value:v});return result;};
+    Storage.prototype.getItem=function(k){const v=get.call(this,k);if(window.recordReviewStorage&&this===localStorage&&(k===DK||(k===TK&&window.recordReviewTravellers)))window.reviewStorageTrace.push({kind:'get',key:k,at:Date.now(),value:v});return v;};
+    Storage.prototype.setItem=function(k,v){if((window.failReviewWrites && (k===TK || k===DK)) || window.failReviewKey===k) throw new DOMException('synthetic quota','QuotaExceededError');const result=real.call(this,k,v);if(window.recordReviewStorage&&this===localStorage&&(k===DK||(k===TK&&window.recordReviewTravellers)))window.reviewStorageTrace.push({kind:'set',key:k,at:Date.now(),value:v});return result;};
     window.addEventListener('storage', e=>{if(window.dropReviewEvents)e.stopImmediatePropagation();},true);
   },{TK,DK,t:travellers,d:draft,extra});
   const a=await ctx.newPage(); await a.goto(HARNESS_URL); await a.waitForFunction(()=>window.review);
@@ -205,13 +206,21 @@ await test('h03-module-refresh-timeout-preserves-pending',async()=>{
 for (const replacement of ['{invalid-json', JSON.stringify({...travellers,version:2})]) await test('retry-queued-retained-events-'+(replacement.startsWith('{invalid')?'invalid':'future'),async()=>{
  const {ctx,a}=await setup();const b=await remote(ctx);await a.bringToFront();
  await a.evaluate(()=>{window.failReviewWrites=true;window.review.travellers.toggleSaved('JP-021');});await a.waitForFunction(()=>window.review.getPersistenceState()==='error');
- await hold(b,TK);await a.evaluate(()=>{window.dropReviewEvents=true;window.failReviewWrites=false;void window.review.retryPersistence();});
- await b.evaluate(({key,value})=>localStorage.setItem(key,value),{key:TK,value:replacement});
+ await hold(b,TK);await a.evaluate(()=>{window.recordReviewStorage=true;window.recordReviewTravellers=true;window.dropReviewEvents=true;window.failReviewWrites=false;void window.review.retryPersistence();});
+ await b.evaluate(({key,value})=>{window.recordReviewStorage=true;window.recordReviewTravellers=true;localStorage.setItem(key,value);},{key:TK,value:replacement});
  await b.evaluate(()=>window.releaseReviewLock());await a.waitForTimeout(400);
  const actual=await a.evaluate(k=>localStorage.getItem(k),TK);
  const outcome=await a.evaluate(()=>window.review.backup.exportBackup());
  const copy=await a.evaluate(k=>sessionStorage.getItem('nihon.pending.v1.'+k),TK);
- await ctx.close();return {preserved:actual===replacement,correct:outcome.ok===false&&copy!==null&&copy.includes('JP-021'),exportOutcome:outcome};
+ // Diagnostics begin AFTER the original verdict observations; no timing or
+ // assertion changes. The reader deliberately receives no seed/wrappers/Nihon.
+ const observe = key => ({documentId: window.reviewDocumentId ||= crypto.randomUUID(), url: location.href, raw: localStorage.getItem(key), trace: window.reviewStorageTrace});
+ const documents = {a:await a.evaluate(observe,TK),b:await b.evaluate(observe,TK)};
+ const independent=await ctx.newPage();await independent.route('**/blank-independent-reader',r=>r.fulfill({contentType:'text/html',body:'<html>Unseeded native reader</html>'}));
+ await independent.goto(BASE+'/blank-independent-reader');
+ documents.native=await independent.evaluate(key=>({documentId:crypto.randomUUID(),url:location.href,raw:localStorage.getItem(key),hasReview:!!window.review,hasTrace:!!window.reviewStorageTrace}),TK);
+ const storageState=await ctx.storageState();
+ await ctx.close();return {preserved:actual===replacement,correct:outcome.ok===false&&copy!==null&&copy.includes('JP-021'),exportOutcome:outcome,expected:replacement,actual,pendingCopy:copy,documents,storageState,profileKind:'private context; not a disk-durability claim'};
 });
 for (const lineage of ['full','missing','malformed']) await test('ambiguous-lineage-'+lineage+'-survives-reload',async()=>{
  const history=Array.from({length:95},(_,i)=>'history-'+i);
