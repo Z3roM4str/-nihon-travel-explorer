@@ -8,6 +8,7 @@ on:
       - ".github/workflows/closure-targeted-probes.yml"
       - "app/scripts/safari-intro-gesture-probe.py"
       - "app/scripts/webstorage-lock-staleness-probe.mjs"
+      - "app/src/lib/storage-lock.ts"
   workflow_dispatch:
 permissions:
   contents: read

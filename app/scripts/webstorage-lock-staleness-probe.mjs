@@ -20,6 +20,8 @@ const BROWSER = process.env.NIHON_BROWSER === 'webkit' ? 'webkit' : 'chromium';
 const ITERATIONS = Number(process.env.NIHON_ITERATIONS ?? 400);
 const LOADS = (process.env.NIHON_LOADS ?? '0,1').split(',').map(Number);
 const OUT = process.env.NIHON_OUT ?? 'webstorage-lock-staleness.json';
+// Must equal SETTLE_AFTER_CONTENTION_MS in src/lib/storage-lock.ts: the probe checks that the chosen window covers the lag.
+const SETTLE_MS = Number(process.env.NIHON_SETTLE_MS ?? 32);
 
 const server = http.createServer((req, res) => { res.setHeader('Content-Type', 'text/html'); res.end('<html>probe</html>'); });
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -49,20 +51,25 @@ async function measure(load) {
       void navigator.locks.request('probe:' + k, () => new Promise((resolve) => { window.__release = resolve; window.__held = true; })); }, key);
     await b.waitForFunction(() => window.__held);
     // A queues for the lock; it records what it reads at the grant, after one task, and until fresh.
-    const pending = a.evaluate((k) => new Promise((resolve) => {
+    const pending = a.evaluate(({ k, settleMs }) => new Promise((resolve) => {
       navigator.locks.request('probe:' + k, async () => {
         const grantedAt = performance.now();
         const atGrant = localStorage.getItem(k);
         await new Promise((r) => setTimeout(r, 0));
         const afterOneTask = localStorage.getItem(k);
-        let staleMs = null;
-        if (afterOneTask !== 'B') {
-          while (localStorage.getItem(k) !== 'B' && performance.now() - grantedAt < 2000) await new Promise((r) => setTimeout(r, 1));
-          staleMs = localStorage.getItem(k) === 'B' ? Math.round(performance.now() - grantedAt) : 'never-within-2s';
+        // Poll every millisecond through the settle window to time the first fresh read, then take the
+        // independent read the product would take at the end of the window.
+        let firstFreshMs = null;
+        while (performance.now() - grantedAt < settleMs) {
+          if (firstFreshMs === null && localStorage.getItem(k) === 'B') firstFreshMs = Math.round(performance.now() - grantedAt);
+          await new Promise((r) => setTimeout(r, 1));
         }
-        resolve({ atGrant, afterOneTask, staleMs });
+        const afterSettle = localStorage.getItem(k);
+        let staleMs = null;
+        if (afterOneTask !== 'B') staleMs = firstFreshMs ?? (afterSettle === 'B' ? settleMs : 'beyond-settle');
+        resolve({ atGrant, afterOneTask, afterSettle, staleMs });
       });
-    }), key);
+    }), { k: key, settleMs: SETTLE_MS });
     await b.evaluate((k) => { localStorage.setItem(k, 'B'); window.__release(); }, key);
     samples.push(await pending);
   }
@@ -71,9 +78,9 @@ async function measure(load) {
   const lags = samples.map((s) => s.staleMs).filter((v) => v !== null);
   return {
     load, iterations: ITERATIONS,
-    staleAtGrant: stale('atGrant'), staleAfterOneTask: stale('afterOneTask'),
-    lagsMs: lags, maxLagMs: lags.length ? Math.max(...lags.filter((v) => typeof v === 'number'), 0) : 0,
-    neverFresh: lags.filter((v) => v === 'never-within-2s').length,
+    staleAtGrant: stale('atGrant'), staleAfterOneTask: stale('afterOneTask'), staleAfterSettle: stale('afterSettle'), settleMs: SETTLE_MS,
+    lagsMs: lags, maxLagMs: Math.max(0, ...lags.filter((v) => typeof v === 'number')),
+    neverFresh: lags.filter((v) => v === 'beyond-settle').length,
   };
 }
 
@@ -81,4 +88,4 @@ const report = { browser: BROWSER, version: browser.version(), results: [] };
 for (const load of LOADS) { report.results.push(await measure(load)); console.log(JSON.stringify(report.results.at(-1))); }
 await browser.close(); server.close();
 writeFileSync(OUT, JSON.stringify(report, null, 2));
-console.log('RESULT ' + JSON.stringify(report.results.map(({ load, staleAtGrant, staleAfterOneTask, maxLagMs, neverFresh }) => ({ load, staleAtGrant, staleAfterOneTask, maxLagMs, neverFresh }))));
+console.log('RESULT ' + JSON.stringify(report.results.map(({ load, staleAtGrant, staleAfterOneTask, staleAfterSettle, maxLagMs, neverFresh }) => ({ load, staleAtGrant, staleAfterOneTask, staleAfterSettle, maxLagMs, neverFresh }))));
