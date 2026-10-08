@@ -76,6 +76,12 @@ jobs:
           NIHON_ITERATIONS: "500"
           NIHON_OUT: lock-staleness-${{ matrix.os }}-${{ matrix.browser }}.json
         run: node scripts/webstorage-lock-staleness-probe.mjs | tee lock-staleness.log
+      - name: Consequence of a stale overwrite (events, backing store)
+        env:
+          NIHON_BROWSER: ${{ matrix.browser }}
+          NIHON_ITERATIONS: "300"
+          NIHON_OUT: stale-overwrite-${{ matrix.os }}-${{ matrix.browser }}.json
+        run: node scripts/webstorage-stale-overwrite-probe.mjs | tee stale-overwrite.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -83,5 +89,7 @@ jobs:
           path: |
             app/lock-staleness-*.json
             app/lock-staleness.log
+            app/stale-overwrite-*.json
+            app/stale-overwrite.log
           retention-days: 30
           if-no-files-found: error
