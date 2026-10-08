@@ -150,6 +150,7 @@ const loadWorkers = process.env.NIHON_H03_LOAD === "1" ? Array.from({ length: Ma
 observeHost("environment", { node: process.version, cpuCount: availableParallelism(), loadWorkers: loadWorkers.length });
 `;
 let source = helper + original.slice(0, original.indexOf("const steps = ["));
+source = replaceOnce(source, 'mkdtempSync(join(tmpdir(), "nihon-h03-profile-"))', `mkdtempSync(join(process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1' ? ${JSON.stringify(out)} : tmpdir(), "nihon-h03-profile-"))`);
 source = replaceOnce(source, '    if (profile) rmSync(profile, { recursive: true, force: true });\n    throw error;', `    if (profile && process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1') {
       const destination = process.env.NIHON_EVIDENCE_OUT + '/launch-failure-' + randomUUID();
       try { observeHost('profile-launch-failure', { profile, destination, error: String(error), snapshot: snapshotProfile(profile, destination) }); }

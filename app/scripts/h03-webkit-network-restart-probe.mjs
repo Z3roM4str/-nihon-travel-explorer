@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { readdirSync, readFileSync, readlinkSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { resolve, join } from "node:path";
-import { tmpdir, availableParallelism } from "node:os";
+import { availableParallelism } from "node:os";
 import { Worker } from "node:worker_threads";
 import { execFileSync } from "node:child_process";
 import { webkit } from "playwright";
@@ -23,6 +23,9 @@ const recentWrite = process.env.NIHON_H03_RESTART_RECENT === "1";
 // Test bounded write ages separately; never change a product gate's settling/recovery time.
 const writeAges = recentWrite ? (process.env.NIHON_H03_RESTART_WRITE_AGES ?? "25000").split(",").map(Number) : [null];
 if (writeAges.length > 3 || writeAges.some(age => age !== null && (!Number.isInteger(age) || age < 0 || age > 25000))) throw new Error("Invalid bounded write-age matrix");
+// The historical process replacement may precede the 700 ms gate read.
+// Fresh A -> B profiles therefore target early writes, without adding cases.
+const freshWriteAges = recentWrite ? [0, 100, 700] : [null];
 const processes = () => readdirSync("/proc").filter(p => /^\d+$/.test(p)).flatMap(p => {
   try {
     const executable = readlinkSync(`/proc/${p}/exe`).split("/").at(-1);
@@ -39,12 +42,13 @@ const results = [];
 const loadWorkers = process.env.NIHON_H03_LOAD === "1" ? Array.from({ length: Math.min(2, availableParallelism()) }, () => new Worker(
   'function load() { const until = performance.now() + 20; while (performance.now() < until) Math.sqrt(Math.random()); setTimeout(load, 10); } load();', { eval: true })) : [];
 try {
-  for (const profileKind of ["ephemeral", "persistent", "persistent-fresh"]) for (const writeAge of profileKind !== "ephemeral" ? writeAges : [null]) for (let iteration = 1; iteration <= repetitions; iteration++) {
+  for (const profileKind of ["ephemeral", "persistent", "persistent-fresh"]) for (const writeAge of profileKind === "persistent-fresh" ? freshWriteAges : profileKind === "persistent" ? writeAges : [null]) for (let iteration = 1; iteration <= repetitions; iteration++) {
     const profileId = randomUUID();
     const original = JSON.stringify({ version: 1, travellers: [{ id: profileId, label: "Synthetic" }], activeTravellerId: profileId, interests: [{ placeId: "JP-044", stances: [{ travellerId: profileId, stance: "interested" }], carriedOver: false }], _w: [`${profileId}-A`, `${profileId}-B`] });
     const checkpoint = recentWrite ? JSON.stringify({ ...JSON.parse(original), interests: [], _w: [`${profileId}-A`] }) : original;
-    const profile = profileKind !== "ephemeral" ? mkdtempSync(join(tmpdir(), "nihon-h03-native-restart-")) : null;
     const caseOut = resolve(out, `${profileKind}${writeAge === null ? "" : `-age${writeAge}`}-${iteration}`);
+    mkdirSync(caseOut, { recursive: true });
+    const profile = profileKind !== "ephemeral" ? mkdtempSync(join(caseOut, "live-profile-")) : null;
     const baseline = new Set(processes().map(p => p.pid));
     let context;
     try {
@@ -61,7 +65,15 @@ try {
       const page = await context.newPage(); page.setDefaultTimeout(8000); await page.goto(base);
       // Same fresh-profile A -> B write sequence as the historical application,
       // without an intermediate close. Still no Nihon code or Storage wrapper.
-      if (profileKind === "persistent-fresh") await page.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), checkpoint);
+      let diskCheckpoint = null;
+      if (profileKind === "persistent-fresh") {
+        await page.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), checkpoint);
+        // Application initialization A precedes the UI interest B by about
+        // 1.7 s in the preserved failed case. Immediate A/B calls can coalesce
+        // into the first SQLite transaction and miss this persistence window.
+        await page.waitForTimeout(1700);
+        diskCheckpoint = snapshotProfile(profile, `${caseOut}/checkpoint-A-same-process`);
+      }
       if (!profile || recentWrite) await page.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), original);
       const writeReturnedAt = !profile || recentWrite ? Date.now() : null;
       if (profile && recentWrite) await page.waitForTimeout(writeAge);
@@ -96,7 +108,7 @@ try {
       const result = { profileKind, profileId, profile, iteration, recentWrite, checkpoint, minimumWriteAgeMs: profile && recentWrite ? writeAge : null,
         writeReturnedAt, killedAt, writeAgeAtKillMs: writeReturnedAt === null ? null : killedAt - writeReturnedAt,
         before, after, initialNavigationError, killed: victim, current, restarted, expectedLocal,
-        diskBefore, diskAfterRestart, diskAfterClose, reopened,
+        diskCheckpoint, diskBefore, diskAfterRestart, diskAfterClose, reopened,
         persistedBefore: diskBefore ? storageValues(diskBefore) : null,
         persistedAfterRestart: diskAfterRestart ? storageValues(diskAfterRestart) : null,
         persistedAfterClose: diskAfterClose ? storageValues(diskAfterClose) : null,

@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { launch, newPage, tripFixture } from "./lib/modern-trip.mjs";
+import { readSettledPlanningDraft } from "./lib/settled-planning-draft.mjs";
 
 // Causal witness of the historical 3 x 40 ms quiet-read heuristic. Holding the
 // real Web Lock is an explicit intervention, not a claim about an old trace.
@@ -31,15 +32,16 @@ try {
         pending: sessionStorage.getItem("nihon.pending.v1.nihon.manualPlanningDraft"),
         locks: await navigator.locks.query(),
       }));
-      if (held) await page.evaluate(() => window.__auditReleaseLock());
+      if (held) await page.evaluate(() => { setTimeout(() => window.__auditReleaseLock(), 300); });
+      const correctedRead = await readSettledPlanningDraft(page);
       await page.waitForFunction(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft")).interHubSegments.length === 1);
       const final = await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft"));
       await page.reload();
       const afterReload = await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft"));
       const originalAssertion = originalRead.interHubSegments.length === 1;
       const pendingCount = JSON.parse(JSON.parse(observed.pending ?? "null")?.value ?? "null")?.interHubSegments?.length;
-      const result = { held, originalAssertion, originalRead, observed, pendingCount, final, afterReload,
-        ok: (held ? !originalAssertion && observed.uiCount === 1 && pendingCount === 1 : originalAssertion) && JSON.parse(afterReload).interHubSegments.length === 1 };
+      const result = { held, originalAssertion, correctedAssertion: correctedRead.interHubSegments.length === 1, originalRead, correctedRead, observed, pendingCount, final, afterReload,
+        ok: (held ? !originalAssertion && observed.uiCount === 1 && pendingCount === 1 : originalAssertion) && correctedRead.interHubSegments.length === 1 && JSON.parse(afterReload).interHubSegments.length === 1 };
       results.push(result); console.log(JSON.stringify(result));
     } finally { await context.close(); }
   }

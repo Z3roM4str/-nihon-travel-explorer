@@ -6,10 +6,42 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: pr203-anomalies-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  preserved_case:
+    name: Lectura independiente del perfil fallido d429ba2 caso 4
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Recuperar evidencia existente, sin ejecutar el caso otra vez
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: Z3roM4str/-nihon-travel-explorer
+          run-id: 37720203473
+          name: h03-external-head-load0-d429ba2dd1bac277c171da7365373c9a4466dde8
+          path: preserved-d429ba2
+      - name: Leer únicamente copias SQLite del perfil conservado
+        run: python3 app/scripts/inspect-h03-sqlite.py preserved-d429ba2/h03-investigation/profile-case-4 > preserved-case4-independent.json
+      - name: Conservar por separado el perfil original ya capturado y sus bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preserved-d429ba2-case4-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            preserved-d429ba2/h03-investigation/profile-case-4/
+            preserved-d429ba2/h03-investigation/results.json
+            preserved-d429ba2/h03-investigation/provenance.json
+            preserved-case4-independent.json
+          retention-days: 30
+          if-no-files-found: error
   transfer:
     name: Traslado ${{ matrix.browser }} load=${{ matrix.load }}
     runs-on: ubuntu-24.04
@@ -49,6 +81,20 @@ jobs:
           NIHON_TRANSFER_PAIRS: ${{ matrix.browser == 'webkit' && '8' || '2' }}
           NIHON_EVIDENCE_OUT: transfer-paired
         run: node scripts/p06-transfer-investigation.mjs > transfer-paired.log 2>&1
+      - name: Lecturas y eventos separados de las trazas gráficas
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transfer-metadata-${{ matrix.browser }}-load${{ matrix.load }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            app/transfer-lock/
+            app/transfer-lock.log
+            app/transfer-paired/**/*.json
+            app/transfer-paired/**/*.ndjson
+            app/transfer-paired/**/*.log
+            app/transfer-paired.log
+          retention-days: 30
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:

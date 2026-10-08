@@ -4,13 +4,22 @@ import json
 import pathlib
 import sqlite3
 import sys
+import shutil
+import tempfile
 
 root = pathlib.Path(sys.argv[1]).resolve()
 results = []
 for path in sorted(root.rglob("localstorage.sqlite3")):
     record = {"path": str(path.relative_to(root)), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
     try:
-        db = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)
+        # Even SQLite's shared-memory bookkeeping stays off the preserved file.
+        temporary = tempfile.TemporaryDirectory()
+        copy = pathlib.Path(temporary.name) / path.name
+        for suffix in ["", "-wal", "-shm"]:
+            original = pathlib.Path(str(path) + suffix)
+            if original.exists():
+                shutil.copy2(original, pathlib.Path(str(copy) + suffix))
+        db = sqlite3.connect(copy.as_uri() + "?mode=ro", uri=True)
         db.execute("PRAGMA query_only=ON")
         rows = []
         for key, value in db.execute("SELECT key,value FROM ItemTable"):
@@ -21,6 +30,7 @@ for path in sorted(root.rglob("localstorage.sqlite3")):
                              "travellerIds": [p["id"] for p in json.loads(raw)["travellers"]],
                              "interests": [p["placeId"] for p in json.loads(raw)["interests"]]})
         db.close()
+        temporary.cleanup()
         record["rows"] = rows
     except Exception as error:
         record["error"] = str(error)

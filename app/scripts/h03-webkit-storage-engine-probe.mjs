@@ -1,10 +1,12 @@
 import { createServer } from "node:http";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
-import { tmpdir, availableParallelism } from "node:os";
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { availableParallelism } from "node:os";
 import { join, resolve } from "node:path";
 import { Worker } from "node:worker_threads";
 import { execFileSync } from "node:child_process";
 import { webkit } from "playwright";
+import { snapshotProfile, storageValues, readProfileInNewProcess } from "./lib/h03-profile-evidence.mjs";
 
 // Counterfactual, not the product gate: no React, Nihon code, Store, or writer on
 // reload. Same native Storage, real reset, cache:'reload', isolated profiles.
@@ -27,6 +29,10 @@ document.querySelector('#reload').onclick = async () => {
 };
 </script>`;
 const server = createServer((req, res) => {
+  record('server-received', { url: req.url, origin: req.headers.host });
+  if (req.url === '/__h03_independent_storage_probe__') {
+    res.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' }); res.end('<!doctype html><title>native read only</title>'); return;
+  }
   if (req.url === "/module.js") {
     if (failing) { rejected++; req.socket.destroy(); return; }
     res.writeHead(200, { "content-type": "application/javascript", "cache-control": "no-store" });
@@ -46,20 +52,26 @@ try {
     { profile: "ephemeral", reset: true, hold: true },
     { profile: "persistent", reset: true, hold: false },
   ]) for (let iteration = 1; iteration <= count; iteration++) {
-    const profile = config.profile === "persistent" ? mkdtempSync(join(tmpdir(), "nihon-h03-engine-")) : null;
-    const context = profile ? await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } }) : await browser.newContext({ viewport: { width: 390, height: 900 } });
-    const page = await context.newPage();
+    const profileId = randomUUID(), caseOut = resolve(out, `${config.profile}-reset${config.reset}-hold${config.hold}-${iteration}`);
+    mkdirSync(caseOut, { recursive: true });
+    const profile = config.profile === "persistent" ? mkdtempSync(join(caseOut, "live-profile-")) : null;
+    const original = JSON.stringify({ version: 1, travellers: [{ id: profileId, label: "Synthetic" }], activeTravellerId: profileId, interests: [{ placeId: "JP-044", stances: [{ travellerId: profileId, stance: "interested" }], carriedOver: false }] });
+    let context, page, result;
+    try {
+    context = profile ? await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } }) : await browser.newContext({ viewport: { width: 390, height: 900 } });
+    page = await context.newPage();
     page.setDefaultTimeout(8000);
     page.on("crash", () => record("page-crash", { config, iteration }));
     page.on("framenavigated", frame => { if (frame === page.mainFrame()) record("navigation", { config, iteration, url: frame.url() }); });
     failing = false; rejected = 0;
-    try {
+    page.on('request', request => record('request-start', { config, iteration, profileId, profile, url: request.url(), mainDocument: request.isNavigationRequest() && request.frame() === page.mainFrame() }));
       await page.goto(base);
-      const original = JSON.stringify({ version: 1, travellers: [{ id: "synthetic-p1", label: "Synthetic" }], activeTravellerId: "synthetic-p1", interests: [{ placeId: "JP-044", stances: [{ travellerId: "synthetic-p1", stance: "interested" }], carriedOver: false }] });
       await page.evaluate(raw => {
         localStorage.setItem("nihon.travellers.v1", raw);
         sessionStorage.setItem("synthetic.session.sentinel", raw);
       }, original);
+      record('native-write-returned', { config, iteration, profileId, profile, value: original });
+      if (profile) record('profile-before-reset', { config, iteration, profileId, snapshot: snapshotProfile(profile, `${caseOut}/before-reset`) });
       if (config.hold) {
         const anchor = await context.newPage(); await anchor.goto(base);
         record("anchor", { config, iteration, value: await anchor.evaluate(() => localStorage.getItem("nihon.travellers.v1")) });
@@ -75,15 +87,29 @@ try {
       await page.waitForSelector("#root *");
       const after = await page.evaluate(() => ({ local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
       const ok = before.local === original && after.local === original && before.session === original && after.session === original && (!config.reset || rejected > 0);
-      const result = { config, iteration, before, after, rejected, ok };
+      result = { config, iteration, profileId, profile, before, after, rejected, ok };
       if (!ok) {
         await page.waitForTimeout(1000); // Only after the original verdict; never changes it.
         result.later = await page.evaluate(() => ({ local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
       }
-      results.push(result); record("result", result);
-      console.log(JSON.stringify(result));
-    } catch (error) { results.push({ config, iteration, ok: false, error: String(error) }); }
-    finally { await context.close(); if (profile) rmSync(profile, { recursive: true, force: true }); }
+    } catch (error) { result = { config, iteration, profileId, profile, ok: false, error: String(error) }; }
+    finally {
+      if (profile) {
+        try { result.beforeClose = snapshotProfile(profile, `${caseOut}/before-close`); }
+        catch (error) { result.ok = false; result.preservationError = String(error); }
+      }
+      await context?.close();
+      if (profile) {
+        try {
+          result.afterClose = snapshotProfile(profile, `${caseOut}/original-preserved`);
+          result.reopened = await readProfileInNewProcess({ browserType: webkit, profile, url: base + '/__h03_independent_storage_probe__' });
+          result.diskExact = storageValues(result.afterClose).length > 0 && storageValues(result.afterClose).every(row => row.value === original);
+          if (!result.diskExact || result.reopened.raw !== original) result.ok = false;
+        } catch (error) { result.ok = false; result.diagnosticError = String(error); }
+      }
+      results.push(result); record('result', result); console.log(JSON.stringify(result));
+      // The original synthetic persistent profile is never deleted by this probe.
+    }
   }
 } finally {
   await browser.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
