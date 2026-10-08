@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
-import { readdirSync, readFileSync, readlinkSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readdirSync, readFileSync, readlinkSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { resolve, join } from "node:path";
 import { tmpdir, availableParallelism } from "node:os";
 import { Worker } from "node:worker_threads";
@@ -34,18 +35,20 @@ const server = createServer((req, res) => { res.writeHead(200, { "content-type":
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 const browser = await webkit.launch();
-const original = JSON.stringify({ version: 1, travellers: [{ id: "synthetic-p1", label: "Synthetic" }], activeTravellerId: "synthetic-p1", interests: [{ placeId: "JP-044", stances: [{ travellerId: "synthetic-p1", stance: "interested" }], carriedOver: false }] });
-const checkpoint = recentWrite ? JSON.stringify({ ...JSON.parse(original), interests: [] }) : original;
 const results = [];
 const loadWorkers = process.env.NIHON_H03_LOAD === "1" ? Array.from({ length: Math.min(2, availableParallelism()) }, () => new Worker(
   'function load() { const until = performance.now() + 20; while (performance.now() < until) Math.sqrt(Math.random()); setTimeout(load, 10); } load();', { eval: true })) : [];
 try {
-  for (const profileKind of ["ephemeral", "persistent"]) for (const writeAge of profileKind === "persistent" ? writeAges : [null]) for (let iteration = 1; iteration <= repetitions; iteration++) {
-    const profile = profileKind === "persistent" ? mkdtempSync(join(tmpdir(), "nihon-h03-native-restart-")) : null;
+  for (const profileKind of ["ephemeral", "persistent", "persistent-fresh"]) for (const writeAge of profileKind !== "ephemeral" ? writeAges : [null]) for (let iteration = 1; iteration <= repetitions; iteration++) {
+    const profileId = randomUUID();
+    const original = JSON.stringify({ version: 1, travellers: [{ id: profileId, label: "Synthetic" }], activeTravellerId: profileId, interests: [{ placeId: "JP-044", stances: [{ travellerId: profileId, stance: "interested" }], carriedOver: false }], _w: [`${profileId}-A`, `${profileId}-B`] });
+    const checkpoint = recentWrite ? JSON.stringify({ ...JSON.parse(original), interests: [], _w: [`${profileId}-A`] }) : original;
+    const profile = profileKind !== "ephemeral" ? mkdtempSync(join(tmpdir(), "nihon-h03-native-restart-")) : null;
+    const caseOut = resolve(out, `${profileKind}${writeAge === null ? "" : `-age${writeAge}`}-${iteration}`);
     const baseline = new Set(processes().map(p => p.pid));
     let context;
     try {
-      if (profile) {
+      if (profile && profileKind === "persistent") {
         // Establish an existing durable original, rather than assuming a recent
         // asynchronous database transaction survived a deliberate process kill.
         const seed = await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } });
@@ -54,17 +57,19 @@ try {
         await seed.close();
         baseline.clear(); for (const p of processes()) baseline.add(p.pid);
         context = await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } });
-      } else context = await browser.newContext({ viewport: { width: 390, height: 900 } });
+      } else context = profile ? await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } }) : await browser.newContext({ viewport: { width: 390, height: 900 } });
       const page = await context.newPage(); page.setDefaultTimeout(8000); await page.goto(base);
+      // Same fresh-profile A -> B write sequence as the historical application,
+      // without an intermediate close. Still no Nihon code or Storage wrapper.
+      if (profileKind === "persistent-fresh") await page.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), checkpoint);
       if (!profile || recentWrite) await page.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), original);
       const writeReturnedAt = !profile || recentWrite ? Date.now() : null;
       if (profile && recentWrite) await page.waitForTimeout(writeAge);
       await page.evaluate(value => sessionStorage.setItem("synthetic.session.sentinel", value), original);
-      const before = await page.evaluate(() => ({ local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
+      const before = await page.evaluate(() => ({ documentId: window.__nativeDocumentId ??= crypto.randomUUID(), origin: location.origin, local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
       const candidates = processes().filter(p => !baseline.has(p.pid));
       if (candidates.length !== 1) throw new Error(`Refusing to kill ambiguous NetworkProcess: ${JSON.stringify(candidates)}`);
       const victim = candidates[0];
-      const caseOut = resolve(out, `${profileKind}${writeAge === null ? "" : `-age${writeAge}`}-${iteration}`);
       const diskBefore = profile ? snapshotProfile(profile, `${caseOut}/before-kill`) : null;
       const killedAt = Date.now();
       process.kill(victim.pid, "SIGKILL");
@@ -75,7 +80,7 @@ try {
       try { await page.reload(); } catch (error) { initialNavigationError = String(error); }
       const independent = await context.newPage(); independent.setDefaultTimeout(8000);
       await independent.goto(base); await independent.waitForSelector("#root");
-      const after = await independent.evaluate(() => ({ local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
+      const after = await independent.evaluate(() => ({ documentId: window.__nativeDocumentId ??= crypto.randomUUID(), origin: location.origin, local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
       const current = processes().filter(p => p.ppid === victim.ppid);
       const restarted = current.some(p => p.pid !== victim.pid) && !current.some(p => p.pid === victim.pid);
       const expectedLocal = profile ? original : null;
@@ -87,17 +92,28 @@ try {
         reopened = await readProfileInNewProcess({ browserType: webkit, profile, url: base });
       }
       const diskQueryable = !profile || [diskBefore, diskAfterRestart, diskAfterClose].every(snapshot => snapshot.errors.length === 0 && storageValues(snapshot).length > 0);
-      const result = { profileKind, iteration, recentWrite, checkpoint, minimumWriteAgeMs: profile && recentWrite ? writeAge : null,
+      const diskExact = !profile || [diskBefore, diskAfterRestart, diskAfterClose].every(snapshot => storageValues(snapshot).every(row => row.value === original));
+      const result = { profileKind, profileId, profile, iteration, recentWrite, checkpoint, minimumWriteAgeMs: profile && recentWrite ? writeAge : null,
         writeReturnedAt, killedAt, writeAgeAtKillMs: writeReturnedAt === null ? null : killedAt - writeReturnedAt,
         before, after, initialNavigationError, killed: victim, current, restarted, expectedLocal,
         diskBefore, diskAfterRestart, diskAfterClose, reopened,
         persistedBefore: diskBefore ? storageValues(diskBefore) : null,
         persistedAfterRestart: diskAfterRestart ? storageValues(diskAfterRestart) : null,
         persistedAfterClose: diskAfterClose ? storageValues(diskAfterClose) : null,
-        diskQueryable, ok: before.local === original && restarted && after.local === expectedLocal && (!profile || reopened.raw === original) && diskQueryable };
+        diskQueryable, diskExact, ok: before.local === original && restarted && after.local === expectedLocal && (!profile || reopened.raw === original) && diskQueryable && diskExact };
       results.push(result); console.log(JSON.stringify(result));
     } catch (error) { const result = { profileKind, iteration, ok: false, error: String(error) }; results.push(result); console.log(JSON.stringify(result)); }
-    finally { await context?.close(); if (profile) rmSync(profile, { recursive: true, force: true }); }
+    finally {
+      if (profile) {
+        // Even launch failures and early restarts leave the complete profile.
+        try { const snapshot = snapshotProfile(profile, `${caseOut}/finally-before-close`); writeFileSync(`${caseOut}/finally-before-close.json`, JSON.stringify(snapshot)); } catch (error) { console.log(JSON.stringify({ profileKind, iteration, preservationError: String(error) })); }
+      }
+      await context?.close();
+      if (profile) {
+        try { const snapshot = snapshotProfile(profile, `${caseOut}/original-preserved`); writeFileSync(`${caseOut}/original-preserved.json`, JSON.stringify(snapshot)); } catch (error) { console.log(JSON.stringify({ profileKind, iteration, preservationError: String(error) })); }
+        // Originals are deliberately retained until runner/artifact cleanup.
+      }
+    }
   }
 } finally {
   await Promise.all(loadWorkers.map(worker => worker.terminate()));

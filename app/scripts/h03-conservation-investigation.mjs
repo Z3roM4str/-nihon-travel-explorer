@@ -29,11 +29,12 @@ function replaceOnce(source, from, to) {
 // messages are collected by Node and survive page reload/context destruction.
 function observeNative({ buffered }) {
   const prefix = "__NIHON_H03_EXTERNAL__";
+  const documentId = window.__auditDocumentId ??= crypto.randomUUID();
   let leaving = false;
   if (buffered) window.__h03OutsideBuffer = [];
   const emit = (event) => {
     try {
-      const record = { at: Date.now(), ...event };
+      const record = { at: Date.now(), documentId, origin: location.origin, ...event };
       if (buffered && !leaving) window.__h03OutsideBuffer.push(record);
       else console.debug(prefix + JSON.stringify(record));
     } catch { /* observation cannot change an operation */ }
@@ -49,7 +50,7 @@ function observeNative({ buffered }) {
       const watched = method === "clear" || key === "__seeded" || key === "__ctxSeeded" || key === "nihon.onboarding.seen.v1" || key === "nihon.travellers.v1" || key === "nihon.manualPlanningDraft" || String(key).startsWith("nihon.pending.v1.");
       try {
         const result = native.apply(this, args);
-        if (watched) emit({ kind: "storage", method, key, value: method === "getItem" ? result : method === "setItem" ? String(args[1]) : null });
+        if (watched) emit({ kind: "storage", area: this === localStorage ? "local" : "session", method, key, value: method === "getItem" ? result : method === "setItem" ? String(args[1]) : null });
         return result;
       } catch (error) {
         if (watched) emit({ kind: "storage-error", method, key, error: String(error) });
@@ -80,6 +81,7 @@ function observeNative({ buffered }) {
 
 const helper = `
 import { createWriteStream, readdirSync, readFileSync, readlinkSync } from "node:fs";
+import { randomUUID } from 'node:crypto';
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
 import { snapshotProfile, storageValues, readProfileInNewProcess } from "./lib/h03-profile-evidence.mjs";
@@ -93,6 +95,7 @@ function profileBeforeClose(context) {
   if (!meta || meta.beforeClose) return;
   const dir = process.env.NIHON_EVIDENCE_OUT + '/profile-case-' + caseNumber;
   meta.beforeClose = snapshotProfile(meta.profile, dir + '/before-close');
+  observeHost('profile-before-close', { contextId: meta.contextId, profile: meta.profile, snapshot: meta.beforeClose });
 }
 function processSnapshot() {
   if (process.platform !== 'linux') return [];
@@ -103,7 +106,13 @@ function processSnapshot() {
       let executable = null;
       try { executable = readlinkSync('/proc/' + pid + '/exe').split('/').at(-1); } catch { /* process sandbox may restrict this metadata */ }
       const status = readFileSync('/proc/' + pid + '/status', 'utf8');
-      entries.push({ pid: Number(pid), name, executable, ppid: Number(status.match(/^PPid:\\s+(\\d+)/m)?.[1] ?? 0) });
+      const profileFiles = [];
+      if (/NetworkProcess$/.test(executable ?? '')) for (const meta of caseProfiles.values()) {
+        try { for (const fd of readdirSync('/proc/' + pid + '/fd')) {
+          try { const path = readlinkSync('/proc/' + pid + '/fd/' + fd); if (path.startsWith(meta.profile + '/')) profileFiles.push({ contextId: meta.contextId, profile: meta.profile, path: path.slice(meta.profile.length + 1) }); } catch {}
+        } } catch {}
+      }
+      entries.push({ pid: Number(pid), name, executable, ppid: Number(status.match(/^PPid:\\s+(\\d+)/m)?.[1] ?? 0), profileFiles });
     } catch { /* a process may terminate between the reads */ }
   }
   return entries;
@@ -112,11 +121,13 @@ function observeHost(kind, details = {}) {
   const processes = ['gate-read', 'navigation', 'before-reload', 'failed-case-probe'].includes(kind) ? processSnapshot() : undefined;
   traceStream.write(JSON.stringify({ case: caseNumber, traced, hostAt: Date.now(), kind, processes, ...details }) + "\\n");
 }
-function attachObserver(context) {
+function attachObserver(context, contextId) {
   context.on("page", (page) => {
+    const pageId = randomUUID();
+    observeHost('page-created', { contextId, pageId, profile: context.h03Profile });
     page.on("crash", () => observeHost("page-crash"));
     page.on("pageerror", error => observeHost("page-error", { message: error.message }));
-    page.on("request", request => observeHost("request-start", { url: request.url(), resource: request.resourceType() }));
+    page.on("request", request => observeHost("request-start", { contextId, pageId, url: request.url(), resource: request.resourceType(), mainDocument: request.isNavigationRequest() && request.frame() === page.mainFrame() }));
     page.on("requestfinished", request => observeHost("request-finished", { url: request.url() }));
     page.on("requestfailed", request => observeHost("request-failed", { url: request.url(), error: request.failure()?.errorText }));
     page.on("framenavigated", (frame) => { if (frame === page.mainFrame()) observeHost("navigation", { url: frame.url() }); });
@@ -129,7 +140,7 @@ function attachObserver(context) {
         if (event.method === "removeItem") observedState.delete(event.key);
         else observedState.set(event.key, event.value);
       }
-      observeHost("page", { event });
+      observeHost("page", { contextId, pageId, profile: context.h03Profile, event });
       }
     });
   });
@@ -139,27 +150,43 @@ const loadWorkers = process.env.NIHON_H03_LOAD === "1" ? Array.from({ length: Ma
 observeHost("environment", { node: process.version, cpuCount: availableParallelism(), loadWorkers: loadWorkers.length });
 `;
 let source = helper + original.slice(0, original.indexOf("const steps = ["));
+source = replaceOnce(source, '    if (profile) rmSync(profile, { recursive: true, force: true });\n    throw error;', `    if (profile && process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1') {
+      const destination = process.env.NIHON_EVIDENCE_OUT + '/launch-failure-' + randomUUID();
+      try { observeHost('profile-launch-failure', { profile, destination, error: String(error), snapshot: snapshotProfile(profile, destination) }); }
+      catch (snapshotError) { observeHost('profile-preservation-error', { profile, error: String(snapshotError) }); }
+    } else if (profile) rmSync(profile, { recursive: true, force: true });
+    throw error;`);
 source = replaceOnce(source, "  results.push({ id, label, ok, extra: extra ?? null });", "  results.push({ id, label, ok, extra: extra ?? null });\n  observeHost('assertion', { id, label, ok, extra, observed: Object.fromEntries(observedState) });");
 source = replaceOnce(source, "const raw = (page, key) => page.evaluate((k) => localStorage.getItem(k), key);", `const raw = (page, key) => page.evaluate((k) => {
   const value = localStorage.getItem(k);
-  return { value, events: window.__h03OutsideBuffer?.splice(0), ui: window.__h03OutsideUI?.() };
-}, key).then(({ value, events, ui }) => {
+  return { value, documentId: window.__auditDocumentId, events: window.__h03OutsideBuffer?.splice(0), ui: window.__h03OutsideUI?.() };
+}, key).then(({ value, documentId, events, ui }) => {
   for (const event of events ?? []) {
     if (event.kind === 'storage' && event.method !== 'getItem') {
       if (event.method === 'removeItem') observedState.delete(event.key); else observedState.set(event.key, event.value);
     }
     observeHost('page', { event });
   }
-  observeHost('gate-read', { key, value, ui }); return value;
+  observeHost('gate-read', { key, value, ui, documentId }); return value;
 });`);
 const contextCall = source.includes('  const context = await newContext({}, { width, height: 900 }, BROWSER === "webkit");')
   ? '  const context = await newContext({}, { width, height: 900 }, BROWSER === "webkit");'
   : '  const context = await newContext({}, { width, height: 900 });';
 source = replaceOnce(source, contextCall, `${contextCall}
   caseContexts.add(context); context.once('close', () => caseContexts.delete(context));
-  if (process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1' && context.h03Profile) caseProfiles.set(context, { profile: context.h03Profile, base, before: null });
+  const contextId = randomUUID();
+  if (process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1' && context.h03Profile) {
+    caseProfiles.set(context, { contextId, profile: context.h03Profile, base, before: null });
+    const originalClose = context.close.bind(context);
+    context.close = async (...args) => { profileBeforeClose(context); return originalClose(...args); };
+  }
+  observeHost('context-created', { contextId, profile: context.h03Profile, base, processes: processSnapshot() });
   observedState.clear();
-  attachObserver(context);
+  attachObserver(context, contextId);
+  await context.addInitScript(() => {
+    window.__auditDocumentId ??= crypto.randomUUID();
+    console.debug('__NIHON_H03_EXTERNAL__' + JSON.stringify({ kind: 'document-identity', documentId: window.__auditDocumentId, at: Date.now(), url: location.href, origin: location.origin }));
+  });
   if (traced) await context.addInitScript(${observeNative.toString()}, { buffered: process.env.NIHON_H03_TRACE_MODE === 'buffered' });`);
 source = replaceOnce(source, "  const base = proxy ? proxy.url : BASE_URL;", `  const base = proxy ? proxy.url : BASE_URL;
   if (proxy) {
@@ -168,9 +195,16 @@ source = replaceOnce(source, "  const base = proxy ? proxy.url : BASE_URL;", `  
     proxy.auditClose = () => close().finally(() => caseProxies.delete(proxy));
     proxy.close = () => process.env.NIHON_H03_PROFILE_DIAGNOSTICS === '1' ? Promise.resolve() : proxy.auditClose();
   }`);
-source = replaceOnce(source, "  const before = await raw(page, TK);", "  const before = await raw(page, TK);\n  observeHost('before-failure', { before });\n  if (caseProfiles.has(context)) caseProfiles.get(context).before = before;");
+source = replaceOnce(source, "  const before = await raw(page, TK);", `  const before = await raw(page, TK);
+  observeHost('before-failure', { before });
+  if (caseProfiles.has(context)) {
+    const meta = caseProfiles.get(context); meta.before = before;
+    meta.beforeFailure = snapshotProfile(meta.profile, process.env.NIHON_EVIDENCE_OUT + '/profile-case-' + caseNumber + '/before-failure');
+    observeHost('profile-before-failure', { contextId: meta.contextId, profile: meta.profile, snapshot: meta.beforeFailure });
+  }`);
 source = replaceOnce(source, "  await page.evaluate(() => { window.__beforeReload = true; });", "  observeHost('before-reload', { observed: Object.fromEntries(observedState) });\n  await page.evaluate(() => { window.__beforeReload = true; });");
 source = replaceOnce(source, "    if (state.failing && state.pattern.test(req.url ?? \"\")) {", `    if (req.url === '/__h03_independent_storage_probe__') { res.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' }); res.end('<!doctype html><title>isolated backend probe</title>'); return; }
+    observeHost('proxy-received', { url: req.url, origin: req.headers.host, method: req.method, failing: state.failing, kind: state.kind });
     if (state.failing && state.pattern.test(req.url ?? "")) {`);
 // Diagnostic probe is only performed AFTER all original strict assertions have
 // failed. It cannot turn their verdict green or refresh the first gate read.
@@ -221,6 +255,9 @@ for (caseNumber = 1; caseNumber <= ${repetitions}; caseNumber++) {
       observeHost('failed-case-probe', { url: page.url(), state });
     }
     for (const proxy of caseProxies) observeHost('failed-proxy-state', { state: proxy.state });
+  }
+    // Every profile, including healthy and early-return cases, is preserved
+    // before cleanup. A new process reads the SAME profile without seeding.
     for (const [context, meta] of caseProfiles) {
       try {
         profileBeforeClose(context);
@@ -228,18 +265,23 @@ for (caseNumber = 1; caseNumber <= ${repetitions}; caseNumber++) {
         const dir = process.env.NIHON_EVIDENCE_OUT + '/profile-case-' + caseNumber;
         const afterClose = snapshotProfile(meta.profile, dir + '/after-close');
         const reopened = await readProfileInNewProcess({ browserType: webkit, profile: meta.profile, url: meta.base + '/__h03_independent_storage_probe__' });
-        const entry = { case: caseNumber, expected: meta.before, beforeClose: meta.beforeClose, afterClose,
+        const entry = { case: caseNumber, contextId: meta.contextId, profile: meta.profile, origin: meta.base,
+          expected: meta.before, beforeFailure: meta.beforeFailure, beforeClose: meta.beforeClose, afterClose,
           persistedBeforeClose: storageValues(meta.beforeClose), persistedAfterClose: storageValues(afterClose), reopened };
         (evidence.h03ProfilePostVerdict ??= []).push(entry);
         observeHost('profile-storage-after-verdict', entry);
-      } catch (error) { observeHost('profile-storage-diagnostic-error', { error: String(error) }); }
+      } catch (error) { observeHost('profile-storage-diagnostic-error', { error: String(error) }); check('FORENSICS', 'same-profile diagnostic completed', false, String(error)); }
     }
-  }
   // Only after the original verdict: a timeout must not leave its context/proxy
   // running and contaminate subsequent isolated repetitions.
   await Promise.all([...caseContexts].map(context => context.close()));
   await Promise.all([...caseProxies].map(proxy => proxy.auditClose()));
-  for (const meta of caseProfiles.values()) rmSync(meta.profile, { recursive: true, force: true });
+  // Do not delete originals: a failed diagnostic or an early process restart
+  // must leave the actual profile available in the uploaded evidence.
+  for (const meta of caseProfiles.values()) {
+    try { snapshotProfile(meta.profile, process.env.NIHON_EVIDENCE_OUT + '/profile-case-' + caseNumber + '/original-preserved'); }
+    catch (error) { observeHost('profile-preservation-error', { profile: meta.profile, error: String(error) }); check('FORENSICS', 'original profile preserved', false, String(error)); }
+  }
 }
 await browser.close();
 await server.close();
