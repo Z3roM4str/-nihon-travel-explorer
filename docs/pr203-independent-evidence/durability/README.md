@@ -35,6 +35,12 @@ El lector físico SQLite se aplica a WebKit. Chromium emplea LevelDB: sus perfil
 
 La nueva CI compara WPE/Linux y el puerto WebKit de Playwright/macOS, además de Chromium. macOS no equivale a Safari/iOS. Un job adicional comprueba la capacidad disponible de Safari real con safaridriver y el retorno+recarga nativo, conservando un posible error de disponibilidad. La sesión aislada de WebDriver no permite elegir/reutilizar un perfil persistente: esa prueba no certifica cerrar/reabrir Safari.
 
+La primera ejecución, SHA `f1592dc265cda49ff6a8866c918613b7b7b79a8c`, confirmó Safari real 26.6.1 (20624.5.1.18.3), macOS 15.7.9 (24G830), y una recarga nativa con cambio de documento y B conservado. Por ello se amplía únicamente esta comprobación disponible a tres recargas nativas y tres guardados/recargas ordinarios de Nihon, con clicks WebDriver y orígenes sintéticos distintos, sin borrar los casos previos. Se guardan HTML, captura y lecturas antes de desechar la sesión automatizada; esa evidencia **no es una copia de perfil persistente**.
+
+En ese mismo SHA, el contrafactual macOS de muerte abrupta no llegó a terminar ningún proceso: el descubrimiento no reconoció el nombre del servicio XPC. Sus seis rechazos quedaron rojos y sus perfiles se conservaron; **no son seis pérdidas de datos ni seis conservaciones bajo interrupción**. La corrección del arnés conserva los nombres sin truncar (`ps -ww`), reconoce el sufijo `.Development` del servicio XPC y registra los nombres de proceso. Sigue exigiendo un único NetworkProcess nuevo con ficheros abiertos en el perfil sintético antes de permitir SIGKILL. No se elimina ni suaviza esa comprobación de seguridad.
+
+Las limitaciones de la sesión automatizada de Safari están documentadas por el propio equipo WebKit en [Safari-exclusive Safeguards](https://webkit.org/blog/6900/webdriver-support-in-safari-10/): las ventanas de automatización están aisladas de los perfiles normales y empiezan sin el estado persistente de sesiones anteriores. El Safari disponible para esta prueba no permite certificar el perfil normal tras salir y reabrir el navegador ni sustituye un dispositivo iOS.
+
 Ejecución local:
 
 ```sh

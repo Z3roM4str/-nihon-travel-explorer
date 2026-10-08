@@ -37,12 +37,12 @@ function processes() {
   if (platform() === 'linux') return readdirSync('/proc').filter(p => /^\d+$/.test(p)).flatMap(p => {
     try { return [{ pid: Number(p), ppid: Number(readFileSync(`/proc/${p}/status`, 'utf8').match(/^PPid:\s+(\d+)/m)?.[1]), executable: basename(readlinkSync(`/proc/${p}/exe`)) }]; } catch { return []; }
   });
-  if (platform() === 'darwin') return execFileSync('ps', ['-axo', 'pid=,ppid=,comm='], { encoding: 'utf8' }).trim().split('\n').flatMap(line => {
+  if (platform() === 'darwin') return execFileSync('ps', ['-ww', '-axo', 'pid=,ppid=,comm='], { encoding: 'utf8' }).trim().split('\n').flatMap(line => {
     const m = line.trim().match(/^(\d+)\s+(\d+)\s+(.+)$/); return m ? [{ pid: Number(m[1]), ppid: Number(m[2]), executable: basename(m[3]) }] : [];
   });
   throw Error('No safe process identification on this platform');
 }
-const network = () => processes().filter(p => /(?:NetworkProcess|WebKit\.Networking|WebKitNetworkProcess)$/.test(p.executable));
+const network = () => processes().filter(p => /(?:NetworkProcess|WebKit\.Networking|WebKitNetworkProcess)(?:\.Development)?$/.test(p.executable));
 function profileFiles(pid, profile) {
   try {
     const files = platform() === 'linux' ? readdirSync(`/proc/${pid}/fd`).flatMap(fd => { try { return [readlinkSync(`/proc/${pid}/fd/${fd}`)]; } catch { return []; } })
@@ -98,6 +98,7 @@ try {
       if (spec.age) await page.waitForTimeout(spec.age);
       result.before = await page.evaluate(({ key, pendingKey }) => ({ documentId: window.__durabilityDoc ??= crypto.randomUUID(), origin: location.origin, raw: localStorage.getItem(key), pending: sessionStorage.getItem(pendingKey) }), { key, pendingKey });
       result.networkBefore = network().filter(p => !profileBaseline.has(p.pid)).map(p => ({ ...p, profileFiles: profileFiles(p.pid, profile) }));
+      result.webKitProcessNames = processes().filter(p => /webkit|MiniBrowser|NetworkProcess/i.test(p.executable));
       result.diskBefore = snapshotProfile(profile, join(dir, 'before-operation'));
       event('operation-start', { ageSinceAcknowledgedMs: Date.now() - acknowledgedAt,
         ageSinceNativeSetItemReturnedMs: result.write ? Date.now() - result.write.returnedAt : null, requestedOperation: spec.operation });
