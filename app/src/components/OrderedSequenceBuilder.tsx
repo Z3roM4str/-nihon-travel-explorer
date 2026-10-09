@@ -1945,6 +1945,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     addInterHubSegment,
     updateInterHubSegment,
     removeInterHubSegment,
+    staleRejection,
+    dismissStaleRejection,
   } = usePlanningDraft(savedIds);
   // Phase 3D-S: `dayIds` stays the ordinal `string[][]` projection every domain module below is
   // given — `buildDayAssignment`, the calendar, weekday signals, reservation evaluation, hours
@@ -2013,9 +2015,28 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     () => (surface?.kind === "order" ? { dayId: surface.forDay, baselineDayPlaceIds: surface.baseline } : null),
     [surface]
   );
+  /**
+   * Auditoría final (B27 en WebKit, CI): el foco diferido de `focusAfterCommit` se ejecuta en el siguiente
+   * fotograma; si entre medias la persona ya abrió otra superficie (p. ej. «Cambiar orden»), el foco diferido
+   * se lo quitaba (`activeElement` = el «⋯» de la parada movida, y no el encabezado de la herramienta). Cada
+   * superficie nueva incrementa esta época y el foco diferido de una acción anterior se descarta.
+   */
+  // Ronda 2: un rechazo por estado obsoleto invalida lo que la superficie abierta (hoja, orden) tenía en la mano.
+  useEffect(() => {
+    if (staleRejection) closeSurface();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staleRejection]);
+  const surfaceEpochRef = useRef(0);
+  useEffect(() => {
+    if (surface) surfaceEpochRef.current += 1;
+  }, [surface]);
   /** Tras una acción que mueve el elemento disparador, el foco sigue a lo que el usuario movió. */
   function focusAfterCommit(selector: string) {
-    requestAnimationFrame(() => document.querySelector<HTMLElement>(selector)?.focus({ preventScroll: false }));
+    const epoch = surfaceEpochRef.current;
+    requestAnimationFrame(() => {
+      if (surfaceEpochRef.current !== epoch) return;
+      document.querySelector<HTMLElement>(selector)?.focus({ preventScroll: false });
+    });
   }
 
   // B9.1 promotes the existing persisted day structure to the entry surface. The same explicit
@@ -2642,6 +2663,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 <p className="analysis-disclaimer sequence-day-invalid" role="alert">
                   <Icon name="aviso" size={16} /> El reparto actual no coincide exactamente con el
                   viaje. Vuelve a los días e inténtalo de nuevo.
+                </p>
+              )}
+
+              {staleRejection && (
+                <p className="analysis-disclaimer sequence-day-invalid stale-rejection" role="status" data-stale-rejection>
+                  <Icon name="aviso" size={16} /> {staleRejection.message}{" "}
+                  <button type="button" className="link-button" onClick={dismissStaleRejection}>
+                    Entendido
+                  </button>
                 </p>
               )}
 

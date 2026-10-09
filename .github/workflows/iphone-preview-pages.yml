@@ -1,0 +1,63 @@
+name: Vista previa HTTPS para iPhone (GitHub Pages, preparada — no se ejecuta sola)
+# PREPARADA, NO EJECUTADA. Sólo manual (workflow_dispatch). No usa Vercel ni toca producción.
+# Para poder ejecutarla falta (ver docs/IPHONE_SYNTHETIC_CHECK.md, «Autorización que falta»):
+#   1. Settings › Pages › Build and deployment › Source = «GitHub Actions» (ajuste del repositorio, del propietario).
+#   2. Settings › Environments › github-pages › permitir despliegues desde la rama claude/sweet-mendel-v8st6b
+#      (por defecto sólo `main`; no se toca `main` ni producción).
+#   3. Autorización expresa del propietario para publicar ESTE SHA en una URL pública de github.io.
+# El origen (https://<usuario>.github.io) es distinto de nihon-travel-explorer.vercel.app: el almacenamiento del
+# iPhone para esa URL empieza vacío y no se mezcla con los datos reales. No hay secretos ni datos reales en el build.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: iphone-preview-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - name: Leer sólo las dos bases históricas de D5 para ejecutar sus contratos
+        run: |
+          git fetch --no-tags --depth=1 origin b854db384c952e827b86d1bb35cac7caa70b035a 2a10ad3f11cd91a7d739e85307f04da9411bf5d1
+      - run: npm test
+      - name: Build con la ruta base del repositorio
+        run: npx tsc -b && npx vite build --base "/${GITHUB_REPOSITORY#*/}/"
+      - name: Huella de lo que se sirve
+        run: |
+          {
+            echo "sha=$(git rev-parse HEAD)"
+            echo "app_src_tree=$(git rev-parse HEAD:app/src)"
+            echo "branch=${GITHUB_REF_NAME}"
+            echo "built_at=$(date -u +%FT%TZ)"
+          } > dist/build-info.txt
+          cat dist/build-info.txt
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

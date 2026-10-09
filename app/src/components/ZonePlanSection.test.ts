@@ -186,13 +186,13 @@ describe("useZonePlanChoice.ts — one writer, one truth", () => {
     expect(withoutComments(source)).not.toContain("nihon.zoneComparison");
   });
 
-  it("re-reads the canonical draft on every mutation rather than caching one", async () => {
+  it("shares the canonical journal with the planner instead of creating another writer", async () => {
     const code = withoutComments(await readAppSource("useZonePlanChoice.ts"));
-    expect(code.match(/readDraft\(savedIds\)/g) ?? []).toHaveLength(3);
-    expect(code).toContain("writeDraft(browserStorage, next)");
-    // The only React state is the render-only snapshot, never a draft.
-    expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
-    expect(code).toMatch(/useState<ZonePlanChoiceSnapshot>/);
+    expect(code).toContain("usePlanningDraft(savedIds)");
+    expect(code).not.toMatch(/writeDraft|setItem|removeItem/);
+    // The comparison owns only a derived snapshot; all mutations delegate to the shared journal.
+    expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(0);
+    expect(code).toMatch(/useMemo<ZonePlanChoiceSnapshot>/);
   });
 
   it("seeds the anchor from the zone's own registry label and coordinate", async () => {
@@ -209,7 +209,7 @@ describe("useZonePlanChoice.ts — one writer, one truth", () => {
   it("surfaces whether removing the zone would keep the anchor", async () => {
     const source = await readAppSource("useZonePlanChoice.ts");
     expect(source).toContain("anchorInUse");
-    expect(source).toContain("isAccommodationAnchorInUse");
+    expect(source).toContain("anchorIsInUse(choice.accommodationId)");
   });
 });
 
@@ -248,10 +248,10 @@ describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("keeps the planner and the zone comparison mounted by viajeSection, independently of the active tab", async () => {
     const source = await readAppSource("App.tsx");
     expect(source).toMatch(
-      /\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<LazySurfaceBoundary surface="Viaje">\s*<OrderedSequenceBuilder/
     );
     expect(source).toMatch(
-      /\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<ZoneComparison/
+      /\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<LazySurfaceBoundary surface="Dónde dormir">\s*<ZoneComparison/
     );
   });
 });

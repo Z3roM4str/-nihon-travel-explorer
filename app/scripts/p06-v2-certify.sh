@@ -10,6 +10,7 @@ cd "$(dirname "$0")/.."
 export NIHON_BROWSER="$browser"
 logs="${P06_LOG_DIR:-p06-certify-logs/$browser}"
 mkdir -p "$logs/shots"
+export NIHON_EVIDENCE_OUT="$logs"
 : > "$logs/summary.txt"
 echo "sha=$(git rev-parse HEAD 2>/dev/null || echo unknown) browser=$browser node=$(node -v)" | tee -a "$logs/summary.txt"
 if [ "$browser" = "webkit" ]; then
@@ -30,7 +31,10 @@ run() { # run <gate>
 for g in p06-v2-list-invariant-check p06-v2-history-check p06-v2-journeys-check p06-v2-clip-check \
          b27-viaje-dias-check b29-day-order-tools-check \
          b30-where-to-sleep-check b31-reservas-resumen-check b10-microcopy-check b10-motion-check \
-         d0b-design-system-hygiene-check d5-normative-vocabulary-check p04-national-map-reachability-check; do
+         d0b-design-system-hygiene-check d5-normative-vocabulary-check p04-national-map-reachability-check \
+         final-audit-data-recovery-check final-audit-a11y-check \
+         final-audit-stale-tabs-check final-audit-export-protection-check \
+         final-audit-persistence-regressions-check h03-reload-classification-check; do
   run "$g"
 done
 # B29 ejecuta B28 dentro (arrastre con ratón, auto-scroll, movimiento reducido, 8 viewports).

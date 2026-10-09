@@ -11,6 +11,7 @@ import {
   planRestore,
   readPortableBackup,
   serializePortableBackup,
+  serializeVerifiedBackup,
   summarizeRestore,
   type RestoreStorage,
 } from "./portable-backup";
@@ -155,6 +156,21 @@ describe("Block 13 — building and serialising", () => {
 });
 
 // ── What is in the file, and what must never be ───────────────────────────────────────────────
+
+describe("export self-check — an unreadable backup is never delivered", () => {
+  it("delivers a backup the reader accepts", () => {
+    const doc = twoTravellers();
+    const out = serializeVerifiedBackup(doc, planFor(doc), AT);
+    expect(out.ok).toBe(true);
+    if (out.ok) expect(readPortableBackup(out.text).ok).toBe(true);
+  });
+  it("refuses to deliver a backup the restore reader would refuse", () => {
+    const doc = twoTravellers();
+    const corrupt = { ...doc, version: 99 } as unknown as TravellersDocumentV1;
+    expect(serializeVerifiedBackup(corrupt, planFor(doc), AT)).toEqual({ ok: false });
+    expect(serializeVerifiedBackup(doc, planFor(doc), "not-a-date")).toEqual({ ok: false });
+  });
+});
 
 describe("Block 13 — durable decisions only, no derived data", () => {
   const doc = twoTravellers();
@@ -697,14 +713,16 @@ describe("Block 13 — the browser edge is confined to one module", () => {
   it("the export uses only APIs available beyond Chromium, and revokes its URL out of band", async () => {
     // Block 14. No File System Access API, no vendor prefix, and the object URL is not revoked in
     // the same task as the click — the pattern Safari has historically cancelled downloads for.
-    const code = withoutComments(await hook());
+    // Auditoría final (ronda 2): la entrega del archivo vive en `lib/download-file.ts` (compartida con «Descargar copia»,
+    // y capaz de fallar a la vista); el hook sólo la llama.
+    const code = withoutComments(await readFile(new URL("./download-file.ts", import.meta.url), "utf8"));
     expect(code).not.toMatch(/showSaveFilePicker|showOpenFilePicker|FileSystemWritableFileStream|webkit|msSave/);
     expect(code).toMatch(/new Blob\(/);
     expect(code).toMatch(/URL\.createObjectURL/);
     expect(code).toMatch(/setTimeout\(\(\) => URL\.revokeObjectURL\(url\), 0\)/);
     // The anchor must be in the document when clicked; a detached one is ignored on iOS.
-    const exportFn = code.slice(code.indexOf("const exportBackup"), code.indexOf("const prepareImport"));
-    expect(exportFn.indexOf("document.body.appendChild")).toBeLessThan(exportFn.indexOf("anchor.click()"));
+    expect(code.indexOf("document.body.appendChild")).toBeLessThan(code.indexOf("anchor.click()"));
+    expect(withoutComments(await hook())).toMatch(/downloadTextFile\(/);
   });
 
   it("a successful restore ends in a reload, because the in-memory trip is stale", async () => {

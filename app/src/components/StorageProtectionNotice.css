@@ -1,0 +1,100 @@
+/*
+ * Auditoría final (H04). Mismo lenguaje que `PersistenceNotice` (colores `--risk-*`, `--elev-2`) y
+ * misma capa (`z-index: 210`: por encima de la ficha, por debajo de `Sheet`), pero anclado ARRIBA:
+ * el borde inferior ya es de la barra de pestañas y del aviso de persistencia, y los dos pueden
+ * coincidir. `max-height` + scroll para que en 320 px de ancho las acciones sigan alcanzables.
+ */
+
+.storage-protection {
+  position: fixed;
+  z-index: 210;
+  top: var(--space-3);
+  left: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: calc(100dvh - 2 * var(--space-3));
+  overflow-y: auto;
+  padding: var(--space-3);
+  border: 1px solid var(--risk-600);
+  border-radius: var(--radius-lg);
+  background: var(--risk-050);
+  color: var(--risk-600);
+  box-shadow: var(--elev-2);
+}
+
+.storage-protection--collapsed {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.storage-protection__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  font-weight: 600;
+}
+
+.storage-protection__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.storage-protection__text,
+.storage-protection__problem {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+.storage-protection--collapsed .storage-protection__text {
+  flex: 1;
+}
+
+.storage-protection__problem {
+  font-weight: 600;
+}
+
+.storage-protection__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.storage-protection__actions .storage-protection__text {
+  flex-basis: 100%;
+}
+
+.storage-protection__action {
+  flex-shrink: 0;
+  min-height: var(--tap-min);
+  border-color: var(--risk-600);
+  color: var(--risk-600);
+}
+
+.storage-protection__action:hover {
+  background: var(--surface);
+}
+
+@media (min-width: 840px) {
+  .storage-protection {
+    left: calc(var(--chrome-navrail-width) + var(--space-4));
+    right: var(--space-4);
+    top: var(--space-4);
+  }
+}
+
+@media (min-width: 1200px) {
+  .storage-protection {
+    right: auto;
+    width: min(40rem, calc(100vw - var(--chrome-navrail-width) - var(--space-8)));
+  }
+}

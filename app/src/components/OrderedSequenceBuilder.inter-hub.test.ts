@@ -78,7 +78,7 @@ describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
 
   it("wires create, edit and delete through the one V7 draft", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    expect(hook).toContain("withNewInterHubSegment(current, input, randomInterHubSegmentId)");
+    expect(hook).toContain("withNewInterHubSegment(current, input, () => id)");
     expect(hook).toContain("withInterHubSegmentDetails(current, segmentId, mode, minutes)");
     expect(hook).toContain("withoutInterHubSegment(current, segmentId)");
     expect(hook).toContain("interHubSegments: draft.interHubSegments");

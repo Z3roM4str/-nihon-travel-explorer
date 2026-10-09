@@ -179,6 +179,19 @@ export function serializePortableBackup(backup: NihonPortableBackupV1): string {
   return JSON.stringify(backup, null, 2);
 }
 
+/**
+ * Builds the backup text and proves it before it can be handed to anyone: the file must pass the very reader a restore
+ * uses. A backup that this app would refuse to read back is never delivered as if it were one.
+ */
+export function serializeVerifiedBackup(
+  travellers: TravellersDocumentV1,
+  planningDraft: ManualPlanningDraftV8 | null,
+  exportedAt: string
+): { ok: true; text: string } | { ok: false } {
+  const text = serializePortableBackup(buildPortableBackup(travellers, planningDraft, exportedAt));
+  return readPortableBackup(text).ok ? { ok: true, text } : { ok: false };
+}
+
 /** `nihon-backup-YYYY-MM-DD.json`. Recognisable, and never used to decide whether a file is valid. */
 export function backupFileName(civilDate: string): string {
   return `nihon-backup-${civilDate}.json`;
@@ -364,6 +377,7 @@ export type RestoreStorage = {
   getItem: (key: string) => string | null;
   setItem: (key: string, value: string) => void;
   removeItem: (key: string) => void;
+  beginPendingScope?: (keys: readonly string[]) => (outcome: "commit" | "rollback" | "incomplete") => void;
 };
 
 /**
@@ -401,7 +415,8 @@ export function applyRestore(storage: RestoreStorage, plan: RestorePlan): Restor
     try {
       previous.set(key, storage.getItem(key));
     } catch {
-      previous.set(key, null);
+      // No hay preimagen fiable con la que deshacer: no se empieza la sustitución.
+      return { ok: false, failedKey: key, rolledBack: true };
     }
   }
 
@@ -417,6 +432,7 @@ export function applyRestore(storage: RestoreStorage, plan: RestorePlan): Restor
   // is nothing to roll back — reporting a failed rollback there would describe a problem that does
   // not exist, and would usually be reporting the same storage refusing the same key twice.
   const written: string[] = [];
+  const finishScope = storage.beginPendingScope?.(RESTORED_STORAGE_KEYS);
   for (const write of writes) {
     try {
       if (write.value === null) storage.removeItem(write.key);
@@ -433,9 +449,12 @@ export function applyRestore(storage: RestoreStorage, plan: RestorePlan): Restor
       } catch {
         rolledBack = false;
       }
+      // La carga importada que falló no forma parte de los datos anteriores y no se reintenta aparte.
+      finishScope?.(rolledBack ? "rollback" : "incomplete");
       return { ok: false, failedKey: write.key, rolledBack };
     }
   }
 
+  finishScope?.("commit");
   return { ok: true };
 }

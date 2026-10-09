@@ -122,7 +122,12 @@ async function newPage(browser, viewport, { seed = null, seen = true, reducedMot
   return { context, page, problems, external };
 }
 
-const stored = (page, key = KEY) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? "null"), key);
+// El documento almacenado lleva su linaje de escrituras `_w` (auditoría final); no es parte de los datos del viaje.
+// Las escrituras del documento son diferidas (Web Lock): se espera a que el almacenamiento se asiente antes de leerlo.
+const stored = (page, key = KEY) => page.evaluate(async (k) => {
+  await new Promise((resolve) => { let last = localStorage.getItem(k), calm = 0; const tick = () => { const now = localStorage.getItem(k); if (now !== last) { last = now; calm = 0; } else calm += 1; if (calm >= 3) resolve(); else setTimeout(tick, 40); }; setTimeout(tick, 40); });
+  const doc = JSON.parse(localStorage.getItem(k) ?? "null"); if (doc) delete doc._w; return doc;
+}, key);
 const raw = (page, key) => page.evaluate((k) => localStorage.getItem(k), key);
 const nav = (page) => page.locator(".tab-bar:visible, .nav-rail:visible").first();
 const screen = (page) => page.locator(".destination-panel:not([hidden]) .nosotros");

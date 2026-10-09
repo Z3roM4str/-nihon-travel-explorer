@@ -6,11 +6,13 @@ import type {
   InterHubMode,
   NewManualInterHubSegment,
 } from "./lib/inter-hub-segment";
-import { deviceStorage } from "./lib/device-storage";
+import { deviceStorage, reportPersistenceProblem } from "./lib/device-storage";
 import {
   dayMatrixFromPlanningDays,
-  loadReconciledDraft,
+  freshDraft,
+  PLANNING_DRAFT_STORAGE_KEY,
   reconcileDraft,
+  parseStoredDraft,
   resetRoute as resetRouteInDraft,
   withAccommodationLeg,
   withDayAccommodationChoice,
@@ -36,18 +38,25 @@ import {
   withoutInterHubSegment,
   withoutPlaceFromDay,
   withoutZoneAccommodationChoice,
-  writeDraft,
   isAccommodationAnchorInUse,
-  type DraftStorage,
   type ManualPlanningDraftV8,
 } from "./lib/planning-draft-v8";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { shortlistPlaceIds } from "./lib/travellers";
+import {
+  isProtectedStatus,
+  classifyDraftRaw,
+  readStoredDraft,
+  readStoredTravellers,
+} from "./lib/stored-document";
+import { useStoredDocument, type StoredDocumentAdapter, type UpdateGuard } from "./useStoredDocument";
+import { hasSamePlaceOrder } from "./lib/day-order-tool";
 
 /* DDR-03: el adaptador compartido de `lib/device-storage.ts`. Misma forma estructural que el
    `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
    registra el resultado de cada escritura en la única fuente de verdad del estado de persistencia
    y vuelve a lanzar el error, de modo que el `try/catch` de abajo sigue atrapando lo mismo. */
-const browserStorage: DraftStorage = deviceStorage;
+const browserStorage = deviceStorage;
 
 /**
  * Phase 3D-Q: the local id minted for a newly created accommodation anchor. It is an OPAQUE
@@ -161,9 +170,75 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * user typed or chose, and every rejection (`withAccommodationLeg` on a fractional minute,
  * `withDayAccommodationChoice` on an empty day) leaves the draft untouched rather than coercing it.
  */
+/** Textos de rechazo (ronda 2): dicen qué pasó, que no se hizo nada y que la vista ya está al día. */
+const STALE_STOP_MESSAGE =
+  "No se ha hecho nada: esa parada ya no está donde la veías (se movió, se quitó o se cambió en otra pestaña). Hemos actualizado la vista.";
+const STALE_DAY_MESSAGE =
+  "No se ha hecho nada: ese día ya no existe o ya no se puede cambiar así (otro cambio, quizá en otra pestaña). Hemos actualizado la vista.";
+const STALE_ORDER_MESSAGE =
+  "No se ha aplicado el orden: el día cambió mientras lo editabas (otro cambio, quizá en otra pestaña). Hemos actualizado la vista; puedes volver a probar el orden.";
+
 export function usePlanningDraft(savedIds: readonly string[]) {
-  const [draft, setDraft] = useState<ManualPlanningDraftV8>(() =>
-    loadReconciledDraft(browserStorage, savedIds)
+  // Auditoría final (H01, H02, H04): ver `useStoredDocument`. El borrador se relee reconciliado con
+  // los ids vigentes de los viajeros EN EL ALMACENAMIENTO (no con los de este render, que tras una
+  // restauración o un cambio en otra pestaña pueden ser los antiguos): si no, una relectura podría
+  // podar en memoria lo que otra pestaña acaba de añadir.
+  const savedIdsRef = useRef(savedIds);
+  useEffect(() => {
+    savedIdsRef.current = savedIds;
+  });
+  const adapter: StoredDocumentAdapter<ManualPlanningDraftV8> = {
+    key: PLANNING_DRAFT_STORAGE_KEY,
+    storage: browserStorage,
+    read: () => {
+      const stored = readStoredDraft(browserStorage);
+      if (!stored.doc) return stored;
+      const travellers = readStoredTravellers(browserStorage, () => "unused");
+      const ids =
+        travellers.status === "valid" && travellers.doc
+          ? shortlistPlaceIds(travellers.doc)
+          : savedIdsRef.current;
+      return { ...stored, doc: reconcileDraft(stored.doc, ids) };
+    },
+    classify: classifyDraftRaw,
+    initial: () => {
+      // Tras sustituir/eliminar el borrador, el render aún puede conservar la lista anterior.
+      // Un documento nuevo se crea con los viajeros vigentes, nunca con esa preimagen de React.
+      const travellers = readStoredTravellers(browserStorage, () => "unused");
+      return freshDraft(travellers.doc ? shortlistPlaceIds(travellers.doc) : []);
+    },
+    serialize: (doc) => JSON.stringify(doc),
+    parse: (raw) => { try { return parseStoredDraft(JSON.parse(raw)); } catch { return null; } },
+    // El borrador se reconcilia con los viajeros: con los viajeros protegidos su lista de lugares es
+    // desconocida, y escribir un borrador podado contra ella destruiría un itinerario válido.
+    externallyBlocked: () =>
+      isProtectedStatus(readStoredTravellers(browserStorage, () => "unused").status),
+  };
+  const [draft, setDraft] = useStoredDocument(adapter);
+
+  /**
+   * Auditoría final (ronda 2) — operaciones con IDENTIDAD sobre un estado que pudo cambiar en otra pestaña.
+   *
+   * Cada operación de día o parada va con una precondición (`guard`) que se evalúa contra el documento VIGENTE
+   * —el que quedó tras releer lo que escribió la otra pestaña— y no contra lo que la vista enseñaba. Si la
+   * parada o el día ya no están, o el orden de partida cambió, la operación NO se aplica: se explica
+   * (`staleRejection`) y la vista ya está actualizada. Una acción sobre «esta parada» nunca puede acabar en
+   * otra porque su posición cambiara: se identifican por id, no por índice.
+   */
+  const [staleRejection, setStaleRejection] = useState<{ key: number; message: string } | null>(null);
+  const rejectionCounter = useRef(0);
+  const reject = useCallback((message: string) => {
+    reportPersistenceProblem(PLANNING_DRAFT_STORAGE_KEY + ":operation", message, false);
+    rejectionCounter.current += 1;
+    setStaleRejection({ key: rejectionCounter.current, message });
+  }, []);
+  const dismissStaleRejection = useCallback(() => setStaleRejection(null), []);
+  const guard = useCallback(
+    (check: (doc: ManualPlanningDraftV8) => boolean, message: string): UpdateGuard<ManualPlanningDraftV8> => ({
+      check,
+      onReject: () => reject(message),
+    }),
+    [reject]
   );
 
   // Defensive, not load-bearing in today's UI: the builder's backdrop blocks interacting with
@@ -176,13 +251,9 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedIds]);
 
-  useEffect(() => {
-    writeDraft(browserStorage, draft);
-  }, [draft]);
-
   const setRoute = useCallback((action: SetStateAction<string[]>) => {
     setDraft((current) => withRoute(current, resolve(action, current.routeIds)));
-  }, []);
+  }, [setDraft]);
 
   /**
    * Phase 3D-S: creates the FIRST day assignment when none exists yet (`days === null`). It is
@@ -192,22 +263,44 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * identity-aware mutations below instead.
    */
   const initializeDays = useCallback((days: readonly (readonly string[])[]) => {
-    setDraft((current) => withInitialDays(current, days, randomDayId));
-  }, []);
+    const ids = days.map(() => randomDayId());
+    setDraft((current) => {
+      let index = 0;
+      return withInitialDays(current, days, () => ids[index++] ?? randomDayId());
+    });
+  }, [setDraft]);
 
   /** Phase 3D-S: moves one place from one identified day to another. Both day ids survive, and each
    * day's accommodation choice survives while that day stays non-empty; a day left empty keeps its
    * id but resets both boundary sides to `unselected`, and repopulating it later never resurrects
    * the old choice. */
-  const movePlaceBetweenDays = useCallback((fromDayId: string, toDayId: string, placeIndex: number) => {
-    setDraft((current) => withPlaceMovedBetweenDays(current, fromDayId, toDayId, placeIndex));
-  }, []);
+  const movePlaceBetweenDays = useCallback((fromDayId: string, toDayId: string, placeIndex: number, expectedPlaceId: string) => {
+    setDraft(
+      (current) => withPlaceMovedBetweenDays(current, fromDayId, toDayId, placeIndex),
+      guard(
+        (doc) =>
+          doc.days?.find((day) => day.id === fromDayId)?.placeIds[placeIndex] === expectedPlaceId &&
+          Boolean(doc.days?.some((day) => day.id === toDayId)),
+        STALE_STOP_MESSAGE
+      )
+    );
+  }, [setDraft, guard]);
 
   /** B9.1: restores one saved-but-unassigned place directly into an explicitly chosen stable day.
    * This is one atomic edit so the persisted route/day partition is never observed invalid. */
   const addPlaceToDay = useCallback((placeId: string, dayId: string) => {
-    setDraft((current) => withPlaceAddedToDay(current, placeId, dayId));
-  }, []);
+    setDraft(
+      (current) => withPlaceAddedToDay(current, placeId, dayId),
+      guard(
+        (doc) =>
+          // Una parada «sin asignar» NO está en la ruta (la mutación la añade): sigue sin asignar y el día existe.
+          Boolean(doc.days?.some((day) => day.id === dayId)) &&
+          !doc.routeIds.includes(placeId) &&
+          !doc.days?.some((day) => day.placeIds.includes(placeId)),
+        STALE_STOP_MESSAGE
+      )
+    );
+  }, [setDraft, guard]);
 
   /** B9.2: validates the source identity again against the current draft at commit time. */
   const relocatePlace = useCallback((fromDayId: string, toDayId: string, placeId: string, position: number) => {
@@ -218,31 +311,56 @@ export function usePlanningDraft(savedIds: readonly string[]) {
       return fromDayId === toDayId
         ? withPlaceRelocatedWithinDay(current, fromDayId, sourceIndex, position)
         : withPlaceRelocatedBetweenDays(current, fromDayId, toDayId, placeId, position);
-    });
-  }, []);
+    }, guard(
+      (doc) =>
+        Boolean(doc.days?.find((day) => day.id === fromDayId)?.placeIds.includes(placeId)) &&
+        Boolean(doc.days?.some((day) => day.id === toDayId)),
+      STALE_STOP_MESSAGE
+    ));
+  }, [setDraft, guard]);
 
   const insertUnassignedPlace = useCallback((placeId: string, dayId: string, position: number) => {
-    setDraft((current) => withPlaceInsertedIntoDay(current, placeId, dayId, position));
-  }, []);
+    setDraft(
+      (current) => withPlaceInsertedIntoDay(current, placeId, dayId, position),
+      guard(
+        (doc) =>
+          // Una parada «sin asignar» NO está en la ruta (la mutación la añade): sigue sin asignar y el día existe.
+          Boolean(doc.days?.some((day) => day.id === dayId)) &&
+          !doc.routeIds.includes(placeId) &&
+          !doc.days?.some((day) => day.placeIds.includes(placeId)),
+        STALE_STOP_MESSAGE
+      )
+    );
+  }, [setDraft, guard]);
 
   /** B9.1: delegates the atomic unassignment policy to the pure V8 domain mutation. That mutation
    * prunes the removed place's route-scoped time/legs/segments while keeping day identity and all
    * trip-scoped decisions; this hook owns no parallel cleanup policy. */
   const removePlaceFromDay = useCallback((placeId: string, dayId: string) => {
-    setDraft((current) => withoutPlaceFromDay(current, placeId, dayId));
-  }, []);
+    setDraft(
+      (current) => withoutPlaceFromDay(current, placeId, dayId),
+      guard((doc) => Boolean(doc.days?.find((day) => day.id === dayId)?.placeIds.includes(placeId)), STALE_STOP_MESSAGE)
+    );
+  }, [setDraft, guard]);
 
   /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.
    * Only the new day starts unselected; no existing day's id, places or choices are touched. */
   const addEmptyDay = useCallback(() => {
-    setDraft((current) => withNewEmptyDay(current, randomDayId));
-  }, []);
+    const id = randomDayId();
+    setDraft((current) => withNewEmptyDay(current, () => id));
+  }, [setDraft]);
 
   /** Phase 3D-S: deletes one empty day entity and nothing else — anchors, manual legs, visit start
    * times, the start date and every other day survive untouched. */
   const removeEmptyDay = useCallback((dayId: string) => {
-    setDraft((current) => withoutEmptyDay(current, dayId));
-  }, []);
+    setDraft(
+      (current) => withoutEmptyDay(current, dayId),
+      guard((doc) => {
+        const day = doc.days?.find((entry) => entry.id === dayId);
+        return Boolean(day) && day!.placeIds.length === 0 && (doc.days?.length ?? 0) > 1;
+      }, STALE_DAY_MESSAGE)
+    );
+  }, [setDraft, guard]);
 
   /**
    * Phase 3D-U: moves ONE whole identified day entity one ordinal position up (`-1`) or down
@@ -253,15 +371,24 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * `withDayMoved` in `lib/planning-draft-v5.ts` for the full contract.
    */
   const moveDay = useCallback((dayId: string, direction: -1 | 1) => {
-    setDraft((current) => withDayMoved(current, dayId, direction));
-  }, []);
+    setDraft(
+      (current) => withDayMoved(current, dayId, direction),
+      guard((doc) => Boolean(doc.days?.some((day) => day.id === dayId)), STALE_DAY_MESSAGE)
+    );
+  }, [setDraft, guard]);
 
   /** B9.3: commit a full day-local proposal with one functional draft update and a fresh stale check. */
   const applyDayPlaceOrder = useCallback(
     (dayId: string, expectedBaselineIds: readonly string[], proposalIds: readonly string[]) => {
-      setDraft((current) => withDayPlaceOrderApplied(current, dayId, expectedBaselineIds, proposalIds));
+      setDraft(
+        (current) => withDayPlaceOrderApplied(current, dayId, expectedBaselineIds, proposalIds),
+        guard((doc) => {
+          const day = doc.days?.find((entry) => entry.id === dayId);
+          return Boolean(day) && hasSamePlaceOrder(day!.placeIds, expectedBaselineIds);
+        }, STALE_ORDER_MESSAGE)
+      );
     },
-    []
+    [setDraft, guard]
   );
 
   /** Phase 3C-E: sets, changes, or clears the manual calendar anchor for "Día 1". Accepts a
@@ -270,7 +397,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * an accommodation anchor, a day boundary choice, or a manual leg — they are independent axes. */
   const setStartDate = useCallback((startDate: string | null) => {
     setDraft((current) => withStartDate(current, startDate));
-  }, []);
+  }, [setDraft]);
 
   /**
    * Phase 3D-W: sets, changes, or clears the trip's upper civil bound — the last calendar date the
@@ -290,7 +417,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    */
   const setEndDate = useCallback((endDate: string | null) => {
     setDraft((current) => withEndDate(current, endDate));
-  }, []);
+  }, [setDraft]);
 
   /**
    * Phase 3D-L: sets, replaces, or clears ONE place's manual visit start time. Accepts a plain
@@ -299,8 +426,11 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * default is ever supplied here or anywhere downstream — an untouched place simply has no entry.
    */
   const setVisitStartTime = useCallback((placeId: string, time: string | null) => {
-    setDraft((current) => withVisitStartTime(current, placeId, time));
-  }, []);
+    setDraft(
+      (current) => withVisitStartTime(current, placeId, time),
+      guard((doc) => doc.routeIds.includes(placeId), STALE_STOP_MESSAGE)
+    );
+  }, [setDraft, guard]);
 
   /**
    * Phase 3D-Q: creates one accommodation anchor from a user-typed label and a user-entered
@@ -309,8 +439,9 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * Nothing is looked up: no geocoding, no hotel search, no address parsing.
    */
   const addAccommodation = useCallback((label: string, location: { lat: number; lng: number }) => {
-    setDraft((current) => withNewAccommodation(current, label, location, randomAccommodationId));
-  }, []);
+    const id = randomAccommodationId();
+    setDraft((current) => withNewAccommodation(current, label, location, () => id));
+  }, [setDraft]);
 
   /**
    * Phase 3D-Q: deletes one anchor, its manual legs, and every boundary choice that referenced it —
@@ -318,7 +449,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    */
   const removeAccommodation = useCallback((accommodationId: string) => {
     setDraft((current) => withoutAccommodation(current, accommodationId));
-  }, []);
+  }, [setDraft]);
 
   /**
    * Phase 3D-Q: records ONE side of ONE day's explicit boundary choice. `unselected`,
@@ -329,7 +460,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     (dayId: string, side: "start" | "end", choice: AccommodationBoundaryChoice) => {
       setDraft((current) => withDayAccommodationChoice(current, dayId, side, choice));
     },
-    []
+    [setDraft]
   );
 
   /**
@@ -349,7 +480,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
         withAccommodationLeg(current, direction, accommodationId, placeId, minutes)
       );
     },
-    []
+    [setDraft]
   );
 
   /**
@@ -367,16 +498,17 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    */
   const chooseZoneAccommodation = useCallback(
     (input: { hub: string; zoneId: string; label: string; location: { lat: number; lng: number } }) => {
-      setDraft((current) => withZoneAccommodationChoice(current, input, randomAccommodationId));
+      const id = randomAccommodationId();
+      setDraft((current) => withZoneAccommodationChoice(current, input, () => id));
     },
-    []
+    [setDraft]
   );
 
   /** Block 4: forgets one hub's zone decision, taking its seeded anchor with it only when that
    * anchor carries no user work. Never converts a boundary choice to another anchor. */
   const clearZoneAccommodation = useCallback((hub: string) => {
     setDraft((current) => withoutZoneAccommodationChoice(current, hub));
-  }, []);
+  }, [setDraft]);
 
   /** Block 4: does any boundary choice or typed duration still point at this anchor? The UI asks
    * before offering to remove a zone, so it can say what will actually happen instead of guessing. */
@@ -388,9 +520,10 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   /** Creates one explicitly-timed segment from an eligible pair supplied by the planner UI. */
   const addInterHubSegment = useCallback(
     (input: NewManualInterHubSegment) => {
-      setDraft((current) => withNewInterHubSegment(current, input, randomInterHubSegmentId));
+      const id = randomInterHubSegmentId();
+      setDraft((current) => withNewInterHubSegment(current, input, () => id));
     },
-    []
+    [setDraft]
   );
 
   /** In-place edits are deliberately limited to the two user-entered facts. */
@@ -398,12 +531,12 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     (segmentId: string, mode: InterHubMode, minutes: number) => {
       setDraft((current) => withInterHubSegmentDetails(current, segmentId, mode, minutes));
     },
-    []
+    [setDraft]
   );
 
   const removeInterHubSegment = useCallback((segmentId: string) => {
     setDraft((current) => withoutInterHubSegment(current, segmentId));
-  }, []);
+  }, [setDraft]);
 
   /** "Restablecer recorrido": the route becomes the current saved ids in their saved order and
    * the day assignment is cleared — the same starting point as no stored draft at all — but the
@@ -423,6 +556,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   const days = useMemo(() => dayMatrixFromPlanningDays(draft.days), [draft.days]);
 
   return {
+    staleRejection,
+    dismissStaleRejection,
     routeIds: draft.routeIds,
     planningDays: draft.days,
     days,

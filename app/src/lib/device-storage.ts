@@ -1,133 +1,126 @@
-/**
- * DDR-03 — la única fuente de verdad del estado de persistencia.
- *
- * ## Por qué existe, y por qué NO es una capa nueva
- *
- * Todas las escrituras persistentes de Nihon ya pasaban por un adaptador inyectado con esta misma
- * forma (`getItem`/`setItem`/`removeItem`): `useTravellers`, `usePlanningDraft`,
- * `useZonePlanChoice` y `usePortableBackup` declaraban uno idéntico cada uno, y `useZoneComparison`
- * escribía en línea. El punto común ya estaba; lo que faltaba era que alguien mirase el resultado.
- *
- * Porque el resultado se tiraba: cada módulo puro envuelve su `setItem` en un `try/catch` que se
- * traga el error con un comentario («storage unavailable — the roster stays in memory for this
- * session»). La persona seguía marcando lugares, la interfaz confirmaba cada marca, y al cerrar no
- * quedaba nada. Eso es lo que DDR-03 corrige.
- *
- * ## La regla que hace esto seguro
- *
- * `setItem`/`removeItem` **vuelven a lanzar** el error después de registrarlo. Ni un solo módulo
- * puro cambia de comportamiento: sus `try/catch` siguen atrapando exactamente lo mismo, en el
- * mismo sitio, y el estado en memoria sigue conservándose igual. Lo único nuevo es que el fallo
- * deja de ser invisible.
- *
- * ## Qué recuerda, y por qué
- *
- * Una entrada pendiente por clave, con la carga exacta que no se pudo escribir. «Reintentar»
- * reescribe ESA carga — no un valor de prueba, no un borrado, no un reinicio: los datos de la
- * persona, tal cual se intentaron guardar (DDR-03, «no descartes ni resetees datos del usuario»).
- * Una escritura posterior con éxito sobre la misma clave también limpia su pendiente: ese estado
- * ya llegó al disco, y no hay nada que recuperar.
- *
- * `lib/onboarding.ts` NO pasa por aquí, a propósito: su clave es una preferencia de interfaz («ya
- * vi la explicación»), no un cambio de la persona sobre su viaje. Avisar de pérdida de datos antes
- * de que exista un dato que perder sería un falso positivo.
- */
+import { runExclusive } from "./storage-lock";
+import { clearPendingCopy, keepPendingCopy, pendingCopies } from "./persistence-recovery";
 
 export type PersistenceState = "ok" | "error";
-
-/** Lo que no se pudo escribir: `value === null` representa un borrado pendiente. */
-type PendingWrite = { key: string; value: string | null };
-
+export type PersistenceProblem = { key: string; message: string; blocking: boolean };
+type PendingWrite = { key: string; value: string | null; base: string | null; readable: boolean };
 const pending = new Map<string, PendingWrite>();
+const problems = new Map<string, PersistenceProblem>();
+const retries = new Map<string, () => Promise<void>>();
 const listeners = new Set<() => void>();
-
-/** Instantánea inmutable: `useSyncExternalStore` compara por identidad, así que sólo cambia
- * cuando cambia el estado de verdad — si no, React entraría en un bucle de renders. */
+const problemListeners = new Set<() => void>();
 let snapshot: PersistenceState = "ok";
+let problemSnapshot: readonly PersistenceProblem[] = [];
+const canonical = new Set(["nihon.travellers.v1", "nihon.manualPlanningDraft"]);
 
 function publish(): void {
-  const next: PersistenceState = pending.size > 0 ? "error" : "ok";
-  if (next === snapshot) return;
-  snapshot = next;
-  for (const listener of listeners) listener();
+  const next: PersistenceState = pending.size > 0 || [...problems.values()].some((p) => p.blocking) ? "error" : "ok";
+  if (next !== snapshot) {
+    snapshot = next;
+    for (const listener of listeners) listener();
+  }
+  problemSnapshot = [...problems.values()];
+  for (const listener of problemListeners) listener();
 }
 
-function record(key: string, value: string | null, failed: boolean): void {
-  if (failed) pending.set(key, { key, value });
-  else pending.delete(key);
+export function reportPersistenceProblem(key: string, message: string, blocking = true): void {
+  const before = problems.get(key);
+  if (before?.message === message && before.blocking === blocking) return;
+  problems.set(key, { key, message, blocking }); publish();
+}
+export function clearPersistenceProblem(key: string): void {
+  if (problems.delete(key)) publish();
+}
+export function cancelPendingWrites(keys: readonly string[]): void {
+  for (const key of keys) pending.delete(key);
   publish();
 }
+export function registerPersistenceRetry(key: string, retry: () => Promise<void>): () => void {
+  retries.set(key, retry);
+  return () => { if (retries.get(key) === retry) retries.delete(key); };
+}
 
-/**
- * El adaptador que usan todos los escritores persistentes. Misma forma estructural que los
- * `browserStorage` que sustituye, así que satisface `Storage`, `DraftStorage` y `RestoreStorage`
- * sin que ninguno de esos módulos tenga que saber que esto existe.
- */
+function mutate(key: string, value: string | null): void {
+  let base: string | null = null;
+  let readable = false;
+  try {
+    base = localStorage.getItem(key);
+    readable = true;
+    if (value === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, value);
+  } catch (error) {
+    pending.set(key, { key, value, base, readable });
+    publish(); throw error;
+  }
+  pending.delete(key); publish();
+}
+
+/** Adaptador único. Una lectura fallida no se presenta como una clave ausente. */
 export const deviceStorage = {
-  getItem(key: string): string | null {
-    try {
-      return localStorage.getItem(key);
-    } catch {
-      // Leer puede fallar donde el almacenamiento está bloqueado del todo. No es una pérdida de
-      // datos —no había nada que guardar—, así que no enciende el aviso: se lee como "vacío".
-      return null;
-    }
-  },
-
-  setItem(key: string, value: string): void {
-    try {
-      localStorage.setItem(key, value);
-    } catch (error) {
-      record(key, value, true);
-      throw error;
-    }
-    record(key, value, false);
-  },
-
-  removeItem(key: string): void {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      record(key, null, true);
-      throw error;
-    }
-    record(key, null, false);
+  getItem(key: string): string | null { return localStorage.getItem(key); },
+  setItem(key: string, value: string): void { mutate(key, value); },
+  removeItem(key: string): void { mutate(key, null); },
+  pendingCopies,
+  cancelPendingWrites,
+  /** Cancela sólo las cargas de esta importación, conservando pendientes anteriores al rollback. */
+  beginPendingScope(keys: readonly string[]): (outcome: "commit" | "rollback" | "incomplete") => void {
+    const before = new Map(keys.map((key) => [key, pending.get(key)]));
+    return (outcome) => {
+      for (const key of keys) {
+        pending.delete(key);
+        if (outcome === "rollback" && before.get(key)) pending.set(key, before.get(key)!);
+        if (outcome === "commit") clearPersistenceProblem(key);
+        if (outcome === "incomplete") reportPersistenceProblem(key,
+          "La restauración quedó a medias. Se han conservado las copias anteriores; vuelve a importar el respaldo cuando puedas guardar.");
+      }
+      publish();
+    };
   },
 };
-
 export function subscribePersistence(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  listeners.add(listener); return () => listeners.delete(listener);
 }
-
-export function getPersistenceState(): PersistenceState {
-  return snapshot;
+export function getPersistenceState(): PersistenceState { return snapshot; }
+export function subscribePersistenceProblems(listener: () => void): () => void {
+  problemListeners.add(listener); return () => problemListeners.delete(listener);
 }
+export function getPersistenceProblems(): readonly PersistenceProblem[] { return problemSnapshot; }
 
-/**
- * Reintenta de verdad: reescribe cada carga pendiente por la misma vía que falló.
- *
- * No oculta nada por su cuenta — si las escrituras vuelven a fallar, las pendientes siguen ahí y
- * el estado sigue siendo de error, que es justo lo que DDR-03 exige. Devuelve el estado resultante
- * para que quien llame pueda anunciarlo sin volver a preguntar.
- */
-export function retryPersistence(): PersistenceState {
-  for (const entry of [...pending.values()]) {
-    try {
-      if (entry.value === null) localStorage.removeItem(entry.key);
-      else localStorage.setItem(entry.key, entry.value);
-      pending.delete(entry.key);
-    } catch {
-      // Sigue sin poder escribirse: la entrada se queda pendiente para el próximo intento.
+/** Reintenta intenciones por su propietario. Nunca escribe una instantánea canónica anterior. */
+export async function retryPersistence(): Promise<PersistenceState> {
+  const keys = new Set([...pending.keys(), ...[...problems.values()].filter((p) => p.blocking).map((p) => p.key)]);
+  for (const key of keys) {
+    const retry = retries.get(key);
+    if (retry) {
+      try { await retry(); } catch { reportPersistenceProblem(key, "No se pudo reintentar con seguridad. Se conserva el cambio pendiente."); }
+      continue;
     }
+    const entry = pending.get(key);
+    if (!entry) continue;
+    if (canonical.has(key)) {
+      reportPersistenceProblem(key, "No se puede aplicar ese cambio con seguridad. Los originales se han conservado; abre la sección del viaje antes de volver a intentarlo.");
+      continue;
+    }
+    // Preferencias de comparación y copias aparte: compare-and-set, también bajo el lock.
+    try {
+      await runExclusive(key, () => {
+        const now = localStorage.getItem(key);
+        if (now === entry.value) { pending.delete(key); clearPersistenceProblem(key); return; }
+        if (!entry.readable || now !== entry.base) {
+          keepPendingCopy(key, JSON.stringify(entry));
+          reportPersistenceProblem(key, "Ese dato cambió en otra pestaña. No se ha sustituido por la copia anterior.");
+          return;
+        }
+        mutate(key, entry.value);
+      });
+    } catch { /* se conserva la pendiente; no se salta el lock */ }
   }
-  publish();
-  return snapshot;
+  publish(); return snapshot;
 }
 
-/** Sólo para pruebas: devuelve el módulo a su estado inicial entre casos. */
+/** Sólo para pruebas. */
 export function resetPersistenceForTests(): void {
-  pending.clear();
-  snapshot = "ok";
-  listeners.clear();
+  for (const key of pending.keys()) clearPendingCopy(key);
+  pending.clear(); problems.clear(); retries.clear(); listeners.clear(); problemListeners.clear();
+  snapshot = "ok"; problemSnapshot = [];
 }

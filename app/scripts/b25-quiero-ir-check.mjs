@@ -120,7 +120,8 @@ async function newPage(browser, viewport, doc) {
 }
 
 const panel = (page) => page.locator('.destination-panel:not([hidden]) .quiero-ir');
-const storedDoc = (page) => page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null"), KEY);
+// El documento almacenado lleva su linaje de escrituras `_w` (auditoría final); no es parte de los datos del viaje.
+const storedDoc = (page) => page.evaluate((key) => { const doc = JSON.parse(localStorage.getItem(key) ?? "null"); if (doc) delete doc._w; return doc; }, KEY);
 
 async function openQuieroIr(page) {
   await page.goto(baseUrl, { waitUntil: "load" });
@@ -163,7 +164,7 @@ async function auditBehaviour(browser, viewport) {
     check("S-FACTS", facts.length === 3 && new Set(facts).size === 1, `${tag}: resumen de tres datos del mismo tamaño (${facts.join("/")})`);
     const factText = (await root.locator(".quiero-ir__facts").innerText()).replace(/\s+/g, " ");
     check("S-FACTS", factText.includes(`${want.total} lugares`) && /ciudad/.test(factText), `${tag}: «${factText}»`);
-    check("S-EVIDENCE", (await root.locator(".quiero-ir__facts .evidence-mark[aria-label*='Estimado']").count()) === 1 &&
+    check("S-EVIDENCE", (await root.locator(".quiero-ir__facts .evidence-mark[title*='Estimado']").count()) === 1 &&
       (await root.locator(".quiero-ir__note").innerText()).includes("Sólo tiempo dentro de cada lugar"), `${tag}: EvidenceMark ◇ y nota «Sólo tiempo dentro de cada lugar»`);
     const order = await root.evaluate((el) => {
       const summary = el.querySelector(".quiero-ir__summary");

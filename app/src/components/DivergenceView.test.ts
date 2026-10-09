@@ -75,7 +75,7 @@ describe("the block adds no persistence", () => {
 describe("the shared plan stays untouched", () => {
   it("leaves the planning draft at V8, with no traveller dimension", async () => {
     const hook = await readAppSource("usePlanningDraft.ts");
-    expect(hook).toContain("useState<ManualPlanningDraftV8>");
+    expect(hook).toContain("StoredDocumentAdapter<ManualPlanningDraftV8>");
     expect(hook).not.toMatch(/travellerId|perTraveller|personId|divergen/i);
     const draft = await readAppSource("lib/planning-draft-v8.ts");
     expect(draft).not.toMatch(/travellers|traveller|persona|divergence/i);

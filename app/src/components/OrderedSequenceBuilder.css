@@ -395,9 +395,13 @@
   font-weight: 700;
 }
 
+/* Auditoría final (H05): estos textos de ~12 px se pintan sobre `--color-surface-alt`
+   (`--surface-sunken`, #eceeeb), donde `--ink-500` (#6b7076) sólo alcanza 4,28:1. `--ink-700`
+   (#3a3e44) es el token de tinta existente más oscuro y llega muy por encima de 4,5:1; sin rediseño:
+   siguen siendo el texto secundario de cada ficha, con la misma talla. */
 .official-reservation-date__scope,
 .official-reservation-date__provenance {
-  color: var(--color-text-muted);
+  color: var(--ink-700);
   font-size: 0.74rem;
 }
 
@@ -413,6 +417,12 @@
   font-weight: 600;
 }
 
+/* Auditoría final (H05): el símbolo de procedencia hereda `--ink-500` de `.evidence-mark` y aquí
+   también está sobre `--color-surface-alt`. */
+.official-reservation-date__item .evidence-mark {
+  color: var(--ink-700);
+}
+
 .official-reservation-date__detail,
 .official-reservation-date__allocation,
 .official-reservation-date__purchase-residence-context {
@@ -426,7 +436,7 @@
 .official-reservation-date__reference-relation,
 .official-reservation-date__reference-date {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--ink-700);
   font-size: 0.74rem;
 }
 
@@ -496,12 +506,18 @@
   font-weight: 600;
 }
 
+/* Auditoría final (H05): igual que `.official-reservation-date__*`: ~12 px de `--ink-500` sobre
+   `--color-surface-alt` (#eceeeb) = 4,28:1. Mismo remedio: `--ink-700`, sin cambiar talla ni jerarquía. */
 .official-reservation-calendar__scope,
 .official-reservation-calendar__anchor-note,
 .official-reservation-calendar__relation,
 .official-reservation-calendar__provenance {
-  color: var(--color-text-muted);
+  color: var(--ink-700);
   font-size: 0.74rem;
+}
+
+.official-reservation-calendar__item .evidence-mark {
+  color: var(--ink-700);
 }
 
 .official-reservation-calendar__fact-heading,
@@ -619,6 +635,8 @@
 
 .accommodation-manager__input {
   max-width: 100%;
+  /* Auditoría final (H07): `03 §7` — objetivo táctil de 44 px por caja real (medía 39,2 px). */
+  min-height: var(--tap-min);
   padding: 0.35rem 0.45rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
@@ -785,6 +803,8 @@
 .inter-hub-segments select,
 .inter-hub-segments input {
   max-width: 100%;
+  /* Auditoría final (H07): `03 §7` — 44 px por caja real (selectores 35,2 px, entradas 39,2 px). */
+  min-height: var(--tap-min);
   padding: 0.35rem 0.45rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);

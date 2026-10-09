@@ -112,7 +112,8 @@ async function keyboardActivate(locator) {
   await locator.press("Enter");
 }
 async function draft(page) {
-  return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE_KEY);
+  // Las escrituras del documento son diferidas (Web Lock): se espera a que el almacenamiento se asiente antes de leerlo.
+  return page.evaluate(async (key) => { await new Promise((resolve) => { let last = localStorage.getItem(key), calm = 0; const tick = () => { const now = localStorage.getItem(key); if (now !== last) { last = now; calm = 0; } else calm += 1; if (calm >= 3) resolve(); else setTimeout(tick, 40); }; setTimeout(tick, 40); }); const doc = JSON.parse(localStorage.getItem(key)); delete doc._w; return doc; }, STORAGE_KEY);
 }
 async function capture(page, name) {
   if (shots) await page.screenshot({ path: `${shots}/${name}.png`, fullPage: true });
@@ -277,7 +278,12 @@ try {
     const proposalNames = await dayTool.locator(".day-order-tool__order").nth(1).locator(".day-order-tool__place-name").allTextContents();
     if (currentNames.join("|") !== proposalNames.join("|")) fail("B29: proposal did not start as a copy of the day's current order");
     if (JSON.stringify(await draft(page)) !== JSON.stringify(beforeTool)) fail("B29: opening Cambiar orden changed the draft");
-    if (!await dayTool.locator("h3").evaluate((heading) => document.activeElement === heading)) fail("B29: focus did not enter the day tool");
+    if (!await dayTool.locator("h3").evaluate((heading) => document.activeElement === heading)) {
+      // Diagnóstico (auditoría final): quién tiene el foco y si el encabezado sigue siendo el mismo nodo conectado.
+      const where = await page.evaluate(() => { const a = document.activeElement; return `${a?.tagName}.${String(a?.className).slice(0, 60)}#${a?.id ?? ""} «${(a?.textContent ?? "").trim().slice(0, 40)}»`; });
+      const settled = await dayTool.locator("h3").evaluate((heading) => new Promise((resolve) => setTimeout(() => resolve(document.activeElement === heading), 400)));
+      fail(`B29: focus did not enter the day tool (activeElement=${where}; tras 400 ms ${settled ? "SÍ" : "NO"} está en el encabezado)`);
+    }
     await capture(page, "viaje-390-cambiar-orden");
     if (await dayTool.locator("..").evaluate((element) => !element.closest(".focused-view"))) fail("P-06 v2: Cambiar orden debe abrirse en una vista enfocada, no inline");
     await page.keyboard.press("Escape");

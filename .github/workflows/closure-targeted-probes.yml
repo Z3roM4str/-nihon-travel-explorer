@@ -1,0 +1,95 @@
+name: Sondas dirigidas (gesto en Safari, frescura de localStorage)
+# Manual only (workflow_dispatch). Two hypothesis-driven probes, each defined in its script header. They are NOT batteries and carry no
+# retries: Safari gets one gesture per variant, the staleness probe is a fixed sample.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: closure-targeted-probes-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  safari-gesture:
+    name: Safari WebDriver gesture reception (real Safari, macOS)
+    runs-on: macos-15
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: One gesture per variant, control page and Nihon
+        run: python3 scripts/safari-intro-gesture-probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: safari-intro-gesture-${{ github.sha }}
+          path: |
+            app/safari-intro-gesture-probe.json
+            app/safari-intro-gesture-driver.log
+            app/safari-intro-gesture-evidence/
+          retention-days: 30
+          if-no-files-found: error
+  lock-staleness:
+    name: ${{ matrix.os }} ${{ matrix.browser }} localStorage freshness after Web Lock grant
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            browser: webkit
+          - os: macos-15
+            browser: webkit
+          - os: ubuntu-24.04
+            browser: chromium
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - if: runner.os == 'Linux'
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - if: runner.os == 'macOS'
+        run: npx playwright install ${{ matrix.browser }}
+      - name: Native probe, no Nihon code
+        env:
+          NIHON_BROWSER: ${{ matrix.browser }}
+          NIHON_ITERATIONS: "500"
+          NIHON_OUT: lock-staleness-${{ matrix.os }}-${{ matrix.browser }}.json
+        run: node scripts/webstorage-lock-staleness-probe.mjs | tee lock-staleness.log
+      - name: Consequence of a stale overwrite (events, backing store)
+        env:
+          NIHON_BROWSER: ${{ matrix.browser }}
+          NIHON_ITERATIONS: "150"
+          NIHON_OUT: stale-overwrite-${{ matrix.os }}-${{ matrix.browser }}.json
+        run: node scripts/webstorage-stale-overwrite-probe.mjs | tee stale-overwrite.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lock-staleness-${{ matrix.os }}-${{ matrix.browser }}-${{ github.sha }}
+          path: |
+            app/lock-staleness-*.json
+            app/lock-staleness.log
+            app/stale-overwrite-*.json
+            app/stale-overwrite.log
+          retention-days: 30
+          if-no-files-found: error
