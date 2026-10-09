@@ -89,7 +89,9 @@ export function TripBackup({
       <div className="trip-backup__body">
         <p className="trip-backup__sub">
           Nihon guarda vuestras decisiones sólo en este navegador. Un archivo de respaldo os permite
-          conservarlas o abrirlas en otro dispositivo.
+          conservarlas o abrirlas en otro dispositivo. Safari puede borrar los datos de una web que
+          no se abre durante una semana: exportad un respaldo antes de un viaje y guardadlo fuera
+          del navegador.
         </p>
 
         <section className="trip-backup__section" aria-labelledby="trip-backup-export">
@@ -152,6 +154,11 @@ export function TripBackup({
           {exported && exported.ok && !exportBlocked && (
             <p className="trip-backup__result" role="status">
               Archivo generado: <strong>{exported.fileName}</strong>
+            </p>
+          )}
+          {exported && !exported.ok && exported.reason === "invalid" && !exportBlocked && (
+            <p className="trip-backup__result" role="alert">
+              El respaldo no ha superado su propia comprobación, así que no se ha entregado ningún archivo. No se ha cambiado nada.
             </p>
           )}
           {exported && !exported.ok && exported.reason === "download-failed" && !exportBlocked && (

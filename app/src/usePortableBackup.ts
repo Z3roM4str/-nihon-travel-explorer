@@ -12,10 +12,9 @@ import {
 import {
   applyRestore,
   backupFileName,
-  buildPortableBackup,
   planRestore,
   readPortableBackup,
-  serializePortableBackup,
+  serializeVerifiedBackup,
   summarizeRestore,
   type BackupProblem,
   type RestorePlan,
@@ -86,7 +85,7 @@ export type ImportPreview = {
  */
 export type ExportOutcome =
   | { ok: true; fileName: string }
-  | { ok: false; reason: "protected" | "unsaved" | "download-failed" };
+  | { ok: false; reason: "protected" | "unsaved" | "invalid" | "download-failed" };
 
 export type ImportState =
   | { phase: "idle" }
@@ -139,8 +138,9 @@ export function usePortableBackup() {
         if (!state) { refreshProtection(browserStorage); return { ok: false, reason: "protected" }; }
         clearPersistenceProblem("export");
         const { travellers, draft } = state;
-        const backup = buildPortableBackup(travellers, draft, now.toISOString());
-        const text = serializePortableBackup(backup);
+        const verified = serializeVerifiedBackup(travellers, draft, now.toISOString());
+        if (!verified.ok) return { ok: false, reason: "invalid" };
+        const text = verified.text;
         const fileName = backupFileName(todayCivilDate(now));
         // Block 14: el revoke de la URL va diferido (ver `downloadTextFile`): Safari cancela la descarga si desaparece
         // en la misma tarea que el clic. No es un fallo medido: es un riesgo medido, registrado como tal.

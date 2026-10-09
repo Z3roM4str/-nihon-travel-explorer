@@ -11,6 +11,7 @@ import {
   planRestore,
   readPortableBackup,
   serializePortableBackup,
+  serializeVerifiedBackup,
   summarizeRestore,
   type RestoreStorage,
 } from "./portable-backup";
@@ -155,6 +156,21 @@ describe("Block 13 — building and serialising", () => {
 });
 
 // ── What is in the file, and what must never be ───────────────────────────────────────────────
+
+describe("export self-check — an unreadable backup is never delivered", () => {
+  it("delivers a backup the reader accepts", () => {
+    const doc = twoTravellers();
+    const out = serializeVerifiedBackup(doc, planFor(doc), AT);
+    expect(out.ok).toBe(true);
+    if (out.ok) expect(readPortableBackup(out.text).ok).toBe(true);
+  });
+  it("refuses to deliver a backup the restore reader would refuse", () => {
+    const doc = twoTravellers();
+    const corrupt = { ...doc, version: 99 } as unknown as TravellersDocumentV1;
+    expect(serializeVerifiedBackup(corrupt, planFor(doc), AT)).toEqual({ ok: false });
+    expect(serializeVerifiedBackup(doc, planFor(doc), "not-a-date")).toEqual({ ok: false });
+  });
+});
 
 describe("Block 13 — durable decisions only, no derived data", () => {
   const doc = twoTravellers();

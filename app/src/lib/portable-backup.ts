@@ -179,6 +179,19 @@ export function serializePortableBackup(backup: NihonPortableBackupV1): string {
   return JSON.stringify(backup, null, 2);
 }
 
+/**
+ * Builds the backup text and proves it before it can be handed to anyone: the file must pass the very reader a restore
+ * uses. A backup that this app would refuse to read back is never delivered as if it were one.
+ */
+export function serializeVerifiedBackup(
+  travellers: TravellersDocumentV1,
+  planningDraft: ManualPlanningDraftV8 | null,
+  exportedAt: string
+): { ok: true; text: string } | { ok: false } {
+  const text = serializePortableBackup(buildPortableBackup(travellers, planningDraft, exportedAt));
+  return readPortableBackup(text).ok ? { ok: true, text } : { ok: false };
+}
+
 /** `nihon-backup-YYYY-MM-DD.json`. Recognisable, and never used to decide whether a file is valid. */
 export function backupFileName(civilDate: string): string {
   return `nihon-backup-${civilDate}.json`;
