@@ -4,24 +4,25 @@
 
 **Garantía de no tocar tus datos.** Los datos de Nihon viven en el *origen* (dirección). La vista previa se sirve desde un origen **distinto** de `nihon-travel-explorer.vercel.app`, de modo que su almacenamiento empieza vacío (sintético por construcción) y nunca se mezcla con tu viaje real. **No abras la dirección de producción para esta prueba y no borres «Datos de sitios web» de Safari sin mirar el dominio.**
 
-## Estado de la vista previa: preparada, NO publicada
+## Estado de la vista previa (9 oct 2026): autorizada, NO publicada — bloqueo externo
 
-El freeze de Vercel (`docs/DEPLOYMENT_POLICY.md`) prohíbe crear Previews de Vercel o tocar el proyecto sin autorización expresa que nombre el SHA, y no se ha usado. Un túnel efímero desde un runner de CI tampoco se pudo preparar: el entorno de esta sesión deniega abrir una entrada externa. Lo que queda **listo y comprobado** es una publicación en GitHub Pages, que no usa Vercel ni toca producción:
+El propietario autorizó expresamente **una única vista previa en Vercel del SHA completo `889b247aacd4cda750bacdb0abd1e4fe8a25765b`**, separada de producción, sin autorizar producción ni despliegues automáticos generales. **No se pudo crear**: la conexión de Vercel de esta sesión responde `403 forbidden — Not authorized: Trying to access resource under scope "z3ro2"` incluso para leer el proyecto (con `teamId`, con `slug`), y no hay credenciales de la CLI de Vercel en el entorno. No se probó ninguna otra vía de acceso. El SHA se verificó antes (commit completo, cabeza de la rama).
 
-- `.github/workflows/iphone-preview-pages.yml` (solo manual): ejecuta `npm test`, compila con la ruta base del repositorio, escribe `build-info.txt` (SHA y árbol de `app/src`) y despliega en `https://<usuario>.github.io/-nihon-travel-explorer/`.
-- La build con esa ruta base se comprobó antes: `scripts/preview-journey-check.mjs` (este mismo guion, automatizado) pasa **10/10** en Chromium contra `vite preview --base /-nihon-travel-explorer/`. Esa comprobación no sustituye al iPhone.
+**Desbloqueo (una de dos):** reautorizar la conexión de Vercel de la sesión para el ámbito `z3ro2` con permiso de lectura de proyecto, modificación de proyecto y creación de despliegues; o ejecutar el procedimiento de abajo con una sesión que ya tenga ese acceso.
 
-### Autorización que falta (tres pasos, todos del propietario)
+### Procedimiento preparado (límite del *Ignored Build Step* a ese SHA)
 
-1. **Ajuste del repositorio:** Settings › Pages › *Build and deployment* › Source = **GitHub Actions**.
-2. **Entorno:** Settings › Environments › `github-pages` › permitir despliegues desde la rama `claude/sweet-mendel-v8st6b` (por defecto sólo `main`).
-3. **Autorización expresa** para publicar **este SHA** (el HEAD final está en `docs/PR203_CLOSURE_REPORT.md`) en una URL pública de `github.io`: el sitio contiene sólo la aplicación y su conjunto de datos público, sin datos de usuario ni secretos, y se retira desactivando Pages. Después se ejecuta *Actions › Vista previa HTTPS para iPhone › Run workflow* sobre esa rama (se puede hacer desde la app de GitHub del iPhone).
-
-Alternativa con Vercel: autorización expresa para **un único Preview manual** del SHA indicado, acotando temporalmente el *Ignored Build Step* a ese SHA y restaurándolo a `exit 0` al terminar (el mismo procedimiento ya usado el 2026-10-06).
+1. Leer el proyecto `nihon-travel-explorer` (`prj_6MVsoR476rp484URO0amRRe0TbI9`, equipo `team_YPIfOulAGNBY8gz0dLWTmBxw`) y **anotar** `commandForIgnoringBuildStep` (esperado: `exit 0`); confirmar que `app/vercel.json` sigue con `**: false` y `main: true` (no se toca).
+2. Fijar `commandForIgnoringBuildStep` = `test "$VERCEL_GIT_COMMIT_SHA" != "889b247aacd4cda750bacdb0abd1e4fe8a25765b"` (omite todo SHA distinto).
+3. Crear **un** deployment *Preview* (sin `target`, que es preview; nunca `production`) con `gitSource {type: github, org: Z3roM4str, repo: -nihon-travel-explorer, ref: claude/sweet-mendel-v8st6b, sha: 889b247aacd4cda750bacdb0abd1e4fe8a25765b}`, `name: nihon-travel-explorer`, sin `deploymentId`/`withLatestCommit`.
+4. En cuanto el build arranque, **restaurar** `commandForIgnoringBuildStep` a su valor anotado (`exit 0`) y comprobar la lectura.
+5. Verificar: `gitSource.sha` del deployment = ese SHA; `target` = preview; ningún alias de producción (`nihon-travel-explorer.vercel.app` sigue en `dpl_Fu2dABdW5xohuo6cV9kMkyeh6whV`); los ficheros servidos son idénticos a `npm run build` de ese SHA (como el 2026-10-06).
+6. Si la protección de despliegues de Vercel pide sesión, usar un enlace compartible o el bypass de automatización **sólo para este deployment**; no relajar la protección del proyecto.
+7. Contra la URL publicada: `NIHON_PREVIEW_URL=<URL>/ node app/scripts/preview-journey-check.mjs` (con `NIHON_BROWSER=webkit` además de Chromium). Debe dar 10/10 antes de pasar el enlace al iPhone.
 
 ## Pasos en el iPhone (con la URL de la vista previa)
 
-Primero abre `<URL>/build-info.txt`: debe mostrar el SHA propuesto. Después usa una pestaña normal de Safari (no privada).
+Con la vista previa de Vercel no hay `build-info.txt` (lo escribe sólo el workflow de Pages); la versión se comprueba por el deployment (paso 5). Usa una pestaña normal de Safari (no privada).
 
 | # | Acción | Debe pasar |
 |---|---|---|

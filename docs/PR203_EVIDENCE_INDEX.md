@@ -4,13 +4,14 @@ El PR #203 reunía código de producto, pruebas permanentes, herramientas de inv
 
 | Qué | Dónde (inmutable) |
 |---|---|
+| **Referencia permanente** | rama `evidence/pr203-2fd30db` → `2fd30dba0bed550afb5b742238da41537c2e34b7` (creada el 2026-10-09, SHA completo verificado, sin reemplazar ninguna referencia; ver nota) |
 | Árbol completo auditado | commit [`2fd30db`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7) — y `refs/pull/203/head` mientras exista el PR |
 | Evidencia de rondas 2–5 y base/corregido | [`docs/final-audit-evidence/`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence) (base 7 · fix 9 · round2 2 · round3 253 · round4-h03 16 · round5-h03 4) |
 | Evidencia independiente (durabilidad, caso 4, caso 9) | [`docs/pr203-independent-evidence/`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/pr203-independent-evidence) (25 ficheros) |
 | Herramientas de investigación retiradas | los workflows `h03-*`, `pr203-anomaly-investigation`, `webstorage-durability` y los scripts `h03-*`, `p06-transfer-*`, `webstorage-durability-*`, `webstorage-lock-order-check`, `webstorage-safari-*`, `inspect-h03-sqlite.py`, `lib/h03-profile-evidence.mjs`, en ese mismo commit |
 | Artefactos de CI (SQLite/WAL/SHM, perfiles originales, capturas) | enlazados en los informes de los PR #203/#204; GitHub los conserva 30 días desde cada ejecución |
 
-> **Recomendación operativa:** antes de cerrar o fusionar #203, crear una etiqueta sobre `2fd30db` (p. ej. `evidence/pr203-2fd30db`). Un squash‑merge deja el commit alcanzable por `refs/pull/203/head`, pero una etiqueta no depende de ello.
+> **Nota:** se intentó una etiqueta anotada `evidence/pr203-2fd30db`, pero la sesión no puede crear etiquetas (el proxy de git responde HTTP 403 a cualquier ref que no sea la rama de trabajo); se creó entonces una **rama** con ese nombre mediante la API de GitHub. Una rama puede moverse si alguien empuja a ella: **no empujar nunca a `evidence/*`**. Para inmutabilidad total, un propietario puede ejecutar `git tag -a evidence/pr203-2fd30db 2fd30dba0bed550afb5b742238da41537c2e34b7 && git push origin evidence/pr203-2fd30db`.
 
 ## Clasificación de lo que contenía el PR
 

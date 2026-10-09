@@ -67,6 +67,13 @@ git diff --stat 617ace0 HEAD -- .github/workflows/p06-certification.yml         
 ```
 Resultado (verificado sobre `1520eea` más los cambios de este informe, que sólo tocan documentación): las tres comparaciones salen **vacías**, y el árbol `app/src` es idéntico: `ae7f729ddb1c5af8d0be815b575dd3e29fe2c5fd` en `617ace0` y en el HEAD final.
 
+### 0.5 Tercera ronda (9 oct 2026) — autorización de la vista previa y de la referencia
+
+- **SHA verificado antes de actuar:** `889b247aacd4cda750bacdb0abd1e4fe8a25765b` es un commit completo y la cabeza de `claude/sweet-mendel-v8st6b` (local = remoto). Su código es idéntico al certificado en `617ace0` (§0.4).
+- **Vista previa de Vercel: NO creada — bloqueo externo.** La conexión de Vercel de la sesión devuelve `403 forbidden` para el ámbito `z3ro2` en la lectura del proyecto (probado con `teamId` y con `slug`) y no hay credenciales de CLI. No se modificó el *Ignored Build Step* (no se pudo ni leer), no se creó ningún deployment y producción no se tocó. El procedimiento exacto, con el límite del *Ignored Build Step* a ese SHA y su restauración a `exit 0`, quedó en `docs/IPHONE_SYNTHETIC_CHECK.md`. Por tanto **tampoco se pudo ejecutar el recorrido automatizado contra una URL publicada** (sí 10/10 en Chromium contra la build local con ruta base, §0.3). **Qué falta:** reautorizar la conexión de Vercel para ese ámbito (lectura/modificación de proyecto y creación de despliegues), o que alguien con acceso ejecute el procedimiento.
+- **Referencia permanente de la evidencia:** rama `evidence/pr203-2fd30db` en `2fd30dba0bed550afb5b742238da41537c2e34b7`, creada tras verificar el SHA completo (también cabeza de #203 y de `refs/pull/203/head`) y que no existía ninguna ref `evidence*`; no se reemplazó nada. No se pudo crear una etiqueta (HTTP 403 del proxy de git, no un fallo transitorio); no empujar a esa rama; el comando de la etiqueta está en `PR203_EVIDENCE_INDEX.md`.
+- **Integración:** #203 sin fusionar y su rama sin avanzar. Queda preparada: la rama `claude/sweet-mendel-v8st6b` contiene a `2fd30db`, así que `claude/final-audit-data-recovery-fixes-l60xs9` puede avanzar por fast‑forward a su HEAD cuando llegue el resultado del iPhone.
+
 ## 1. Clasificación (vigente)
 
 | Clase | Elemento | Estado |
