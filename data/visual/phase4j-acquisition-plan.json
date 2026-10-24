@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "attemptedTargetCount": 32,
+  "acceptedCount": 28,
+  "accepted": [
+    {
+      "placeId": "JP-214",
+      "assetPath": "images/places/JP-214/yanagawa-canal-cruise.webp",
+      "originalTitle": "File:Yanagawa cruise ac (7).jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-100",
+      "assetPath": "images/places/JP-100/toei-kyoto-studio-park.webp",
+      "originalTitle": "File:Toei Kyoto Studio Park from above.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-163",
+      "assetPath": "images/places/JP-163/valley-of-gangala.webp",
+      "originalTitle": "File:Walking Banyan Tree in the Valley of Gangala 202312.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-123",
+      "assetPath": "images/places/JP-123/church-of-the-light.webp",
+      "originalTitle": "File:Church of Light.JPG",
+      "license": "CC BY-SA 2.5"
+    },
+    {
+      "placeId": "JP-013",
+      "assetPath": "images/places/JP-013/golden-gai.webp",
+      "originalTitle": "File:Shinjuku Golden Gai (53147651689).jpg",
+      "license": "CC BY 2.0"
+    },
+    {
+      "placeId": "JP-073",
+      "assetPath": "images/places/JP-073/okochi-sanso-garden.webp",
+      "originalTitle": "File:Wooden gate in Okochi Sanso Garden, Kyoto, Japan.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-183",
+      "assetPath": "images/places/JP-183/gesashi-bay-mangrove.webp",
+      "originalTitle": "File:Mangroves at Gesashi Bay 202310.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-022",
+      "assetPath": "images/places/JP-022/ameyoko.webp",
+      "originalTitle": "File:Ameya-Yokochō Entrance.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-055",
+      "assetPath": "images/places/JP-055/sannenzaka-ninenzaka.webp",
+      "originalTitle": "File:Pedestrian road with pavements and paper umbrellas, Higashiyama-ku, Kyoto, Japan, early morning.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-194",
+      "assetPath": "images/places/JP-194/banna-park.webp",
+      "originalTitle": "File:Banna Park south gate, Ishigaki, Okinawa.jpg",
+      "license": "CC BY 4.0"
+    },
+    {
+      "placeId": "JP-014",
+      "assetPath": "images/places/JP-014/omoide-yokocho.webp",
+      "originalTitle": "File:Shinjuku-West Omoide-Yokocho.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-059",
+      "assetPath": "images/places/JP-059/kodai-ji.webp",
+      "originalTitle": "File:170923 Kodaiji Kyoto Japan09n.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-189",
+      "assetPath": "images/places/JP-189/irabu-bridge.webp",
+      "originalTitle": "File:Irabu Bridge (52204774130).jpg",
+      "license": "CC BY 2.0"
+    },
+    {
+      "placeId": "JP-124",
+      "assetPath": "images/places/JP-124/osaka-aquarium-kaiyukan.webp",
+      "originalTitle": "File:Osaka Aquarium Kaiyukan 2022-04-24.jpg",
+      "license": "CC BY 2.0"
+    },
+    {
+      "placeId": "JP-078",
+      "assetPath": "images/places/JP-078/saiho-ji-kokedera.webp",
+      "originalTitle": "File:Saihō-ji (Nishikyo Kyoto) hdsr Garden S5 520.jpg",
+      "license": "CC BY 4.0"
+    },
+    {
+      "placeId": "JP-165",
+      "assetPath": "images/places/JP-165/kudaka-island.webp",
+      "originalTitle": "File:Street in Kudaka Island 202401 02.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-117",
+      "assetPath": "images/places/JP-117/osaka-castle-park.webp",
+      "originalTitle": "File:Sengan-yagura Turret at Osaka Castle Park, September 2017.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-043",
+      "assetPath": "images/places/JP-043/small-worlds-miniature-museum.webp",
+      "originalTitle": "File:Small Worlds Tokyo Koto-ku Tokyo.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-060",
+      "assetPath": "images/places/JP-060/nanzen-ji.webp",
+      "originalTitle": "File:251213 Nanzen-ji Suirokaku Kyoto Japan01s3.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-138",
+      "assetPath": "images/places/JP-138/kobe-kitano-ijinkan.webp",
+      "originalTitle": "File:Weathercock House Kobe Kitano Ijinkan 風見鶏の館（旧トーマス住宅）.jpg",
+      "license": "CC BY 4.0"
+    },
+    {
+      "placeId": "JP-006",
+      "assetPath": "images/places/JP-006/nezu-museum.webp",
+      "originalTitle": "File:Nezu Museum Garten-20091020-RM-114344.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-081",
+      "assetPath": "images/places/JP-081/ryoan-ji.webp",
+      "originalTitle": "File:Ninna-ji and Ryoan-ji, Kyoto - Ryoanji7753.jpg",
+      "license": "CC0"
+    },
+    {
+      "placeId": "JP-198",
+      "assetPath": "images/places/JP-198/pinaisara-falls.webp",
+      "originalTitle": "File:Pinaisara Falls (52117077706).jpg",
+      "license": "CC BY 2.0"
+    },
+    {
+      "placeId": "JP-105",
+      "assetPath": "images/places/JP-105/hozenji-yokocho.webp",
+      "originalTitle": "File:Osaka - Osaka194.jpg",
+      "license": "CC0"
+    },
+    {
+      "placeId": "JP-039",
+      "assetPath": "images/places/JP-039/toyosu-market.webp",
+      "originalTitle": "File:Toyosu fish market, at Toyosu, Koto, Tokyo (2019-01-01) 01.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-212",
+      "assetPath": "images/places/JP-212/grand-sumo-tournament-osaka.webp",
+      "originalTitle": "File:Sumo -Osaka 2010 03 23 a.jpg",
+      "license": "CC BY-SA 2.0"
+    },
+    {
+      "placeId": "JP-011",
+      "assetPath": "images/places/JP-011/tokyo-metropolitan-government-observatory.webp",
+      "originalTitle": "File:Tokyo Metropolitan Government Building taken from Shinjuku NS Building.jpg",
+      "license": "CC BY 4.0"
+    },
+    {
+      "placeId": "JP-047",
+      "assetPath": "images/places/JP-047/edo-tokyo-open-air-architectural-museum.webp",
+      "originalTitle": "File:Tokyo Edo-Tokyo Open Air Architectural Museum entrance.jpg",
+      "license": "CC BY-SA 4.0"
+    }
+  ],
+  "failedClosed": [
+    {
+      "placeId": "JP-120",
+      "name": "teamLab Botanical Garden Osaka",
+      "reason": "Commons holds no photograph of the teamLab Botanical Garden installation itself; four targeted discovery queries returned zero files. The only license-allowed results are daytime photographs of Nagai Botanical Garden, the host venue, which would present the host park as if it were the named digital-art exhibition."
+    },
+    {
+      "placeId": "JP-211",
+      "name": "AnimeJapan 2027",
+      "reason": "No defensible factual venue scene exists under the allowlist. The available AnimeJapan files are branded booth interiors dominated by protected characters, cosplayer portraits in which private individuals and branded costumes dominate the frame, and an admission ticket for a single past edition. The dataset also locates this target in Osaka while the available imagery is from Tokyo Big Sight."
+    },
+    {
+      "placeId": "JP-041",
+      "name": "Unicorn Gundam at DiverCity",
+      "reason": "The named target is a modern protected character statue that dominates the entire frame in every candidate depicting it, which the Phase 4 subject-matter rule cannot bound (same basis as the Phase 4H JP-121 Tower of the Sun fail-closed). The DiverCity alternatives show the shopping complex rather than the named target, and the 2012-dated Gundam Odaiba files depict the earlier RX-78-2 statue, not the Unicorn Gundam."
+    },
+    {
+      "placeId": "JP-168",
+      "name": "Yachimun no Sato",
+      "reason": "Eight discovery queries across English and Japanese returned no license-allowed photograph of Yachimun no Sato in Yomitan, Okinawa. The single allowed result is a kiln in Seto, Aichi Prefecture, an unrelated pottery district in the wrong prefecture."
+    }
+  ]
+}

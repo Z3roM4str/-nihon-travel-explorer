@@ -1,0 +1,1078 @@
+# Logistics data model
+
+Phase 3B1 gives the existing `nearby.json` relations a domain shape (`app/src/lib/transfer.ts`)
+without raising their confidence, generating itineraries, or calling any external routing
+service. This document explains what that layer is, what it is not, and the boundary with the
+phase that follows it.
+
+## Visit time vs. transfer data
+
+These are two different kinds of number that this codebase has always kept apart and that
+Phase 3B1 does not change:
+
+- **Visit time** (`duration` on `Place`, aggregated in `app/src/lib/selection.ts`) is how long a
+  visitor spends *at* a place.
+- **Transfer data** (`nearby.json`, given domain shape by `app/src/lib/transfer.ts`) is about
+  moving *between* two places.
+
+Selection Intelligence (Phase 3A) sums visit time across a selection because a selection's
+total time-on-site does not depend on order. Transfer time is the opposite: it depends entirely
+on which place a visitor goes to next, which a bare selection does not specify. That is why
+Phase 3B1 introduces no function that adds transfer minutes across a `Place[]` — see
+"No aggregation without order" below.
+
+## Provenance: what `nearby.json` actually is
+
+All 403 relations currently in `nearby.json` were produced the same way: take each place's
+coordinates, compute a haversine (great-circle) distance between them, and apply a fixed
+speed model to turn that distance into an estimated number of minutes. Every row's `Nota` field
+says as much ("Estimación geográfica; validar ruta real" — geographic estimate; validate the
+real route). None of it reflects:
+
+- an actual walking or transit route (streets, elevation, station layout, transfers);
+- a real timetable or schedule;
+- any external routing or mapping API call.
+
+`app/src/lib/transfer.ts` encodes this as structured provenance on every converted edge, as one
+member of a discriminated union:
+
+```ts
+type GeographicProvenance = {
+  kind: "derived-geographic";
+  dataset: "nearby";
+  method: "haversine-speed-model";
+};
+
+type RoutingProviderProvenance = {
+  kind: "routing-provider";
+  provider: "openrouteservice";
+  profile: "foot-walking";
+};
+
+type TransferProvenance = GeographicProvenance | RoutingProviderProvenance;
+```
+
+This is deliberately not a free-text string. `kind` is the discriminant a consumer branches on
+to tell a geometric estimate from a validated result without parsing prose.
+`RoutingProviderProvenance` was added in Phase 3B2A (see below) for the walking-validation
+pilot; a future transit provider or official source adds another member to this union rather
+than repurposing an existing one.
+
+## Confidence taxonomy
+
+```ts
+type TransferConfidence = "estimated" | "validated-static" | "schedule-aware";
+```
+
+- **`estimated`** — derived from geometry, as above. Every edge converted directly from
+  `nearby.json` gets this value; `toTransferEdge` never assigns any other.
+- **`validated-static`** — a real routed path and time (e.g. from a walking-routing provider),
+  without live schedule awareness. Phase 3B2A's walking-validation pilot is the first thing that
+  can produce this value, for the small, explicit sample described below — never for a relation
+  the pilot didn't validate.
+- **`schedule-aware`** — accounts for an actual timetable (e.g. a transit provider's
+  departure/arrival lookup for a specific time). Not produced anywhere yet.
+
+`verifiedAt: string | null` sits alongside confidence: `null` for every `toTransferEdge`-derived
+edge, and an ISO 8601 UTC timestamp of the actual routing query for a pilot-validated edge. No
+edge is ever silently promoted — `toTransferEdge()` (the `nearby.json` → `TransferEdge`
+converter) is untouched by Phase 3B2A and still returns `estimated`/`null` for all 403
+relations; a `validated-static` result only ever reaches a caller through `getBestTransfer`,
+which reads it from a separate, precomputed artifact (see below).
+
+**False precision is the risk this taxonomy guards against.** Formalizing these relations into
+a typed `TransferEdge` must not make them read as more trustworthy than they are; `confidence`
+and `verifiedAt` exist specifically so a caller can tell an estimate from a validated result
+without inspecting `source` or parsing `Nota`.
+
+## The `TransferEdge` contract
+
+```ts
+type TransferEdge = {
+  fromId: string;
+  toId: string;
+  minutes: { minMinutes: number; maxMinutes: number };
+  distanceKm: number;
+  mode: TransferMode;         // normalized; see below
+  rawMode: string;            // original "Modo" text
+  relation: TransferRelation; // normalized; see below
+  rawRelation: string;        // original "Relación" text
+  confidence: TransferConfidence;
+  source: TransferProvenance;
+  verifiedAt: string | null;
+};
+```
+
+`minutes` is always a range, never a bare number — the same discipline
+`app/src/lib/duration.ts` and `MinuteRange` already use for visit time. For every edge
+converted from the current dataset, `minMinutes === maxMinutes`, because `nearby.json` records
+one `Min aprox.` value per relation. Phase 3B1 does **not** fabricate a ±10%/±20% tolerance to
+turn that single number into a spread — the uncertainty is represented honestly by
+`confidence: "estimated"`, not by invented bounds that would look more precise than the data
+supports.
+
+### Mode
+
+```ts
+type TransferMode = "walk" | "local-transit" | "disney-resort-line";
+```
+
+This normalizes only the `Modo` values that exist in the current 403 relations today (`A pie`,
+`Transporte local`, `Disney Resort Line`). It is intentionally not a general transport catalogue
+— Shinkansen, flights, and ferries are out of scope for 3B1 because none of them appear in
+`Modo` yet, and adding them now would be speculative. `normalizeTransferMode` throws on any
+other value rather than accepting an arbitrary string, so a future workbook change that
+introduces a new mode fails loudly (in tests, in `scripts/validate-dataset.py`, and in
+`toTransferEdge`) instead of silently degrading the domain model. `rawMode` is kept on every
+edge for auditability regardless.
+
+### Relation kind
+
+```ts
+type TransferRelation = "same-cluster" | "nearby" | "alternative";
+```
+
+Normalizes the current `Relación` values (`Mismo cluster`, `Cercano`,
+`Alternativas/complementos`). This describes how two places relate editorially — it carries no
+claim about transfer quality on its own; a `same-cluster` edge is still `confidence:
+"estimated"` today.
+
+## Directed lookup
+
+```ts
+function lookupTransfer(fromId: string, toId: string): TransferEdge | null;
+```
+
+This is a plain directed dictionary lookup:
+
+- It resolves an edge that is actually recorded in `nearby.json` — never a synthesized one.
+- It never assumes `A → B` implies `B → A`. Most of today's 403 relations happen to be
+  recorded in both directions, but that is a property of the current data, not something the
+  lookup relies on or fabricates when it is missing.
+- It never computes distance or time from coordinates when no edge is recorded — that would
+  reintroduce the exact haversine estimation this module is meant to make explicit and bounded,
+  as an unbounded fallback.
+- It never chains edges, joins them, or searches for a shortest path.
+
+When there is no recorded edge in the requested direction, it returns `null`. A caller that
+wants to know whether *any* relation is recorded between two places, in either direction, must
+check both `lookupTransfer(a, b)` and `lookupTransfer(b, a)` explicitly — `computeLogisticsMetrics`
+does exactly this to decide whether a pair of places is "known," and only for that purpose; it
+never treats a found `A → B` edge as describing the `B → A` trip.
+
+## No aggregation without order
+
+`app/src/lib/transfer.ts` contains no function shaped like `sumTransfers(places: Place[])`. This
+is a deliberate omission, not a gap to fill casually in a later phase:
+
+A `Place[]` selection has no sequence. Summing transfer time across it would require inventing
+an order — array order, alphabetical order, or a shortest-path search — and presenting that
+invented order's total as if it described the selection is misleading: it would look like a
+plan when the module was only ever given an unordered set. `app/src/lib/transfer.test.ts`
+includes a regression test asserting this module exports nothing named `sumTransfers`,
+`selectionTransferTotal`, `hubTransferTotal`, or `clusterTransferTotalMinutes`.
+
+A correct aggregation belongs to a later phase (3C, day/route planning) and must take an
+**explicit sequence** of place ids or edges as its input — never a bare, unordered `Place[]`.
+
+**Phase 3C-A** is that later phase. `app/src/lib/ordered-sequence.ts` takes exactly the explicit,
+caller-supplied sequence this section anticipates and sums `getBestTransfer()` across its
+consecutive pairs only — it lives in its own module, not in `transfer.ts`, so the guard above and
+its regression test stay exactly as strict as they always were. See "Phase 3C-A" below.
+
+## Logistics metrics (factual, no classification)
+
+`computeLogisticsMetrics(places: Place[])` reports only counts and ranges that are true of the
+recorded data, with no interpretation layered on top:
+
+- `possiblePairCount` — unordered pairs among the given places (`n(n-1)/2`).
+- `knownPairCount` — how many of those **unordered pairs** have a recorded edge in at least
+  one direction. A pair recorded both ways (`A → B` and `B → A`) still counts once; this is a
+  count of pairs, not of directed edges.
+- `pairCoverage` — `knownPairCount / possiblePairCount` (`0` when no pair is possible).
+- `recordedDistanceRange` / `maxRecordedDistance` — the min/max `distanceKm` across **every
+  directed edge actually recorded** among the known pairs, or `null` when none are known. This
+  is a range over recorded edges, not over pairs: a pair with both directions recorded
+  contributes both distances as independent observations, even when they diverge, and neither
+  is dropped, averaged, or treated as confirming the other. Two directions disagreeing on
+  distance is not "corrected" into one number here — see `scripts/validate-dataset.py`'s
+  reverse-direction divergence check, which reports (not silently resolves) exactly this case.
+  Both metrics are computed per unordered pair regardless of the input array's order, so
+  `computeLogisticsMetrics(places)` and `computeLogisticsMetrics([...places].reverse())` always
+  agree.
+
+### No compact/extended classification (3B1 decision)
+
+The Phase 3B audit suggested that a cluster's `pairCoverage` and recorded distances could
+eventually support labelling it "compact" or "extended." Phase 3B1 deliberately does **not**
+implement that: the audit did not establish a fully specified threshold for what counts as
+"high coverage" or "low distance," and inventing one now would be an unreviewed heuristic
+dressed up as a metric. Phase 3B1 exposes the raw metrics; a later phase can classify them
+against an explicit, documented threshold if one is agreed on. Until then, no `compact`,
+`extended`, `efficient`, or `inefficient` label exists anywhere in this codebase for a cluster.
+
+## The 2026 dataset audit (documentation only)
+
+The Phase 3B audit that this phase formalizes characterized the current 403 relations as:
+
+- 332 proximity-only relations (geographic estimate, nothing more);
+- 67 candidates identified as worth prioritizing for future routing validation;
+- 4 Kerama-area relations that the audit flagged as obviously not routing-grade (they connect
+  islands that a haversine distance cannot meaningfully route between on foot or by a single
+  local transfer).
+
+These numbers describe the audit's findings about **today's** dataset. They are recorded here
+as documentation only — no production code (`transfer.ts`, `scripts/validate-dataset.py`, or
+anywhere else) hardcodes 332, 67, or 4, because a legitimate future update to the workbook
+changing these relations must not fail validation or break the domain layer just because a
+count changed.
+
+## Phase 3B2A — walking-validation pilot
+
+Phase 3B1 declined to validate anything; Phase 3B2A is a **controlled pilot** that validates a
+small, deterministically chosen sample of "A pie" edges against real walking routing, to prove
+the architecture before ever considering the other ~308. It is not batch validation and not a
+claim about the dataset as a whole.
+
+### Provider and endpoint
+
+Routing: **openrouteservice**, operated by **HeiGIT** (Heidelberg Institute for Geoinformation
+Technology), profile `foot-walking`.
+
+`api.openrouteservice.org` is deprecated in favour of **`api.heigit.org`**
+(deprecation announced 2026-04-28, full shutdown scheduled 2026-09-28). This pipeline uses only
+the current host:
+
+```
+POST https://api.heigit.org/openrouteservice/v2/directions/foot-walking/json
+Authorization: <ORS_API_KEY>
+Content-Type: application/json
+{ "coordinates": [[lng1, lat1], [lng2, lat2]], "geometry": false }
+```
+
+`scripts/logistics_common.py` defines `ORS_HOST` once; a regression test
+(`scripts/test_walking_pilot.py`) asserts the deprecated host string appears nowhere else in
+`scripts/` or `app/src/`, so a stale reference can't creep back in silently.
+
+**Coordinate order.** `Place.coordinates` is `{ lat, lng }`; openrouteservice's `coordinates`
+array is `[longitude, latitude]` pairs. `to_ors_coordinates(place)` is the single conversion
+point, and `scripts/test_walking_pilot.py` asserts it on real, non-symmetric Tokyo coordinates
+(`lat=35.66, lng=139.70`) specifically so a silent lat/lng swap would fail loudly rather than
+happening to look plausible.
+
+### Sample selection
+
+`scripts/select-walking-pilot.py` deterministically picks **exactly 24** of the 332 current "A
+pie" relations and writes `data/logistics/walking-pilot-manifest.json`. No manual
+cherry-picking: every edge is chosen by a documented, code-computed rule (distance-bucket rank,
+implied-speed anomaly, or hub/cluster coverage) recorded in the manifest itself as
+`selectionMethod`. Re-running the script against an unchanged dataset reproduces the same 24
+edges byte-for-byte — the **entire manifest document**, not just the selected ids: the
+manifest's `sourceDatasetContext.datasetDigest` is a sha256 content hash of `places.json` and
+`nearby.json`, deliberately **not** the git HEAD SHA, so regenerating it on a different commit
+that carries byte-identical data still produces a byte-identical manifest (see
+`dataset_digest()` in `scripts/logistics_common.py`; a full-manifest determinism test lives in
+`scripts/test_walking_pilot.py`). The manifest stores only `fromId`/`toId`/`category`/`reason` —
+never copied names, coordinates, or minutes, which are always resolved live from `places.json` /
+`nearby.json` so there is exactly one source of that data.
+
+### Pipeline
+
+`scripts/validate-walking-pilot.py --dry-run` resolves every manifest edge against real data,
+confirms `Modo == "A pie"`, and prints exactly what would be queried — no network call.
+`--execute` requires `ORS_API_KEY` as an environment variable (never a hardcoded value, never
+written to a file, JSON, doc, or log) and is a hard no-op without it. In the cloud-first flow
+this project uses, that variable is supplied by the **Claude Code environment configuration**
+(Environments → environment variables, see
+https://code.claude.com/docs/en/claude-code-on-the-web) — set it once there and every future
+session, Claude or Codex, inherits it. It is deliberately not stored in this repository, so a
+session that finds it missing should ask for the environment to be configured rather than expect
+a committed value. It skips any edge that
+already has a cached `"validated"` result unless `--refresh` is passed, so a re-run is cheap and
+reproducible; a `"no-route"` or `"request-error"` result is retried by default. Exactly one
+bounded retry is allowed for a transient failure (HTTP 429/5xx, timeout); a real "no route"
+answer from the provider or an auth error is never retried. A failed query is recorded as a
+`"no-route"` or `"request-error"` status — never as `0` minutes, `null` without explanation, or
+a promoted `estimated` value.
+
+`data/logistics/walking-pilot-results.json` (mirrored to
+`app/src/data/logistics/walking-pilot-results.json`, exactly as `nearby.json` is mirrored into
+`app/src/data/`) is the versioned artifact. Its schema is documented in
+`app/src/lib/transfer.ts`'s `WalkingPilotResult` type: a `"validated"` entry carries
+`distance.meters`, `minutes` (seconds rounded half-up to whole minutes — see
+`round_half_up_minutes`, no `±10%`/`±15%` tolerance fabricated), `confidence:
+"validated-static"`, `verifiedAt` (the real query timestamp, ISO 8601 UTC), structured `source`,
+and an optional `endpointSnapping` (see below); any other status carries none of those fields,
+by the type's own shape.
+
+`scripts/validate-logistics.py` checks the manifest (exactly 24 edges, valid ids, each existing
+in `nearby.json` with `Modo == "A pie"`, unique directed pairs) and, when the results file is
+non-empty, the results (**exact coverage** of the manifest's directed edges — a missing or an
+extra edge is an error, not just an extra one — no duplicates, valid status, expected
+provider/profile, `source.provider`/`source.profile` matching the top-level fields, positive
+distance/duration when validated, `validated-static` ⇒ non-null `verifiedAt` and
+`routing-provider` provenance, an `endpointSnapping.assessment` that is both one of the three
+valid values and re-derivable from the recorded snap distances, and never `"clean"`/`"significant"`
+paired with a null snap distance, `estimated` never appearing as a pilot result, and a scan for
+anything that looks like a committed secret). It does not hardcode the manifest's edge count as a
+magic number anywhere except the one named constant (`PILOT_EDGE_COUNT`) both the selector and
+validator import.
+
+#### Endpoint snapping
+
+A routing provider never routes between the exact coordinates it's given — it **snaps** each
+input point to the nearest point on the routable network first (openrouteservice's Snap
+endpoint reports this as `snapped_distance`, in meters). When both endpoints of an edge snap far
+from where they really are — worse, onto the same short stretch of path — the routed distance
+between them can end up far smaller (or larger) than the real distance between the original
+coordinates, with no error raised. See `docs/WALKING_PILOT.md`'s JP-063↔JP-065 finding: routed
+3.2 m between two points that are actually ~22.2 m apart, because a combined ~23 m of endpoint
+snapping consumed nearly the entire real separation.
+
+`scripts/logistics_common.py`'s
+`classify_endpoint_snapping(fromSnapMeters, toSnapMeters, routedDistanceMeters)` is the objective,
+code-computed guard, returning one of three states — never a boolean:
+  - `"clean"`: both endpoints measured, combined snap small relative to the routed distance — the
+    routed value is comparable to the original coordinates.
+  - `"significant"`: both endpoints measured, combined snap ≥ 10 m in absolute terms **and**
+    ≥ 50% of the routed distance itself — chosen so an ordinary few-meter snap on a long route is
+    never flagged just because a short route with the same absolute snap would be.
+  - `"unknown"`: at least one endpoint's snap distance was never resolved (not yet measured, or
+    the Snap query failed/found no point in radius). **A `null` measurement is never averaged in
+    as `0` meters** to produce `"clean"` — that would be indistinguishable from claiming a
+    genuinely unmeasured edge is comparable when nobody checked. `"unknown"` and `"significant"`
+    are treated identically by every downstream consumer: neither is comparable, and neither is
+    ever promoted to `validated-static`.
+
+`scripts/validate-walking-pilot.py --execute` captures this automatically going forward (one
+extra Snap request per freshly-queried edge, batching both coordinates, degrading to `"unknown"`
+with a `reason` rather than failing the whole edge if the Snap call itself errors).
+`--diagnose-snap FROM_ID TO_ID` retroactively resolves it for one already-existing result with
+exactly one Snap request, never re-querying Directions. `--backfill-snapping` does the same for
+*every* manifest edge whose result doesn't yet have a resolved `assessment` — it derives the list
+of what's missing programmatically from the results file itself (`edges_needing_snap_assessment`,
+never a hardcoded count), deduplicates the union of place coordinates those edges need, and makes
+exactly **one** batched Snap request regardless of how many edges are missing; a completely
+absent `endpointSnapping` field is treated exactly like `"unknown"` by every consumer, so backfill
+is a completeness improvement, never a correctness requirement for reading results correctly.
+`scripts/report-walking-pilot.py` computes aggregate ratios and outlier lists over `"clean"`
+results only, listing `"significant"` and `"unknown"` edges separately (with the reason, for
+`"unknown"`) instead of silently dropping or comparably including them, so a future scale-up that
+reuses this report's logic cannot average a snap artifact — or an unmeasured edge — into a
+"correction factor" for the rest of the dataset. `app/src/lib/transfer.ts`'s `getBestTransfer`
+enforces the same rule independently at read time: a validated result only promotes to
+`confidence: "validated-static"` when its `endpointSnapping.assessment === "clean"`; a
+`"significant"` or `"unknown"` assessment, or a missing `endpointSnapping` altogether, falls back
+to the `estimated` `nearby.json` edge — see `app/src/lib/transfer.test.ts`.
+
+`scripts/report-walking-pilot.py` computes, over the validated subset only, per-edge distance
+and minute ratios/differences, aggregate statistics (median/mean/min/max), and the top 5
+outliers by distance ratio and by absolute minute difference. This is **pilot analysis over
+N≈24**, never generalized into a correction factor for the remaining relations.
+
+### Resolving estimated vs. validated
+
+```ts
+function getBestTransfer(fromId: string, toId: string): TransferEdge | null;
+```
+
+Preference order: a validated-static result for that exact directed edge **whose endpoint
+snapping was measured and found `"clean"`**, else the estimated `nearby.json` edge, else `null`.
+Since Phase 3B2B-C (see below), "a validated-static result" means one from either the pilot
+or the scale-up artifact — both are merged into the same directed-key index and judged by
+the same gate. A validated result with `assessment === "significant"` or `"unknown"`, or
+with no `endpointSnapping` recorded at all, is never promoted — it falls back to the
+estimated edge exactly as if neither artifact had covered that pair (see "Endpoint
+snapping" above). Nothing here calls a routing provider at read time — every
+`validated-static` answer `getBestTransfer` can return was already computed offline by
+`scripts/validate-walking-pilot.py` or `scripts/validate-walking-scale.py` and is read from
+disk exactly like an estimated edge is. `toTransferEdge()` and `nearby.json` itself are
+untouched: `getBestTransfer` is a read-time resolution layer, not a rewrite of the
+estimated source.
+
+### Status in this checkout
+
+The pipeline's non-network logic is fully tested (selection determinism — including the full
+manifest document, not just the selected ids — coordinate order, minute rounding, response
+parsing, failure classification, caching/refresh, the three-state endpoint-snapping guard, the
+snap backfill's edge-selection and single-request batching, and the
+validated-and-snap-clean/estimated/null preference order — see `scripts/test_walking_pilot.py`
+and `app/src/lib/transfer.test.ts`). **The live pilot has been executed and fully backfilled**: on
+2026-09-04, all 24 manifest edges were queried against `api.heigit.org` and all 24 returned
+`"validated"` (0 `no-route`, 0 `request-error`); a single batched `--backfill-snapping` request
+then resolved `endpointSnapping` for every one of the 24 edges (22 `"clean"`, 2 `"significant"` —
+one coordinate pair, both directions — 0 `"unknown"`). `data/logistics/walking-pilot-results.json`
+holds the real results, including every edge's `endpointSnapping` field (mirrored to
+`app/src/data/logistics/`). Full statistics, per-edge comparisons, top outliers, limitations, and
+the decision-gate recommendation (**SCALE**, with the snap-clean gate carried forward as a hard
+requirement — see the report) are in `docs/WALKING_PILOT.md`, not duplicated here to avoid a
+second source of truth for the same numbers.
+
+To re-run it (idempotent — cached `"validated"` edges are skipped unless `--refresh`):
+
+```
+ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --dry-run   # sanity check first
+ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --execute
+ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --backfill-snapping
+python3 scripts/report-walking-pilot.py
+python3 scripts/validate-logistics.py data
+```
+
+### Attribution
+
+Per openrouteservice's terms of service and the OpenStreetMap Foundation's attribution
+guidelines (verified during this phase, subject to change — re-check before any production or
+public-facing use): two distinct things are credited, under their own separate licenses. The
+routing computation itself is openrouteservice/HeiGIT's, provided under **CC BY 4.0**
+("© openrouteservice.org by HeiGIT"). The underlying map data is OpenStreetMap's, available
+under the **Open Database License (ODbL)**, requiring "Map data © OpenStreetMap contributors"
+and that the ODbL itself be named. Every `"validated"` pilot result's `attribution` string
+records both — see `ATTRIBUTION` in `scripts/ors_client.py` (shared with the Phase 3B2B-A
+scale-up pipeline; see `docs/WALKING_SCALE_PREP.md`) for the exact wording.
+This is why the result is versioned in-repo rather than silently regenerated: the attributed,
+licensed output is the artifact, and refreshing it (a workbook update, a provider improvement)
+is a deliberate, visible re-run of `--execute --refresh`, not an implicit background sync.
+
+## Phase 3B2B-B — executed walking scale-up
+
+The prepared scale manifest was executed on 2026-09-04 against `api.heigit.org`,
+profile `foot-walking`: **303 validated and 5 no-route**, covering all 308 manifest
+edges with terminal results. Snap required one real request for 103 new places;
+all 137 scale-required places are resolved. Directions used 312 requests across
+an interrupted 40/min run and an explicitly authorized 20/min resumption, with
+3 bounded retries total. The resumed run skipped all 116 already-terminal edges.
+
+`data/logistics/walking-scale-results.json` and its byte-identical copy under
+`app/src/data/logistics/` were published only after `is_batch_complete()` became
+true, then recombined offline against the final Snap store. All 303 validated
+scale results are clean under the unchanged rule; there are no significant or
+unknown scale assessments. No absolute endpoint threshold was set. Real request
+accounting, the 429 history, all no-route edges, statistics, outliers, and threshold
+evidence are in [WALKING_SCALE_EXECUTION.md](WALKING_SCALE_EXECUTION.md).
+
+The synchronized app-facing JSON is an available artifact, not a claim of new UI
+behavior: as of this phase, `getBestTransfer` still imports the pilot results only —
+Phase 3B2B-C (below) is what wires the scale-up artifact in, retaining this clean-only
+promotion rule. This execution changes neither the estimated nearby source nor existing
+application behavior.
+
+## Phase 3B2B-C — Walking Scale Integration
+
+Phase 3B2B-B produced and versioned the scale-up's 308 terminal results
+(`data/logistics/walking-scale-results.json`, mirrored to `app/src/data/logistics/`) but
+`getBestTransfer` still read only the pilot artifact. Phase 3B2B-C wires the scale-up
+artifact into the same read-time resolution layer, alongside the pilot, without changing
+what `getBestTransfer`'s contract promises or how any individual edge is judged.
+
+**Together, pilot + scale-up cover the current dataset's full 332 "A pie" edges** — the
+pilot's 24 plus the scale-up's 308, disjoint by construction (see "Sample selection" and
+Phase 3B2B-A above). No third artifact and no other edge count is implied by this phase.
+
+### Merge design
+
+`app/src/lib/transfer.ts` imports both `walking-pilot-results.json` and
+`walking-scale-results.json` — the same way it already imported the pilot file, with no
+network access and no mutation of either artifact — and merges their `"validated"` entries
+into one directed-key index via `buildValidatedWalkingIndex()`:
+
+```ts
+export function buildValidatedWalkingIndex(
+  sources: readonly WalkingResultSource[]
+): Map<string, ValidatedWalkingResult>;
+```
+
+- Only `"validated"` entries are indexed; `"no-route"`/`"request-error"` entries are
+  skipped by this function entirely (see "No-route handling" below).
+- The lookup stays a single directed dictionary lookup, exactly as before: `getBestTransfer`
+  still resolves one exact `(fromId, toId)` pair, still never reads the reverse direction,
+  still never chains edges, still never computes a shortest path.
+- The snap-clean gate (`isSnapClean` / `endpointSnapping.assessment === "clean"`) is
+  untouched and applies identically to a pilot-sourced and a scale-sourced validated
+  result — there is no separate pilot-only or scale-only code path, only one merge and one
+  gate.
+- `toTransferEdge()` and `data/nearby.json` / `app/src/data/nearby.json` are not touched by
+  this phase; the merge only changes what `getBestTransfer` can promote to
+  `validated-static`, never the estimated source itself.
+
+### No-route handling
+
+The scale-up's five `"no-route"` results (see `WALKING_SCALE_EXECUTION.md`) are real,
+terminal provider answers — not omissions — but they carry no `distance`/`minutes` to
+index at the type level (see `WalkingPilotResult`'s discriminated union), so
+`buildValidatedWalkingIndex` never adds them to the validated index in the first place.
+For a directed pair whose only walking-artifact result is `"no-route"`,
+`getBestTransfer` therefore falls back to the recorded `nearby.json` estimate exactly as
+it would for a pair neither artifact covers at all — never `0` minutes, never a
+fabricated distance, and never promoted to `validated-static`.
+
+### Duplicate-key protection
+
+The pilot's 24 edges and the scale-up's 308 edges are disjoint by construction, verified
+independently in Phase 3B2B-A. `buildValidatedWalkingIndex` does not trust that silently:
+while merging, it tracks which source last wrote each directed key, and if the same
+directed edge is ever found `"validated"` in more than one source, it throws immediately
+— identifying both edge and both source artifacts in the error — instead of letting
+whichever source is merged last silently overwrite the other. This is a defensive,
+fail-loud guard against a future data-integrity regression, not a condition this
+checkout's real data currently triggers.
+
+### What this phase does not do
+
+- No ORS request of any kind — this phase reads only the already-versioned pilot and
+  scale-up JSON artifacts.
+- No dataset change — `nearby.json`, `places.json`, both walking result artifacts, and
+  the snapping thresholds are all read-only inputs here.
+- No summing of transfer minutes across edges, no visit ordering, and no itinerary of any
+  kind — `getBestTransfer` remains a single-pair, single-direction lookup; see
+  "No aggregation without order" above, which this phase does not revisit.
+- No UI change — nothing renders a walking-scale time to a user; this phase only extends
+  the domain-layer read path.
+- No start of Phase 3C (route/day planning).
+
+## Phase 3B2D — Walking Exceptions Audit
+
+Phase 3B2B-B's execution audit left two open questions: what explains the five large
+per-endpoint Snap displacements among the scale-up's 137 required places, and what
+explains the five `no-route` results, all touching Kyoto Imperial Palace (JP-090).
+Phase 3B2D is a documentation-only, audit-only investigation of both, using
+independent official evidence (Imperial Household Agency, each place's own official
+site, and public tourism authorities) — full detail, sources, and per-case
+interpretation are in [WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md).
+
+Findings, in summary:
+
+- The five large-displacement cases classify as: strong evidence of a
+  **POI-coordinate-vs-access-point mismatch** for JP-029 (Imperial Palace East
+  Gardens — three named official gates) and JP-181 (ASMUI Spiritual Hikes — a
+  documented multi-stage venue); plausible but less-specific evidence for JP-185
+  (Furuzamami Beach — a named official transit stop distinct from the beach POI);
+  and **insufficient evidence** for JP-064 (Hōnen-in — official site unreachable)
+  and JP-069 (Bishamon-dō — no multi-gate evidence found).
+- The five `no-route` results (all touching JP-090) are best explained as a
+  **provider/graph connectivity anomaly** at JP-090's snapped point (whose own Snap
+  displacement is a trivial 3.65 m) — not real-world pedestrian inaccessibility.
+  Official sources for all four places involved (JP-089, JP-090, JP-092, JP-102)
+  independently confirm ordinary public walking/transit access with no restriction
+  described anywhere.
+- The evidence does **not** justify setting
+  `SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` now: the cases are explained by
+  place type (a multi-gate compound, a multi-stage venue, a named transit stop), not
+  by displacement magnitude, and one case (JP-064) cannot be evaluated at all yet.
+  The constant remains `None`, unchanged.
+- The audit recommends that a future, separate **display coordinate vs. logistics
+  access point** model is architecturally preferable to any absolute threshold — the
+  underlying problem found is structural (some places need a different point for
+  "where do you walk to" than for "where is this place"), not a matter of degree a
+  single cutoff could tune.
+
+This phase implements none of that recommendation: no coordinate, threshold, or
+dataset change was made. It proposes (but does not start) a future, small,
+reversible phase to design an access-point override model — see
+[WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md)'s "Proposed next phase."
+
+## Phases 3B2E–3B2F — Access-point design and data foundation
+
+Phase 3B2E selected the separate, multi-point logistics model documented in
+[ACCESS_POINT_DESIGN.md](ACCESS_POINT_DESIGN.md). Phase 3B2F implements only that
+design's **Stage 1** data foundation. The authoritative, versioned catalog is
+`data/logistics/access-points.json`; the app-readable
+`app/src/data/logistics/access-points.json` is a generated/distributed copy and is
+required to be structurally identical by `scripts/validate-access-points.py`. It is
+not a second editable source of truth. At the end of Phase 3B2F both files contained
+exactly an empty JSON array (`[]`); Phase 3B2G below is what first populates them.
+
+The logistics-specific TypeScript contract and read primitives live in
+`app/src/lib/access-points.ts`, keeping `Place.coordinates` and the rest of `Place`
+unchanged. Its closed roles are `visitor-entrance`, `gate`, `reception`, `trailhead`,
+`road-access`, `transit-stop`, and `general-access`; its closed contexts are
+`external-walk`, `external-local-transit`, `internal-shuttle`, and `internal-hike`.
+These contexts deliberately do not expand `TransferMode`. Coordinates use named
+`{ lat, lng }` fields. Every active point requires official provenance (`sourceUrl`,
+`sourceEntity`, `consultedAt`, `evidence`, and either `official-explicit` or
+`official-derived` confidence).
+
+**Role and context are orthogonal, and the distinction is load-bearing.** `role` records what a
+point physically **is** (a gate, a reception, a stop); `applicableContexts` records which routing
+question it is a legitimate **endpoint** for. Neither reader consults the other field —
+`getAccessPointsForContext` and `resolveTransitEndpoint` both filter on `status` and
+`applicableContexts` alone — so a `reception` or a `visitor-entrance` can carry
+`external-local-transit` without any claim that it is a transit stop, and a point's role never
+makes it eligible on its own. The [Transit Access-Point Evidence
+Audit](TRANSIT_ACCESS_POINT_EVIDENCE.md) settled this reading against an earlier, narrower one and
+populated `external-local-transit` for the first time: JP-029's three Imperial Palace gates, which
+the Imperial Household Agency documents as the arrival point of a named subway approach each.
+There are **3 members and still no default anywhere in the catalog**, so JP-029 resolves as
+`ambiguous` for transit exactly as it does for walking, and every other place resolves to
+`use-place-coordinate` with an explicit `no-catalogued-endpoint` warning.
+
+The offline validator checks place references, `AP-<PLACE_ID>-<NNN>` identity,
+coordinates, vocabularies, provenance, active defaults, duplicate identities and
+coordinate claims, secret-like fields, future endpoint-reference integrity, and
+root/app parity. The read layer offers collection, ID, place, and context filtering
+only. It preserves candidate order without assigning it meaning and never chooses a
+gate or access point.
+
+Runtime routing does **not** consume access points in Phase 3B2F. `getBestTransfer`,
+its precedence and fallback, `TransferMode`, `TransferConfidence`, nearby data, and
+all historical pilot/scale results remain unchanged. `RoutingEndpoint` remains the
+approved future contract in the design document rather than being added prematurely:
+no current result needs or receives endpoint identity. There were no ORS calls or UI
+changes. The next phase, not started there, is **Phase 3B2G — Evidenced
+Access-Point Population**: populate only officially verifiable real coordinates and
+provenance, still without routing integration.
+
+## Phase 3B2G — Evidenced Access-Point Population
+
+Phase 3B2G is the design's **Stage 2**: it populates the catalog for the first time
+with real coordinates, and only where an official source can carry the physical
+existence, the logistics function, the coordinate, and the provenance. It remains
+data-only.
+
+The catalog now holds **4 access points across 2 place IDs**:
+
+| ID | Place | Label | Role | Contexts | Confidence |
+|---|---|---|---|---|---|
+| `AP-JP-029-001` | JP-029 Imperial Palace East Gardens | Ōte-mon Gate | `visitor-entrance` | `external-walk` | `official-explicit` |
+| `AP-JP-029-002` | JP-029 Imperial Palace East Gardens | Hirakawa-mon Gate | `visitor-entrance` | `external-walk` | `official-explicit` |
+| `AP-JP-029-003` | JP-029 Imperial Palace East Gardens | Kitahanebashi-mon Gate | `visitor-entrance` | `external-walk` | `official-derived` |
+| `AP-JP-181-001` | JP-181 ASMUI Spiritual Hikes | ASMUI Spiritual Hikes reception | `reception` | `external-walk` | `official-derived` |
+
+**No access point claims a default.** `selection.defaultForContexts` is empty on all
+four. JP-029 is deliberately the multi-candidate, no-default case
+`ACCESS_POINT_DESIGN.md` §12 describes: three officially designated entrance/exit
+gates do not make one of them the answer, and which gate is right depends on the
+origin of the trip. A future resolver must return an explicit ambiguity outcome for
+this place, not silently pick one.
+
+Cases investigated and deliberately left **without** a record: **JP-185**
+(Furuzamami Beach — the official village bus stop's existence is confirmed by the
+village's own timetables, but no official source publishes its coordinate, and the
+only reachable coordinate is a beach place-name annotation, i.e. the visual centre
+this phase may not use), **JP-064** and **JP-069** (evidence still insufficient; one
+official site is still unreadable), and **JP-090** (repeated `no-route` answers are
+provider behaviour, never physical provenance). For JP-181 the hiking start point and
+the internal shuttle stage were investigated and **not** created: the operator
+documents that they exist and are ~20–30 minutes from reception, but publishes no
+coordinate for either, so `internal-hike` and `internal-shuttle` remain unrepresented.
+
+The full research record — every source consulted, how each coordinate was obtained,
+which candidate sources were evaluated and rejected, and why each absent record is
+absent — is [ACCESS_POINT_EVIDENCE.md](ACCESS_POINT_EVIDENCE.md).
+
+Nothing about consumption changed. `getBestTransfer()` still does not read access
+points; no routing artifact references one; `Place.coordinates`, `nearby.json`, the
+GeoJSON, the workbook, and the historical pilot/scale walking results are untouched;
+no UI reads the catalog. This phase made zero openrouteservice requests, ran no Snap
+or Directions call, and performed no automated geocoding against any external
+provider. The validator was not relaxed in any way — the real data was made to pass
+it as written, and the suite gained real-catalog coverage (validator pass, root/app
+parity, unique IDs, official provenance on every point, no default anywhere, internal
+stages never externally applicable, no access point reusing its place's display
+coordinate, and the excluded place IDs staying empty).
+
+The next proposed phase, **not started here**, is **Phase 3B2H — Targeted
+Access-Point Walking Revalidation**.
+
+## Phase 3B2H — Targeted Access-Point Walking Revalidation
+
+Phase 3B2H is the design's **Stage 4**: reroute only the walking edges the Phase 3B2G
+access points affect, and compare against — never over — the historical
+place-coordinate results. Generation + evidence + comparison only.
+
+The target set is **derived, not declared**: every historical directed `A pie` edge
+(pilot or scale) with `JP-029` or `JP-181` at either end. That is **6 directed edges**,
+all six from the scale artifact, none from the pilot. Each expands into one candidate
+per eligible (`active` + `external-walk`) access point of its target place, keeping
+direction — **14 candidates**: 12 for `JP-029` (four directed edges × its three
+officially designated gates, since it has no default and picking one by ID, array
+position or haversine is forbidden) and 2 for `JP-181` (its single external reception
+point; no trailhead, no invented internal endpoint). The non-target end of every edge
+keeps the exact place coordinate the historical result used, so the comparison isolates
+one variable.
+
+**Executed 2026-09-05: 1 batched Snap request (4 access-point coordinates) and 14
+Directions requests — 15 outbound calls in total, all to openrouteservice, none outside
+the target set.** All 14 candidates returned `validated`; zero `no-route`, zero
+`request-error`, every one `clean`. The three place-coordinate endpoints were not
+re-snapped, and `walking-snap-places.json` is byte-identical.
+
+The central result: `JP-029`'s display coordinate snaps **198.63 m** because it sits
+inside the palace grounds with no routable path nearby, so every historical answer for
+its four edges was measured from an arbitrary point on some nearby road. Its three gates
+snap **0.66–6.20 m** — a gate lies on the walking network by construction — cutting
+worst-case displacement for the place by **96.9 %**. The routed answers move by −50.22 %
+to +6.93 % depending on the gate, and **the best gate changes with the counterpart**
+(Hirakawa-mon from Jimbocho, Ōte-mon from Tokyo Station; spread up to 859.1 m). That is
+the first empirical confirmation that no static default can be correct for `JP-029`, and
+**no default was created**. `JP-181` routed to its evidenced reception costs 2963.3 m /
+36 min against a historical 211.4 m / 3 min, because its display coordinate sits 136.6 m
+from Cape Hedo but 1286.4 m from the actual reception — a `places.json` precision finding
+this phase records and deliberately does not act on.
+
+Every historical result was classified `clean`, and correctly so as the rule is written:
+`clean` answers "is this routed value comparable to the coordinates we sent?", never
+"were those the right coordinates?". No threshold could answer the second question —
+access points are the mechanism that does. `SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS`
+therefore stays `None` and no classification rule changed.
+
+Nothing about consumption changed. `getBestTransfer()` is untouched and still reads only
+`walking-pilot-results.json` and `walking-scale-results.json`; `app/src/lib/transfer.ts`
+has no reference to access points; no artifact from this phase is mirrored under
+`app/src/data/`. The historical walking results, both walking manifests, the snap-places
+store, `places.json`, `nearby.json`, the GeoJSON, the workbook and the access-point
+catalog are all unchanged, and two validator guards enforce that the historical results
+neither change content (recorded sha256) nor acquire access-point annotations.
+
+The full target set, candidate table, per-gate results, request accounting, comparison
+schema, validation matrix, conservative reading and phase limits are in
+[ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
+
+## The remaining 3B2/3B2B/3C boundary
+
+Everything below is still explicitly out of scope. Extending `TransferConfidence`,
+`TransferProvenance`, or `TransferMode` further is for a later phase to decide, not implied by
+3B2A's additions:
+
+- Transit / schedule-aware validation of any kind.
+- A full transport-mode catalogue (Shinkansen, flights, ferries) beyond the modes that exist in
+  the dataset today.
+- Route ordering, city-sequence comparison, or itinerary generation.
+
+### Transit provider research (architectural notes only, still no integration)
+
+For **transit** (schedule-aware) validation, this phase does **not** choose a provider in code.
+Commercial providers investigated include Google Routes, NAVITIME, Ekispert, and HERE, but
+their standard terms constrain caching/storing responses as static, versioned repository data
+without further permission or a different architecture (e.g. calling live rather than
+precomputing). That evaluation is deferred to a later phase, alongside the architecture decision
+it implies (live lookup vs. a licensed, cacheable batch export).
+
+#### Google Routes: why it is out of scope now, specifically
+
+- Most Routes API response content is subject to caching/storage restrictions that conflict
+  with committing its output as static repository data.
+- Its transit schedule lookup only supports queries up to 100 days into the future.
+- This project's target window (February–March 2027) is currently outside that 100-day
+  horizon and will remain so for some time — so even a permitted integration could not yet
+  produce a validated result for the dates that matter here.
+
+No Google API key exists anywhere in this repository, and none is created by Phase 3B1.
+
+**Phase 3B3A** (later) turned this into a full decision: it derived the actual non-walking gap
+from the live dataset (71 of 403 relations, all intra-hub, 100 % still haversine estimates —
+walking's own 7 still-`estimated` stragglers are Phase 3B2D's closed findings, not a transit
+problem), re-verified Google's exclusion live, evaluated HERE (sales-gated in Japan, not
+self-serve), NAVITIME, Ekispert, and open-data alternatives (ODPT, GTFS aggregators — open
+licensing, but neither is a routing engine), and specified the `static-validated`/
+`schedule-aware` boundary a future artifact must respect (a schedule-aware result is bound to a
+specific service date and must never be treated as evergreen). **Decision: BLOCKED** — pending a
+named next phase that reads the unreviewed terms-of-use for Ekispert (primary candidate) and
+NAVITIME (secondary) and confirms Okinawa/Kyoto/Osaka coverage, because neither was confirmed
+this session. No provider was integrated, no account or key was created, and no request was made
+to any of them. Full research, requirements, and the comparative matrix are in
+[TRANSIT_PROVIDER_DECISION.md](TRANSIT_PROVIDER_DECISION.md).
+
+**Phase 3B3B** closed both of that phase's blockers: it read Ekispert's actual Standard Plan
+terms of use (latest revision 2025-12-15, Article 27) and NAVITIME's Article 5, and confirmed —
+via Ekispert's own live demo and Okinawa Prefecture's Ekispert-powered bus portal — that Yui
+Rail, Naha Bus, Okinawa Bus, Ryukyu Bus Kotsu, and Toyo Bus are all named-operator covered.
+**Neither provider's terms permit this project's historical walking pattern** (committing real
+routing output as versioned JSON) in a **public** repository — Ekispert Article 27(7)/(8)
+prohibits secondary use/resale of output data and, for railway timetables specifically, even
+private retention; NAVITIME's Article 5 §5 is a broader blanket no-caching rule.
+
+**The decision splits into two parts, not one.** Architecture: **PROCEED WITH HYBRID DESIGN** —
+integration code, schema, and synthetic fixtures may be versioned; any real provider output
+must be queried live and never persisted. Ekispert is the recommended provider; NAVITIME the
+secondary. Provider activation — actually connecting real Ekispert queries to this application —
+is separately classified **`REQUIRES VENDOR CONFIRMATION`**: Ekispert's own Article 27(9)/(10)
+gates building a competing service (explicitly naming "AI models/analysis tools handling
+public-transport data") on Val Laboratory's prior written consent, and while a narrowly-scoped
+live-display feature is *likely* ordinary licensed use (consistent with Ekispert's own MCP
+Server / "for AI" program and its observed real-world licensing pattern — an independent
+reconciliation added after initial review, see the source document's §1.5–§1.7), this project's
+own longer-term planning-recommendation ambition was not confirmed to fall on the permitted side
+of that line. A specific question for Val Laboratory is drafted, not sent. Full article-by-
+article analysis, the AI-use scenario classification, and the public-repo implications are in
+[TRANSIT_TERMS_COVERAGE_CONFIRMATION.md](TRANSIT_TERMS_COVERAGE_CONFIRMATION.md).
+
+**Phase 3B3C** designed (without implementing) how that live layer would attach to the system as
+it actually exists. Two verified facts drive it: **there is no backend today** — `app/` is a
+static Vite/React SPA whose data are all build-time JSON imports, with no deployment platform
+chosen — and **`transfer.ts` currently has no consumers**, so the 325 `validated-static` walking
+results are not shown to any user; `PlaceDetail.tsx` renders raw `nearby.json` instead. Because
+an Ekispert credential cannot survive in a browser bundle (Vite inlines `VITE_*`; Article 26 §1
+deems every action taken with the key the contractor's own), a **Nihon-controlled server boundary
+is required**, with the hosting platform deliberately deferred. The key architectural ruling:
+**`getBestTransfer()` stays synchronous and static** — it is a precomputed `Map` lookup that does
+no I/O, so an async signature would misdescribe it — and live transit gets a **separate async
+boundary**, with the choice between them made in a React hook rather than the data layer. Both
+the raw provider response and the normalized result are treated as **ephemeral**, never persisted,
+cached, or committed. Provider activation stays **OFF**; the whole design is buildable and
+testable against a `synthetic` provider meanwhile. See
+[LIVE_TRANSIT_INTEGRATION_DESIGN.md](LIVE_TRANSIT_INTEGRATION_DESIGN.md).
+
+**Phase 3B3D** built the first code slice of that design against the **`synthetic` provider
+only**: the provider-neutral contract in `app/src/lib/transit.ts`, and a deployment-neutral route
+handler in `app/server/transit.ts` (outside `app/src/`, so outside Vite's source root and outside
+the browser type graph). Three properties matter for this document. First, the activation gate is
+a literal in code — a real `ekispert`/`navitime` adapter is rejected *before* its lookup function
+can run, so no provider relationship exists or is needed. Second, a synthetic answer can never
+impersonate a real one: its provenance always reports the distinct confidence
+`"synthetic-fixture"`, never `"schedule-aware-live"` or `"validated-static"`, so the
+[confidence vocabulary](#confidence-taxonomy) above stays honest even while the data behind it is
+invented. Third, `"no-catalogued-endpoint"` is derivable **only** from an actual
+`external-local-transit` resolution, never from the shape of an endpoint — the same
+"never assert what you did not check" rule that governs the rest of this document. The context
+had zero catalogued members while Phase 3B3D ran, so every place then resolved to
+`use-place-coordinate`; the Transit Access-Point Evidence Audit has since given it three (see the
+access-point section above), and JP-029 now resolves as `ambiguous` instead.
+`getBestTransfer()` is unchanged. The client transport / React hook is deliberately **not** built
+yet, because no UI consumer and no explicit user trigger exist for it. See
+[LIVE_TRANSIT_SYNTHETIC_SKELETON.md](LIVE_TRANSIT_SYNTHETIC_SKELETON.md).
+
+**Phase 3B2I** closed the specific gap the paragraph above named: `PlaceDetail.tsx` now resolves
+every existing directed `nearby` relation through `getBestTransfer(place.id, target.id)` instead
+of rendering `nearby.json`'s raw fields, so the 325 snap-clean `validated-static` walking results
+(confirmed still exact against the current checkout) are visible to a user for the first time.
+Presentation lives in a new `app/src/lib/transfer-display.ts`, which maps a `TransferEdge` to
+display text only — confidence, provenance, direction and fallback selection all stay owned by
+`getBestTransfer()`. `estimated` keeps its `~` marker and reads **"Estimación geográfica"**;
+`validated-static` drops it and reads **"Ruta a pie validada"** (or **"Ruta validada"** for a
+non-walk mode); the still-unproduced `schedule-aware` case reads **"Horario en vivo"**, kept
+visibly and lexically distinct so a future live result could never be mistaken for static routing
+data. This does **not** start Phase 3B3E: nothing in the UI performs or triggers a live lookup,
+and provider activation remains OFF.
+
+**Product decision (Phase 3C-A):** live-transit integration is **not currently planned** for this
+product's scope. Phase 3B3E and Ekispert/NAVITIME activation are **deferred by choice, not
+blocked** — no vendor answer is being sought and no account or key is being pursued. The synthetic
+transit architecture above stays in the repository, dormant, rather than deleted, in case a future
+scope decision revisits it. Current logistics strategy going forward: validated-static walking via
+`getBestTransfer()`, honestly-labelled geographic estimates for everything else, and an explicit
+"sin traslado registrado" for a pair neither covers — never a fabricated Shinkansen/flight
+estimate to fill the gap. Phase 3C-A (below) is the first feature built on this footing.
+
+## Phase 3C-A — Ordered Sequence Builder
+
+The first UI feature to aggregate transfer time, made possible because — unlike every earlier
+consumer of `transfer.ts` — it is given an **explicit order**, not a bare `Place[]`. See "No
+aggregation without order" above for why that distinction is load-bearing.
+
+`app/src/lib/ordered-sequence.ts` exports `buildOrderedSequence(placeIds)`: for each consecutive
+pair in the caller's list, it calls `getBestTransfer(fromId, toId)` in exactly that direction and
+records the result as one `OrderedSequenceLeg`. It never reverses a pair, never chains across a
+missing one, never falls back to haversine distance, and never runs routing at call time — the
+same discipline `lookupTransfer`/`getBestTransfer` already enforce, simply summed over more than
+one edge for the first time. A pair with no recorded transfer becomes `transfer: null`, the same
+honest "unknown" `getBestTransfer` already returns for that direction.
+
+The summary keeps a known subtotal structurally distinct from a complete total:
+`transferMinutes` sums only the known legs' minutes (minimum-to-minimum, maximum-to-maximum,
+exactly as `summarizeSelection` sums visit time), and `complete` is `true` only when every leg in
+the sequence is known. A caller that ignored `complete` and always labelled `transferMinutes` "the
+route's transfer total" would misreport a partial route as a full one; the UI
+(`OrderedSequenceBuilder.tsx`) is written to say "traslados conocidos" for a partial sum and
+"traslados totales" only when `complete` is true, and to name the unknown legs explicitly (e.g.
+"1 tramo sin traslado registrado") rather than let them vanish from the total silently.
+
+Activity time is untouched: the builder calls `summarizeSelection()` — the same Phase 3A function
+`SelectionAnalysis` uses — over the route's places, so day-scale commitments stay excluded from
+the minute sum exactly as they always have, and visit time is never merged with transfer time
+into one number.
+
+The route itself is not "Quiero ir." It is component-local state in `OrderedSequenceBuilder`,
+initialized from the saved places' order when the component mounts, holding a reorderable/
+reducible subset of the same ids; removing a place from the route does not unsave it. Nothing
+here is persisted — no new `localStorage` key, no change to `useSavedPlaces`' existing format.
+
+This phase changed no dataset, no access-point catalog, no walking artifact, and
+`getBestTransfer()` itself is unchanged; `ordered-sequence.ts` is the only module that aggregates
+across its results, and only over a sequence the user supplied. It starts no comparison between
+candidate orderings and no itinerary/day-assignment work — Phase 3C-B (below) does the former;
+day/time assignment remains later, unscheduled work.
+
+## Phase 3C-B — User-Defined Sequence Comparison
+
+Compares exactly **two user-defined orderings of the same places** — not a candidate generator.
+`app/src/lib/sequence-comparison.ts` builds each side through Phase 3C-A's own
+`orderedSequenceFromLookup`/`buildOrderedSequence` and reasons only about the two resulting
+`OrderedSequence`s; it never reimplements directed lookup, reversal, or chaining.
+
+**The same-set invariant is checked before ordering matters at all.** Both candidates must be
+duplicate-free and represent exactly the same set of place ids, or the outcome is `"invalid"` —
+a composition difference is not an ordering question, and this module never treats it as one.
+
+**An unknown leg is never treated as zero minutes, and a winner must survive its own
+uncertainty.** If either candidate has any unknown leg, the outcome is `"incomplete"` regardless
+of the two known subtotals: 40 known minutes plus one unrecorded leg is never declared faster
+than 55 known minutes with full coverage. For two *complete* candidates, one is only
+`"a-clearly-faster"`/`"b-clearly-faster"` when its full range sits strictly below the other's
+(`winner.maxMinutes < loser.minMinutes`) — comparing minima or midpoints would let an overlapping
+pair of ranges produce a false winner, so equal ranges are `"equivalent"` and anything else
+non-strict is `"overlapping"`, reported honestly as no clear difference rather than guessed.
+
+A declared advantage is always the conservative `loser.minMinutes − winner.maxMinutes` — the gap
+that holds even in the winner's worst case against the loser's best case — never a midpoint
+delta. Each candidate also reports its `validated-static`/`estimated`/`schedule-aware` leg tally
+(the same closed `TransferConfidence`, no new vocabulary, no invented numeric score), so a route
+built entirely from estimates does not read as equally certain as one built from validated
+routes. Every result reads "entre estos dos órdenes…" — this module has evaluated exactly two
+orderings, never a claim about the best possible route.
+
+`OrderedSequenceBuilder.tsx` renders this as a **nested view inside its existing dialog**, not a
+second modal: "Comparar otro orden" opens Candidate A (a clone of the current route) and
+Candidate B (a clone of Candidate A), both independently reorderable through the same accessible
+move-up/move-down mechanism Phase 3C-A established. Neither candidate can add or remove a place
+inside the comparison view — composition is fixed once it opens, which keeps the same-set
+invariant true by construction through this UI even though the domain function still checks it
+independently. Nothing here is persisted, and closing the comparison touches neither the route
+draft nor "Quiero ir".
+
+## Phase 3C-C — User-Defined Day Assignment
+
+Lets the user manually divide the current route into ordinal day buckets — **Día 1, Día 2, …**
+— choosing the day count, the place-to-day assignment, and the order inside each day. Nihon only
+describes the result: `app/src/lib/day-assignment.ts`'s `buildDayAssignment(routeIds, days)`
+builds every day's logistics through Phase 3C-A's own `orderedSequenceFromLookup`, never
+reimplementing directed lookup, reversal, or chaining.
+
+**A day boundary breaks transfer aggregation, structurally rather than by a special case.** Each
+day's place ids are handed to `orderedSequenceFromLookup` **on their own** — the function that
+builds consecutive pairs from an array never sees the pair between one day's last place and the
+next day's first, because that pair is never assembled from two different arrays in the first
+place. There is no assumed overnight transfer, no assumed hotel, and no assumed inter-day
+commute; nothing needed to be excluded, because nothing crossing a day boundary is ever
+constructed as a lookup candidate to begin with.
+
+**Partition validity is checked independently of the UI that produced it.** Every route id must
+appear in exactly one day, in exactly one position: `"no-days"` (zero day buckets — a UI-created
+plan always needs at least one, even empty), `"missing-route-ids"`, `"extra-ids"`,
+`"duplicate-in-day"`, and `"duplicate-across-days"` are each detected independently, and every
+applicable issue is reported rather than only the first found. `OrderedSequenceBuilder.tsx`'s day
+view makes an invalid partition structurally unreachable (a place only ever moves between the
+day buckets that started as a clone of the route, never added to or removed from that fixed
+set), but the domain function still checks it for any other caller.
+
+**Inside one day, every Phase 3C-A guarantee holds exactly as it already did for the whole
+route**: directed lookup only, no reverse inference, no chaining, no haversine fallback, no
+fabricated Shinkansen/flight/ferry, and a missing same-day leg keeps that day's `complete` false
+with its known subtotal still reported — never mislabeled as the day's full transfer time.
+
+**There is no fake "day total".** Visit time reuses `summarizeSelection()` unchanged (day-scale
+commitments like "Día completo" are never converted to minutes), and transfer time keeps the
+known-subtotal-vs-complete-total distinction Phase 3C-A defined — the two are always shown as
+separate quantities, never merged into one number, and no capacity judgement ("bien
+equilibrado", "no cabe", "óptimo") is rendered anywhere, because none has been defined.
+
+Days are ordinal labels only — no calendar date, weekday, timezone, or opening-hour solver is
+introduced, and `bestTime`/`schedule.hours`/`schedule.closures` remain unparsed editorial text.
+The day draft is component-local state, discarded on close exactly like the route and comparison
+drafts it sits alongside; nothing here is persisted.
+
+## Phase 3C-D — Persisted Manual Planning Draft
+
+Until this phase, the paragraph above was true of the route too: Phase 3C-A's route order and
+Phase 3C-C's day assignment were both purely component-local, gone the moment the builder
+closed. This phase changes that for the current product: `app/src/lib/planning-draft.ts` now
+persists the **canonical manual plan** — the route and the day assignment, and only those —
+under a new key, `nihon.manualPlanningDraft`, kept entirely separate from `nihon.savedPlaceIds`
+("Quiero ir"). Phase 3C-B's comparison candidates are the one exception that stays exactly as
+this section originally described them: still component-local, still cloned fresh from the
+route each time the comparison view opens, still discarded on close — they are deliberately
+excluded from the persisted schema and always will be.
+
+The schema, `{ version: 1, routeIds: string[], days: string[][] | null }`, stores only ids and
+user-authored structure — never a `Place`, a name, a duration, a transfer edge or result, a
+visit-time summary, a transfer total, or a confidence tally. Every derived value is still
+recomputed on read from the current dataset and domain logic exactly as before; persistence
+changes *where the user's decisions live*, not how anything is computed from them.
+
+Restoring a stored draft is reconciliation, not blind trust: a route id no longer present in
+"Quiero ir" is pruned from the route and from any day bucket that referenced it, and a place
+newly saved to "Quiero ir" after a draft already exists is never auto-added to the route or
+assigned to a day — it surfaces through the existing "Guardados fuera del recorrido" flow
+until the user explicitly adds it. A stored `routeIds: []` is a real, intentional empty route
+and stays empty after reload; that is deliberately distinct from no valid stored draft at all,
+which falls back to initialising the route from the current saved ids, exactly as Phase 3C-A's
+original first-run behaviour did.
+
+Changing only the route's order (the same set of ids) keeps the existing canonical day
+assignment; changing its composition invalidates it (`days: null`) rather than guessing which
+day a new place belongs in or repairing a day that no longer accounts for a removed one. The
+day-partition rules themselves are not duplicated for persistence: `day-assignment.ts`'s issue
+taxonomy was extracted into a transfer-lookup-free `validateDayPartition`, and both
+`dayAssignmentFromLookup` and this module's reconciliation call the same function, so the two
+can never disagree about what counts as a valid split.
+
+Storage failures — missing value, malformed JSON, wrong shape, unsupported version, non-string
+or duplicate ids, a `localStorage` exception on read or write — all fall back to an in-memory
+default rather than throwing into the UI or inventing a migration for a version this schema
+doesn't recognise.
+
+## Phase 3C-E — Manual Calendar Anchoring
+
+Until this phase, the plan's day buckets ("Día 1", "Día 2", …) were purely ordinal — no day
+carried any relationship to a real calendar. This phase adds exactly one further user decision
+to the schema above: a manual civil-date anchor for "Día 1". The schema version moves from
+Phase 3C-D's `1` to `2`, adding one field, `startDate: string | null` — a plain `YYYY-MM-DD`
+string, never a serialized date object, a derived weekday, or a month name. A stored V1 draft
+(the exact shape Phase 3C-D shipped, with no `startDate` field at all) is migrated
+deterministically: `routeIds`/`days` pass through completely unchanged and `startDate` is always
+set to `null` — a user who never anchored a date never has one invented for them.
+
+"Día N" (for the Nth day bucket) is `startDate` offset by `N − 1` calendar days, computed fresh
+on every render (`app/src/lib/civil-date.ts`) and never itself persisted — there is no array of
+per-day dates to keep in sync when a day is added, removed, reordered, or has a place moved into
+it. That is a deliberate, smaller model than one date per bucket: it cannot represent an
+internally inconsistent calendar, at the cost of only ever producing consecutive days (the user
+cannot anchor "Día 2" to a date that isn't literally the day after "Día 1").
+
+The calendar anchor is **independent of the route and the day assignment** — the same
+independence `nihon.savedPlaceIds` already has from this whole planning draft, one level down.
+A route composition change still nulls `days` exactly as Phase 3C-D described; it does not touch
+`startDate`. Adding, removing, or reordering a day, or moving a place between days, does not
+touch it either. Even "Restablecer recorrido" — which does reset the route and the day
+assignment to fresh — carries the existing `startDate` forward unchanged, because resetting
+*what* the plan contains is not a decision about *when* the trip starts. Only the user explicitly
+setting or clearing the date changes it, and an invalid one (wrong shape, or a real calendar
+impossibility like `2027-02-30` or a non-leap-year `2027-02-29`) is rejected outright — the draft
+stays exactly as it was, never coerced to `null` or to some nearby guessed date.
+
+This phase reads none of `place.bestTime`, `schedule.hours`, or `schedule.closures`, and performs
+no check of whether anything is open on the chosen date — the boundary Phase 3B1/3B2's transfer
+domain and this planning-draft persistence layer have both always respected stays exactly where
+it was. Anchoring a date to "Día 1" is a fact about the user's calendar, not a claim about what
+is feasible to do that day.
+
+> **Update (Phase 3D-L):** the schema version described above is no longer current. It moved from
+> `2` to `3`, adding one further user decision — `visitStartTimes`, a `placeId -> "HH:mm"` map of
+> manually typed local clock times, defaulting to `{}`. A stored V1 or V2 draft still loads, chained
+> V1 → V2 → V3, with `visitStartTimes` always `{}` and no time ever invented. Everything this
+> section says about the key, about storing only ids and user-authored structure, and about
+> recomputing every derived value on read is unchanged; the times are a user decision, and the
+> comparison computed from them is derived and never stored. Unlike `startDate`, a time is tied to
+> its place and is pruned when that place leaves the route. The transfer domain is untouched: no
+> transfer edge, transfer minute, or arrival time is read or derived by that feature. See
+> `docs/DATA_MODEL.md`'s "Manual visit start times (Phase 3D-L)" section for the full schema.
+
+## What Phase 3B1 does not touch
+
+- `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single
+  source `app/src/lib/transfer.ts` reads from (no duplicated copy of the relations).
+- The source workbook.
+- Any UI component (`SelectionAnalysis.tsx`, `SelectionPanel.tsx`, `PlaceDetail.tsx`,
+  `FilterPanel.tsx`, `App.tsx`/`App.css`, and the rest) — the existing nearby-navigation UI reads
+  `getNearby()` exactly as it did before this phase.
+- Itinerary generation, place ordering, or city-sequence comparison — all still 3C-or-later.
+
+## What Phase 3B2A does not touch
+
+- `data/nearby.json` / `app/src/data/nearby.json` and `data/places.json` /
+  `app/src/data/places.json` — unchanged. `toTransferEdge()` still converts every one of the 403
+  relations to `confidence: "estimated"`; the pilot's 24 validated-or-not results live in a
+  separate artifact (`data/logistics/`), never overwriting or replacing the estimated source.
+- The source workbook and GeoJSON.
+- Any UI component — no new times are shown to a user yet; this phase only validates data.
+- Transit, Shinkansen, ferries, route optimization, itineraries, or any of the ~308 "A pie"
+  relations outside this pilot's 24-edge sample.

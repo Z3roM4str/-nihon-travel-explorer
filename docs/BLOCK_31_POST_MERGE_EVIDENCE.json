@@ -1,0 +1,142 @@
+{
+  "block": "B31 / B9.5",
+  "pullRequest": 175,
+  "mainPreMerge": "393ef2b2a1a2db0641d3785b7e7cf155c914fa5c",
+  "implementation": "9761817f0d7acfcff418145c36e14615b2840760",
+  "headCertified": "c00a35da6ab26d4ccf3389fad6f265f1c06a6868",
+  "mergeCommit": "cde9b14bc9e456270576c8dafe0243ddb8c650db",
+  "tree": "4e0ad7437ce48e0ca40de1bdf6848445d35b080f",
+  "mergedAt": "2026-10-01T03:51:31Z",
+  "checksRequired": [],
+  "checkRunsOnHead": 0,
+  "statusesOnHead": 0,
+  "runner": "Windows; Node v22.21.0; Chromium headless shell 1234; WebKit 2336",
+  "logDirectory": "b31-close/app/logs/b31-postmerge",
+  "checks": [
+    {
+      "log": "build.log",
+      "command": "npm run build",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "a09513780f8326f2c473028479c64f9d9c2bb3788ab4d2f746a9e5181355a51d",
+      "bytes": 990,
+      "lastWriteUtc": "2026-10-01T03:52:42.6312906Z"
+    },
+    {
+      "log": "lint.log",
+      "command": "npm run lint",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "331491b56c6a43d4e2a3a96426032bf1e461e77ae77484ce9e0742fada3f6057",
+      "bytes": 235,
+      "lastWriteUtc": "2026-10-01T03:52:45.6210906Z"
+    },
+    {
+      "log": "vitest.log",
+      "command": "npm test -- --reporter=basic",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "f5d79bbfd7613da8609594f207fa94bd9e248e10902b9fb0b9f67eb2303c3d5a",
+      "bytes": 7896,
+      "lastWriteUtc": "2026-10-01T03:55:39.4068881Z"
+    },
+    {
+      "log": "invariants.log",
+      "command": "npm test -- src/components/OrderedSequenceBuilder.stable-day-identity.test.ts src/lib/zone-plan-link.test.ts src/lib/accommodation-zone.test.ts src/lib/planning-draft-v8.test.ts src/components/OrderedSequenceBuilder.inter-hub.test.ts src/lib/inter-hub-segment.test.ts src/lib/zone-accommodation-choice.test.ts src/lib/planning-draft-v8.reorder.test.ts src/lib/zone-journey-context.test.ts",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "221ab510a831d0fb66195d039dd4fb6c9ea4c96eb752960312868b542ec20a25",
+      "bytes": 1258,
+      "lastWriteUtc": "2026-10-01T03:56:10.5751000Z"
+    },
+    {
+      "log": "b31-chromium.log",
+      "command": "NIHON_BROWSER=chromium node scripts/b31-reservas-resumen-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "2983438542ffce7b78fbe56f5d7d3834a36715a03b8fd8a06d9e05ee858f7d8e",
+      "bytes": 49,
+      "lastWriteUtc": "2026-10-01T03:55:17.2503192Z"
+    },
+    {
+      "log": "b31-webkit.log",
+      "command": "NIHON_BROWSER=webkit node scripts/b31-reservas-resumen-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "23be0354efa67ef7eaf6dbfe1ec698ae1d5297529be50d2966887c2258ced11f",
+      "bytes": 47,
+      "lastWriteUtc": "2026-10-01T03:57:08.8928496Z"
+    },
+    {
+      "log": "b30-chromium.log",
+      "command": "NIHON_BROWSER=chromium node scripts/b30-where-to-sleep-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "31f11a9d7b0fc125d444f594104655bbf6f0ec3bfc7947a5caba411f936e4cb8",
+      "bytes": 160,
+      "lastWriteUtc": "2026-10-01T03:56:27.8005372Z"
+    },
+    {
+      "log": "b30-webkit.log",
+      "command": "NIHON_BROWSER=webkit node scripts/b30-where-to-sleep-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "24ac5a9a08f2fa969672330966dd242e03de447ef1e215a5fe2a7d4fb2535d2e",
+      "bytes": 104,
+      "lastWriteUtc": "2026-10-01T03:58:36.6539122Z"
+    },
+    {
+      "log": "b29-day-order-tools.log",
+      "command": "node scripts/b29-day-order-tools-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "b3393949b44d90ef6141dfde1043024423b925b11841e68f98c334b7afc473ec",
+      "bytes": 255,
+      "lastWriteUtc": "2026-10-01T03:59:47.7306142Z"
+    },
+    {
+      "log": "b28-reorder-dnd.log",
+      "command": "node scripts/b28-reorder-dnd-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "f30dd46ace1fc13be515fc5efd4f1cf997385be03da05fbb18e83c2e4df3f16e",
+      "bytes": 68,
+      "lastWriteUtc": "2026-10-01T04:00:14.0316364Z"
+    },
+    {
+      "log": "b27-viaje-dias.log",
+      "command": "node scripts/b27-viaje-dias-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "58175c408fd986f51712463bd54cc391f27281fc1fbed12715b6f7900eaba42d",
+      "bytes": 187,
+      "lastWriteUtc": "2026-10-01T04:00:31.8393123Z"
+    },
+    {
+      "log": "b26-nosotros.log",
+      "command": "node scripts/b26-nosotros-check.mjs",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "4222d2ee0b3c96f880d48c156eaf5f0f4d12738ef454948ed8d765a2283c8005",
+      "bytes": 25687,
+      "lastWriteUtc": "2026-10-01T04:01:27.9104515Z"
+    },
+    {
+      "log": "b18.log",
+      "command": "node logs/b31-postmerge/run-b18.mjs (preview Vite local + scripts/b18-browser-back-check.mjs)",
+      "exitCode": 0,
+      "attempts": 1,
+      "sha256": "c2f563b926e67f92ace236fb292ffbe09ff1b902892051c28f05090f04a702d6",
+      "bytes": 1005,
+      "lastWriteUtc": "2026-10-01T04:01:39.1788995Z"
+    }
+  ],
+  "diffCheck": "PASS",
+  "codeDifferenceFromCertifiedHead": "none",
+  "functionalFailures": [],
+  "inheritedWarnings": [
+    "PlaceMap.tsx:17 react(only-export-components)",
+    "bundle chunk >500 kB; identical index-OVb2DdYf.js to pre-merge"
+  ],
+  "nextBlock": "B10 — Pulido (not started)"
+}

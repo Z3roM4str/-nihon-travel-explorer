@@ -1,0 +1,2047 @@
+{
+  "baseSha": "f74281a75cefe5f45469e1db84e5d4350110dba5",
+  "imageCount": 225,
+  "coveredPlaceCount": 194,
+  "placeImagesTsSha256": "0326a91c42b5f46027c1ce74eea93895eb5a8053a07a6f2025abe022009270fb",
+  "gradeRows": [
+    {
+      "placeId": "JP-004",
+      "name": "Takeshita Street",
+      "grade": "C",
+      "hub": "Tokio",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-032",
+      "name": "Tsukiji Outer Market",
+      "grade": "C",
+      "hub": "Tokio",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-056",
+      "name": "Yasaka Kōshin-dō",
+      "grade": "D",
+      "hub": "Kioto",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-071",
+      "name": "Arashiyama Bamboo Grove",
+      "grade": "C",
+      "hub": "Kioto",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-091",
+      "name": "Nishiki Market",
+      "grade": "C",
+      "hub": "Kioto",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-104",
+      "name": "Glico Running Man sign",
+      "grade": "D",
+      "hub": "Osaka",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-106",
+      "name": "Kuromon Ichiba Market",
+      "grade": "D",
+      "hub": "Osaka",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-110",
+      "name": "Tsutenkaku",
+      "grade": "C",
+      "hub": "Osaka",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-177",
+      "name": "Heart Rock",
+      "grade": "D",
+      "hub": "Okinawa",
+      "photos": [],
+      "needsIdentity": true
+    },
+    {
+      "placeId": "JP-178",
+      "name": "JUNGLIA OKINAWA",
+      "grade": "C",
+      "hub": "Okinawa",
+      "photos": [],
+      "needsIdentity": true
+    }
+  ],
+  "gradeCoverage": {
+    "C": {
+      "total": 6,
+      "covered": 0,
+      "uncovered": [
+        "JP-004",
+        "JP-032",
+        "JP-071",
+        "JP-091",
+        "JP-110",
+        "JP-178"
+      ]
+    },
+    "D": {
+      "total": 4,
+      "covered": 0,
+      "uncovered": [
+        "JP-056",
+        "JP-104",
+        "JP-106",
+        "JP-177"
+      ]
+    },
+    "S": {
+      "total": 32,
+      "covered": 32,
+      "uncovered": []
+    },
+    "A": {
+      "total": 147,
+      "covered": 139,
+      "uncovered": [
+        "JP-050",
+        "JP-079",
+        "JP-095",
+        "JP-120",
+        "JP-121",
+        "JP-168",
+        "JP-195",
+        "JP-202"
+      ]
+    },
+    "B": {
+      "total": 25,
+      "covered": 23,
+      "uncovered": [
+        "JP-041",
+        "JP-171"
+      ]
+    }
+  },
+  "gradeS": {
+    "total": 32,
+    "identity": 32,
+    "experience": 17,
+    "complementary": 14,
+    "roles": {
+      "identity": [
+        "JP-021",
+        "JP-025",
+        "JP-033",
+        "JP-044",
+        "JP-054",
+        "JP-066",
+        "JP-077",
+        "JP-089",
+        "JP-096",
+        "JP-097",
+        "JP-125",
+        "JP-126",
+        "JP-129",
+        "JP-134",
+        "JP-135",
+        "JP-142",
+        "JP-143",
+        "JP-144",
+        "JP-145",
+        "JP-152",
+        "JP-157",
+        "JP-162",
+        "JP-173",
+        "JP-179",
+        "JP-184",
+        "JP-188",
+        "JP-192",
+        "JP-196",
+        "JP-197",
+        "JP-203",
+        "JP-204",
+        "JP-205"
+      ],
+      "experience": [
+        "JP-025",
+        "JP-054",
+        "JP-066",
+        "JP-096",
+        "JP-125",
+        "JP-129",
+        "JP-135",
+        "JP-142",
+        "JP-143",
+        "JP-144",
+        "JP-145",
+        "JP-157",
+        "JP-162",
+        "JP-173",
+        "JP-184",
+        "JP-196",
+        "JP-205"
+      ],
+      "context": [
+        "JP-021",
+        "JP-066",
+        "JP-152",
+        "JP-162",
+        "JP-197"
+      ],
+      "detail": [
+        "JP-089",
+        "JP-096",
+        "JP-129",
+        "JP-135",
+        "JP-142",
+        "JP-143",
+        "JP-173",
+        "JP-196"
+      ],
+      "seasonal": [
+        "JP-054"
+      ]
+    }
+  },
+  "gradeABExceptions": {
+    "A": [
+      "JP-050",
+      "JP-079",
+      "JP-095",
+      "JP-120",
+      "JP-121",
+      "JP-168",
+      "JP-195",
+      "JP-202"
+    ],
+    "B": [
+      "JP-041",
+      "JP-171"
+    ]
+  },
+  "hubIdentity800Bytes": {
+    "Fukuoka": 69284,
+    "Kioto": 3408406,
+    "Nagoya": 69552,
+    "Okinawa": 2866922,
+    "Osaka": 3170658,
+    "Sapporo": 166986,
+    "Tokio": 3421914
+  },
+  "recordSnapshot": [
+    {
+      "placeId": "JP-001",
+      "assetPath": "images/places/JP-001/shibuya-scramble-crossing.webp",
+      "originalTitle": "File:Shibuya Scramble crossing.jpg",
+      "role": "identity",
+      "recordSha256": "fbcdac4b6e3f20e1d97bdd9879abe753d6c5668a51fae2dcb1058a28bf0b8fc4",
+      "assetSha256": "0a842fa3206352fb691fbf90384ecb1f7399f3d448b191ffda577c78336552b6"
+    },
+    {
+      "placeId": "JP-002",
+      "assetPath": "images/places/JP-002/shibuya-sky-observation-deck.webp",
+      "originalTitle": "File:Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck (53417085580).jpg",
+      "role": "identity",
+      "recordSha256": "1c5463d3cbe4950ca11a9dadb890a76365e5a1ac4f84ee479868d8c6bfa8a7a8",
+      "assetSha256": "dd238d2f37b38c1f8f6aa206b41e0de1f70f825366a746dfba9b148fd78f923d"
+    },
+    {
+      "placeId": "JP-003",
+      "assetPath": "images/places/JP-003/meiji-jingu-torii.webp",
+      "originalTitle": "File:Meiji-jingu Torii 1.jpg",
+      "role": "identity",
+      "recordSha256": "d7961cdee92e72797d2f59dc5771d39d23dc97e53df82545125f9b9a4926b298",
+      "assetSha256": "894e3f8209b4b9b6af981188a225ff5462d8a2dca4b659135f641fe4d6eec44a"
+    },
+    {
+      "placeId": "JP-010",
+      "assetPath": "images/places/JP-010/shinjuku-gyoen-footbridge.webp",
+      "originalTitle": "File:Wooden footbridge in Shinjuku Gyoen National Garden, Tokyo, Japan, a sunny day with blue sky.jpg",
+      "role": "identity",
+      "recordSha256": "578cc87d108395f6e55f96cd2a74760118647d555374d4c1d61d6c7a2973e23a",
+      "assetSha256": "30ac732e8a830a647c34d643f82eead60c2409a36c7fa7d73d653b273e55339d"
+    },
+    {
+      "placeId": "JP-021",
+      "assetPath": "images/places/JP-021/tokyo-national-museum-stairs.webp",
+      "originalTitle": "File:Tokyo National Museum Main Building PB304920.jpg",
+      "role": "identity",
+      "recordSha256": "68a9114411df4b41f0a537815b14008a3f813eeab830b459d83e43bd12889211",
+      "assetSha256": "39c4e4371cae6efe1ddfac03a2386f0295799b2ea948fcd4c1aff5b4e77961c8"
+    },
+    {
+      "placeId": "JP-025",
+      "assetPath": "images/places/JP-025/akihabara-electric-town.webp",
+      "originalTitle": "File:Akihabara Electric Town 06.jpg",
+      "role": "identity",
+      "recordSha256": "89ff04c7e36e7b7da6ffbd1af0a36bf6c571b06abfa88ce123a40b519ae661f5",
+      "assetSha256": "ad8aeedde2f57242bcf0bf28ad12bde95f03d469c89970eb15d133a20d8c4282"
+    },
+    {
+      "placeId": "JP-025",
+      "assetPath": "images/places/JP-025/akihabara-pedestrian-crossing.webp",
+      "originalTitle": "File:Akhibara Crossing (14663984721).jpg",
+      "role": "experience",
+      "recordSha256": "9568e6f736cb5e5db0b1b320819b79d0b14efa1b79d36dea742cdd9e68b93892",
+      "assetSha256": "7599ceff0c02ecce312f9d0d9e34d9ce81fd0c1f7d53be712ed11e03d1974b7b"
+    },
+    {
+      "placeId": "JP-089",
+      "assetPath": "images/places/JP-089/nijo-castle-ninomaru-palace.webp",
+      "originalTitle": "File:Ninomaru Palace, November 2016.jpg",
+      "role": "identity",
+      "recordSha256": "63ebfe1e83392675b4c99078340feae64ac3393439d271756bfb6f2e05b1880f",
+      "assetSha256": "c75ca2148f76e668d8d61c39adc57dc95c571b9a024af64bda170e4412206e84"
+    },
+    {
+      "placeId": "JP-054",
+      "assetPath": "images/places/JP-054/kiyomizu-dera-stage.webp",
+      "originalTitle": "File:Kiyomizu-dera, Kyoto, November 2016 -01.jpg",
+      "role": "identity",
+      "recordSha256": "935b0c0fb65643b4cb940dfa500f1e6337ef8d9df32f6df46a59053738f3eae4",
+      "assetSha256": "3ec4fdfad7f848d48359db2ee1bde1cab385b3febef61acb2a09172e8bbbb27f"
+    },
+    {
+      "placeId": "JP-054",
+      "assetPath": "images/places/JP-054/kiyomizu-dera-otowa-fountain-visitors.webp",
+      "originalTitle": "File:Japan Kyoto KiyoMizuDera crowds queueing fountain DSC00685.jpg",
+      "role": "experience",
+      "recordSha256": "bf8bcdce735199b26a5fe618f581b8589f7f10e4b4a187878b815b195de1b775",
+      "assetSha256": "91b93aa1287b5f167237f334b35a323e2abebdadb5cbfd0ad604c8ab37f18d14"
+    },
+    {
+      "placeId": "JP-054",
+      "assetPath": "images/places/JP-054/kiyomizu-dera-sakura-light-up.webp",
+      "originalTitle": "File:Kiyomizu-dera sakura light-up (51472868886).jpg",
+      "role": "seasonal",
+      "recordSha256": "e50a85feef123fa48010a11949f5f0d902681b9d57a75631ac89ae2cc03fcfba",
+      "assetSha256": "48a861bf5203fad301b70fd71fa46b6ea1c7ac05cd44a87a1607be273fac59e6"
+    },
+    {
+      "placeId": "JP-057",
+      "assetPath": "images/places/JP-057/gion-shirakawa-canal.webp",
+      "originalTitle": "File:Shirakara Canal, Gion, Kyoto.jpg",
+      "role": "identity",
+      "recordSha256": "c5bdf8b549f34dd972ff1a3902b1fbd83c4f2b00a92e46d993d9b9d973791a66",
+      "assetSha256": "1b02fb8e68968d442dd5fdf1a40592ac2332f4de3c1aebce4eb8627d4e6e2d2b"
+    },
+    {
+      "placeId": "JP-077",
+      "assetPath": "images/places/JP-077/katsura-imperial-villa-pond.webp",
+      "originalTitle": "File:Katsura Imperial Villa 桂離宮 X (951035811).jpg",
+      "role": "identity",
+      "recordSha256": "2d67445ae8844150d890c86f83910fd4b7a14aad9c74c51b8472f25cf52220c7",
+      "assetSha256": "14628d474819125527ac7203ac90bce6d696b3c2ea08b3a7958715e507565565"
+    },
+    {
+      "placeId": "JP-094",
+      "assetPath": "images/places/JP-094/kyoto-national-museum-facade.webp",
+      "originalTitle": "File:Kyoto National Museum (2020) - img 05.jpg",
+      "role": "identity",
+      "recordSha256": "58bab789b28794f574558d21fc65f6dc08268ed02245ae5d34d5a6158fe488e4",
+      "assetSha256": "60dd60874487a402683f44d8c03f6ea3e016350a67cfc89c8e7db16af113e75c"
+    },
+    {
+      "placeId": "JP-097",
+      "assetPath": "images/places/JP-097/nintendo-museum-entrance.webp",
+      "originalTitle": "File:Nintendo Museum Entrance.jpg",
+      "role": "identity",
+      "recordSha256": "6e81997594a751a7fd4852e0614c6b6130c92c73f5cf85557ed0da37c2d68073",
+      "assetSha256": "fb23b0e466dfa5c41edaa61942862ce2aef2a2c978adec09edd339b5b4a68dac"
+    },
+    {
+      "placeId": "JP-134",
+      "assetPath": "images/places/JP-134/horyuji-kondo-pagoda.webp",
+      "originalTitle": "File:Horyu-ji Kondo and Five-story Pagoda 2022.jpg",
+      "role": "identity",
+      "recordSha256": "2eb8b190c138d769b5cf8ee8236a823f191c5c9756d375fe51592e8675b4c6fa",
+      "assetSha256": "d0b6115d8bba112fd2ebf83734c8ef5f12b54f4c8de15031f2cadc1ffa207a84"
+    },
+    {
+      "placeId": "JP-129",
+      "assetPath": "images/places/JP-129/todaiji-great-buddha-hall.webp",
+      "originalTitle": "File:The Great Buddha Hall of Tōdai-ji, Nara, November 2016.jpg",
+      "role": "identity",
+      "recordSha256": "c3a6b7cc6e600ba58510983b07e2341d046eeebf7831b71c457507814ba63261",
+      "assetSha256": "de21433d29c3cfa9b15f86442f0023c62d5ca63e3997f8811fc7170ceaac44bb"
+    },
+    {
+      "placeId": "JP-129",
+      "assetPath": "images/places/JP-129/todaiji-visitors-and-deer.webp",
+      "originalTitle": "File:Todaiji con visitantes y ciervos, Nara.jpg",
+      "role": "experience",
+      "recordSha256": "fc9e01977242d4b1bc68cda90b1884f76772462ad12e76e60bf2da5d832d0118",
+      "assetSha256": "d0b1f7ddcba1a7efdd41eca933eaf8b26621e2faf58a69bb909887cb967efca2"
+    },
+    {
+      "placeId": "JP-109",
+      "assetPath": "images/places/JP-109/shinsekai-tsutenkaku.webp",
+      "originalTitle": "File:Shinsekai and Tsutenkaku Tower.jpg",
+      "role": "identity",
+      "recordSha256": "f936ed0d96627a10aa6600cd279abc64dead4fe637348c505832b743cb28299b",
+      "assetSha256": "4c68415043142785823ebdf4a9a3143512b1bfed722801fb59cccdb5b065d6c8"
+    },
+    {
+      "placeId": "JP-145",
+      "assetPath": "images/places/JP-145/nachi-falls-pagoda.webp",
+      "originalTitle": "File:Nachikatsuura Seiganto-ji Three-Storied Pagoda & Nachi Falls 01.jpg",
+      "role": "identity",
+      "recordSha256": "30be0af89a634ea719225ea0d06a81451784586ea34dceeaac1a37bfe8521e22",
+      "assetSha256": "fe291791a0b16364b24a7db268f3f924f8e43e5d6ea058cfff33887f76575e55"
+    },
+    {
+      "placeId": "JP-145",
+      "assetPath": "images/places/JP-145/nachi-pilgrimage-route.webp",
+      "originalTitle": "File:Nachi Falls Pilgrimage route (51928795062).jpg",
+      "role": "experience",
+      "recordSha256": "86c4ddfad0c963801bdc02255b63af261ac333bfb3a023f545ab8b4c8a1cb8d0",
+      "assetSha256": "d7e34db1a3c1a408870cbfdcf986091200ee5b4a80e8dd43880c66c3019f2abf"
+    },
+    {
+      "placeId": "JP-152",
+      "assetPath": "images/places/JP-152/naoshima-ferry-terminal.webp",
+      "originalTitle": "File:Naoshima Ferry Terminal.jpg",
+      "role": "identity",
+      "recordSha256": "8f830e6d0653a20ac3a710ce57f40157c90b4bb8fcd9779bb22b9065ed732518",
+      "assetSha256": "de8ccb4d1a2df5599dea4acc204e7442ed6c660981076646759e2bfca8f60f6b"
+    },
+    {
+      "placeId": "JP-125",
+      "assetPath": "images/places/JP-125/universal-studios-japan-entrance.webp",
+      "originalTitle": "File:UNIVERSAL STUDIOS JAPAN ENTRANCE.jpg",
+      "role": "identity",
+      "recordSha256": "88e8c801c170b07136b9c3814e333a0356f95bad1b7d827371309db4f74f1099",
+      "assetSha256": "20f4b8aca77c6fa163512b898a257fd7b25bc2a47607073f7dda9778bf0f7c3e"
+    },
+    {
+      "placeId": "JP-157",
+      "assetPath": "images/places/JP-157/shurijo-castle-shureimon-gate.webp",
+      "originalTitle": "File:Shurei-mon 2023.jpg",
+      "role": "identity",
+      "recordSha256": "da0dcf069f14a861fd52bc7821f27fe93563711613031e8d6725901a649776ef",
+      "assetSha256": "9e42f6bedf71b1e7f788279acf15eab1b57a8b8827857b213a1852b62d7cf0fe"
+    },
+    {
+      "placeId": "JP-157",
+      "assetPath": "images/places/JP-157/shuri-guided-tour.webp",
+      "originalTitle": "File:Local students give service members guided tour of Shuri Castle 121027-M-GX379-089.jpg",
+      "role": "experience",
+      "recordSha256": "843b57c7163d8523a286b5d8ed78d6046bb12b59161b0a9491246408fe63b368",
+      "assetSha256": "cd0578d55520ca585e999803bb4d131dd1588c1521d502028907ba6b7f326026"
+    },
+    {
+      "placeId": "JP-162",
+      "assetPath": "images/places/JP-162/sefa-utaki-yuinchi.webp",
+      "originalTitle": "File:Okinawa Nanjo Sefa-utaki Gusuku site Yuinchi 04.jpg",
+      "role": "identity",
+      "recordSha256": "ef4cf450bc1239d429bc7173062f320fcc8885b473bfc45d942d771907e299ed",
+      "assetSha256": "9dfe5d530ea783c1cba66a8973f827756556f2888bad94e03baea2a35f9aff04"
+    },
+    {
+      "placeId": "JP-162",
+      "assetPath": "images/places/JP-162/sefa-utaki-ujoguchi-stairs.webp",
+      "originalTitle": "File:Stairs near Ujoguchi of Sefa-Utaki.JPG",
+      "role": "experience",
+      "recordSha256": "355e50cacf13966b36b2105dce2c36c3e9704f81ba7cff7b2e7a8699367eb95b",
+      "assetSha256": "e40e914ffff801084d855f2cca249341ad83acd0d0cde4ba7c149e73b9d283c7"
+    },
+    {
+      "placeId": "JP-162",
+      "assetPath": "images/places/JP-162/sefa-utaki-kudaka-island-view.webp",
+      "originalTitle": "File:Kudakajima Island from Ujoguchi of Sefa-Utaki.JPG",
+      "role": "context",
+      "recordSha256": "33cde6c2e3319bb037f8be7fcc8b42f56b8f157dade8513cd1c11dfaeff83b9e",
+      "assetSha256": "883c1007a9c1bef10d6acc05ce1caa8841d987ea9274b8339849729037a6f757"
+    },
+    {
+      "placeId": "JP-196",
+      "assetPath": "images/places/JP-196/taketomi-island-house.webp",
+      "originalTitle": "File:Walk in Taketomi Island 17.jpg",
+      "role": "identity",
+      "recordSha256": "aed23c071612f04a5c57852235a3980112a0f2db195735d030bba399550229af",
+      "assetSha256": "150191447fa23f392a2188dca0e26b88d20cdd2e24b4e66a2c48e32a6fd3f0ed"
+    },
+    {
+      "placeId": "JP-196",
+      "assetPath": "images/places/JP-196/taketomi-water-buffalo-cart-ride.webp",
+      "originalTitle": "File:水牛車.jpg",
+      "role": "experience",
+      "recordSha256": "62376498df4393d2d1e9909a967b4b4c3e9ccbd137f4d996e1f9cc4ddd566593",
+      "assetSha256": "dc29cba9c430f5dccba45e84bbd9143d324b32200eb85efd797be865743b8a80"
+    },
+    {
+      "placeId": "JP-196",
+      "assetPath": "images/places/JP-196/taketomi-village-stone-wall.webp",
+      "originalTitle": "File:Stone wall Taketomi Island.jpg",
+      "role": "detail",
+      "recordSha256": "5e80fe985f46dec33c4bed187db12d31c7e966aaa1ab5c71759ea259e1716b32",
+      "assetSha256": "708e9b34faebff509a4bac35aeb09311fe07107dde71e72c6482a9708515ec38"
+    },
+    {
+      "placeId": "JP-179",
+      "assetPath": "images/places/JP-179/yanbaru-forest.webp",
+      "originalTitle": "File:Subtropical Forest of Yanbaru National Park Okinawa 2018.jpg",
+      "role": "identity",
+      "recordSha256": "0f51cce43e7e5456e04d73e0afec61b70daad200832ae8786e6a1e8af94917ae",
+      "assetSha256": "0894bd02a8a6299207dc989dd172462fb5d450c144446bef042d741383ebece1"
+    },
+    {
+      "placeId": "JP-173",
+      "assetPath": "images/places/JP-173/churaumi-aquarium-kuroshio-tank.webp",
+      "originalTitle": "File:Main tank of the Kuroshio Sea in Okinawa Churaumi Aquarium.JPG",
+      "role": "identity",
+      "recordSha256": "b3cad9eb21008036a9546b2769c4245f8b2aa40d2dc121fe35a29023948fecdc",
+      "assetSha256": "9d5df787b02c2ac89306fecf5a5d5214664a4e85d37c2617d133356866a2d068"
+    },
+    {
+      "placeId": "JP-173",
+      "assetPath": "images/places/JP-173/churaumi-visitors-watch-diver.webp",
+      "originalTitle": "File:USMC-081220-M-0902C-004.jpg",
+      "role": "experience",
+      "recordSha256": "74c1b804f802e0776139fcf2d4f05fc41c8e638a8e393ccba55a9934df121bf8",
+      "assetSha256": "6bde66bd359a58827f9d43b1f3627dbe4264ee8e7a5eb9c4d60f9a7ed0cda47f"
+    },
+    {
+      "placeId": "JP-173",
+      "assetPath": "images/places/JP-173/churaumi-aquarium-coral-exhibit.webp",
+      "originalTitle": "File:Corals in Okinawa Churaumi Aquarium 4.jpg",
+      "role": "detail",
+      "recordSha256": "e251a559de529188e9d952ebb6c5c65eb73fb7a4bd2e0590b10a2950a81ff481",
+      "assetSha256": "1991292fea9f64995fda6b2098456fe1390659388fe1bdaa82627ad5eceec838"
+    },
+    {
+      "placeId": "JP-154",
+      "assetPath": "images/places/JP-154/makishi-public-market-seafood.webp",
+      "originalTitle": "File:Seafood stall Makishi First Public Market 01.jpg",
+      "role": "identity",
+      "recordSha256": "38555edd7be2c8b7a4378ea0cf29e759a484c70d67c87c76342aa29f08e40414",
+      "assetSha256": "2f7249491946868962159a37367e22d5d82dd3557b8a08421816dbbda0bccf3c"
+    },
+    {
+      "placeId": "JP-044",
+      "assetPath": "images/places/JP-044/ghibli-museum-exterior.webp",
+      "originalTitle": "File:Ghibli Museum 06.jpg",
+      "role": "identity",
+      "recordSha256": "40570366742e1ea28656800b25d12694bb57ae8ded563f9f05838c767e7d7409",
+      "assetSha256": "7709861db66b7ffbdafe5c3d57d7e8f7717916c7f203693bb9cb0831be3955e7"
+    },
+    {
+      "placeId": "JP-066",
+      "assetPath": "images/places/JP-066/senbon-torii-path.webp",
+      "originalTitle": "File:Fushimi Inari Taisha tunnel droit.jpg",
+      "role": "identity",
+      "recordSha256": "b5c1b9f767a0c1f9f52e04f6d823f83ec3a1a46f9834f2dbc51c612468df043f",
+      "assetSha256": "5983b9988df04b4cb0804456872b5db3b18766fcb95571a94e505dc8d4801cf4"
+    },
+    {
+      "placeId": "JP-066",
+      "assetPath": "images/places/JP-066/fushimi-inari-shrine-visitors.webp",
+      "originalTitle": "File:Visitors at Fushimi Inari temple in Kyoto (53612593452).jpg",
+      "role": "experience",
+      "recordSha256": "1a31bcdfb43228195602501a17df8a943115614bd67a5b72ae746544d3a744cb",
+      "assetSha256": "11e4161091ab382f50419e53aef1fbdd093dca5617c8fb50777b50475a5346eb"
+    },
+    {
+      "placeId": "JP-066",
+      "assetPath": "images/places/JP-066/fushimi-inari-kyoto-from-mount-inari.webp",
+      "originalTitle": "File:View of Kyoto from Mount Inari.jpg",
+      "role": "context",
+      "recordSha256": "682b70bad94ca82c6e814519f0cb21eb47cfdeb3afeebe700df35a1c8631564e",
+      "assetSha256": "46701445c145c94ccc82beaccd239c2999b85ff9ed907aa2ae7e0b50a291dd42"
+    },
+    {
+      "placeId": "JP-096",
+      "assetPath": "images/places/JP-096/sanjusangendo-main-hall.webp",
+      "originalTitle": "File:Sanjusangendo-building-dec2013.jpg",
+      "role": "identity",
+      "recordSha256": "36b624c36dc452d47a99139945a40fb18291291a6974abb4077e7879dee1fb75",
+      "assetSha256": "df0a96f94647f7743180661595842ac0f2e8a3357c26f33478de781311c0901e"
+    },
+    {
+      "placeId": "JP-096",
+      "assetPath": "images/places/JP-096/sanjusangendo-couple-observes-gate.webp",
+      "originalTitle": "File:A couple looking at the gates (52370163970).jpg",
+      "role": "experience",
+      "recordSha256": "f3f331388a512a25c74c745831a4e1789b7d4c4c23815542a018aa3dc6ec1b32",
+      "assetSha256": "de11ed637c93e6584be17d73cd4ad94af557a3e61754de1757ef20ea8bf193ab"
+    },
+    {
+      "placeId": "JP-096",
+      "assetPath": "images/places/JP-096/sanjusangendo-golden-statues-interior.webp",
+      "originalTitle": "File:Kyoto Sanjusangen-do Haupthalle Inen Buddhastatuen 1.jpg",
+      "role": "detail",
+      "recordSha256": "0921ba6e9c8a9590574203bb4a275669a3cab20c4794fde9089c2b69eb452d71",
+      "assetSha256": "cb04f078ebd8fd2f8f9f7277b21045e620b3a79f72597a1a413aa0fae50f9ee7"
+    },
+    {
+      "placeId": "JP-135",
+      "assetPath": "images/places/JP-135/himeji-castle-keep.webp",
+      "originalTitle": "File:20260429 Burg Himeji 01, Hyōgo, Japan anagoria.jpg",
+      "role": "identity",
+      "recordSha256": "f6ee10ca87ba4ddc70fe76b43fd133f9de251025afa1c288b3a0c46a8d5da809",
+      "assetSha256": "343f80a8503d298fbb4e492639b4ddbeea6da194353176dbe03edd841718d29b"
+    },
+    {
+      "placeId": "JP-135",
+      "assetPath": "images/places/JP-135/himeji-castle-visitor-approach.webp",
+      "originalTitle": "File:Throngs of people walking towards Himeji Castle, Himeji, 2016.jpg",
+      "role": "experience",
+      "recordSha256": "d27e2dee749dc8bfb1d496795c4d2525fbd9cb591d985c61a33a6577ce20d97b",
+      "assetSha256": "c01f0195dcbea1b8f6cc39977ccb3c9c3f583608a3630d17809137ea2cc57138"
+    },
+    {
+      "placeId": "JP-135",
+      "assetPath": "images/places/JP-135/himeji-castle-interior-corridor.webp",
+      "originalTitle": "File:Himeji Castle Interior.jpg",
+      "role": "detail",
+      "recordSha256": "775839dc15f9405b18f923170140288225428e856659fdce27f853ecf5f86f0c",
+      "assetSha256": "98d0f7cc07e8a5c14caac061909d440f883f0282b7b6685fa4ca888e39ec966c"
+    },
+    {
+      "placeId": "JP-142",
+      "assetPath": "images/places/JP-142/otani-river-canal.webp",
+      "originalTitle": "File:Kinosaki Onsen Otani River 2026-02 ac (1).jpg",
+      "role": "identity",
+      "recordSha256": "872638545ae5083d2aca64b026893bbfabeebb59b1e696ebf33da386f8f48eba",
+      "assetSha256": "0f6726e8c501167a480c988d7656ef63530fd4e8f78651fb43dcc1e99901a4bc"
+    },
+    {
+      "placeId": "JP-142",
+      "assetPath": "images/places/JP-142/kinosaki-yukata-street-walk.webp",
+      "originalTitle": "File:Kinosaki Aruki.jpg",
+      "role": "experience",
+      "recordSha256": "784a11cf5302a1e3736f60b8f027ed475b9061e500b023f78c6f39160f1b8927",
+      "assetSha256": "bd1fdc77279442847eae54cac9bf61c909fbcd36f4b6ce16d22b84babcbf939a"
+    },
+    {
+      "placeId": "JP-142",
+      "assetPath": "images/places/JP-142/kinosaki-onsen-gosho-no-yu.webp",
+      "originalTitle": "File:Kinosaki-Onsen Gosho-no-yu.jpg",
+      "role": "detail",
+      "recordSha256": "150ab2a5317e286bb2fea34c1ab6d354950b21a5a5187b7d3d8815a022117410",
+      "assetSha256": "7afb9def4c0cc7dbef56a2177737cdf6eb5b153c8dde6182b9e8f45f27846bf3"
+    },
+    {
+      "placeId": "JP-143",
+      "assetPath": "images/places/JP-143/koyasan-temple-lodging.webp",
+      "originalTitle": "File:Ren'ge-in (Wakayama Koyasan) Temple hdsr S5 04.jpg",
+      "role": "identity",
+      "recordSha256": "197b1d55622d40953e8682098e0056b68f5a8d744d6d47eab0ffcf02241933c7",
+      "assetSha256": "14ef9b9dd47fca6ed19a3e24cbc3a632eaad20fe883c33cc74b804ec4467459f"
+    },
+    {
+      "placeId": "JP-143",
+      "assetPath": "images/places/JP-143/koyasan-shukubo-room-guest-experience.webp",
+      "originalTitle": "File:Temple lodging at Shojoshin-in on Koyasan (3810898436).jpg",
+      "role": "experience",
+      "recordSha256": "ae6d2115a400e1c4413cf02ac18b64d7ff401ddd16b7bceeb16ce1e5850202e3",
+      "assetSha256": "d68e73eeba19b092ed8f0f7629b7386b39797f1d2565e0df106f60d916985805"
+    },
+    {
+      "placeId": "JP-143",
+      "assetPath": "images/places/JP-143/koyasan-shukubo-temple-breakfast.webp",
+      "originalTitle": "File:Breakfast at a buddhist temple by Flowizm in Koyasan.jpg",
+      "role": "detail",
+      "recordSha256": "f5d5e4647dd83224f59414cda586ff5ecca409b6d658f98e222570deab8dc98d",
+      "assetSha256": "e76115b80847a17e1472eaca48fc346bbeef7e815357f73f5ec433a8e8b7d129"
+    },
+    {
+      "placeId": "JP-144",
+      "assetPath": "images/places/JP-144/okunoin-memorial-mound.webp",
+      "originalTitle": "File:OKU - Jizo statues and memorials at Okunoin Cemetery, Koyasan, Japan, 2015.jpg",
+      "role": "identity",
+      "recordSha256": "e87b2110b45a55b5908180cf787cf24daee4558b489911790e3e3f29dbe76ea2",
+      "assetSha256": "f9c9b0d8ed3e49906445e28bdb9b5a4f673afa573d2de1331b2fa3ab88dbfe4e"
+    },
+    {
+      "placeId": "JP-144",
+      "assetPath": "images/places/JP-144/okunoin-night-path.webp",
+      "originalTitle": "File:Pathway through graveyard at Okunoin at Koyasan at night - Japan 20170412102921 (34098937875).jpg",
+      "role": "experience",
+      "recordSha256": "019e161028ac61ae8b4b277ef1c841380507a58708eddf599d5c10440c578f53",
+      "assetSha256": "ac41f6ae2d54883b23fe3c4ba9f4876c1967eb5b6692487f80e27d47121f5324"
+    },
+    {
+      "placeId": "JP-184",
+      "assetPath": "images/places/JP-184/zamami-coast.webp",
+      "originalTitle": "File:View of the ocean from Zamami Island, Okinawa, Japan (1) - October 2015.jpg",
+      "role": "identity",
+      "recordSha256": "47d8e68834b76c11e202bb8571a27bafd8a2312a9d5b752f589a204e89670a13",
+      "assetSha256": "3dab6d0d54e401bc7e6941c871b9f56c087a3ac7cfc9fbfef66fced2d635710e"
+    },
+    {
+      "placeId": "JP-184",
+      "assetPath": "images/places/JP-184/zamami-furuzamami-beach-visitors.webp",
+      "originalTitle": "File:JAP Zamami Furuzamami Beach.jpg",
+      "role": "experience",
+      "recordSha256": "ec631d14291bdd38911e4c2ef7eb4f7cf40d377cf550b55d99b1df78b1627a76",
+      "assetSha256": "766fb4e1354acfc467359cce017fab153d8637b2e4b78b0dc9e5ce3fd83f8dd9"
+    },
+    {
+      "placeId": "JP-188",
+      "assetPath": "images/places/JP-188/yonaha-maehama-beach.webp",
+      "originalTitle": "File:Yonahamaehama Miyakojima Okinawa Japan01bs3s4592.jpg",
+      "role": "identity",
+      "recordSha256": "1c035d840ff19b67bc735f6b60421db7db0d6e3844b5f6c61d837d687c18a8c7",
+      "assetSha256": "ccb5cf264aefd1cc807545c4b9fc18d38e8eaab487e05ffa64a34bdf5154986a"
+    },
+    {
+      "placeId": "JP-192",
+      "assetPath": "images/places/JP-192/kabira-bay.webp",
+      "originalTitle": "File:Kabira Bay Ishigaki Island08s3s4592.jpg",
+      "role": "identity",
+      "recordSha256": "ac9647ad347e9516eeaabb112e9874f63bb4420c230ba4841c70cc6299f55659",
+      "assetSha256": "54f4034e36622a58a695e32eb95023b205728a01b13f27ed6e62ca0e91276d7f"
+    },
+    {
+      "placeId": "JP-197",
+      "assetPath": "images/places/JP-197/nakama-river-mangroves.webp",
+      "originalTitle": "File:Nakama River Iriomote Okinawa Japan05s3.jpg",
+      "role": "identity",
+      "recordSha256": "c1f869c8358de6a3cf550a3b8c1df83ab1e8b99c1635463067f67269450e60f9",
+      "assetSha256": "5c7b84cef9447c2369be9a5c8bdd0ca4d3c176ca520c85ed644475e8693d695b"
+    },
+    {
+      "placeId": "JP-197",
+      "assetPath": "images/places/JP-197/iriomote-pinai-saara-falls.webp",
+      "originalTitle": "File:Iriomote pinaisara fall.jpg",
+      "role": "context",
+      "recordSha256": "1fad420e46ba151c54f1ca14fa8dc7b9910654ebf6c8be07b07f086960d704fc",
+      "assetSha256": "2e05e2868451480871765ba414e73857e558f9594e337492e1ca74a27197ba9b"
+    },
+    {
+      "placeId": "JP-205",
+      "assetPath": "images/places/JP-205/odori-park-snow-festival.webp",
+      "originalTitle": "File:Odori Park Sapporo Snow Festival 2007.JPG",
+      "role": "identity",
+      "recordSha256": "4d5be493ec4b99681e9fda77fadc619593b3b2a35ca46d649b49ae0a403bfc68",
+      "assetSha256": "1d87994e162b55c2d8a38101941bf56e5bd71646afb7b51495bf785a6e906129"
+    },
+    {
+      "placeId": "JP-068",
+      "assetPath": "images/places/JP-068/fushimi-sake-district.webp",
+      "originalTitle": "File:Gekkeikan Okura Sake Museum01nt3200.jpg",
+      "role": "identity",
+      "recordSha256": "23718e6794a1fe60b0a3cd1f856a9238645479df960833729e3ad8ef5e4a634f",
+      "assetSha256": "162a1ae98ec96ca4e87f0ec7c8ac8a1326ad68a90bed933686c00786df5faa24"
+    },
+    {
+      "placeId": "JP-210",
+      "assetPath": "images/places/JP-210/takayama-sanmachi-historic-district.webp",
+      "originalTitle": "File:Takayama Old Town (Sanmachi Suji) (35819349621).jpg",
+      "role": "identity",
+      "recordSha256": "02efec025accd15d8a6c7a6ed890f9a831747b8aef182a8f76e49078ce31c583",
+      "assetSha256": "70407e4ae04808b8e6bccd4511c17f52d2b675829eda2a99a3ae33a370ad692f"
+    },
+    {
+      "placeId": "JP-155",
+      "assetPath": "images/places/JP-155/tsuboya-yachimun-street.webp",
+      "originalTitle": "File:Tsuboya Yachimun Street.jpg",
+      "role": "identity",
+      "recordSha256": "41bf95c780dfd1403cb748ce76bb80592ee0d5fe2b4ed0afd7e7fc0dddab2d0d",
+      "assetSha256": "5909e1ade7916ed100741dcb3db2ef818d5f85d1f6dcc78f4bb76a1d281db002"
+    },
+    {
+      "placeId": "JP-103",
+      "assetPath": "images/places/JP-103/dotonbori-night.webp",
+      "originalTitle": "File:Osaka Dotonbori yoru.jpg",
+      "role": "identity",
+      "recordSha256": "472d6d6e319a7b761f746ee450ae9156d4ce9020b6d622bb5b1b9d49d0f08176",
+      "assetSha256": "f6a29bdcce91afb455872da87b225fadf0107091ef30387267d962ee1dedf8c2"
+    },
+    {
+      "placeId": "JP-206",
+      "assetPath": "images/places/JP-206/otaru-snow-light-path.webp",
+      "originalTitle": "File:小樽雪あかりの路（Otaru Snow Light Path Festival） - panoramio (2).jpg",
+      "role": "identity",
+      "recordSha256": "10e47a5534c501f66354a40d63b1e14c58e75fd8b9246608d4e68e649f806d02",
+      "assetSha256": "225e746ffde24b7c140516928776a490acda0c08ebaef48a96d0c36e36adda29"
+    },
+    {
+      "placeId": "JP-009",
+      "assetPath": "images/places/JP-009/daikanyama-t-site.webp",
+      "originalTitle": "File:Daikanyama T-Site Building 3 2018.jpg",
+      "role": "identity",
+      "recordSha256": "ce3409e1a2260eb3852707550187b0e662ed49f95627d723c336de8184f44f4a",
+      "assetSha256": "581bf8660313c3c04d639904b0c076c35b031dbbb21c86a1670f9db376eb2ff4"
+    },
+    {
+      "placeId": "JP-099",
+      "assetPath": "images/places/JP-099/uji-tea-plantation.webp",
+      "originalTitle": "File:ไร่ชาเขียวที่แท้ทรู.jpg",
+      "role": "identity",
+      "recordSha256": "dc0694936efb51c2156313e070de9981da010e1ce2f40745304fde9d5edb9040",
+      "assetSha256": "b1a388832c06855e62be106ba9925ac5ccb6a2b2eb9c496763117f9d358f8670"
+    },
+    {
+      "placeId": "JP-108",
+      "assetPath": "images/places/JP-108/den-den-town.webp",
+      "originalTitle": "File:Den den town, osaka.JPG",
+      "role": "identity",
+      "recordSha256": "47c0355e8965068dbda5cc1a4ba57c8c42a8bf589c40d9a7483f13ef0b7ecbf7",
+      "assetSha256": "105718c684a328c1236369e800dbb87442da4945f09bf90fa2afce95de251306"
+    },
+    {
+      "placeId": "JP-018",
+      "assetPath": "images/places/JP-018/kappabashi-kitchen-town.webp",
+      "originalTitle": "File:Kappabashi-dori streetcorner (Kitchen town - southern end) a sunny morning in Tokyo Japan.jpg",
+      "role": "identity",
+      "recordSha256": "89f426b979d8191ac0bfc3350a1f5ef83580eb193912114d175822f8f9928f6e",
+      "assetSha256": "e72fdd91144a88913954285b385d7b262745b4aed8d90f21f8750c8d0cf231f5"
+    },
+    {
+      "placeId": "JP-085",
+      "assetPath": "images/places/JP-085/kurama-kibune-valley.webp",
+      "originalTitle": "File:Kurama-Dera (Kyoto Sakyo-ku) west gate Nishimon hdsr S5 04.jpg",
+      "role": "identity",
+      "recordSha256": "c8bf6c88a2b62dbe9256f2c2c42686b72bb44bbcff9095d11efd8b2c60a2a6f7",
+      "assetSha256": "a381c686a07cedbe1aca625c3e0a071a97d5229589947bac696188a104419a7d"
+    },
+    {
+      "placeId": "JP-164",
+      "assetPath": "images/places/JP-164/cape-chinen-park.webp",
+      "originalTitle": "File:Cape Chinen Park and Kudakajima Island.JPG",
+      "role": "identity",
+      "recordSha256": "3f4d2a4f39409d227d6aa0a03dfd60ecb65e8d2cad5e2cede35054f628d489e7",
+      "assetSha256": "0dfa36b315be0dd7cbf7ab49ff37b92ae34337ade8f176800b0b1f97054125e4"
+    },
+    {
+      "placeId": "JP-115",
+      "assetPath": "images/places/JP-115/nakanoshima-museum-art.webp",
+      "originalTitle": "File:Nakanoshima Museum of Art, Osaka.jpg",
+      "role": "identity",
+      "recordSha256": "93dcba9eadf34a97e597acb4fe55f1ea559f2fe3ad18d18b65035fbf64da9504",
+      "assetSha256": "8459551a4af18cc583912272b538ae40e62593aab18d1d594eff9dc966f2148d"
+    },
+    {
+      "placeId": "JP-037",
+      "assetPath": "images/places/JP-037/zojoji-tokyo-tower.webp",
+      "originalTitle": "File:Tokyo Zōjō-ji Main Hall and Tokyo Tower.jpg",
+      "role": "identity",
+      "recordSha256": "6fc4ec8e54a3cb2967a78640b1a47a01ab4e72ed8c0790fd7e30c05882355962",
+      "assetSha256": "0ee49be2c0172d34f409ebe58465756d83b5a38e62cb3f11738b75ecee61f0cb"
+    },
+    {
+      "placeId": "JP-093",
+      "assetPath": "images/places/JP-093/kyoto-railway-museum.webp",
+      "originalTitle": "File:Kyoto Railway Museum, enkei.jpg",
+      "role": "identity",
+      "recordSha256": "373895c6b0cce4e2d763751701ed91cbf4f2627b50cc1eceae9bacbc3cd99b94",
+      "assetSha256": "f719b19b02289e3b380b6a906c92782995db01c9490209b191f23f37c0271a2e"
+    },
+    {
+      "placeId": "JP-160",
+      "assetPath": "images/places/JP-160/shikinaen-garden.webp",
+      "originalTitle": "File:Shikinaen Okinawa Japan 沖縄 識名園 - panoramio (2).jpg",
+      "role": "identity",
+      "recordSha256": "85091210d388ba10d09f0ca3f11f6c16a25bf412825fbf5caced231a7611e1eb",
+      "assetSha256": "800d5b9006d2b48357efe5bee9225ef6c1b96bc1ed773485f994f055a2542db0"
+    },
+    {
+      "placeId": "JP-141",
+      "assetPath": "images/places/JP-141/arima-onsen-yumotozaka.webp",
+      "originalTitle": "File:Arima Onsen Yumotozaka01s3200.jpg",
+      "role": "identity",
+      "recordSha256": "bd432aa7686cc879891c5173cd013dfb451a2aa6a9880211da0a2cdd451e2124",
+      "assetSha256": "6766e59c1382c757d34b43c9f34c409e39ab12f5662b96a7b69aa7ceca1705e6"
+    },
+    {
+      "placeId": "JP-040",
+      "assetPath": "images/places/JP-040/miraikan-exterior.webp",
+      "originalTitle": "File:2018 Miraikan.jpg",
+      "role": "identity",
+      "recordSha256": "2f77c7a30dc4645f6b13c599428960db107fa02befd6edb12306916a3c42ac2a",
+      "assetSha256": "85706d7787c65ed9d4a70ccb3cf9e71412ee0644554cbf239521bd7ec185ac75"
+    },
+    {
+      "placeId": "JP-102",
+      "assetPath": "images/places/JP-102/demachi-masugata-arcade.webp",
+      "originalTitle": "File:RZ Demachi Masugata shopping street C.jpg",
+      "role": "identity",
+      "recordSha256": "cc85ca03a4699d8d5e88b972259a0da0e15dca550deb1e31fe7de766f3911d5f",
+      "assetSha256": "c36cf5c807e3ccc5d26d6e6c6efbd7497da3929c4730bada1fc4d3690e5b1cfc"
+    },
+    {
+      "placeId": "JP-174",
+      "assetPath": "images/places/JP-174/bise-fukugi-tree-road.webp",
+      "originalTitle": "File:Fukugi trees at Bise Village, Okinawa.jpg",
+      "role": "identity",
+      "recordSha256": "fc7ef99e570f4a7e18330ec5a097aaebc8b401e42c9d7f0a85d24805c11d271d",
+      "assetSha256": "5850d390c311aa18702e294e13c125cd00cfcad31e0f60b616505c54ab6b9006"
+    },
+    {
+      "placeId": "JP-116",
+      "assetPath": "images/places/JP-116/osaka-housing-living-museum.webp",
+      "originalTitle": "File:Museum of Housing and Living (Osaka Kita-ku) hdsr S5 23.jpg",
+      "role": "identity",
+      "recordSha256": "46d78e0b362c8290da8cb31e9cec1e4f7baa0c479721feb2e0e45e91d0b4933a",
+      "assetSha256": "ca925f77d5eca7cd3218736a58d8d1a9f5bbad1fd73125021415a8ecc55b9771"
+    },
+    {
+      "placeId": "JP-092",
+      "assetPath": "images/places/JP-092/kyoto-manga-museum-exterior.webp",
+      "originalTitle": "File:Kyoto International Manga Museum exterior.jpg",
+      "role": "identity",
+      "recordSha256": "a47398a65e3601944f3490aae8e66a00291fc8c18c40089df600d7022eb1d3ae",
+      "assetSha256": "cc3cff8c0abd1a0c69d63d0e3928315d2c80e03f84dfd18abe5e65c8c9760dd0"
+    },
+    {
+      "placeId": "JP-005",
+      "assetPath": "images/places/JP-005/cat-street-harajuku.webp",
+      "originalTitle": "File:Cat Street, Ura Harajuku 1.jpg",
+      "role": "identity",
+      "recordSha256": "46b296413579564882c8116450dca77bd13bb8fc6d793bd5c9618ae1f66baa5f",
+      "assetSha256": "4af7d871ad90e51b4ff12d52dfa43dbc90ba8078daa24b784c9fd663a8aecf8e"
+    },
+    {
+      "placeId": "JP-101",
+      "assetPath": "images/places/JP-101/gion-corner.webp",
+      "originalTitle": "File:2014-08-17 Kyoto Gion Corner.jpg",
+      "role": "identity",
+      "recordSha256": "508fc0a7c433046f88cd3db75affa1aafcc16dd71ec43cb400501b568a71702f",
+      "assetSha256": "a0e9a4b3fc8881c1d98f59b32cfc106155e1d5feb3da993982f8709df6d3fdfb"
+    },
+    {
+      "placeId": "JP-207",
+      "assetPath": "images/places/JP-207/lake-shikotsu-ice-festival.webp",
+      "originalTitle": "File:千歳・支笏湖氷濤まつり2015（Lake Shikotsu Ice Festival 2015） - panoramio (4).jpg",
+      "role": "identity",
+      "recordSha256": "ecc5520ca07541df8f5ec8f8e6d7cee5cdad212190e283d3c029fbaa1b6d0b21",
+      "assetSha256": "82a5976be3a8640b24c93e446a55663c56ff775d0a68b9ad6085da8374a54f28"
+    },
+    {
+      "placeId": "JP-028",
+      "assetPath": "images/places/JP-028/jimbocho-book-town.webp",
+      "originalTitle": "File:Books along a walkway in the Kanda-Jimbocho area of Tokyo.JPG",
+      "role": "identity",
+      "recordSha256": "4892c2e68a9c0ead867e71ec9ad5c4ccbbec6d07f8577ad6f659d58c10124d0f",
+      "assetSha256": "a5ac046cbbef77421afdbd72eadcf3810584690f6c9f2370a6ff69814b17dd0c"
+    },
+    {
+      "placeId": "JP-070",
+      "assetPath": "images/places/JP-070/yamashina-canal.webp",
+      "originalTitle": "File:KTO1804-026 (49763326698).jpg",
+      "role": "identity",
+      "recordSha256": "4f448eb7a3c10eda89e4a424a8d05e43c8a038c201e108f6b4090b713cfaa19e",
+      "assetSha256": "fcb8ee93907dd160302c8a53dec1dc34ad4dcaada84440f848026f98525209b8"
+    },
+    {
+      "placeId": "JP-161",
+      "assetPath": "images/places/JP-161/okinawa-prefectural-museum-art.webp",
+      "originalTitle": "File:JP Japan 那霸省公立歷史博物館及藝術館Okinawa Prefectural Museum & Art Museum February 2026 N13P 04.jpg",
+      "role": "identity",
+      "recordSha256": "2fefe074723a15655f80e82f7ef9a69bc14edb84334e7b7b71b809cdfea37003",
+      "assetSha256": "6c6fc96c7c9c5a8372886c1b089822a207015bd0e82cd94f72721b3573a75a50"
+    },
+    {
+      "placeId": "JP-111",
+      "assetPath": "images/places/JP-111/abeno-harukas.webp",
+      "originalTitle": "File:Abeno Harukas Osaka Japan01-r.jpg",
+      "role": "identity",
+      "recordSha256": "1ab09962d8d6d181994c7275d5f913d3565f049c095d1591e1a1ba6006f930e4",
+      "assetSha256": "91ec7c1d5973704d471a38ce534422423141528835987429351c8eeee64bfa8a"
+    },
+    {
+      "placeId": "JP-008",
+      "assetPath": "images/places/JP-008/nintendo-tokyo-shibuya-parco.webp",
+      "originalTitle": "File:Nintendo TOKYO (52505969791).jpg",
+      "role": "identity",
+      "recordSha256": "2c9db75074405216c6069e81c2dfaf7449d5dd5a01322a2e0af2fdf1ece0d2d9",
+      "assetSha256": "71b49a3f9cf1477ab8abbe5c8a3e7cb58ea5aa76192557dcef9ef6d342e0eda1"
+    },
+    {
+      "placeId": "JP-090",
+      "assetPath": "images/places/JP-090/kyoto-imperial-palace-kogosho.webp",
+      "originalTitle": "File:Kyoto Imperial Palace (Kyoto-Gosho) Kogosho (52980159201).jpg",
+      "role": "identity",
+      "recordSha256": "79ce0eadaa27145486a92f13f080b5796418f460200d22f5aa47696f87b56770",
+      "assetSha256": "c7e5ebfa579a4505d83f01b5a35a1a3e36a409af5f99909200aa415af8dd7c69"
+    },
+    {
+      "placeId": "JP-180",
+      "assetPath": "images/places/JP-180/hiji-falls.webp",
+      "originalTitle": "File:Hiji Waterfall 202105.jpg",
+      "role": "identity",
+      "recordSha256": "e1f8ab870f8b8fe8e9e11c654d8ea4186cc59148f592398e7c8dc5425d1a6a5f",
+      "assetSha256": "0abd6fbcad379374197473fa09cae9c701d3507b7cd512f3042bd9bc541fe391"
+    },
+    {
+      "placeId": "JP-151",
+      "assetPath": "images/places/JP-151/ine-funaya.webp",
+      "originalTitle": "File:Funaya in Ine Town, Yosa District, Kyoto Prefecture 001.jpg",
+      "role": "identity",
+      "recordSha256": "3957f06fe364e6f499dbabc17df034078a9df8e62347750e6dcdf2af6bafcd35",
+      "assetSha256": "b3fe286340fd1318b815e2d411e6b6390187a89ac3a63ec3a14073d1360e6373"
+    },
+    {
+      "placeId": "JP-046",
+      "assetPath": "images/places/JP-046/nakano-broadway.webp",
+      "originalTitle": "File:Broadway Arcade Nakano Tokyo.jpg",
+      "role": "identity",
+      "recordSha256": "985e58b94f94498b0cb50068e195c8d5bc0d479d6936c3bfc6ccf4b74ab6b75b",
+      "assetSha256": "adfe9691a461578d230f2960f0041de517bb1986a323e1baaf1b5eb30624e6e2"
+    },
+    {
+      "placeId": "JP-159",
+      "assetPath": "images/places/JP-159/kinjocho-stone-paved-road.webp",
+      "originalTitle": "File:Kinjocho ishidatami-michi Shuri Naha01n4272.jpg",
+      "role": "identity",
+      "recordSha256": "2c37d2279a9369506c639baee7d72c1380aaa5c5075174bc5c032c3eb440c4ea",
+      "assetSha256": "c6cf7983b559952a40541396855c6ba15b597d4e1ac844d66753863265807ba8"
+    },
+    {
+      "placeId": "JP-128",
+      "assetPath": "images/places/JP-128/kishiwada-hachijin-garden.webp",
+      "originalTitle": "File:Kishiwada Castle Hachijin no niwa garden.jpg",
+      "role": "identity",
+      "recordSha256": "c5e01e4c3f8cfd8a9dc242cdd8e30fd01a4d798e11da13ed442261a73ce33358",
+      "assetSha256": "daec429191cd02ae6c519110bef1003e0493f74206e3fe096a48d687cddb9e5b"
+    },
+    {
+      "placeId": "JP-016",
+      "assetPath": "images/places/JP-016/sensoji.webp",
+      "originalTitle": "File:20181123 Sensō-ji-1.jpg",
+      "role": "identity",
+      "recordSha256": "9ac1ffeab04b8da4552aa4d03c15d97456dcde9f725d8acd134c28aa4148c7c9",
+      "assetSha256": "4f17025a7112403f5e2ee655d87e000a4fcc67b40f9868c10daa117d1668d43e"
+    },
+    {
+      "placeId": "JP-127",
+      "assetPath": "images/places/JP-127/sakai-cutlery-heritage.webp",
+      "originalTitle": "File:Cutlery heritage museum in Sakai city, Japan.jpg",
+      "role": "identity",
+      "recordSha256": "1fc4fd0b0569d285a66345085b81996bbbfd48088b89b33d64e20957306c2d74",
+      "assetSha256": "b82123f38ed5849406a753cf983024ac8e8554a226481c843d4083e6848cce81"
+    },
+    {
+      "placeId": "JP-208",
+      "assetPath": "images/places/JP-208/kawazu-cherry-blossoms.webp",
+      "originalTitle": "File:Kawazuzakura in Izu Peninsula, Shizuoka Prefecture; February 2019 (01).jpg",
+      "role": "identity",
+      "recordSha256": "772e82879a13ac214b6140e5aa70aa1a69b06ed420b6cb629306b695ab7e5480",
+      "assetSha256": "f0e83eb9730c3ffc9a99e6b0cfcb1e5df3ce933bbf9f25182abc3511411d4b7e"
+    },
+    {
+      "placeId": "JP-098",
+      "assetPath": "images/places/JP-098/byodoin-phoenix-hall.webp",
+      "originalTitle": "File:Byodoin Phoenix Hall Uji 10-1R.jpg",
+      "role": "identity",
+      "recordSha256": "70f35b208fae97c51d7abab564d797ad60ef11e26c0a584aeece0fd80796432e",
+      "assetSha256": "893be466c38bfe4abc9f4defee3d6e735f0e02b11918a01732575300df12dd05"
+    },
+    {
+      "placeId": "JP-167",
+      "assetPath": "images/places/JP-167/koza-music-town.webp",
+      "originalTitle": "File:コザミュージックタウン音市場.jpg",
+      "role": "identity",
+      "recordSha256": "f752b97f0ccef65c89e429422b0da38950c3184259c9f8cb010df273efe921d0",
+      "assetSha256": "6f09aa4f99792e3dd32c6445c02d7dde424a01d6c10db29f828344a3a42a8041"
+    },
+    {
+      "placeId": "JP-146",
+      "assetPath": "images/places/JP-146/tomogashima-battery-ruins.webp",
+      "originalTitle": "File:Wakayama tomogashima.jpg",
+      "role": "identity",
+      "recordSha256": "c915174c3a8fe8c743e09292cd8294cd309d93eb733f0474d63cbbdf8dbb5a2f",
+      "assetSha256": "2569808a647c535a9dab0ee45587b94c1386be9e29b5c7222e690493150f3c1c"
+    },
+    {
+      "placeId": "JP-026",
+      "assetPath": "images/places/JP-026/super-potato-akihabara.webp",
+      "originalTitle": "File:Akihabara - Super Potato Retro Game Shop.jpg",
+      "role": "identity",
+      "recordSha256": "0a75b60da7b9cd33af06851a070fb9fa3eeb8d115065a8a374e6389a335beaea",
+      "assetSha256": "64c9d4386f37a01a48d38048de25baa42b5323a2cd8614fb76af15cbdfe70316"
+    },
+    {
+      "placeId": "JP-061",
+      "assetPath": "images/places/JP-061/murinan-garden.webp",
+      "originalTitle": "File:Murin-an.jpg",
+      "role": "identity",
+      "recordSha256": "9365f8d65262348a2e29ca6ee5dd89243ca0ea39ddf539fadcd80fbe7a52c6c3",
+      "assetSha256": "cd5a510bd0d2977ec4bc8cf40191c368b286a403fa7cc384808f64fc7fd53c9c"
+    },
+    {
+      "placeId": "JP-182",
+      "assetPath": "images/places/JP-182/cape-hedo.webp",
+      "originalTitle": "File:Cape Hedo 202011.jpg",
+      "role": "identity",
+      "recordSha256": "d1e0139c5a17361d3dfe6a017b4929a4a14fca8055fb1a9f95e6f8bf6abdbe33",
+      "assetSha256": "b3611938e0834eb74f454074e17559641841dc8c124762fc98cd11575e26b727"
+    },
+    {
+      "placeId": "JP-118",
+      "assetPath": "images/places/JP-118/osaka-museum-of-history.webp",
+      "originalTitle": "File:140923 Osaka Museum of History Osaka Japan01s3.jpg",
+      "role": "identity",
+      "recordSha256": "43027447a8239365443d7f735053e192fd465d4f150a06c06a1197537b287a96",
+      "assetSha256": "4a637413bed42e9452ffdb80ab8c67f2d50da9038da48d368cd12a311d102a28"
+    },
+    {
+      "placeId": "JP-049",
+      "assetPath": "images/places/JP-049/animate-ikebukuro.webp",
+      "originalTitle": "File:Animate Ikebukuro 20120613 2.jpg",
+      "role": "identity",
+      "recordSha256": "2b42f0df4d3bb15ffa07355cf37f9271e5e0692fdbccd27a788b1cdf60a629d6",
+      "assetSha256": "c7791ece12de3d737a80cba834422df9ca8405595a4bffa79189be11e782c66f"
+    },
+    {
+      "placeId": "JP-058",
+      "assetPath": "images/places/JP-058/kenninji-detail.webp",
+      "originalTitle": "File:Architectural Detail - Kennin-ji Zen Temple - Kyoto - Japan (47929070538).jpg",
+      "role": "identity",
+      "recordSha256": "7fa0734f18b05448c89e84494f1e45d3e88b09f772af879c6fe4dc1bb0bbb220",
+      "assetSha256": "86fac44f48f2cac25f91f396fd6589545941e26e4ce1c609e8e56f43747b7f3a"
+    },
+    {
+      "placeId": "JP-181",
+      "assetPath": "images/places/JP-181/asimui-rocky-mountain.webp",
+      "originalTitle": "File:AsimuiRockyMountain.jpg",
+      "role": "identity",
+      "recordSha256": "de1c34499b8c7f84ea608e2ad08ad8b63e750606bd3cfff012dad940a25c4d22",
+      "assetSha256": "bdea16369f1910a55d467bb1eae1b07d851a21a346a8236996e81d41d4705a43"
+    },
+    {
+      "placeId": "JP-015",
+      "assetPath": "images/places/JP-015/kagurazaka-backstreet.webp",
+      "originalTitle": "File:Kagurazaka path 2009.JPG",
+      "role": "identity",
+      "recordSha256": "95975d01609d10b44d92de92fa3f02218fc65a2ee90aac6f45a22ba983688950",
+      "assetSha256": "8e5314f80f4baeab219487086bd77adcf84ad7a599e5d6b2022b44630413e957"
+    },
+    {
+      "placeId": "JP-214",
+      "assetPath": "images/places/JP-214/yanagawa-canal-cruise.webp",
+      "originalTitle": "File:Yanagawa cruise ac (7).jpg",
+      "role": "identity",
+      "recordSha256": "8996eafb9fcea67b8a3877d164ba3d99449806c3106ca9874273a1aaf1ac2404",
+      "assetSha256": "fddd046526ee2fdf02e7000bde6c1755dea72570c71e350feb2503ebcf0ebd75"
+    },
+    {
+      "placeId": "JP-100",
+      "assetPath": "images/places/JP-100/toei-kyoto-studio-park.webp",
+      "originalTitle": "File:Toei Kyoto Studio Park from above.jpg",
+      "role": "identity",
+      "recordSha256": "340e995c91ba7e1415d33b82afe13b2a94d493cd810308b0ab97294c62ddf746",
+      "assetSha256": "08b7011d3edd5aa659166535d197b03ca92d0df68afe6cb9bc7936933705b8b1"
+    },
+    {
+      "placeId": "JP-163",
+      "assetPath": "images/places/JP-163/valley-of-gangala.webp",
+      "originalTitle": "File:Walking Banyan Tree in the Valley of Gangala 202312.jpg",
+      "role": "identity",
+      "recordSha256": "22092c3980eea912401ff5e7bd6f93332b7dd9f020a1b2fa413c8513fdfce1eb",
+      "assetSha256": "d251b9d62c1212e80ec94175396c1f76f901a99e7246b2726abb7fa93f6b95e4"
+    },
+    {
+      "placeId": "JP-123",
+      "assetPath": "images/places/JP-123/church-of-the-light.webp",
+      "originalTitle": "File:Church of Light.JPG",
+      "role": "identity",
+      "recordSha256": "059e1249aa8ca7f066a1766b1dbba9eec7912626cfb6787113882fc60d645ce4",
+      "assetSha256": "cd011ffc984cb9d75639296f2af8200805a952fedfb676420e80f0554613906d"
+    },
+    {
+      "placeId": "JP-013",
+      "assetPath": "images/places/JP-013/golden-gai.webp",
+      "originalTitle": "File:Shinjuku Golden Gai (53147651689).jpg",
+      "role": "identity",
+      "recordSha256": "1b8e78eef26c956c194e82b18683575e962830483c52de527527c6095373cff8",
+      "assetSha256": "874baa281f087cce4da2b58e446ac09ac63b72d22ceecd0887c177f39383376b"
+    },
+    {
+      "placeId": "JP-073",
+      "assetPath": "images/places/JP-073/okochi-sanso-garden.webp",
+      "originalTitle": "File:Wooden gate in Okochi Sanso Garden, Kyoto, Japan.jpg",
+      "role": "identity",
+      "recordSha256": "11efe45a3864ea3e8cbae2840cad838d702f6b2856f8d7d9573b6aaf06eb93b7",
+      "assetSha256": "28c5b33ebe19ce77e7d375cf88ad42725f355b68c1decbca1fdb2fc17df54c8e"
+    },
+    {
+      "placeId": "JP-183",
+      "assetPath": "images/places/JP-183/gesashi-bay-mangrove.webp",
+      "originalTitle": "File:Mangroves at Gesashi Bay 202310.jpg",
+      "role": "identity",
+      "recordSha256": "eaf9053e4bd82ae11142ff4c584df528b5dc898e8ddc488ef4a56e2619fb792b",
+      "assetSha256": "6692dc14bbbfec248b66899a74ab13e532f223c0ac9f1fb69d37095c77ab5b65"
+    },
+    {
+      "placeId": "JP-022",
+      "assetPath": "images/places/JP-022/ameyoko.webp",
+      "originalTitle": "File:Ameya-Yokochō Entrance.jpg",
+      "role": "identity",
+      "recordSha256": "3220119588744a011f42bb9661de85e416cfb1e45ea82ee2056bad50ffcb23d5",
+      "assetSha256": "eeb31550e8564555fe0ce3f9577b967a6bc8960246af522bd6b494db84b1c6bc"
+    },
+    {
+      "placeId": "JP-055",
+      "assetPath": "images/places/JP-055/sannenzaka-ninenzaka.webp",
+      "originalTitle": "File:Pedestrian road with pavements and paper umbrellas, Higashiyama-ku, Kyoto, Japan, early morning.jpg",
+      "role": "identity",
+      "recordSha256": "56493e7a796118215f7924a8cc1badb8ddaf1e3cc24a60d543cedae5ecf3a708",
+      "assetSha256": "fc314e1434f923b62bc594a4094101af4c85bec7d83ca74678007a111172b83f"
+    },
+    {
+      "placeId": "JP-194",
+      "assetPath": "images/places/JP-194/banna-park.webp",
+      "originalTitle": "File:Banna Park south gate, Ishigaki, Okinawa.jpg",
+      "role": "identity",
+      "recordSha256": "e107c962458ec30e7bcfe7e601a94c96aa1f02d548a4fa64bd6deedcc1206cdd",
+      "assetSha256": "778e984dafbdf36e44732e3eb45057becc9321c3bfeafc85739218a1071c058e"
+    },
+    {
+      "placeId": "JP-014",
+      "assetPath": "images/places/JP-014/omoide-yokocho.webp",
+      "originalTitle": "File:Shinjuku-West Omoide-Yokocho.jpg",
+      "role": "identity",
+      "recordSha256": "0dd4c60e5c3b0f14c0a0a4d386c776bb7b827e3262253298de00e62bf12d127e",
+      "assetSha256": "5fdaa4d3f0486980713cf38066c7f89a0606b04561ff54c241f4a49c6c7cd644"
+    },
+    {
+      "placeId": "JP-059",
+      "assetPath": "images/places/JP-059/kodai-ji.webp",
+      "originalTitle": "File:170923 Kodaiji Kyoto Japan09n.jpg",
+      "role": "identity",
+      "recordSha256": "b7af504c6df418bf3265a00057ae4c6fa48ef266e29a0894e2267f49427f80f0",
+      "assetSha256": "e1beef6d9b9e5704ec73095fe2ae609b0e20acd65f1f2fcf4b3f5335c7f25eb2"
+    },
+    {
+      "placeId": "JP-189",
+      "assetPath": "images/places/JP-189/irabu-bridge.webp",
+      "originalTitle": "File:Irabu Bridge (52204774130).jpg",
+      "role": "identity",
+      "recordSha256": "baaf9dfae98c2cf46ce50c53935704f08d2e95f0e6b5b77bf575bb5b914d0144",
+      "assetSha256": "17312c7c6fb833994a207ec1e32d87caba5e73cde37dcfc25d09e03a00474444"
+    },
+    {
+      "placeId": "JP-124",
+      "assetPath": "images/places/JP-124/osaka-aquarium-kaiyukan.webp",
+      "originalTitle": "File:Osaka Aquarium Kaiyukan 2022-04-24.jpg",
+      "role": "identity",
+      "recordSha256": "b40c2327c8656fa258b0876fc18a565ed14f17d5a92abe13d0246fe8d7d1124d",
+      "assetSha256": "a9dad65574ac51cbde2fbddeeb58fc353ca6eb0fe9f040a42cacc7670d1a0521"
+    },
+    {
+      "placeId": "JP-078",
+      "assetPath": "images/places/JP-078/saiho-ji-kokedera.webp",
+      "originalTitle": "File:Saihō-ji (Nishikyo Kyoto) hdsr Garden S5 520.jpg",
+      "role": "identity",
+      "recordSha256": "4e257315768c8528a937866224aa3649a0a2983aaaa8d812dfebebf312760275",
+      "assetSha256": "4187ab2aabde2664f6d26b931bcf8ea9e7415d5df626d3d3c71ea7b6b939e5eb"
+    },
+    {
+      "placeId": "JP-165",
+      "assetPath": "images/places/JP-165/kudaka-island.webp",
+      "originalTitle": "File:Street in Kudaka Island 202401 02.jpg",
+      "role": "identity",
+      "recordSha256": "e5723c7b432814e244ddac43f9cdf513dc5039a76953f72fdeb50b66af976521",
+      "assetSha256": "906dfb8405239bd2c9151a1becb0590482ad322ae04a63d58089eaa7f61c24ac"
+    },
+    {
+      "placeId": "JP-117",
+      "assetPath": "images/places/JP-117/osaka-castle-park.webp",
+      "originalTitle": "File:Sengan-yagura Turret at Osaka Castle Park, September 2017.jpg",
+      "role": "identity",
+      "recordSha256": "7e621fd59dbb8206eb32de61e3128e80d0a1cbc8bc0a37cedbedea770ac7bc6d",
+      "assetSha256": "0ecc2085dbf5621cf13c1443b3bd0bf004a1b13ad760d6989d534bdd02dd0c08"
+    },
+    {
+      "placeId": "JP-043",
+      "assetPath": "images/places/JP-043/small-worlds-miniature-museum.webp",
+      "originalTitle": "File:Small Worlds Tokyo Koto-ku Tokyo.jpg",
+      "role": "identity",
+      "recordSha256": "87f5e1367a67b58498576553ad06d2489151f857192c0950df5449dcb7560d69",
+      "assetSha256": "1cfa855d7ff0b795af288b95b6c774cf4d0cf1629d5dd748fe2755b19919a36f"
+    },
+    {
+      "placeId": "JP-060",
+      "assetPath": "images/places/JP-060/nanzen-ji.webp",
+      "originalTitle": "File:251213 Nanzen-ji Suirokaku Kyoto Japan01s3.jpg",
+      "role": "identity",
+      "recordSha256": "73181d9f03fe9fca784cee42628eaa7c0dd0d55f95c039272558915e4ac4b31c",
+      "assetSha256": "791900b6cfe402a665b92ace192ee04ba5e5c12079dd9f1a4c943c49d947bbde"
+    },
+    {
+      "placeId": "JP-138",
+      "assetPath": "images/places/JP-138/kobe-kitano-ijinkan.webp",
+      "originalTitle": "File:Weathercock House Kobe Kitano Ijinkan 風見鶏の館（旧トーマス住宅）.jpg",
+      "role": "identity",
+      "recordSha256": "cb68048b670d530876522bf122ac2bc1058079a113f12c81616460f6b6fedc43",
+      "assetSha256": "44b1338cb9ff1d632a3f76547dde30f631bd768f381ff38f65a0d86b490f7756"
+    },
+    {
+      "placeId": "JP-006",
+      "assetPath": "images/places/JP-006/nezu-museum.webp",
+      "originalTitle": "File:Nezu Museum Garten-20091020-RM-114344.jpg",
+      "role": "identity",
+      "recordSha256": "ceb5cfc2e0f4c104c3c4d9221a2670bd39c6e336c5459ad4170fce82680a1633",
+      "assetSha256": "e5419b04f20b4868e049a58c9dca5a5988c1f724e878f585da1f02ff93ce6030"
+    },
+    {
+      "placeId": "JP-081",
+      "assetPath": "images/places/JP-081/ryoan-ji.webp",
+      "originalTitle": "File:Ninna-ji and Ryoan-ji, Kyoto - Ryoanji7753.jpg",
+      "role": "identity",
+      "recordSha256": "054ef2a7fb0c33718d0259ad51ae009c9089e1c0bfff4c877a6ce65f060ee743",
+      "assetSha256": "3a551d47efb4829165eca1c634e7235d486d24e67591d308a16efdf25f1a4de4"
+    },
+    {
+      "placeId": "JP-198",
+      "assetPath": "images/places/JP-198/pinaisara-falls.webp",
+      "originalTitle": "File:Pinaisara Falls (52117077706).jpg",
+      "role": "identity",
+      "recordSha256": "b16cdacf9ed356b53fb698978cfb063f4be0e63005fdf5542f88e2d4b1dcc770",
+      "assetSha256": "ee074f81955e8ff7502085c1bc5a9bc630874f538658a7547fbe44f36958760d"
+    },
+    {
+      "placeId": "JP-105",
+      "assetPath": "images/places/JP-105/hozenji-yokocho.webp",
+      "originalTitle": "File:Osaka - Osaka194.jpg",
+      "role": "identity",
+      "recordSha256": "c7a9d664f727726bc6794dfaf615ca720d629c9032f081863c3364dc72855cdb",
+      "assetSha256": "257f3ffe9cceb8836689f6404703831b421fa38088a19de118884e167328c966"
+    },
+    {
+      "placeId": "JP-039",
+      "assetPath": "images/places/JP-039/toyosu-market.webp",
+      "originalTitle": "File:Toyosu fish market, at Toyosu, Koto, Tokyo (2019-01-01) 01.jpg",
+      "role": "identity",
+      "recordSha256": "1444677e481e96e3e7a9c964aa23fe05ee831cecad08059092424e3e612a42d5",
+      "assetSha256": "8349861dce73abf74fc356221e97ab8eed72bbd158ffb8d3199aec24e52337ad"
+    },
+    {
+      "placeId": "JP-212",
+      "assetPath": "images/places/JP-212/grand-sumo-tournament-osaka.webp",
+      "originalTitle": "File:Sumo -Osaka 2010 03 23 a.jpg",
+      "role": "identity",
+      "recordSha256": "3ac250882fde5f0611f7a27947d420173a34edd6e22c672ef403739ae7214fb7",
+      "assetSha256": "afa596708ba319b3743c3a534ab3f0e19b49458cf654b7f9f5bd716b3e4b3190"
+    },
+    {
+      "placeId": "JP-011",
+      "assetPath": "images/places/JP-011/tokyo-metropolitan-government-observatory.webp",
+      "originalTitle": "File:Tokyo Metropolitan Government Building taken from Shinjuku NS Building.jpg",
+      "role": "identity",
+      "recordSha256": "2eb1c3fad97f9b573f28159cb9a0f88dc854cba041f7e4336cf619464a34bbf3",
+      "assetSha256": "9e3a544706272a9fc719f8f8ac7032eef4852600a1d90e99be1094da67598565"
+    },
+    {
+      "placeId": "JP-047",
+      "assetPath": "images/places/JP-047/edo-tokyo-open-air-architectural-museum.webp",
+      "originalTitle": "File:Tokyo Edo-Tokyo Open Air Architectural Museum entrance.jpg",
+      "role": "identity",
+      "recordSha256": "53e878a7568d2416b1dbe3ae7d39b094f29bdbbe8180b765212a7ccaf7c386ad",
+      "assetSha256": "67e035e8d06ca48011efbd830e62dc7e9b9cb30352e12df6164707e34043df30"
+    },
+    {
+      "placeId": "JP-084",
+      "assetPath": "images/places/JP-084/shisen-do.webp",
+      "originalTitle": "File:詩仙堂 02.jpg",
+      "role": "identity",
+      "recordSha256": "6ee4de01a3de4e294282a2af3f3f402059d7c3b114198270f73655f46e9103c9",
+      "assetSha256": "f2c189501bcab9dd872ff6eef2d28adc6f3f319aa3519243d58627a876ce5521"
+    },
+    {
+      "placeId": "JP-190",
+      "assetPath": "images/places/JP-190/toriike-ponds.webp",
+      "originalTitle": "File:Toriike.jpg",
+      "role": "identity",
+      "recordSha256": "9a01f67392e13d9d4146bc4f7bc0b3487dec9e16fafdd9cd4e99f02971cf208a",
+      "assetSha256": "b96bf33c1e6fe19bbe186b24b3ea8c61d9c7392e2000d676fc51900d6ccadf3a"
+    },
+    {
+      "placeId": "JP-149",
+      "assetPath": "images/places/JP-149/miho-museum.webp",
+      "originalTitle": "File:241119 MIHO MUSEUM Koga Shiga pref Japan08s3.jpg",
+      "role": "identity",
+      "recordSha256": "c55aeaf6ffe64d639ef7fc82d1985f7ba37dc50595e91b2ee160e0ee1ad09266",
+      "assetSha256": "3d990ddc6afe82d6b66054ec6a9e71f6f969d365b63c1048bc44cb031e9c2aba"
+    },
+    {
+      "placeId": "JP-012",
+      "assetPath": "images/places/JP-012/kabukicho.webp",
+      "originalTitle": "File:Colorful neon street signs in Kabukichō, Shinjuku, Tokyo.jpg",
+      "role": "identity",
+      "recordSha256": "398425a0218535ea91be387acc404bc55c8ded2ad5a43f3bb1fcc49207d8ccf0",
+      "assetSha256": "d9fe285f679d49b6b0da0fa90924a703682dbfc290de42f7b5a84ec23dcf0410"
+    },
+    {
+      "placeId": "JP-062",
+      "assetPath": "images/places/JP-062/eikan-do.webp",
+      "originalTitle": "File:Eikan-do Zenrin-ji, November 2016 -03.jpg",
+      "role": "identity",
+      "recordSha256": "526240a7d44aec6c87a0282e94d37942be729fa80e8f107e6542d2b00b558979",
+      "assetSha256": "e4872fc06bbc8a922c5d485c79a67a5bee01093cd630d4305ee3def4d702563b"
+    },
+    {
+      "placeId": "JP-176",
+      "assetPath": "images/places/JP-176/kouri-island-bridge.webp",
+      "originalTitle": "File:Kouri Bridge 202006.jpg",
+      "role": "identity",
+      "recordSha256": "6baf2e2ab1a251d69f716def39f27cc577a3453ae015c8e179147017a8b393da",
+      "assetSha256": "aa76fd16dc49f94780eb7d952c58df7b5cd61e80163e0a5d2db839c0a31d3847"
+    },
+    {
+      "placeId": "JP-122",
+      "assetPath": "images/places/JP-122/minoh-falls.webp",
+      "originalTitle": "File:Minoh Falls Minoh Osaka pref Japan05s5.jpg",
+      "role": "identity",
+      "recordSha256": "a6e9f04caa451bd17c55d2da94ccda2e20425006b369604ea1b2204c45930dd2",
+      "assetSha256": "0e6ba69a93f12321b4443ebbf39bc1ed0a087b1ad02ce41ddac385cd0ff909b6"
+    },
+    {
+      "placeId": "JP-213",
+      "assetPath": "images/places/JP-213/tokyo-marathon.webp",
+      "originalTitle": "File:Tokyo Marathon 2019 Runner (46348789105).jpg",
+      "role": "identity",
+      "recordSha256": "b4d4b38b4fbfd3064038be67c146075b2fcf073ca720d632a392a5d93f37a2d3",
+      "assetSha256": "1d66923d1d4b3d061439cd9615105b2fb9ed66875a523ac4c2ccbd4b9b72f9eb"
+    },
+    {
+      "placeId": "JP-087",
+      "assetPath": "images/places/JP-087/hosen-in.webp",
+      "originalTitle": "File:Hosenin (Kyoto) ac (3).jpg",
+      "role": "identity",
+      "recordSha256": "ece96316af568d5f3ebf6e150dcd8069ec9bb4b5ca0a95590228ca4e225e7e09",
+      "assetSha256": "a5c9a0ec353d1f98ec02075c4c122788dca5dd31e89460e6c60c7d3e373e393f"
+    },
+    {
+      "placeId": "JP-200",
+      "assetPath": "images/places/JP-200/yonaguni-monument.webp",
+      "originalTitle": "File:Yonaguni Monument Main Terrace.jpg",
+      "role": "identity",
+      "recordSha256": "90ba9db9c5c6cae207c5ec7438d68b2efb42d80502e477c2c681af03ad4204eb",
+      "assetSha256": "e558125a8f38e648837d8e0eda6ad898650143731889eb58927622a1cc350f80"
+    },
+    {
+      "placeId": "JP-112",
+      "assetPath": "images/places/JP-112/umeda-sky-building.webp",
+      "originalTitle": "File:Umeda Sky Building, Osaka, November 2016 -01.jpg",
+      "role": "identity",
+      "recordSha256": "19bfe3e3487bdd78cc519222ee6626f7d479117a3e3a5faae3f41cd9cc70af85",
+      "assetSha256": "016e5393c8fdf21d938fee31692ce72225e606f7bf71d48e8a34f77a8435f631"
+    },
+    {
+      "placeId": "JP-053",
+      "assetPath": "images/places/JP-053/edo-tokyo-museum.webp",
+      "originalTitle": "File:Edo-Tokyo Museum.jpg",
+      "role": "identity",
+      "recordSha256": "7bbe08d1deb9cafa12de783c36e6ea961a694155a79dc7271331f6167cbcb506",
+      "assetSha256": "ce718f0fca7a758de59bbb9ee834502fe104014523c87f2d85b69e87021cde3d"
+    },
+    {
+      "placeId": "JP-064",
+      "assetPath": "images/places/JP-064/honen-in.webp",
+      "originalTitle": "File:Kyoto, Honen-in - panoramio (1).jpg",
+      "role": "identity",
+      "recordSha256": "663fa75ebe414724ddab6c6c5ebc94b94cdcbe5aacad6d9ea892c869561802e4",
+      "assetSha256": "bd10ffe1defa0c19ef07c38e6c13cc0a441e49f641807c7aa16a4f5e069fe6f2"
+    },
+    {
+      "placeId": "JP-158",
+      "assetPath": "images/places/JP-158/tamaudun.webp",
+      "originalTitle": "File:Tamaudun01s3s4592.jpg",
+      "role": "identity",
+      "recordSha256": "f3b5b7fc979dd92c0a2d3de29a0572179aff01de92b89fdac1049a5c3b43dd04",
+      "assetSha256": "61a6ff3241c638c1a00f17cbf4ee651d64c8317d988211230fcf333fa9c9900b"
+    },
+    {
+      "placeId": "JP-113",
+      "assetPath": "images/places/JP-113/grand-green-osaka.webp",
+      "originalTitle": "File:Grand Green Osaka 20250831.jpg",
+      "role": "identity",
+      "recordSha256": "bc9293a8cc757dc98f052a36152878800f55cc122f8cfd4cc44e28a2d2450a5b",
+      "assetSha256": "2f70e74e4e39ab367479852462ff5b8f61da7312910b71fceba75506e0c4ee1e"
+    },
+    {
+      "placeId": "JP-007",
+      "assetPath": "images/places/JP-007/ota-memorial-museum-of-art.webp",
+      "originalTitle": "File:Ota Memorial Museum of Art, exterior 2018.JPG",
+      "role": "identity",
+      "recordSha256": "d8c0335f449bdabbb1858aa8174dea640c230d620126eae6804c254628cc5312",
+      "assetSha256": "439685f510916ac99c44b9b21cdd2981c5f459a91e89e6f51629e2a18ccfcdc6"
+    },
+    {
+      "placeId": "JP-063",
+      "assetPath": "images/places/JP-063/philosophers-path.webp",
+      "originalTitle": "File:Tetsugaku-no-michi - Philosopher's Walk - Kyoto.jpg",
+      "role": "identity",
+      "recordSha256": "d23b81cee3016ffcda2cf03ec3bd0a4ff7adebc6cdc69bd78dfb870626811b44",
+      "assetSha256": "483a409a99d209df337473735bea23ea57e7f72a125068e00afd77f38a959e48"
+    },
+    {
+      "placeId": "JP-185",
+      "assetPath": "images/places/JP-185/furuzamami-beach.webp",
+      "originalTitle": "File:Furuzamami beach Okinawa Zamami.jpg",
+      "role": "identity",
+      "recordSha256": "bd10594d823bf86981b3acf7184f098d5f584a34c75c8641c3d2a3170c2126a2",
+      "assetSha256": "0b5b70808cf1b57c8321e55b7b8b72964c68d9ed36a456936b2d68bb8ff6a886"
+    },
+    {
+      "placeId": "JP-130",
+      "assetPath": "images/places/JP-130/nara-park-deer.webp",
+      "originalTitle": "File:Sika deer doe and fawn Nara 2026 dllu.jpg",
+      "role": "identity",
+      "recordSha256": "ec7748699c80f411cd4e4704565cd4371290c165e125e56307a7a09b7e510640",
+      "assetSha256": "82692d8c6df000c45f9178c9066de15ab734584499b3ab4b58f3b6275d31c658"
+    },
+    {
+      "placeId": "JP-042",
+      "assetPath": "images/places/JP-042/odaiba-rainbow-bridge.webp",
+      "originalTitle": "File:Rainbow Bridge, Tokyo, South view from Odaiba 20190419 1.jpg",
+      "role": "identity",
+      "recordSha256": "d8c9ad70a86ee64f5f5af41762cc3b2d895864870728b77ff39a95f35895f10e",
+      "assetSha256": "e72c7ff52f9b5cdab532d15a96644cb4ec235391c796b61ccd46f61d6ab04020"
+    },
+    {
+      "placeId": "JP-065",
+      "assetPath": "images/places/JP-065/ginkaku-ji.webp",
+      "originalTitle": "File:Sunlight through clouds and view of Ginkaku-ji Temple from above, Kyoto, Japan.jpg",
+      "role": "identity",
+      "recordSha256": "c371dd89ecf3c9914b40e8ba16a40bbfa741fcc038ce3e3c8063a2d1357299b2",
+      "assetSha256": "55ac1a7ceb3f0146cb13c7c9fd9cfbe8e4db94a3530a00b32de40a7217bb43ec"
+    },
+    {
+      "placeId": "JP-172",
+      "assetPath": "images/places/JP-172/cape-manzamo.webp",
+      "originalTitle": "File:Onna Okinawa Japan Cape-Manzamo-01.jpg",
+      "role": "identity",
+      "recordSha256": "ebbddc3fd778cb710b82662f350f7d330969aeeeee845241107c6c891fa4b9fb",
+      "assetSha256": "558f058b2b35665cfa908c103a8736adb2be081b2dae017ef391acf8f404ee28"
+    },
+    {
+      "placeId": "JP-139",
+      "assetPath": "images/places/JP-139/nunobiki-falls-herb-gardens.webp",
+      "originalTitle": "File:Nunobiki Falls Kobe 2026 dllu.jpg",
+      "role": "identity",
+      "recordSha256": "0fa289aa53045e3ccb8f107c618bd11646338389b56d20fe428803194870bfe4",
+      "assetSha256": "e13969e792114a7d0fc2dcb1e6aa5ee9aa7e300c5d96fd1a89e410e2d12bf848"
+    },
+    {
+      "placeId": "JP-051",
+      "assetPath": "images/places/JP-051/mount-takao.webp",
+      "originalTitle": "File:Takao-san hike during winter 11.jpg",
+      "role": "identity",
+      "recordSha256": "20594289de1ee5845b91c6585a78b50de05b0b9119d660ee399e062bc1bc265e",
+      "assetSha256": "0914f3433103a06ea74c9cae451090f27915c8b67b0e761b9b952093f5c80906"
+    },
+    {
+      "placeId": "JP-067",
+      "assetPath": "images/places/JP-067/tofuku-ji.webp",
+      "originalTitle": "File:Kyoto Tofuku-ji Tsuten-kyo 04.jpg",
+      "role": "identity",
+      "recordSha256": "0df48458b20eb2e3af08f4b61af932543fdb0353d932a8920aa62a6f67a70993",
+      "assetSha256": "7c46f0c9e35a44aa4e3dc68c4a88e460d52680356561f07007e4de7f86509fc0"
+    },
+    {
+      "placeId": "JP-169",
+      "assetPath": "images/places/JP-169/zakimi-castle-ruins.webp",
+      "originalTitle": "File:座喜味城趾 - panoramio.jpg",
+      "role": "identity",
+      "recordSha256": "b3a0c71c8188c25cc87d033888d20c663464754792b8dcc3adeaa5cf22727988",
+      "assetSha256": "75dc9aa114b230e8a6055f582f28785fa9facf8e7623f84d2ce1760448243f6e"
+    },
+    {
+      "placeId": "JP-114",
+      "assetPath": "images/places/JP-114/nakanoshima-waterfront.webp",
+      "originalTitle": "File:Nakanoshima 2023-09-01 (2).jpg",
+      "role": "identity",
+      "recordSha256": "7f46f1138de89eead379e71c67b70918d3f4ba621b77a709a65eece3380b12d7",
+      "assetSha256": "bcf4596d32c3813010438ac2504fe6c3c8ebf692799f3fe1dd37ea8f731ebb34"
+    },
+    {
+      "placeId": "JP-020",
+      "assetPath": "images/places/JP-020/sumida-hokusai-museum.webp",
+      "originalTitle": "File:Tokyo, sumida hokusai museum, esterno 01.jpg",
+      "role": "identity",
+      "recordSha256": "71888a079a226ee154705eeb21504a53ee9e6a69d2182e694c3288feea3578d3",
+      "assetSha256": "8cb6c01cb7f0ffc215d29fb57d5469bf870a438370ad10f8575c27f150fbc344"
+    },
+    {
+      "placeId": "JP-186",
+      "assetPath": "images/places/JP-186/aka-island.webp",
+      "originalTitle": "File:Aka Beach And Aka Village 2010 (7788).JPG",
+      "role": "identity",
+      "recordSha256": "44ccfea2bbdabf89251cfab44801f69feae2a1e9ce8b392235d3746827021b13",
+      "assetSha256": "1323853531d981243513125a5fa20ed0cbe0842c48b656974f3f5ec15dfed3ec"
+    },
+    {
+      "placeId": "JP-052",
+      "assetPath": "images/places/JP-052/mount-mitake-musashi-mitake-shrine.webp",
+      "originalTitle": "File:Mitake Shrine @ Hike from Mitake to Okutama (10181698756).jpg",
+      "role": "identity",
+      "recordSha256": "54b273557f8cef299b32f91f74f5e747c5a7f9336722f4fd16f585e505bd60d1",
+      "assetSha256": "91bb73593a45d31e4711eab43e684b83223371d6c906845d8f9991517e737a81"
+    },
+    {
+      "placeId": "JP-017",
+      "assetPath": "images/places/JP-017/asakusa-culture-tourist-information-center.webp",
+      "originalTitle": "File:Asakusa Culture Tourist Information Center 2016.jpg",
+      "role": "identity",
+      "recordSha256": "5877c1adc3765dd576b2be31ea17a51140bdaacc00a001d2ba4e9763a98bf866",
+      "assetSha256": "c4557b3ac338bedbba893c9dac497004171f2ddc5fe45db3589f84ecdfa9626e"
+    },
+    {
+      "placeId": "JP-019",
+      "assetPath": "images/places/JP-019/tokyo-skytree.webp",
+      "originalTitle": "File:Tokyo Skytree 2014 Ⅲ.jpg",
+      "role": "identity",
+      "recordSha256": "6a41883cef362c0cf5f922e3e773e91c369e7c5887cca1acc1def19961a78b38",
+      "assetSha256": "eecd9688604a6aea098223fa771a8575196edd358367e7d85cda2f45626780e6"
+    },
+    {
+      "placeId": "JP-038",
+      "assetPath": "images/places/JP-038/teamlab-planets-tokyo.webp",
+      "originalTitle": "File:Photos at teamlab planets tokyo.jpg",
+      "role": "identity",
+      "recordSha256": "b97fb15ed933ae92adc48bb66150b025ede0012ef99c21250f226132f58367f3",
+      "assetSha256": "d5e05053cde8d7dc9514b67fa3bbc6165a9b520948cf73647c0e0d84ae9c9305"
+    },
+    {
+      "placeId": "JP-030",
+      "assetPath": "images/places/JP-030/tokyo-station-marunouchi.webp",
+      "originalTitle": "File:Tokyo Station (Marunouchi Building).jpg",
+      "role": "identity",
+      "recordSha256": "4e4373de9ab6986a1b945f95a9ea7deaa232b6b6a2e6e0150bcd2875e60895e7",
+      "assetSha256": "347554fc4b1d4c4168d27fb4bd112367110d34ef5b7e938a1c489e2ba68abcbd"
+    },
+    {
+      "placeId": "JP-034",
+      "assetPath": "images/places/JP-034/mori-art-museum.webp",
+      "originalTitle": "File:森美術館 (16202551532).jpg",
+      "role": "identity",
+      "recordSha256": "8b2926e554f9bc0ef962b4d8f766db7987cd0063e0cb7eb1677c54aa9aac493b",
+      "assetSha256": "28ea4dd7af4e94043b35a8dd8ecdce28d24e66c9e96bcdd333a2d06741f2d74f"
+    },
+    {
+      "placeId": "JP-080",
+      "assetPath": "images/places/JP-080/kinkakuji-golden-pavilion.webp",
+      "originalTitle": "File:Kinkaku-ji in November 2016 -02.jpg",
+      "role": "identity",
+      "recordSha256": "486f314a183cfef49fb6194f7a09df0a19382b04f9fc98a78858fce40b7f4db0",
+      "assetSha256": "3bd42816fd40847602a897515a5ee7fe6f8be4d5e73cb167ee6271eea1e4e6c6"
+    },
+    {
+      "placeId": "JP-072",
+      "assetPath": "images/places/JP-072/tenryuji-sogen-garden.webp",
+      "originalTitle": "File:Tenryū-ji Garten.jpg",
+      "role": "identity",
+      "recordSha256": "e93cb82e048bf22e6102d9e4cb922339f0375d8b7cd0ad5a75eea359dda18ef7",
+      "assetSha256": "fd7a3705d6297d61701713e662db5b64b1c1c012c0960e15d11aecaa44d4beb2"
+    },
+    {
+      "placeId": "JP-086",
+      "assetPath": "images/places/JP-086/sanzenin-goten-mon.webp",
+      "originalTitle": "File:Goten-mon gate, Sanzen-in, Ohara, Kyoto - Jun 7, 2011.jpg",
+      "role": "identity",
+      "recordSha256": "2229872798558ef207451803cdc547b077fb1e0744681ac40fce9af6113d04db",
+      "assetSha256": "4186e797336c669e2490a2b07ebd1f693ee3e198819e15f4609e16531e84076f"
+    },
+    {
+      "placeId": "JP-131",
+      "assetPath": "images/places/JP-131/kasuga-taisha-lanterns.webp",
+      "originalTitle": "File:Kasuga-taisha 春日大社 IMG 3690.jpg",
+      "role": "identity",
+      "recordSha256": "bf33d5d4546a7c57d82eae5267c05214ae95a1c92c44048f2ed8aea81ca21dd9",
+      "assetSha256": "ba109d889214bdea2ef22561ca61f3ba640a2034c337a4e6eff93c4496e43316"
+    },
+    {
+      "placeId": "JP-148",
+      "assetPath": "images/places/JP-148/hikone-castle-keep.webp",
+      "originalTitle": "File:Hikone Castle November 2016 -01.jpg",
+      "role": "identity",
+      "recordSha256": "337d60ee7dce456fe953eb6c9b21841cae32ed0ba2ed9ba23d385a9e5e22f6a2",
+      "assetSha256": "9ecb62e37988e2201a1d93f9dbefb61c0a54e8dbec1a8bba38ee431e5d9862f7"
+    },
+    {
+      "placeId": "JP-119",
+      "assetPath": "images/places/JP-119/shitennoji-pagoda-dusk.webp",
+      "originalTitle": "File:View of Abeno Harukas and Shitennō-ji five-storied pagoda at dusk, January 2024 (clone version) - 9978.jpg",
+      "role": "identity",
+      "recordSha256": "f2cffe8a7433ffc60de159907db23f8257010ea32e2272499c5c3bc031bebf36",
+      "assetSha256": "1e8978fafcace2a27b892ad5efe57ed9810f3dd82905545746f8c8815d7b55c8"
+    },
+    {
+      "placeId": "JP-132",
+      "assetPath": "images/places/JP-132/isuien-garden-nara.webp",
+      "originalTitle": "File:Isuien and Nandaimon.JPG",
+      "role": "identity",
+      "recordSha256": "ebd98fef934fd49fd38e9924503335c7505109d1e94c9f22a5e1a1ef2a437bd0",
+      "assetSha256": "d70fe369904f0efb6416a11cc59a6d399ae047543cdde4b161888eea34a120a1"
+    },
+    {
+      "placeId": "JP-153",
+      "assetPath": "images/places/JP-153/kokusai-dori-naha.webp",
+      "originalTitle": "File:Kokusai-dori08s3s4440.jpg",
+      "role": "identity",
+      "recordSha256": "6fabce69dd1b779a40575af3a06ea5bac4f6c1a18dfa9f12745925f3805a5e22",
+      "assetSha256": "860d0d1db252db0bfe146c7d2c3055b2844565d12a55120a9cf7ae42a070f52b"
+    },
+    {
+      "placeId": "JP-187",
+      "assetPath": "images/places/JP-187/aharen-beach-tokashiki.webp",
+      "originalTitle": "File:Aharen Beach On Tokashiki Island 2009 (7384).jpg",
+      "role": "identity",
+      "recordSha256": "0e92631258740f7bbb911e6068dffbc9bc754db26c81fee1972e346c51233760",
+      "assetSha256": "02f39f13639317f873f367f45537da2552656716ed4a60ca5a5328d6dec8bbb6"
+    },
+    {
+      "placeId": "JP-129",
+      "assetPath": "images/places/JP-129/todaiji-daibutsu.webp",
+      "originalTitle": "File:Daibutsu Grand bouddha - Tōdai-ji - Nara.jpg",
+      "role": "detail",
+      "recordSha256": "66d54cc69f4586bf4fdcaa8b842e03964a78e4148b163b1cb11f34c5eee33b31",
+      "assetSha256": "7b7b93308f8f8a6472ddc58f1bfb41b3ac30a6213bd4d363b511125edf967370"
+    },
+    {
+      "placeId": "JP-152",
+      "assetPath": "images/places/JP-152/benesse-house-museum.webp",
+      "originalTitle": "File:150505 Benesse House Museum Naoshima Kagawa pref Japan01b3s5.jpg",
+      "role": "context",
+      "recordSha256": "63b1ebd902485a0c0c03fb278497c5a2bad68258cfb0be971aa6aa026a68ff82",
+      "assetSha256": "95f8ba56458afdf93a7c9cf1617d1250bfb0ac635571729f1d22d1a90b15316f"
+    },
+    {
+      "placeId": "JP-089",
+      "assetPath": "images/places/JP-089/nijojo-ninomaru-garden.webp",
+      "originalTitle": "File:Nijojo-ninomaru-garden01s3s4592.jpg",
+      "role": "detail",
+      "recordSha256": "3afc5450516df7e244daa30e671ff48e2d47bb4288ab9057e3b6853f29c6b0d2",
+      "assetSha256": "afffa99baae31f044ddb985cffa3d5c92aad30a9ee9da829bc37bc62c97d86ca"
+    },
+    {
+      "placeId": "JP-021",
+      "assetPath": "images/places/JP-021/tokyo-national-museum-honkan.webp",
+      "originalTitle": "File:Tokyo National Museum, Honkan 2010.jpg",
+      "role": "context",
+      "recordSha256": "6aa0355a2da66b80029a1f738985ee2c9800844cc5e9aaa94d0e3f0aafa3c707",
+      "assetSha256": "d28d2bb9265feab1d2e1594a7f15b68ca72903e462bedd2355197784e3b447ed"
+    },
+    {
+      "placeId": "JP-205",
+      "assetPath": "images/places/JP-205/sapporo-snow-sculpture.webp",
+      "originalTitle": "File:第65回さっぽろ雪まつり（SAPPORO SNOW FESTIVAL 65th） - panoramio.jpg",
+      "role": "experience",
+      "recordSha256": "c13297cb5ec85d9561f0f69cde4cfe4679485555355bd1bd1836ecd947ad5558",
+      "assetSha256": "5a54916a3bb858bc4f1ef7105ef7bf22ffb33a244b89b3875ab48dcb8d9d61ae"
+    },
+    {
+      "placeId": "JP-125",
+      "assetPath": "images/places/JP-125/usj-wizarding-world-castle.webp",
+      "originalTitle": "File:Hogwarts in Universal Studios Japan.jpg",
+      "role": "experience",
+      "recordSha256": "207a975b2d0fae5fffb20e60f0cc8195c885ba455db1d608211b75c5a747e71e",
+      "assetSha256": "09c3038da473347942b0034cfa32d7f0710c1479d4bfe91648ccdb01b553d81c"
+    },
+    {
+      "placeId": "JP-033",
+      "assetPath": "images/places/JP-033/teamlab-borderless-azabudai-light-sculpture.webp",
+      "originalTitle": "File:TeamLab Borderless Azabudai Hills.jpg",
+      "role": "identity",
+      "recordSha256": "91acca78e2c62880e5d86229df6d1ed479619d39f76ee1e140ca4d72007dcd55",
+      "assetSha256": "097faea31f56c876ec956fd34e9a1c68f62a6e9cf5b715cd7c7c3f602bf2db2d"
+    },
+    {
+      "placeId": "JP-126",
+      "assetPath": "images/places/JP-126/super-nintendo-world-fifth-anniversary-entrance.webp",
+      "originalTitle": "File:Super Nintendo World Entrance 5th Anniversary decoration at Universal Studios Japan.jpg",
+      "role": "identity",
+      "recordSha256": "d986b558bffd099e7d712f1a3349363dad594da97f51e1b997d0d421336cac1f",
+      "assetSha256": "893b70df7d4230e56bc8606670edfe4fa3a0ad9bfd73322e206f0ae6142f28d0"
+    },
+    {
+      "placeId": "JP-203",
+      "assetPath": "images/places/JP-203/tokyo-disneyland-main-entrance-2025.webp",
+      "originalTitle": "File:Tokyo Disneyland Main Entrance (June 2025).jpg",
+      "role": "identity",
+      "recordSha256": "3e5e6456be0a7f2be35d14d3a020ec87db9df07a917e97dff997ba4d72fa0099",
+      "assetSha256": "8086a0e880b680e57b4620dbf785cd8dea6a487fcd9e7e47f0e400f10cd73434"
+    },
+    {
+      "placeId": "JP-204",
+      "assetPath": "images/places/JP-204/tokyo-disneysea-mount-prometheus-fortress.webp",
+      "originalTitle": "File:Tokyo DisneySea-Volcania.jpg",
+      "role": "identity",
+      "recordSha256": "d0f5171516138ff1bfe7f3f20f39f336472690a866a53028ef00c6e640c28b43",
+      "assetSha256": "e028f344000072bcdaaea49d879dbd613c106d48978c977c537c32426fbae775"
+    },
+    {
+      "placeId": "JP-023",
+      "assetPath": "images/places/JP-023/yanaka-ginza-shopping-street-gate.webp",
+      "originalTitle": "File:Yanaka Ginza (53149155977).jpg",
+      "role": "identity",
+      "recordSha256": "9025ddaa1ff8f5e8724ffda6fd1e2b6bccf0fa161219a411da861456e67a3b09",
+      "assetSha256": "2f412046add8751ffeca3c5f8bdba5afaa84d89aa97a50cb4d48557031d4faf4"
+    },
+    {
+      "placeId": "JP-024",
+      "assetPath": "images/places/JP-024/nezu-shrine-romon-gate.webp",
+      "originalTitle": "File:Nezu-jinja Romon 4.jpg",
+      "role": "identity",
+      "recordSha256": "a6cd0e99bf1cd80e76429545daef208fff999cea647e0b354a77623d2b9bb7b8",
+      "assetSha256": "05d54afcb175579e765bafdbe269716a6476b3ad6df8edf84b86624063e762e6"
+    },
+    {
+      "placeId": "JP-027",
+      "assetPath": "images/places/JP-027/kanda-myojin-main-hall-courtyard.webp",
+      "originalTitle": "File:Kanda-Myojin grand hall.jpg",
+      "role": "identity",
+      "recordSha256": "8f181a54945d4cf5372e2be8e7038a4c3f94e5016c7819e0938c231e2ca646cc",
+      "assetSha256": "452f4ddce3cdfb8bf24df9c6377e31ae47b461dd5a2b2b969a7ea25068df9a3c"
+    },
+    {
+      "placeId": "JP-029",
+      "assetPath": "images/places/JP-029/imperial-palace-east-gardens-honmaru-lawn.webp",
+      "originalTitle": "File:Tokyo Imperial Palace East Gardens Park.jpg",
+      "role": "identity",
+      "recordSha256": "3f8b3216c512a6e028802d0daf93d759de61e33f3cdadb4f14e3aa8fa708049b",
+      "assetSha256": "dc2179acecbebdd53d9aecd650af62b93971d00f16d226f8d2719a444df09ecf"
+    },
+    {
+      "placeId": "JP-031",
+      "assetPath": "images/places/JP-031/hama-rikyu-pond-bridge-shiodome.webp",
+      "originalTitle": "File:Tokio Hamarikyu-Garten-20091017-RM-141110.jpg",
+      "role": "identity",
+      "recordSha256": "7db8eff4a6550a2564fcee03a8338d01f239a17daee66d080b54d52df3257f07",
+      "assetSha256": "84367f32d7046988b30f84afd206b7a4a311cc1ad29bc677077f3a9723e02e46"
+    },
+    {
+      "placeId": "JP-035",
+      "assetPath": "images/places/JP-035/national-art-center-tokyo-glass-facade.webp",
+      "originalTitle": "File:2018 National Art Center, Tokyo 2.jpg",
+      "role": "identity",
+      "recordSha256": "ec123b9cf580f177b93b66406e07479c5db3bda424d03b529d1ac8d3130b96fd",
+      "assetSha256": "7dc08ea83c93d0a2638c7a5327a8a04b5fba517516db5d8418261c69c42bce61"
+    },
+    {
+      "placeId": "JP-036",
+      "assetPath": "images/places/JP-036/21-21-design-sight-folded-roof.webp",
+      "originalTitle": "File:21 21 DESIGN SIGHT 201306.jpg",
+      "role": "identity",
+      "recordSha256": "b5953bff2e3b5774a8fb14bbfc8d5ec9a41fef64081fe4c7c8f1b86e885ef4fc",
+      "assetSha256": "7e762bd0a966fa0fe4fac61725e60275d2900185edf408237ddfc6d5d0736c8c"
+    },
+    {
+      "placeId": "JP-045",
+      "assetPath": "images/places/JP-045/inokashira-pond-benzaiten-hall.webp",
+      "originalTitle": "File:Inokashira park pond 2024.jpg",
+      "role": "identity",
+      "recordSha256": "5484630a0242e4b224f785bb368c6546a1659372512b03b4c7d61b23c5193719",
+      "assetSha256": "0c8b4fd4e4a6d6f716dabb1c94896dae52339dd3613da555fe898b314239337c"
+    },
+    {
+      "placeId": "JP-048",
+      "assetPath": "images/places/JP-048/shimokitazawa-shopping-street-banners.webp",
+      "originalTitle": "File:Shimokitazawa Street 2015.jpg",
+      "role": "identity",
+      "recordSha256": "053adcff382f32bcb93cf0bab28caffaadb15ec693f538d7ac3a2ff6bf0f8ab2",
+      "assetSha256": "0c0f80365253f30b603e06515de6cea8353b04da96f318f897882be78736040e"
+    },
+    {
+      "placeId": "JP-069",
+      "assetPath": "images/places/JP-069/bishamondo-main-hall-yamashina.webp",
+      "originalTitle": "File:240316 Bishamondo Yamashina Kyoto Japan01s3.jpg",
+      "role": "identity",
+      "recordSha256": "cd5a5d0773ed666bfdbf9d4b06d9f9592a1eacd7f8ec9b99e1f236599df24413",
+      "assetSha256": "768a4299e8f140cdf1529d53452188579243195b3451d83a54c4e463ec0fad8f"
+    },
+    {
+      "placeId": "JP-074",
+      "assetPath": "images/places/JP-074/gio-ji-moss-garden-thatched-hall.webp",
+      "originalTitle": "File:Giō-ji - Kyoto - DSC06265.JPG",
+      "role": "identity",
+      "recordSha256": "7b1291454aa7e00452283a980211669a017290eecc3a9450a163264603989518",
+      "assetSha256": "a462928fa0cb1505f2c5926ee400c6e64b71ed77364ca10cafdf56f0413501fc"
+    },
+    {
+      "placeId": "JP-075",
+      "assetPath": "images/places/JP-075/otagi-nenbutsu-ji-rakan-autumn.webp",
+      "originalTitle": "File:Otagi nenbutsuji08s3200.jpg",
+      "role": "identity",
+      "recordSha256": "35a92b46d853cde5f8a7cf66a3120ef355c79cec3ba7fe07e39c2b7ea5602da1",
+      "assetSha256": "f0957b2d3dd1964838f0de14f3eedbb58e7a93d68574828f057a77fb7d0d5021"
+    },
+    {
+      "placeId": "JP-076",
+      "assetPath": "images/places/JP-076/adashino-nenbutsu-ji-stone-statues.webp",
+      "originalTitle": "File:Adashino-nenbutsuji (化野念仏寺), Sagano, Kyoto, Japan.jpg",
+      "role": "identity",
+      "recordSha256": "1ba936a0b4b6232a012d11f5f5cfdf759b5026478f47ced6655cd1f8d8172017",
+      "assetSha256": "4b41c2dc0b2c803d719fd790006d41024a4b9116cb4b9f76a84d928be91a1036"
+    },
+    {
+      "placeId": "JP-082",
+      "assetPath": "images/places/JP-082/daitoku-ji-koto-in-approach-path.webp",
+      "originalTitle": "File:Koto in zen chemin.jpg",
+      "role": "identity",
+      "recordSha256": "8cf3dbd0e1ad36166a9401e67d9d42b414fcc5f1170f8ceb3c3225ee6b843d61",
+      "assetSha256": "8203f221a1a4049f5f4417c47edb8f4248096bf24997479004fc371245e484ce"
+    },
+    {
+      "placeId": "JP-083",
+      "assetPath": "images/places/JP-083/genko-an-round-and-square-windows.webp",
+      "originalTitle": "File:Genkō-an, Round and Square Windows 01.jpg",
+      "role": "identity",
+      "recordSha256": "89c0df25bd741196ca6a013bf66ce833db7eecfefbf3c87fd4e1c77c29ae93c0",
+      "assetSha256": "eccc481c7ef2f88ce234f5fa8e1077fdae9044dc5af7b2292de17a89d5283563"
+    },
+    {
+      "placeId": "JP-088",
+      "assetPath": "images/places/JP-088/jingo-ji-precinct-autumn-maples.webp",
+      "originalTitle": "File:Jingoji Kyoto Kyoto15s3s4500.jpg",
+      "role": "identity",
+      "recordSha256": "d35b65a340546b9bce20e0cd90df033cc46268a4e284418fa472842a68faba82",
+      "assetSha256": "7c5f81091bb48787cc7977aa769ed70700e150dba6abfdfa5db26fa45fc98384"
+    },
+    {
+      "placeId": "JP-133",
+      "assetPath": "images/places/JP-133/naramachi-shiryokan-migawari-zaru.webp",
+      "originalTitle": "File:Naramachi-shiryokan Nara02n3200.jpg",
+      "role": "identity",
+      "recordSha256": "dbe57e93c627957a0a1d7de3e3fdaf29e4bb49820f37411d06202b1a246526ef",
+      "assetSha256": "f240489360d6753798e700577d4a8cc2cfecff1deb46fc6d23fd3c6faa4f4e35"
+    },
+    {
+      "placeId": "JP-136",
+      "assetPath": "images/places/JP-136/koko-en-pines-himeji-castle.webp",
+      "originalTitle": "File:Kokoen 2009-04-08 (3640594934).jpg",
+      "role": "identity",
+      "recordSha256": "5c3386e688c96405323f04f39a7e09d029f3ad7d253838e587647c686fcc3a7d",
+      "assetSha256": "ff19db68c3268f0aa96d4b4ebe2ddb6163f51e50266aee58b06f19fe18534e6b"
+    },
+    {
+      "placeId": "JP-137",
+      "assetPath": "images/places/JP-137/engyo-ji-mitsunodo-halls.webp",
+      "originalTitle": "File:Engyoji05s4592.jpg",
+      "role": "identity",
+      "recordSha256": "edc78c67f1c26da239a6ea08db94254fbcda48cfcde4d491407ccd966840452e",
+      "assetSha256": "8a45b1aec1e45114b1df4865b0169875261abd3d161da285ecbc4da8a2fc13b5"
+    },
+    {
+      "placeId": "JP-147",
+      "assetPath": "images/places/JP-147/enryaku-ji-konponchudo-autumn.webp",
+      "originalTitle": "File:Enryakuji Konponchudo04n4272.jpg",
+      "role": "identity",
+      "recordSha256": "eb910b206ba5a2c5fe865ebb283e7ee29b319bbd159d9f28718ec8e4dde7c22e",
+      "assetSha256": "c9967d423726040ca581068c011a8278c5d938826430d202a2c3b32ba888e3c0"
+    },
+    {
+      "placeId": "JP-170",
+      "assetPath": "images/places/JP-170/katsuren-castle-terraced-walls.webp",
+      "originalTitle": "File:Katsuren Castle ruins.jpg",
+      "role": "identity",
+      "recordSha256": "5f9b29eac177082ee5f1fc3abd263bf410026c79414639e7f45ee104494f0408",
+      "assetSha256": "b2dfd484f15f692e579058665b26e692ab0fd3a6f1b412c9eb1010ccbd97d43a"
+    },
+    {
+      "placeId": "JP-175",
+      "assetPath": "images/places/JP-175/nakijin-castle-serpentine-walls.webp",
+      "originalTitle": "File:Nakijin Gusuku - panoramio.jpg",
+      "role": "identity",
+      "recordSha256": "1fbd9509490dbe9adb95c558c6d9eb8eaa3545ca11bbb93932b05ab61d4c31a7",
+      "assetSha256": "ce6ac805e6ca3f50c746c857368aaa4b3067fa4bbedcc3b6d80be401f6174403"
+    },
+    {
+      "placeId": "JP-191",
+      "assetPath": "images/places/JP-191/yabiji-reef-aerial-view.webp",
+      "originalTitle": "File:Miyako yabiji.jpg",
+      "role": "identity",
+      "recordSha256": "aa88eaf5b9c104b6023e3c0358b93d6731630f02fb688dc67b7d3fd30702e0eb",
+      "assetSha256": "8ff7cacdb275cf8faeca693b93dc128ee04151db7822fff77149d835160f3804"
+    },
+    {
+      "placeId": "JP-193",
+      "assetPath": "images/places/JP-193/yonehara-beach-sand-and-mountains.webp",
+      "originalTitle": "File:Yonehara Beach 5.jpg",
+      "role": "identity",
+      "recordSha256": "299d44d053972cd01744c7e1b241395f65909312e8a798b3708d2931fe0fadb5",
+      "assetSha256": "4c0863b3d9f3e5c14894d12f5fb408d815f950cb177805349534578e41641c91"
+    },
+    {
+      "placeId": "JP-201",
+      "assetPath": "images/places/JP-201/hatenohama-sandbar-aerial.webp",
+      "originalTitle": "File:Okinawa-kumejima Hatenohama Beach-xl.jpg",
+      "role": "identity",
+      "recordSha256": "f603997f9eda358fa9427079800a2c7a07993e36f6878420053eb999bbcfb9c2",
+      "assetSha256": "109674c9dc1d90072e30036731862e8c4a6502250f9b45dfad80ba765ad2c5aa"
+    },
+    {
+      "placeId": "JP-211",
+      "assetPath": "images/places/JP-211/animejapan-tokyo-big-sight-entrance.webp",
+      "originalTitle": "File:AnimeJapan 2014 (13370919653).jpg",
+      "role": "identity",
+      "recordSha256": "f783628336b39930ce5e55754f68578761d331b72ad6ef12da4d5eccfd1e42b0",
+      "assetSha256": "008238fe17d6a4174e38be8851abe5cfd51df3ccd12551422d763dd9fd5768f5"
+    },
+    {
+      "placeId": "JP-156",
+      "assetPath": "images/places/JP-156/naha-sakaemachi-ichiba-covered-arcade.webp",
+      "originalTitle": "File:Naha Sakaemachi Ichiba 01.JPG",
+      "role": "identity",
+      "recordSha256": "0e8cc3b0553e39eca672eda80a87baa6b1512fd97b55ba28f6d2c263937aeebf",
+      "assetSha256": "e840707e7ed3eecb5def873131167eb15915e0d630f21ce1f4ca73de6ea06633"
+    },
+    {
+      "placeId": "JP-107",
+      "assetPath": "images/places/JP-107/namba-yasaka-torii-name-stone.webp",
+      "originalTitle": "File:Namba-yasaka-jinja Torii entrance.jpg",
+      "role": "identity",
+      "recordSha256": "5ad4ee021390859ebeb2a432e2359f7bdce835b39060b6d89f40e34ec1a5da73",
+      "assetSha256": "286e17cffdf23d1d610749583b215ebbed715e1a96632205bda57a0edbcf107e"
+    },
+    {
+      "placeId": "JP-140",
+      "assetPath": "images/places/JP-140/mount-rokko-night-view-kobe.webp",
+      "originalTitle": "File:Night View from Mount Rokko 2008-02.JPG",
+      "role": "identity",
+      "recordSha256": "ca2e067c1dc14c8332f1d279ddee8448ce56b4b8fcc9de52701e2a0e64e16141",
+      "assetSha256": "1d305da0c042cd400088eb29f7461c46fdc5589b386839410c1117691be600e0"
+    },
+    {
+      "placeId": "JP-150",
+      "assetPath": "images/places/JP-150/amanohashidate-kasamatsu-view.webp",
+      "originalTitle": "File:View of Amano-Hashidate at Kasamatsu Park.JPG",
+      "role": "identity",
+      "recordSha256": "b10dd0464feca9ec4eae1f653fd6fc29514e2cfe8a5a84c221628523cdae3304",
+      "assetSha256": "1e77d3921a336ebff3f0cd64451c22b5c6ad5f7745c888ed79fb77d808b06f1e"
+    },
+    {
+      "placeId": "JP-166",
+      "assetPath": "images/places/JP-166/mihama-american-village-colorful-buildings.webp",
+      "originalTitle": "File:Mihama Town Resort American Village 3.JPG",
+      "role": "identity",
+      "recordSha256": "321151da63889c656c517ec6cd56290a1429938dfceef1479e42ae1669d4935e",
+      "assetSha256": "16cc14ee470827b83376f6d1e5025bc489c8588ddb7686c60b2499ec6571dafa"
+    },
+    {
+      "placeId": "JP-199",
+      "assetPath": "images/places/JP-199/hateruma-nishihama-turquoise-water.webp",
+      "originalTitle": "File:Hateruma nishihama 1.jpg",
+      "role": "identity",
+      "recordSha256": "6364358185305ed4aaa8d022185bd88f8738f05085cd2933022472c422283f5c",
+      "assetSha256": "cc21561b136e18c099bb3022a2ebe07aafd291985a60c93202314e076e5ea2f8"
+    },
+    {
+      "placeId": "JP-209",
+      "assetPath": "images/places/JP-209/okunoshima-rabbit-ruins.webp",
+      "originalTitle": "File:Rabbits of Okunoshima, March 2019.jpg",
+      "role": "identity",
+      "recordSha256": "a46664faba65e086587c94b3db5f6fcc2427616d8ab7a65bcf85d39e2300df2b",
+      "assetSha256": "d1b8a981910c85a422ecc021b18e6b467bd667859bf7bb5e5641be15c35b3677"
+    }
+  ]
+}

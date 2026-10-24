@@ -1,0 +1,571 @@
+{
+  "version": 1,
+  "phase": "Block 22 — B6.2 grade-A identity photography",
+  "acquisitionDate": "2026-09-24",
+  "entries": [
+    {
+      "batch": 1,
+      "placeId": "JP-023",
+      "slug": "yanaka-ginza-shopping-street-gate",
+      "title": "File:Yanaka Ginza (53149155977).jpg",
+      "alt": "Arco de entrada con el rótulo 谷中銀座 sobre la calle comercial de Yanaka Ginza, flanqueada por casas bajas y postes eléctricos.",
+      "role": "identity",
+      "whyIdentity": "El arco con el nombre de la calle comercial la identifica sin ambigüedad y muestra la escala residencial baja que define el barrio."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-024",
+      "slug": "nezu-shrine-romon-gate",
+      "title": "File:Nezu-jinja Romon 4.jpg",
+      "alt": "Puerta Rōmon lacada en rojo del santuario Nezu, con su placa central, entre árboles altos.",
+      "role": "identity",
+      "whyIdentity": "La descripción de Commons sitúa la puerta principal del santuario Nezu (Bunkyō); la Rōmon con placa es su imagen de acceso característica."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-027",
+      "slug": "kanda-myojin-main-hall-courtyard",
+      "title": "File:Kanda-Myojin grand hall.jpg",
+      "alt": "Pabellón principal de Kanda Myōjin, con tejado verde y aleros rojos y dorados, al fondo de un patio empedrado con oficinas detrás.",
+      "role": "identity",
+      "whyIdentity": "El haiden frontal del santuario ante los edificios de oficinas de Akihabara es la vista que lo identifica; la fuente lo describe como el patio del santuario."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-029",
+      "slug": "imperial-palace-east-gardens-honmaru-lawn",
+      "title": "File:Tokyo Imperial Palace East Gardens Park.jpg",
+      "alt": "Césped del Honmaru en los Jardines Este del Palacio Imperial, con pinos y visitantes, y los rascacielos de Ōtemachi al fondo.",
+      "role": "identity",
+      "whyIdentity": "La explanada del Honmaru, antiguo recinto central del castillo de Edo, recortada contra el skyline de Marunouchi, es la vista propia de los Jardines Este."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-031",
+      "slug": "hama-rikyu-pond-bridge-shiodome",
+      "title": "File:Tokio Hamarikyu-Garten-20091017-RM-141110.jpg",
+      "alt": "Estanque de marea de Hama-rikyū cruzado por un puente de madera, con pinos podados y las torres de Shiodome detrás.",
+      "role": "identity",
+      "whyIdentity": "El estanque de agua de mar, el puente y el contraste con las torres de Shiodome identifican Hama-rikyū frente a cualquier otro jardín de Tokio."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-035",
+      "slug": "national-art-center-tokyo-glass-facade",
+      "title": "File:2018 National Art Center, Tokyo 2.jpg",
+      "alt": "Fachada ondulada de vidrio verde del Centro Nacional de Arte de Tokio, con el cono de la entrada y su marquesina circular.",
+      "role": "identity",
+      "whyIdentity": "La fachada ondulada de Kishō Kurokawa con el cono de acceso es la arquitectura que el propio lugar ofrece como contenido."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-036",
+      "slug": "21-21-design-sight-folded-roof",
+      "title": "File:21 21 DESIGN SIGHT 201306.jpg",
+      "alt": "Edificio de 21_21 DESIGN SIGHT de Tadao Ando, con su cubierta de acero plegada descendiendo hacia el césped y una hilera de árboles detrás.",
+      "role": "identity",
+      "whyIdentity": "La cubierta plegada de una sola lámina y el muro de hormigón visto de Ando son inconfundibles; el césped y los árboles de Tokyo Midtown la sitúan."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-045",
+      "slug": "inokashira-pond-benzaiten-hall",
+      "title": "File:Inokashira park pond 2024.jpg",
+      "alt": "Estanque de Inokashira en verano, con el pabellón rojo de Benzaiten entre los árboles y una pasarela de madera sobre el agua.",
+      "role": "identity",
+      "whyIdentity": "El pabellón de Benzaiten a orillas del estanque es el hito del parque Inokashira junto a Kichijōji; la fuente fecha la toma en julio de 2024."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-048",
+      "slug": "shimokitazawa-shopping-street-banners",
+      "title": "File:Shimokitazawa Street 2015.jpg",
+      "alt": "Calle comercial de Shimokitazawa llena de gente, con banderolas rojas con el nombre del barrio, fachadas de ladrillo y carteles de tiendas.",
+      "role": "identity",
+      "whyIdentity": "Las banderolas con 下北沢 y la calle estrecha y densa de tiendas identifican el barrio y transmiten su atractivo: explorar a pie."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-069",
+      "slug": "bishamondo-main-hall-yamashina",
+      "title": "File:240316 Bishamondo Yamashina Kyoto Japan01s3.jpg",
+      "alt": "Fachada del hondō de Bishamon-dō en Yamashina, con puerta de acceso bermellón, linternas de piedra y el bosque de la ladera detrás.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica Bishamondō en Yamashina; el pabellón principal frontal con la colina boscosa funciona como portada del templo."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-074",
+      "slug": "gio-ji-moss-garden-thatched-hall",
+      "title": "File:Giō-ji - Kyoto - DSC06265.JPG",
+      "alt": "Jardín de musgo de Giō-ji bajo arces verdes, con el pequeño pabellón de techo de paja al fondo.",
+      "role": "identity",
+      "whyIdentity": "Commons lo clasifica en Category:Moss Garden, Giō-ji; el musgo ondulado bajo los arces y la ermita de paja son la imagen propia del templo."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-075",
+      "slug": "otagi-nenbutsu-ji-rakan-autumn",
+      "title": "File:Otagi nenbutsuji08s3200.jpg",
+      "alt": "Filas de estatuas rakan de piedra cubiertas de musgo en la ladera de Otagi Nenbutsu-ji, con arces otoñales y un pabellón al fondo.",
+      "role": "identity",
+      "whyIdentity": "Las 1.200 rakan de rostros distintos son el contenido del lugar; la fuente lo identifica como Otagi Nenbutsu-ji en Sagano."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-076",
+      "slug": "adashino-nenbutsu-ji-stone-statues",
+      "title": "File:Adashino-nenbutsuji (化野念仏寺), Sagano, Kyoto, Japan.jpg",
+      "alt": "Campo de miles de pequeñas estatuas y estupas de piedra de Adashino Nenbutsu-ji, con una pagoda de piedra y árboles al fondo.",
+      "role": "identity",
+      "whyIdentity": "El mar de estatuas funerarias en torno a la pagoda es el paisaje de memoria que define el templo; la fuente lo nombra explícitamente."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-082",
+      "slug": "daitoku-ji-koto-in-approach-path",
+      "title": "File:Koto in zen chemin.jpg",
+      "alt": "Sendero enlosado entre setos de bambú y arbustos que conduce al porche de acceso de Kōtō-in, subtemplo de Daitoku-ji.",
+      "role": "identity",
+      "whyIdentity": "Commons lo clasifica en Category:Koutouin, Daitokuji; el sendero de acceso de Kōtō-in es la imagen más reconocible de los subtemplos visitables."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-083",
+      "slug": "genko-an-round-and-square-windows",
+      "title": "File:Genkō-an, Round and Square Windows 01.jpg",
+      "alt": "Sala de tatami de Genkō-an con la ventana redonda de la iluminación y la ventana cuadrada de la duda abiertas al jardín verde.",
+      "role": "identity",
+      "whyIdentity": "Commons lo clasifica en Category:Satori-no-mado and Mayoi-no-mado, Genko-an: las dos ventanas son exactamente la experiencia que justifica la visita."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-088",
+      "slug": "jingo-ji-precinct-autumn-maples",
+      "title": "File:Jingoji Kyoto Kyoto15s3s4500.jpg",
+      "alt": "Recinto de montaña de Jingo-ji visto desde lo alto, con tejados del templo, una amplia explanada de grava y arces rojos y amarillos.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica Jingo-ji (Ukyō-ku); el recinto elevado entre bosque transmite el aislamiento que el lugar ofrece tras la subida."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-133",
+      "slug": "naramachi-shiryokan-migawari-zaru",
+      "title": "File:Naramachi-shiryokan Nara02n3200.jpg",
+      "alt": "Entrada del museo Naramachi Shiryōkan con farolillos y amuletos rojos migawari-zaru colgando del alero, junto a una calle de casas de madera.",
+      "role": "identity",
+      "whyIdentity": "La fuente lo sitúa en Naramachi (Nara); los migawari-zaru rojos y el rótulo del museo local son el signo propio del barrio y no de otra ciudad."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-136",
+      "slug": "koko-en-pines-himeji-castle",
+      "title": "File:Kokoen 2009-04-08 (3640594934).jpg",
+      "alt": "Pinos podados y linterna de piedra en un patio de Kōko-en, con los muros blancos y una torre del castillo de Himeji al fondo.",
+      "role": "identity",
+      "whyIdentity": "Kōko-en linda con el castillo de Himeji; la torre al fondo sobre el jardín de pinos lo distingue de cualquier otro jardín japonés."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-137",
+      "slug": "engyo-ji-mitsunodo-halls",
+      "title": "File:Engyoji05s4592.jpg",
+      "alt": "Grandes salas de madera del Mitsunodō de Engyō-ji en el monte Shosha, con su explanada de grava y el bosque de cedros detrás.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica Engyō-ji en Himeji; el conjunto de tres salas del Mitsunodō en el bosque es la vista monumental característica del monte Shosha."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-147",
+      "slug": "enryaku-ji-konponchudo-autumn",
+      "title": "File:Enryakuji Konponchudo04n4272.jpg",
+      "alt": "Konpon-chūdō de Enryaku-ji en el monte Hiei visto entre cedros, con tejados grises y arces rojos en otoño.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica el Konpon-chūdō, tesoro nacional y sala central de Enryaku-ji; su escala entre el bosque del monte Hiei es la identidad del lugar."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-170",
+      "slug": "katsuren-castle-terraced-walls",
+      "title": "File:Katsuren Castle ruins.jpg",
+      "alt": "Murallas curvas de piedra caliza de las ruinas del castillo de Katsuren subiendo en terrazas por una colina herbosa bajo un cielo con nubes.",
+      "role": "identity",
+      "whyIdentity": "Las terrazas amuralladas que ascienden hacia la cima son la forma reconocible de Katsuren; la fuente la sitúa en Uruma, Okinawa."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-175",
+      "slug": "nakijin-castle-serpentine-walls",
+      "title": "File:Nakijin Gusuku - panoramio.jpg",
+      "alt": "Muralla serpenteante de piedra del castillo de Nakijin rodeando una explanada de hierba, con colinas boscosas detrás.",
+      "role": "identity",
+      "whyIdentity": "La muralla ondulante de piedra caliza es el rasgo inconfundible de Nakijin Gusuku; la fuente la nombra explícitamente."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-191",
+      "slug": "yabiji-reef-aerial-view",
+      "title": "File:Miyako yabiji.jpg",
+      "alt": "Vista aérea de los bancos de coral de Yabiji frente a Miyako: manchas turquesa y blancas de arrecife sobre el mar azul entre nubes.",
+      "role": "identity",
+      "whyIdentity": "La fuente la describe como 八重干瀬 (Yabiji, Miyakojima); la vista aérea muestra la escala del sistema de arrecifes que ninguna toma submarina puede situar."
+    },
+    {
+      "batch": 4,
+      "placeId": "JP-193",
+      "slug": "yonehara-beach-sand-and-mountains",
+      "title": "File:Yonehara Beach 5.jpg",
+      "alt": "Playa de arena blanca de Yonehara en Ishigaki, con arbustos costeros en primer plano, el arrecife poco profundo y los montes verdes del norte de la isla detrás.",
+      "role": "identity",
+      "whyIdentity": "Commons la clasifica en Category:Yonehara Beach; la playa con el arrecife somero y la cordillera de Ishigaki detrás sitúa el lugar frente a otra playa genérica."
+    },
+    {
+      "batch": 4,
+      "placeId": "JP-201",
+      "slug": "hatenohama-sandbar-aerial",
+      "title": "File:Okinawa-kumejima Hatenohama Beach-xl.jpg",
+      "alt": "Vista aérea del banco de arena blanca de Hate no Hama curvándose entre aguas turquesa y arrecifes, con Kumejima al fondo.",
+      "role": "identity",
+      "whyIdentity": "La lengua de arena deshabitada entre arrecifes frente a Kumejima es exactamente Hate no Hama; la fuente (proyecto FIND/47) la nombra así."
+    },
+    {
+      "batch": 4,
+      "placeId": "JP-211",
+      "slug": "animejapan-tokyo-big-sight-entrance",
+      "title": "File:AnimeJapan 2014 (13370919653).jpg",
+      "alt": "Visitantes ante la entrada del Tokyo Big Sight bajo sus pirámides invertidas, con carteles y señalética de AnimeJapan 2014.",
+      "role": "identity",
+      "whyIdentity": "Coincide con el brief editorial (pabellón principal y señalética del evento): la sede con la señalética de AnimeJapan identifica la feria; el alt declara que es la edición de 2014."
+    },
+    {
+      "batch": 5,
+      "placeId": "JP-156",
+      "slug": "naha-sakaemachi-ichiba-covered-arcade",
+      "title": "File:Naha Sakaemachi Ichiba 01.JPG",
+      "alt": "Rótulo 栄町市場 sobre la galería cubierta de Sakaemachi en Naha, con el pasillo comercial y sus negocios bajo el techo.",
+      "role": "identity",
+      "whyIdentity": "La página original de Commons nombra el propio Sakaemachi Ichiba (栄町市場); la imagen muestra el mercado y su galería comercial, no un establecimiento cercano."
+    }
+  ],
+  "rejected": [
+    {
+      "placeId": "JP-023",
+      "title": "File:Yanaka Ginza, Yanaka (53417016334).jpg",
+      "reason": "Muestra el mismo arco, pero lleva una marca de agua superpuesta del autor; se prefiere una toma limpia equivalente."
+    },
+    {
+      "placeId": "JP-023",
+      "title": "File:Yanaka cemetery 2.jpg",
+      "reason": "Tumba individual en primer plano: no funciona como portada del conjunto calle + cementerio."
+    },
+    {
+      "placeId": "JP-024",
+      "title": "File:Nezu jinja - Torii 1.jpg",
+      "reason": "Un torii aislado no distingue Nezu de otros santuarios; la Rōmon con placa sí."
+    },
+    {
+      "placeId": "JP-027",
+      "title": "File:Kanda-Myojin 501.jpg",
+      "reason": "Es un goshuin (sello caligráfico), no el lugar."
+    },
+    {
+      "placeId": "JP-027",
+      "title": "File:Kanda-myōjin haiden.jpg",
+      "reason": "Válida pero con un letrero y un visitante en primer plano; la toma frontal elegida es más limpia."
+    },
+    {
+      "placeId": "JP-029",
+      "title": "File:Imperial Palace East Garden @ Tokyo (11165664295).jpg",
+      "reason": "Césped seco invernal sin elemento que sitúe el lugar; poco representativa."
+    },
+    {
+      "placeId": "JP-029",
+      "title": "File:Chiyoda Tokyo August Tokyo Imperial Palace 2014 43.JPG",
+      "reason": "Descrita sólo como Palacio Imperial, sin garantía de que sea el recinto de los Jardines Este."
+    },
+    {
+      "placeId": "JP-031",
+      "title": "File:Hama-Rikyu Gardens (11324122253).jpg",
+      "reason": "Hojas en el suelo: detalle sin identidad."
+    },
+    {
+      "placeId": "JP-031",
+      "title": "File:Hamarikyu Garden as seen from Shiodome.jpg",
+      "reason": "Vista aérea: contexto, no identidad; ilegible como portada a 4:3."
+    },
+    {
+      "placeId": "JP-035",
+      "title": "File:National Art Center @ Tokyo (11495394516).jpg",
+      "reason": "Detalle abstracto de la fachada: no identifica el edificio a tamaño tarjeta."
+    },
+    {
+      "placeId": "JP-036",
+      "title": "File:21 21 DESIGN SIGHT模型.jpg",
+      "reason": "Maqueta del edificio, no el lugar."
+    },
+    {
+      "placeId": "JP-045",
+      "title": "File:Inokashira Park Zoo PC053119.jpg",
+      "reason": "Capibara del zoo: no representa el parque ni el barrio."
+    },
+    {
+      "placeId": "JP-045",
+      "title": "File:Inokashira Park Cherry blossoms.jpg",
+      "reason": "Iluminación nocturna estacional: rol seasonal, no identity."
+    },
+    {
+      "placeId": "JP-048",
+      "title": "File:Cake-shaped clocks for sale in Shimokitazawa.jpg",
+      "reason": "Detalle de un escaparate sin contexto del barrio."
+    },
+    {
+      "placeId": "JP-048",
+      "title": "File:Walk in Shimokitazawa.jpg",
+      "reason": "Edificio de la estación de Odakyū: identifica la estación, no el barrio de callejuelas."
+    },
+    {
+      "placeId": "JP-050",
+      "title": "File:ProfSekkokuLab 20260205.jpg",
+      "reason": "Interior de una sala-laboratorio con tres Poké Balls: no muestra el bosque ni las figuras que definen PokéPark KANTO y no es inequívoco como portada."
+    },
+    {
+      "placeId": "JP-050",
+      "title": "File:PokéPark Kanto logo.png",
+      "reason": "Logotipo, no fotografía del lugar."
+    },
+    {
+      "placeId": "JP-069",
+      "title": "File:Bishamondō 01.jpg",
+      "reason": "Licencia CC BY 2.1 JP fuera de la lista permitida del pipeline."
+    },
+    {
+      "placeId": "JP-069",
+      "title": "File:Bishamondō stairs.JPG",
+      "reason": "Escalinata en el bosque sin el templo reconocible."
+    },
+    {
+      "placeId": "JP-074",
+      "title": "File:Giō-ji Buddhist Temple - Entrance.jpg",
+      "reason": "Portillo de entrada poco legible a tamaño tarjeta."
+    },
+    {
+      "placeId": "JP-075",
+      "title": "File:Laughing pilgrim statue of Otagi-nenbutsuji.jpg",
+      "reason": "Primer plano de una sola estatua: detail, no identity."
+    },
+    {
+      "placeId": "JP-076",
+      "title": "File:Kyoto Adashino Nenbutsu-ji Bamboo Forest 1.jpg",
+      "reason": "Bosque de bambú vertical: se confunde con Arashiyama y no muestra las estatuas."
+    },
+    {
+      "placeId": "JP-082",
+      "title": "File:Daitoku-ji in Koka 01.jpg",
+      "reason": "Es otro Daitoku-ji, en Kōka (Shiga): lugar diferente."
+    },
+    {
+      "placeId": "JP-082",
+      "title": "File:Daitoku-ji Temple , 大徳寺 勅使門 - panoramio.jpg",
+      "reason": "Puerta del recinto principal, no un subtemplo; resolución baja (1196 px)."
+    },
+    {
+      "placeId": "JP-082",
+      "title": "File:Daisen-in Daitokuji (Kita-Ku Kyoto) SubTemple hdsr S5 02.jpg",
+      "reason": "Cartel indicador del subtemplo, no el lugar."
+    },
+    {
+      "placeId": "JP-083",
+      "title": "File:Genkō-an, Main Hall 01.jpg",
+      "reason": "Pabellón genérico que no muestra las ventanas que definen la visita."
+    },
+    {
+      "placeId": "JP-083",
+      "title": "File:Genkoan-Windows.jpg",
+      "reason": "Mismo sujeto a 1500 px y con la ventana redonda descentrada; se prefiere la toma de 3264 px."
+    },
+    {
+      "placeId": "JP-088",
+      "title": "File:Jingo-ji (7066697911).jpg",
+      "reason": "Niña en un puesto de kawarake: persona identificable y sin el lugar."
+    },
+    {
+      "placeId": "JP-088",
+      "title": "File:Jingo-ji (6920612150).jpg",
+      "reason": "Bosque de cedros sin el templo."
+    },
+    {
+      "placeId": "JP-095",
+      "title": "File:TOKIO INKARAMI in Tadasu Forest Shimogamo Shrine 01.jpg",
+      "reason": "Instalación de luz en Shimogamo, no teamLab Biovortex."
+    },
+    {
+      "placeId": "JP-120",
+      "title": "File:Nemophila field at Nagai Botanical Garden.jpg",
+      "reason": "Jardín botánico de Nagai de día: no muestra la obra nocturna de teamLab que define el lugar."
+    },
+    {
+      "placeId": "JP-121",
+      "title": "Category:Tower of the Sun",
+      "reason": "La Torre del Sol es obra protegida de Tarō Okamoto y Japón no tiene libertad de panorama para esculturas: Commons borra las fotos centradas en ella (categoría de solicitudes de borrado)."
+    },
+    {
+      "placeId": "JP-121",
+      "title": "File:Expo70 Park (Suite Osaka) hdsr S5 06.jpg",
+      "reason": "Vista desde el parque hacia el monorraíl y Expocity: no muestra la torre ni el parque de forma reconocible."
+    },
+    {
+      "placeId": "JP-121",
+      "title": "File:EXPO '70 PAVILION bekkan 2.jpg",
+      "reason": "Patio del anexo del pabellón Expo'70: no identifica el parque ni la torre."
+    },
+    {
+      "placeId": "JP-133",
+      "title": "File:Naramachii01n3200.jpg",
+      "reason": "Calle de machiya válida pero intercambiable con otros barrios históricos; se prefiere la toma con los migawari-zaru y el rótulo del museo."
+    },
+    {
+      "placeId": "JP-136",
+      "title": "File:Chicken February 2009-1.jpg",
+      "reason": "Resultado de búsqueda sin relación con el lugar."
+    },
+    {
+      "placeId": "JP-136",
+      "title": "File:Himeji Koukoen32n4592.jpg",
+      "reason": "Estanque otoñal bonito pero sin elemento que distinga Kōko-en de otro jardín; la toma con el castillo lo sitúa."
+    },
+    {
+      "placeId": "JP-137",
+      "title": "File:Engyô-ji Temple - Paper lanterns.jpg",
+      "reason": "Detalle de farolillos: detail, no identity."
+    },
+    {
+      "placeId": "JP-147",
+      "title": "File:Enryakuji - IMG 6251.JPG",
+      "reason": "Sendero en el bosque sin edificios del templo."
+    },
+    {
+      "placeId": "JP-147",
+      "title": "File:Yamagata Risshaku-ji Konpon Chudo Main Hall 1.jpg",
+      "reason": "Es el Konpon-chūdō de Risshaku-ji (Yamagata): lugar diferente."
+    },
+    {
+      "placeId": "JP-156",
+      "title": "File:栄町りうぼう リウボウストア 那覇市安里 Sep 10, 2011 (1).jpg",
+      "reason": "Supermercado Ryubo de Sakaemachi, no la galería comercial nocturna."
+    },
+    {
+      "placeId": "JP-168",
+      "title": "File:Yomitan Yachimun no Sato.jpg",
+      "reason": "450×338 px: resolución insuficiente para portada (el pipeline sirve hasta 1600 px y no reescala al alza)."
+    },
+    {
+      "placeId": "JP-168",
+      "title": "File:Kitagama-Kasen(Akazu-chō).jpg",
+      "reason": "Horno Kitagama de Akazu (Seto, Aichi): lugar diferente pese al nombre."
+    },
+    {
+      "placeId": "JP-170",
+      "title": "File:Katsuren Castle support column ruins.jpg",
+      "reason": "Basas de columnas en la cima: detail, no identity."
+    },
+    {
+      "placeId": "JP-175",
+      "title": "File:Nakijin-Castle Ticket-counter.jpg",
+      "reason": "Taquilla de acceso, no las ruinas."
+    },
+    {
+      "placeId": "JP-191",
+      "title": "File:Yabishi1.jpg",
+      "reason": "Coral submarino genérico y sin autor declarado en Commons (CC BY 3.0 exige crédito)."
+    },
+    {
+      "placeId": "JP-191",
+      "title": "File:Yabiji coral reef Aerial photograph.2008.jpg",
+      "reason": "Ortofoto del GSI con licencia 'Attribution' propia fuera de la lista del pipeline."
+    },
+    {
+      "placeId": "JP-193",
+      "title": "File:Yonehara Beach 20.jpg",
+      "reason": "Acceso por carretera con vallas y contenedores: no muestra la playa."
+    },
+    {
+      "placeId": "JP-193",
+      "title": "File:Yonehara Beach 24.jpg",
+      "reason": "Aparcamiento de coches."
+    },
+    {
+      "placeId": "JP-195",
+      "title": "File:Milky Way - 7 July 2013.jpg",
+      "reason": "Vía Láctea fotografiada en Okayama: otro lugar."
+    },
+    {
+      "placeId": "JP-195",
+      "title": "File:Milky Way and Sagittarius.JPG",
+      "reason": "Tomada desde el monte Yakushi (Alpes japoneses): otro lugar."
+    },
+    {
+      "placeId": "JP-195",
+      "title": "File:Haterumajima Observatory Tower.jpg",
+      "reason": "Torre de observación de Hateruma de día: un edificio concreto, no el cielo nocturno que define la experiencia en Yaeyama."
+    },
+    {
+      "placeId": "JP-201",
+      "title": "File:Hateno-hama beach はての浜 DSCF7906.JPG",
+      "reason": "Pareja identificable sentada en la arena como sujeto principal."
+    },
+    {
+      "placeId": "JP-202",
+      "title": "File:Kerama Island.jpg",
+      "reason": "Paisaje de islas: no muestra ballenas; sustituiría la experiencia por otro sujeto."
+    },
+    {
+      "placeId": "JP-202",
+      "title": "File:Okinawa Churaumi Aquarium.jpg",
+      "reason": "Acuario Churaumi: otro lugar."
+    },
+    {
+      "placeId": "JP-211",
+      "title": "Category:AnimeJapan 2015",
+      "reason": "Retratos de cosplayers y azafatas identificables: personas como sujeto, no el evento."
+    },
+    {
+      "placeId": "JP-211",
+      "title": "File:Animejapanlogo.png",
+      "reason": "Logotipo, no fotografía."
+    }
+  ],
+  "unresolved": [
+    {
+      "placeId": "JP-050",
+      "reason": "Commons Category:PokéPark Kanto contiene una foto CC BY 4.0 de Sekkoku Lab (5184×3456), pero muestra un interior genérico de la zona junto al Pokémon Forest sin entrada, nombre del parque ni señalética identificadora. El logotipo de Commons tampoco es una fotografía."
+    },
+    {
+      "placeId": "JP-079",
+      "reason": "Las páginas originales de Flickr para Rakusai Bamboo Park 3 (Mark Fountain, 2008-09-30) y Rakusai Bamboo Park, Kyoto (kyoshiok, 2016-10-17) marcan ambas All rights reserved; no se halló candidata bajo PD/CC0/CC BY/CC BY-SA."
+    },
+    {
+      "placeId": "JP-095",
+      "reason": "La foto original de Flickr Outside teamLab Biovortex (Joe Shlabotnik, 2026-04-04) es exterior, pero CC BY-NC-SA 4.0 excluye uso comercial. Los interiores representan obras contemporáneas de teamLab; la licencia del fotógrafo no concede los derechos de esas obras."
+    },
+    {
+      "placeId": "JP-120",
+      "reason": "La foto de entrada de Osaka Metro Nine sí identifica el recinto, pero su página no concede una licencia PD/CC compatible. Las fotos originales de Flickr teamLab Botanical Garden de banzainetsurfer (2024-09-28) aparecen All rights reserved; las instalaciones interiores además plantean derechos de las obras contemporáneas."
+    },
+    {
+      "placeId": "JP-121",
+      "reason": "La foto original de Flickr The Tower of the Sun (Masakazu Matsumoto, 2012-07-29) tiene CC BY 2.0 y está centrada en la escultura. Commons señala que Japón no permite reutilizar comercialmente obras artísticas modernas mediante libertad de panorama; esta imagen no supera derechos subyacentes ni identidad incidental."
+    },
+    {
+      "placeId": "JP-168",
+      "reason": "La foto directa de Commons Yomitan Yachimun no Sato.jpg está liberada por su autora al dominio público, pero el original mide 450×338. Photozou ofrece otras vistas del mismo sitio bajo CC BY-NC-ND; no son admisibles y ninguna candidata compatible de ≥1600 px se verificó."
+    },
+    {
+      "placeId": "JP-195",
+      "reason": "Flickr confirma que Milky Way, which rise from the forest fue tomada en Ishigaki, pero la página original indica All rights reserved. La candidata de Ogansaki Lighthouse en Pixabay confirma Ishigaki y 3300×2200, pero usa la licencia propia de Pixabay, no PD/CC0/CC BY/CC BY-SA."
+    },
+    {
+      "placeId": "JP-202",
+      "reason": "La página original de Flickr humpback whale breaching off Kerama island Okinawa Japan documenta una jorobada y Kerama, pero marca All rights reserved. La foto CC BY 2.0 de Kerama Island en Commons muestra sólo islas y mar, sin ballena ni actividad."
+    }
+  ]
+}

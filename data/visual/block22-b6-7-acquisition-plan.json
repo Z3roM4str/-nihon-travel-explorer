@@ -1,0 +1,504 @@
+{
+  "acquisitionDate": "2026-09-24",
+  "sourcePolicy": "Only Wikimedia Commons source pages verified against the original metadata; accepted licenses: Public Domain, PD-self, CC0, CC BY, CC BY-SA. One complementary frame per baseline identity.",
+  "entries": [
+    {
+      "batch": 1,
+      "placeId": "JP-001",
+      "title": "File:Scramble from above, SHIBUYA SKY (49367160502).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Scramble_from_above,_SHIBUYA_SKY_(49367160502).jpg",
+      "slug": "shibuya-crossing-top-down",
+      "alt": "Vista elevada y cenital de Shibuya Scramble Crossing con peatones cruzando sus varios brazos y edificios urbanos alrededor.",
+      "role": "context",
+      "whyRole": "La toma vertical elevada completa la identidad a nivel de calle al revelar la forma y escala del cruce y cómo convergen sus pasos. Esa lectura espacial ayuda a decidir si dedicar tiempo a observarlo desde arriba y caminarlo.",
+      "identityComparison": "La identity muestra peatones a nivel de calle, fachadas y actividad nocturna; esta imagen muestra la geometría completa del cruce y la escala del flujo desde arriba. No repite fachada ni encuadre.",
+      "visualReview": "Comparación visual lado a lado de la identity y el original de Commons: la candidata centra la intersección de cuatro brazos, con multitudes y referencias del entorno visibles. El encuadre de galería fue revisado también tras adquirirla.",
+      "subjectRightsReview": "El sujeto es una intersección pública y sus peatones. Las vallas, rótulos y marcas comerciales aparecen como contexto urbano incidental; no dominan el encuadre.",
+      "candidatesRejected": [
+        {
+          "title": "File:Shibuya Crossing, Aerial.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Shibuya_Crossing,_Aerial.jpg",
+          "reason": "La vista desde Shibuya Stream abre demasiado el encuadre: el cruce queda pequeño dentro del skyline y no ofrece una lectura útil de su geometría peatonal. La candidata elegida lo mantiene como sujeto principal."
+        },
+        {
+          "title": "File:Tokyo Shibuya Scramble Crossing 2018-10-09.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg",
+          "reason": "Toma a nivel de Hachikō con un cruce lleno, pero el punto de vista y la información repiten la identity; el ángulo elevado aporta la escala y el trazado que faltaban."
+        }
+      ]
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-002",
+      "title": "File:Shibuya Sky Observation Deck (53415730632).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Shibuya_Sky_Observation_Deck_(53415730632).jpg",
+      "slug": "shibuya-sky-rooftop-experience",
+      "alt": "Visitantes recorren la azotea abierta de SHIBUYA SKY mientras miran la ciudad desde la plataforma panorámica.",
+      "role": "experience",
+      "whyRole": "Los visitantes y la plataforma sin techo explican cómo se vive el observatorio de 360° y su carácter exterior. Ayuda a decidir si la experiencia de altura y viento es atractiva, además del panorama.",
+      "identityComparison": "La identity muestra un panorama despejado desde el deck, sin uso humano legible; la nueva toma muestra visitantes sobre el rooftop y el espacio abierto que atraviesan. No es otro skyline vacío ni un retrato.",
+      "visualReview": "Comparación visual lado a lado: varias personas aparecen pequeñas dentro de la terraza; el espacio, el horizonte y el texto físico del rooftop mantienen el sitio como protagonista. Se revisó el original completo y su recorte de galería.",
+      "subjectRightsReview": "El sujeto principal es el espacio público del deck; los visitantes son parte incidental de su uso, sin retrato individual destacado. No se centra en una instalación o personaje protegido.",
+      "candidatesRejected": [
+        {
+          "title": "File:Tokyo Tower and Skyscrapers from Shibuya Sky Observation Deck (53416648661).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_Tower_and_Skyscrapers_from_Shibuya_Sky_Observation_Deck_(53416648661).jpg",
+          "reason": "Está tomada desde SHIBUYA SKY, pero concentra la vista en Tokyo Tower y vuelve a una escena de skyline, redundante con la identity; no explica cómo se recorre el rooftop."
+        },
+        {
+          "title": "File:Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck (53417085580).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Yoyogi_Park_and_Shinjuku_Skyline_from_Shibuya_Sky_Observation_Deck_(53417085580).jpg",
+          "reason": "También es un panorama sin usuarios visibles y repite la faceta de vista que ya cubre la identity. La candidata elegida aporta la experiencia de la terraza abierta."
+        }
+      ]
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-003",
+      "title": "File:Praying At Meiji Jingū (108788307).jpeg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Praying_At_Meiji_Jingū_(108788307).jpeg",
+      "slug": "meiji-jingu-prayer-experience",
+      "alt": "Una persona realiza una oración ante el recinto de Meiji Jingū, con la cuerda sagrada y la arquitectura del santuario a la vista.",
+      "role": "experience",
+      "whyRole": "La escena muestra el ritual de visita que distingue un santuario vivo del acceso boscoso que ya aparece en la identity. La persona está de espaldas e integrada al lugar, no funciona como retrato.",
+      "identityComparison": "La identity comunica el camino arbolado y la transición al recinto; esta escena enseña una acción de culto dentro del santuario. El encuadre no vuelve a mostrar el torii ni el mismo recorrido.",
+      "visualReview": "Comparación visual lado a lado: figura pequeña de espaldas ante un elemento del recinto, con espacio y arquitectura claramente visibles. La persona no ocupa el encuadre como retrato. Se revisó el original y el encuadre del detalle.",
+      "subjectRightsReview": "La fotografía se centra en el recinto histórico y una acción de oración. La figura es secundaria, anónima y de espaldas; no se identifica una obra contemporánea protegida como sujeto.",
+      "candidatesRejected": [
+        {
+          "title": "File:The Torii at the entrance of Meiji Jingū, 明治神宮 (6155458731).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:The_Torii_at_the_entrance_of_Meiji_Jingū,_明治神宮_(6155458731).jpg",
+          "reason": "Una nueva toma del torii de entrada reiteraría el umbral y la vegetación ya visibles en la identity, sin explicar otra faceta de la visita."
+        },
+        {
+          "title": "File:Meiji Jingu Shrine Tokyo Japan.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Meiji_Jingu_Shrine_Tokyo_Japan.jpg",
+          "reason": "Es otra vista estática y exterior del santuario; la identidad ya cubre esa lectura. No muestra ritual ni uso humano del espacio."
+        }
+      ]
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-007",
+      "title": "File:Utagawa kuniteru II hidenoyama stable.png",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Utagawa_kuniteru_II_hidenoyama_stable.png",
+      "slug": "ota-museum-ukiyo-e-sumo-stable",
+      "alt": "Estampa ukiyo-e de 1869 con varios luchadores de sumo y la escena interior de un establo de entrenamiento, perteneciente a la colección del Ōta Memorial Museum of Art.",
+      "role": "detail",
+      "whyRole": "La identity es sólo el exterior del museo. Esta obra de la colección explica qué se va a ver dentro: ukiyo-e especializado y escenas de sumo histórico. El contenido ayuda a valorar el interés de la visita.",
+      "identityComparison": "No comparte fachada, encuadre ni sujeto con la identity. Es una pieza identificada como parte de la colección del propio Ōta Memorial Museum of Art y se usa como detail de su contenido, no como sustituto de otro place.",
+      "visualReview": "La imagen completa muestra varios luchadores y el entorno del establo, no un retrato individual. Su formato horizontal exige un recorte central en móvil; se verificó que la acción central sobrevive en la galería y en escritorio.",
+      "subjectRightsReview": "El artista Utagawa Kuniteru II murió en 1874; Commons documenta la obra como Public Domain bajo PD-Japan y PD-old-100-expired, con procedencia de la colección del museo. No hay obra contemporánea protegida en el encuadre.",
+      "candidatesRejected": [
+        {
+          "title": "File:Kobayashi Kiyochika (1880) Ryōgoku hanabi no zu.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Kobayashi_Kiyochika_(1880)_Ryōgoku_hanabi_no_zu.jpg",
+          "reason": "También pertenece a la colección del museo, pero la escena de fuegos artificiales representa Ryōgoku y no ofrece la actividad humana dentro de la cultura visual del sumo que complementa mejor este catálogo especializado."
+        },
+        {
+          "title": "File:Kobayashi Kiyochika (1876) Tōkyō Shin-Ōhashi uchū.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Kobayashi_Kiyochika_(1876)_Tōkyō_Shin-Ōhashi_uchū.jpg",
+          "reason": "La estampa se centra en lluvia y paisaje del puente Shin-Ōhashi; la candidata elegida muestra personas, práctica y un tema de sumo con lectura inmediata para el visitante."
+        }
+      ]
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-010",
+      "title": "File:Plum tree in bloom @ Shinjuku Gyoen National Garden (13188396645).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Plum_tree_in_bloom_@_Shinjuku_Gyoen_National_Garden_(13188396645).jpg",
+      "slug": "shinjuku-gyoen-plum-blossoms",
+      "alt": "Flores de ciruelo abiertas entre ramas oscuras en Shinjuku Gyoen, una escena de floración de marzo dentro del jardín.",
+      "role": "seasonal",
+      "whyRole": "La floración de ciruelo fotografiada el 16 de marzo muestra una condición estacional real dentro de la ventana de febrero–marzo de 2027. Ayuda a valorar el jardín en las fechas del viaje, no sólo su puente verde habitual.",
+      "identityComparison": "La identity muestra un puente de madera sobre el estanque en temporada verde; la segunda imagen presenta flores de ciruelo en el mismo jardín y una condición visible de final de invierno. No es una variación de puente o encuadre.",
+      "visualReview": "Comparación visual lado a lado: la identidad es paisaje y puente horizontal; la candidata es vertical y se concentra en flores abiertas de ciruelo. El lugar se confirma por título, categoría Shinjuku Gyo-en y página original.",
+      "subjectRightsReview": "Ramas y flores son el sujeto; no hay arte, instalaciones ni personajes protegidos. La fotografía se publicó originalmente en Flickr con CC BY 2.0 y Commons registra revisión de licencia.",
+      "candidatesRejected": [
+        {
+          "title": "File:Bridge in Shinjuku Gyo-en in Tokyo, 2019 - 845.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Bridge_in_Shinjuku_Gyo-en_in_Tokyo,_2019_-_845.jpg",
+          "reason": "Repite la faceta de puente ajardinado ya mostrada por la identity y no añade la condición fenológica de febrero–marzo."
+        },
+        {
+          "title": "File:Wooden footbridge in Shinjuku Gyoen National Garden, Tokyo, Japan, a sunny day with blue sky.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Wooden_footbridge_in_Shinjuku_Gyoen_National_Garden,_Tokyo,_Japan,_a_sunny_day_with_blue_sky.jpg",
+          "reason": "Otra imagen del mismo puente y una luz similar; cambia el día, pero no cambia la información material que recibe quien decide la visita."
+        }
+      ]
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-013",
+      "title": "File:Golden Gai (1).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Golden_Gai_(1).jpg",
+      "slug": "golden-gai-narrow-lane",
+      "alt": "Pasaje estrecho de Golden Gai al anochecer, con pequeñas barras, letreros iluminados y fachadas muy próximas.",
+      "role": "context",
+      "whyRole": "El encuadre enseña la forma física de los callejones y la densidad de bares que se recorren después de llegar a la entrada. Sirve para decidir si ese ambiente compacto resulta atractivo.",
+      "identityComparison": "La identity existente es el letrero de acceso del barrio; esta vista entra en uno de sus callejones y explica escala y disposición. No repite el cartel, una fachada concreta ni el punto de vista de entrada.",
+      "visualReview": "Comparación visual lado a lado: la identity es una señal aislada; la candidata muestra un pasaje profundo con frentes de bares a ambos lados. Personas no dominan la escena; la ruta y el carácter espacial son legibles.",
+      "subjectRightsReview": "Callejón público, fachadas y luz ambiente; letreros comerciales aparecen como parte incidental del barrio y ninguna marca o ilustración protegida domina el encuadre.",
+      "candidatesRejected": [
+        {
+          "title": "File:Golden Gai (2).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Golden_Gai_(2).jpg",
+          "reason": "Toma del mismo autor en el mismo pasaje y a pocos minutos; la vista (1) elegida deja más clara la continuidad del callejón y los pequeños frentes de bar, mientras la alternativa repite casi la misma escena nocturna."
+        },
+        {
+          "title": "File:Golden gai.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Golden_gai.jpg",
+          "reason": "La toma antigua de 2007 mide sólo 1.080×1.462 px y no alcanza el nivel de resolución del original elegido; además comunica menos iluminación y actividad nocturna actual."
+        }
+      ]
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-016",
+      "title": "File:Views in April 2019 around the Buddhist temple Sensō-ji in Asakusa, Tokyo, Japan 18.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Views_in_April_2019_around_the_Buddhist_temple_Sensō-ji_in_Asakusa,_Tokyo,_Japan_18.jpg",
+      "slug": "sensoji-incense-ritual-visitors",
+      "alt": "Multitud de visitantes se reúne alrededor del humo del quemador de incienso de Sensō-ji bajo los aleros del templo.",
+      "role": "experience",
+      "whyRole": "Los visitantes, el humo del quemador y el flujo del patio explican un ritual real y la escala de la experiencia. Ayuda a valorar cómo se usa el recinto, además de la pagoda que domina la identity.",
+      "identityComparison": "La identity muestra la pagoda aislada y no permite ver cómo se vive el templo; la candidata de 2019 presenta una multitud en torno al quemador y su contexto de patio. No repite torre o encuadre.",
+      "visualReview": "Comparación visual lado a lado: la identity es una torre vertical sin personas; la candidata horizontal reúne a muchas personas alrededor del humo, con el patio y sus aleros a la vista. El centro del ritual permanece legible tras el recorte vertical de galería.",
+      "subjectRightsReview": "El foco es el uso público de Sensō-ji en torno al quemador; la cubierta aparece como contexto incidental y el fotógrafo dedicó su obra a CC0. Las personas son una multitud y no retratos individualizados.",
+      "supersedes": "File:People around the incense burner in Sensoji.jpg",
+      "candidatesRejected": [
+        {
+          "title": "File:People around the incense burner in Sensoji.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:People_around_the_incense_burner_in_Sensoji.jpg",
+          "reason": "Muestra la misma actividad, pero su original de 1.920×1.080 no ofreció a Commons el rendition de 1.600 px que exige el pipeline vigente; el encuadre panorámico también pierde parte de la multitud al adaptar la galería 4:5. Se eligió la toma CC0 más amplia y de mayor resolución de 2019."
+        },
+        {
+          "title": "File:2018-09-24 Incense burner at Sensoji.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:2018-09-24_Incense_burner_at_Sensoji.jpg",
+          "reason": "Se concentra en el quemador y el humo sin explicar la escala humana o la participación; resulta más decorativa que informativa para decidir la visita."
+        }
+      ]
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-017",
+      "title": "File:Viewpoint @ Asakusa Culture Tourist Information Center (14231130695).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Viewpoint_@_Asakusa_Culture_Tourist_Information_Center_(14231130695).jpg",
+      "slug": "asakusa-center-rooftop-view",
+      "alt": "Panorama de los tejados de Asakusa y la pagoda de Sensō-ji visto desde el mirador del centro turístico diseñado por Kengo Kuma.",
+      "role": "context",
+      "whyRole": "El centro ofrece una terraza panorámica gratuita sobre Nakamise y Asakusa. La vista demuestra qué se gana al subir al mirador y sitúa el edificio dentro del recorrido, información útil antes de dedicarle tiempo.",
+      "identityComparison": "La identity presenta el exterior de madera y los volúmenes apilados de Kengo Kuma; la segunda muestra el panorama desde su mirador, una función de visita materialmente distinta del edificio exterior.",
+      "visualReview": "Comparación visual lado a lado: fachada geométrica en la identity; panorama de tejados, calles y la pagoda desde la cubierta en la candidata. Se revisó la página de Commons, el original y el recorte de galería.",
+      "subjectRightsReview": "El sitio es el mirador público del centro; la vista urbana y los tejados son el sujeto. La pagoda histórica aparece integrada al paisaje y no hay obra moderna protegida como elemento principal.",
+      "candidatesRejected": [
+        {
+          "title": "File:Nakamise, Asakusa, Tokyo as seen from the Asakusa Culture Tourist Information Center 20190420 2.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Nakamise,_Asakusa,_Tokyo_as_seen_from_the_Asakusa_Culture_Tourist_Information_Center_20190420_2.jpg",
+          "reason": "El encuadre estrecho de Nakamise vuelve a centrar la calle comercial de otro lugar cercano y deja fuera la panorámica amplia que distingue el mirador del centro."
+        },
+        {
+          "title": "File:Viewpoint @ Asakusa Culture Tourist Information Center (14044527500).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Viewpoint_@_Asakusa_Culture_Tourist_Information_Center_(14044527500).jpg",
+          "reason": "Otra vista desde el mismo sitio, más concentrada en Sensō-ji; la candidata seleccionada aporta una lectura más amplia del barrio y del mirador como contexto urbano."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-030",
+      "title": "File:Tokyo sta DOME.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_sta_DOME.jpg",
+      "slug": "tokyo-station-marunouchi-dome-interior",
+      "alt": "Interior restaurado de la cúpula sur de la estación de Tokio, con su techo octogonal y ornamentación histórica.",
+      "role": "detail",
+      "whyRole": "La identidad presenta la fachada de ladrillo rojo restaurada. El interior de la cúpula muestra el detalle arquitectónico y la escala del espacio por dentro, que justifica incluir una visita al vestíbulo y no solo contemplar la estación desde la plaza.",
+      "identityComparison": "La identidad mira desde la plaza a la fachada exterior; la segunda está dentro de una de las cúpulas Marunouchi, con ornamentación y perspectiva hacia arriba. Son facetas espaciales distintas del mismo edificio.",
+      "visualReview": "Comparación visual lado a lado de la fachada completa de la identidad contra el techo interior de la cúpula sur. La candidata es vertical y centrada en el intradós decorado, sin fachada ni skyline repetidos; el recorte de galería conserva la bóveda como sujeto.",
+      "subjectRightsReview": "Es una fotografía del interior histórico de la estación. El autor concede CC BY-SA 3.0 para la imagen; la arquitectura y ornamentación histórica se muestran como parte del edificio visitable, sin instalación artística contemporánea o personajes.",
+      "candidatesRejected": [
+        {
+          "title": "File:Tokyo station04s3872.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_station04s3872.jpg",
+          "reason": "Toma del vestíbulo en estado previo a la restauración y perspectivas casi equivalentes de la misma cúpula; la imagen elegida muestra el estado restaurado actual y una bóveda diferente."
+        },
+        {
+          "title": "File:The Dome at Tokyo Station (20431197682).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:The_Dome_at_Tokyo_Station_(20431197682).jpg",
+          "reason": "Otra toma del techo interior de la misma estación y una lectura más parecida a la identidad desde la plaza; se eligió una vista interior más vertical que enfatiza el detalle arquitectónico."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-034",
+      "title": "File:Tokyo City View P5144278.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_City_View_P5144278.jpg",
+      "slug": "mori-city-view-observers-at-dusk",
+      "alt": "Visitantes observan el paisaje urbano de Tokio al anochecer desde la plataforma Tokyo City View de Roppongi Hills Mori Tower.",
+      "role": "experience",
+      "whyRole": "La identidad solo presenta la entrada y escalera del museo. Esta imagen muestra qué hace una visita combinada al Mori Art Museum y Tokyo City View: salir a mirar la ciudad desde lo alto con otros visitantes, aportando una experiencia que permite decidir si dedicar tiempo a la subida.",
+      "identityComparison": "La identidad enseña el rótulo y el acceso interior del museo; la segunda enseña la plataforma de observación, a sus visitantes y la vista urbana. Cambian el espacio, la actividad y el punto de vista.",
+      "visualReview": "Comparación lado a lado de la escalera de acceso en la identidad frente a los visitantes reunidos junto a la vista de Tokio al anochecer. Los observadores son pequeños y el paisaje/plataforma sigue siendo el sujeto; el encuadre no se confunde con otra fachada.",
+      "subjectRightsReview": "Los visitantes son figuras de escala dentro de un espacio público y no retratos identificables. La página de Commons atribuye la foto a Kestrel y concede CC BY-SA 4.0. La composición muestra la ciudad y la actividad de observación, no arte protegido de una exposición.",
+      "candidatesRejected": [
+        {
+          "title": "File:Mori Art Museum Tokyo, Japan 08 view from museum.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Mori_Art_Museum_Tokyo,_Japan_08_view_from_museum.jpg",
+          "reason": "La vista del mismo mirador solo tiene 576×768 píxeles y no alcanza la resolución útil sin ampliar artificialmente; además ofrece un encuadre urbano sin actividad humana."
+        },
+        {
+          "title": "File:View of Tokyo Tower from Mori Art Museum Mori Tower.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:View_of_Tokyo_Tower_from_Mori_Art_Museum_Mori_Tower.jpg",
+          "reason": "La versión exacta del mismo punto de vista también tiene 576×768 píxeles; la toma elegida mantiene la faceta de mirador y cumple resolución holgada."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-047",
+      "title": "File:Edo-Tokyo Open Air Architectural Museum - Edotokyo704.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Edo-Tokyo_Open_Air_Architectural_Museum_-_Edotokyo704.jpg",
+      "slug": "edo-tokyo-open-air-historic-houses",
+      "alt": "Dos casas tradicionales de madera con tejados de teja expuestas en el Museo Arquitectónico al Aire Libre de Edo-Tokio.",
+      "role": "context",
+      "whyRole": "La identidad muestra el edificio de entrada. La segunda sitúa al visitante dentro del recorrido del museo y comunica su colección al aire libre de casas históricas reubicadas, escala de visita que ayuda a decidir si merece la excursión a Koganei.",
+      "identityComparison": "La identidad es una sola fachada de acceso; la candidata enseña dos viviendas históricas del recorrido, separadas visualmente del acceso y con relación explícita al parque-museo. No es una foto genérica de Tokio ni de otra institución.",
+      "visualReview": "Comparación visual entre la entrada contemporánea de la identidad y las casas de madera expuestas en el recinto. La segunda encuadra dos edificios distintos de la colección in situ; se verificará el recorte responsivo antes del cierre.",
+      "subjectRightsReview": "La foto CC0 muestra dos edificios residenciales históricos del museo, no arte contemporáneo ni una instalación moderna. El autor lumoplank enlaza su publicación original en Flickr y la página de Commons confirma CC0; coordenadas y categoría sitúan la toma dentro del museo.",
+      "candidatesRejected": [
+        {
+          "title": "File:Tokyo Edo-Tokyo Open Air Architectural Museum entrance.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_Edo-Tokyo_Open_Air_Architectural_Museum_entrance.jpg",
+          "reason": "Otra vista del edificio de entrada, por lo que repite la misma identidad que la portada y no muestra el recorrido por las viviendas históricas."
+        },
+        {
+          "title": "File:Edo-Tokyo Open Air Architectural Museum Summer Night P8030423.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Edo-Tokyo_Open_Air_Architectural_Museum_Summer_Night_P8030423.jpg",
+          "reason": "Es una toma nocturna de un evento de verano, fuera de la ventana de febrero-marzo de 2027, y describe una apertura estacional que no representa la visita ordinaria."
+        }
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "batch": 1,
+      "placeId": "JP-008",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "Las candidatas abiertas del interior muestran vitrinas, productos y figuras identificables de Nintendo (Mario, Pokémon, Splatoon y otros personajes/arte de videojuegos) como parte central de la visita. La licencia del fotógrafo no autoriza esos diseños; cambiar el role a experience no resuelve los derechos del sujeto. El exterior alternativo es redundante con la identity de la entrada de Nintendo TOKYO.",
+      "searchSources": [
+        {
+          "name": "Wikimedia Commons — Nintendo Tokyo",
+          "url": "https://commons.wikimedia.org/wiki/Category:Nintendo_Tokyo",
+          "result": "Se revisó la categoría dedicada al local dentro de Shibuya PARCO y una muestra de sus interiores. Las fotos de tienda tienen figuras y productos de videojuegos como protagonistas visuales; no apareció una toma complementaria neutral del espacio."
+        },
+        {
+          "name": "Wikimedia Commons — Shibuya Parco 200220g.jpg",
+          "url": "https://commons.wikimedia.org/wiki/File:Shibuya_Parco_200220g.jpg",
+          "result": "Vista exterior del edificio comercial que alberga el local; no aporta una faceta del interior y sería otra identidad arquitectónica, no una segunda imagen del valor de Nintendo TOKYO."
+        },
+        {
+          "name": "Wikimedia Commons — PXL 20231220 022538554.jpg",
+          "url": "https://commons.wikimedia.org/wiki/File:Nintendo_Tokyo_(PXL_20231220_022538554).jpg",
+          "result": "Página original de una vista interior; la licencia cubre la fotografía, pero el encuadre incluye contenido gráfico de personajes y productos protegidos."
+        }
+      ],
+      "candidatesRejected": [
+        {
+          "title": "File:Nintendo Tokyo (PXL 20231220 022538554).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Nintendo_Tokyo_(PXL_20231220_022538554).jpg",
+          "reason": "CC BY 4.0 del fotógrafo no aclara los derechos de los personajes/ilustraciones de Nintendo, que ocupan la tienda visible y son parte central del sujeto."
+        },
+        {
+          "title": "File:Nintendo TOKYO (52505969681).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Nintendo_TOKYO_(52505969681).jpg",
+          "reason": "La vista interior presenta mercancía y figuras reconocibles del catálogo de Nintendo; no se localizó autorización abierta de esos diseños para su reutilización."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-020",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "La toma interior más específica que se encontró es una reconstrucción artística contemporánea del estudio de Hokusai con figuras escultóricas. Aunque el fotógrafo publica la imagen bajo CC BY 3.0, eso no autoriza la obra de la instalación. Las alternativas de fachada repiten la identity y cambiar el role no resuelve el derecho del sujeto.",
+      "searchSources": [
+        {
+          "name": "Wikimedia Commons — Tokyo, Sumida Hokusai Museum, reconstruction of Hokusai's studio",
+          "url": "https://commons.wikimedia.org/wiki/File:Tokyo,_sumida_hokusai_museum,_ricostruzione_dello_studio_di_hokusai_con_la_moglie.jpg",
+          "result": "Candidata licenciada CC BY 3.0 y localizada en el museo, pero su sujeto es una reconstrucción escultórica contemporánea y la licencia fotográfica no acredita los derechos de esa instalación."
+        },
+        {
+          "name": "Wikimedia Commons — exterior del Sumida Hokusai Museum",
+          "url": "https://commons.wikimedia.org/wiki/File:Tokyo,_sumida_hokusai_museum,_esterno_01.jpg",
+          "result": "Fotografías de la envolvente metálica del edificio repiten la fachada de Kazuyo Sejima que ya cubre la identity; no hay una faceta distinta de interior neutral disponible en las fuentes revisadas."
+        }
+      ],
+      "candidatesRejected": [
+        {
+          "title": "File:Tokyo, sumida hokusai museum, ricostruzione dello studio di hokusai con la moglie.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo,_sumida_hokusai_museum,_ricostruzione_dello_studio_di_hokusai_con_la_moglie.jpg",
+          "reason": "Recreación escultórica moderna y específica de Hokusai y su esposa; CC BY 3.0 del fotógrafo no aclara los derechos de la obra tridimensional."
+        },
+        {
+          "title": "File:Tokyo, sumida hokusai museum, esterno 02.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo,_sumida_hokusai_museum,_esterno_02.jpg",
+          "reason": "La serie de fachadas del mismo edificio sería redundante con la identity y no mostraría una experiencia interior complementaria."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-026",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "Las imágenes licenciadas del interior de Super Potato que muestran la experiencia de compra también muestran prominentemente personajes, portadas y productos de videojuegos. La licencia del fotógrafo no permite reutilizar esos diseños y reemplazar experience por detail no elimina el problema. El recurso exterior repite la única identity existente.",
+      "searchSources": [
+        {
+          "name": "Wikimedia Commons — Category:Super Potato",
+          "url": "https://commons.wikimedia.org/wiki/Category:Super_Potato",
+          "result": "La categoría reúne varias vistas interiores de Super Potato, pero sus estantes y rótulos contienen personajes y productos de videojuegos reconocibles como sujetos centrales."
+        },
+        {
+          "name": "Wikimedia Commons — Akihabara Super Potato Retro Game Shop",
+          "url": "https://commons.wikimedia.org/wiki/File:Akihabara_-_Super_Potato_Retro_Game_Shop.jpg",
+          "result": "La foto interior CC BY-SA 2.0 confirma la tienda exacta, aunque muestra objetos y personajes de juegos que no quedan autorizados por la licencia fotográfica."
+        }
+      ],
+      "candidatesRejected": [
+        {
+          "title": "File:Akihabara - Super Potato Retro Game Shop.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Akihabara_-_Super_Potato_Retro_Game_Shop.jpg",
+          "reason": "El interior evidencia el surtido de videojuegos, pero rótulos, estantes y personajes reconocibles dominan el contenido sin permiso de los titulares."
+        },
+        {
+          "title": "File:Super Potato in Akihabara (4066556528).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Super_Potato_in_Akihabara_(4066556528).jpg",
+          "reason": "La toma de tienda tiene carteles de personajes como parte protagonista del sujeto."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-036",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "Las candidatas interiores localizadas para este museo de diseño son fotografías de exposiciones con objetos y montajes de diseño contemporáneo. Las licencias publicadas cubren a los fotógrafos, no los diseños expuestos. Las tomas exteriores restantes repiten la identity del edificio de 21_21 DESIGN SIGHT.",
+      "searchSources": [
+        {
+          "name": "Wikimedia Commons — Category:21 21 Design Sight",
+          "url": "https://commons.wikimedia.org/wiki/Category:21_21_Design_Sight",
+          "result": "La categoría ofrece vistas del edificio exterior y dos interiores de exposición de diseño; no se halló una imagen interior neutral y complementaria sin piezas contemporáneas visibles."
+        },
+        {
+          "name": "Wikimedia Commons — 21_21 DESIGN SIGHT Interior 2015",
+          "url": "https://commons.wikimedia.org/wiki/File:21_21_DESIGN_SIGHT_Interior_2015.jpg",
+          "result": "Interior de una exposición del museo; el sujeto incluye diseños expuestos cuya licencia no queda cubierta por la del fotógrafo."
+        }
+      ],
+      "candidatesRejected": [
+        {
+          "title": "File:21 21 DESIGN SIGHT Interior 2015.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:21_21_DESIGN_SIGHT_Interior_2015.jpg",
+          "reason": "Muestra diseños y montaje de una exposición; no se acreditaron derechos de esas obras para la reutilización de imagen."
+        },
+        {
+          "title": "File:21 21 DESIGN SIGHT Interior1 2015.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:21_21_DESIGN_SIGHT_Interior1_2015.jpg",
+          "reason": "Otra imagen de exposición con objetos contemporáneos; cambiar a experience o detail no resolvería los derechos de las obras visibles."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-037",
+      "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+      "reason": "En las fuentes abiertas revisadas, las vistas de Zōjō-ji con personas corresponden a hatsumōde de Año Nuevo, no a la ventana de viaje febrero-marzo de 2027, y varias repiten el eje del salón principal con Tokyo Tower ya cubierto por identity. No se encontró una toma licenciada de actividad ordinaria que añada información estable sin ser estacionalmente engañosa o redundante.",
+      "searchSources": [
+        {
+          "name": "Wikimedia Commons — Category:Hatsumōde at Zōjō-ji",
+          "url": "https://commons.wikimedia.org/wiki/Category:Hatsum%C5%8Dde_at_Z%C5%8Dj%C5%8D-ji",
+          "result": "Las tomas con visitantes revisadas documentan la primera visita del Año Nuevo en enero; no se atribuyen a seasonal porque la temporada de B6.7 es febrero-marzo de 2027."
+        },
+        {
+          "name": "Wikimedia Commons — Zojoji Temple (53081693833)",
+          "url": "https://commons.wikimedia.org/wiki/File:Zojoji_Temple_(53081693833).jpg",
+          "result": "CC BY 2.0 y ubicación exacta, pero pertenece al conjunto de fotografías de hatsumōde con el salón principal y la torre que repiten la identity."
+        }
+      ],
+      "candidatesRejected": [
+        {
+          "title": "File:2021 Hatsumōde in Zōjō-ji Temple 01.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:2021_Hatsum%C5%8Dde_in_Z%C5%8Dj%C5%8D-ji_Temple_01.jpg",
+          "reason": "Aporta multitud y recorrido, pero documenta un evento ritual de Año Nuevo ocurrido en enero, fuera de la ventana Feb-Mar 2027, y no representa la experiencia de visita ordinaria prevista."
+        },
+        {
+          "title": "File:Zojoji Temple (53081693833).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Zojoji_Temple_(53081693833).jpg",
+          "reason": "La composición del salón principal con Tokyo Tower es muy cercana a la identity y no revela una faceta nueva del recinto."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-038",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "Las fotografías abiertas de teamLab Planets muestran sus proyecciones, salas inmersivas y piezas digitales como el sujeto principal. La licencia abierta de los fotógrafos no autoriza esas instalaciones de teamLab. No apareció una imagen licenciada complementaria de la entrada o recorrido neutro que evite que la obra protegida domine; cambiar a experience no resuelve el copyright.",
+      "searchSources": [
+        {
+          "name": "Wikimedia Commons — Category:TeamLab Planets TOKYO DMM.com",
+          "url": "https://commons.wikimedia.org/wiki/Category:TeamLab_Planets_TOKYO_DMM.com",
+          "result": "Las candidatas encontradas son fotografías de obras digitales inmersivas y salas de instalación; los derechos de la obra no se conceden con la licencia de fotógrafo."
+        },
+        {
+          "name": "Wikimedia Commons — Photos at teamLab Planets Tokyo",
+          "url": "https://commons.wikimedia.org/wiki/File:Photos_at_teamlab_planets_tokyo.jpg",
+          "result": "CC BY-SA 4.0 para la foto, pero representa la sala artística de proyección de teamLab; por derechos del sujeto no se reutiliza."
+        }
+      ],
+      "candidatesRejected": [
+        {
+          "title": "File:Photos at teamlab planets tokyo.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Photos_at_teamlab_planets_tokyo.jpg",
+          "reason": "La sala y la obra digital ocupan el centro y forman parte principal del sujeto; la licencia del fotógrafo no incluye la instalación de teamLab."
+        },
+        {
+          "title": "File:At teamLab Planets (48277793276).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:At_teamLab_Planets_(48277793276).jpg",
+          "reason": "Muestra otra sala inmersiva con el arte de teamLab como protagonista. La licencia CC BY-SA 2.0 no aclara los derechos de la pieza fotografiada."
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-028",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "Las imágenes con interiores específicos de librerías de Jinbōchō incluyen pósteres y portadas de películas, anime o manga como parte prominente del sujeto. La toma de Shōundō más limpia mide sólo 681×1,024 y Commons no entrega el rendition solicitado por el pipeline; otra foto interior de alta resolución exhibe una pared llena de pósteres protegidos. Las vistas exteriores disponibles repiten la identidad de libros expuestos en la calle. Cambiar a experience o detail no soluciona los derechos de las obras impresas.",
+      "searchSources": [
+        {
+          "name": "Wikimedia Commons — interiores de librerías japonesas",
+          "url": "https://commons.wikimedia.org/wiki/Category:Interiors_of_bookshops_in_Japan",
+          "result": "Se revisaron interiores geolocalizados en Jimbōchō: el archivo de Shōundō tiene sólo 681×1,024 y no sirve al contrato de descarga del pipeline; la alternativa de alta resolución presenta pósteres de películas en la pared."
+        },
+        {
+          "name": "Wikimedia Commons — Used bookstore in Jimbocho (50495926321)",
+          "url": "https://commons.wikimedia.org/wiki/File:Used_bookstore_in_Jimbocho_(50495926321).jpg",
+          "result": "La foto CC BY 2.0 y 6,240×4,160 muestra un comercio local, pero su pared de pósteres, algunas con personajes/obras protegidas, domina la imagen."
+        }
+      ],
+      "candidatesRejected": [
+        {
+          "title": "File:Used bookstore in Jimbocho (50495926321).jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Used_bookstore_in_Jimbocho_(50495926321).jpg",
+          "reason": "Comparación visual de la candidata: una pared de afiches ilustrados de películas/anime domina el interior; CC BY 2.0 cubre al fotógrafo pero no los derechos de los afiches."
+        },
+        {
+          "title": "File:Used bookstore in Jinbōchō 003.jpg",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Used_bookstore_in_Jinbōchō_003.jpg",
+          "reason": "La toma de Shōundō sólo tiene 681×1,024 píxeles y Commons devolvió el original al solicitar el thumbnail de 640; queda por debajo del flujo de resolución y no muestra a un visitante recorriendo el interior."
+        },
+        {
+          "title": "File:Books along a walkway in the Kanda-Jimbocho area of Tokyo.JPG",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Books_along_a_walkway_in_the_Kanda-Jimbocho_area_of_Tokyo.JPG",
+          "reason": "Repite libros expuestos en una calle/paseo, la misma faceta y encuadre general que la identity actual."
+        }
+      ]
+    }
+  ]
+}

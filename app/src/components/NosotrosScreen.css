@@ -1,0 +1,23 @@
+.nosotros-section__title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  font-weight: 500;
+  color: var(--ink-900);
+}
+
+.nosotros-section__title:focus {
+  outline: none;
+}
+
+.nosotros-section__title:focus-visible {
+  outline: 2px solid var(--ink-900);
+  outline-offset: 2px;
+}
+
+.nosotros-section__version {
+  font-family: var(--font-record);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+}

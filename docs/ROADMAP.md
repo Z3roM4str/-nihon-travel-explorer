@@ -1,0 +1,7430 @@
+# Nihon Roadmap
+
+## Foundation — complete
+
+- [x] Confirm repository and source workbook.
+- [x] Define product scope and first vertical slice.
+- [x] Define application data contract.
+- [x] Export normalized JSON from the workbook.
+- [x] Add schema validation and data-quality report (`scripts/validate-dataset.py`).
+
+## Tokyo Explorer — complete
+
+- [x] Add map shell.
+- [x] Render Tokyo markers from JSON.
+- [x] Add category, grade, hidden-gem, tourism-level, and reservation filters.
+- [x] Build responsive place-detail drawer.
+- [x] Add saved places state.
+- [x] Parse and display duration ranges.
+- [x] Show activity-time totals for saved places, clearly separated from transport time.
+- [x] Add nearby-place suggestions.
+
+## Visual Discovery / Phase 1.5 — complete
+
+- [x] Add image-slot/gallery component using source-aware assets.
+- [x] Richer place card and free-text search.
+
+## Phase 2A — data integrity + data-access foundation — complete
+
+- [x] Correct the Okinawa/Kyushu region split, the Naoshima region, and the Tokyo
+      Disneyland/DisneySea nearby relation at the source workbook, with CHANGELOG_V2
+      traceability.
+- [x] Version the workbook as the real source of truth (`data/source/`).
+- [x] Replace the non-reproducible exporter with `scripts/export-dataset.py`.
+- [x] Introduce the data-access layer (`app/src/data/store.ts`) and remove the Tokyo
+      structural assumption from the app.
+
+## Phase 2B — functional multi-hub navigation — complete
+
+- [x] Hub selector driven by `getHubs()`, keyboard-accessible.
+- [x] Active hub as application state; filters, list, and map re-derive per hub.
+- [x] Saved places resolve globally and open correctly across hubs.
+- [x] Nearby navigation and Back work across hubs.
+- [x] Map bounds fit the active hub's places dynamically.
+
+## Phase 2C — National Explorer — complete
+
+- [x] National map of Japan, opened as the application's entry view.
+- [x] Regions/prefectures as a browsable layer, with coverage derived from the real dataset.
+- [x] Japan → region → prefecture → hub navigation, available from the map and from
+      equivalent keyboard-accessible controls.
+- [x] Real geographic polygons for the 47 prefectures, derived from the official MLIT
+      国土数値情報 行政区域データ (N03, 2026) and documented in `docs/GEOGRAPHY.md`.
+- [x] Integration with the multi-hub state already built in Phase 2B: entering a hub, saved
+      places opened from the national view, and returning to Japan all reuse the same
+      navigation primitives.
+- [x] Reproducible geographic validation (`scripts/validate-geography.py`) and a
+      reproducible build for the derived geometry (`scripts/build-geography.sh`).
+
+Geography and hubs are kept distinct: places are placed on the national map by their real
+prefecture, while the button offered for them opens the hub they belong to editorially.
+
+## Phase 3A — Selection Intelligence — complete
+
+- [x] Add duration/time filtering, by planning block rather than by raw minutes, matching on
+      range overlap so a place is never hidden from a block its duration can reach.
+- [x] Recommended planning-block summaries: per hub and per cluster, always separating
+      quantified visit time from day-scale commitments and from places with no estimate.
+- [x] Compare selected places by cluster and geography — grouping by hub, by physical
+      prefecture and by hub + cluster, with factual concentration and spread readings.
+- [x] Planning-block taxonomy derived from `duration` (`app/src/lib/planning-block.ts`) and a
+      pure aggregation layer (`app/src/lib/selection.ts`), covered by unit tests.
+- [x] Duration and cluster checks in `scripts/validate-dataset.py`, with secondary cluster
+      metadata reported as warnings rather than treated as truth.
+
+Selection Intelligence describes the selection; it does not order it. No day assignment, no
+sequencing and no transport time is produced, and none of it is persisted — saved place ids
+remain the only stored user state.
+
+## Phase 3B1 — Logistics Data Foundation — complete
+
+- [x] Establish a typed logistics domain layer (`app/src/lib/transfer.ts`) over the existing
+      `nearby.json` relations: a closed `TransferConfidence`/`TransferMode`/`TransferRelation`
+      vocabulary, structured (non-string) provenance, and a `minutes` range rather than a bare
+      number — without a second copy of the 403 relations and without touching the dataset.
+- [x] Label every current relation honestly: `confidence: "estimated"`, `verifiedAt: null`,
+      and provenance identifying the haversine-distance-plus-speed-model method that produced
+      it. None of the 403 relations is a routed or schedule-aware transfer, and none is
+      promoted to look like one.
+- [x] Directed, non-fabricating lookup (`lookupTransfer`) and purely factual coverage/distance
+      metrics (`computeLogisticsMetrics`) over a set of places — with no cluster
+      compact/extended classification, since Phase 3B's audit never fully specified a
+      threshold for one.
+- [x] Extend `scripts/validate-dataset.py` with nearby-relation shape checks (resolvable ids,
+      no self edge, positive distance/minutes, known `Modo`/`Relación` vocabulary, "Mismo
+      cluster" implying matching hub + cluster, and reverse-direction divergence as a
+      warning) without hardcoding the relation count as an invariant.
+- [x] Document the confidence/provenance contract, the 2026 dataset audit's findings, and the
+      3B2 boundary in `docs/LOGISTICS.md`.
+
+This phase formalizes the existing estimates; it does not validate them. Every transfer time in
+the application remains a geographic estimate until a later phase actually routes it.
+
+## Phase 3B2A — Walking Validation Pilot — complete
+
+- [x] Extend `TransferProvenance` into a discriminated union (`GeographicProvenance` |
+      `RoutingProviderProvenance`) and add `getBestTransfer` (validated-static > estimated >
+      null), without touching `toTransferEdge()` or any of the 403 `nearby.json` relations.
+- [x] Deterministic, documented 24-edge pilot sample selection
+      (`scripts/select-walking-pilot.py`) over the current 332 "A pie" relations.
+- [x] Offline-safe pipeline (`scripts/validate-walking-pilot.py --dry-run`/`--execute`,
+      `scripts/report-walking-pilot.py`, `scripts/validate-logistics.py`) against
+      **api.heigit.org** (not the deprecated api.openrouteservice.org), with a coordinate-order
+      regression test, reproducible caching, and a bounded single retry — fully covered by
+      network-free unit tests (`scripts/test_walking_pilot.py`).
+- [x] **Live pilot execution** — run 2026-09-04: 24/24 edges validated, 0 Directions failures.
+      Results in `data/logistics/walking-pilot-results.json`.
+- [x] Pilot report (`docs/WALKING_PILOT.md`) with real statistics, top outliers, limitations,
+      and a decision-gate recommendation.
+- [x] **Corrective review (first pass)**: identified that 2 of the 24 results (JP-063↔JP-065) had
+      significant endpoint snapping making their distance not comparable to the original
+      coordinates. Fixed the manifest's reproducibility (a dataset content hash, not the git HEAD
+      SHA — see `docs/LOGISTICS.md`), the validator's coverage check (exact manifest↔results
+      equality), and added an `endpointSnapping`/`snap_warning` guard plus a `--diagnose-snap`
+      backfill tool. Recommendation revised from SCALE-with-caveat to ADJUST.
+- [x] **Corrective review (second pass)**: replaced the boolean `snap_warning` (which silently
+      coerced a null/unmeasured snap distance into `0` meters) with a three-state
+      `classify_endpoint_snapping` (`"clean" | "significant" | "unknown"`); made `getBestTransfer`
+      only promote to `validated-static` when `endpointSnapping.assessment === "clean"` (an
+      absent or unmeasured/significant assessment now correctly falls back to `estimated`); and
+      backfilled `endpointSnapping` for all 24 manifest edges via one batched Snap request
+      (22 `"clean"`, 2 `"significant"` — the same JP-063↔JP-065 pair — 0 `"unknown"`).
+      Recommendation revised from ADJUST to **SCALE** (see `docs/WALKING_PILOT.md`).
+
+This phase validated exactly 24 of the 332 "A pie" relations. It does not validate the
+remaining ~308, transit, or anything else. The pilot's own sample is now fully snap-screened;
+a future scale-up phase carries forward the snap-clean gate as a hard requirement (see
+`docs/WALKING_PILOT.md`'s decision gate) rather than re-deriving it from scratch.
+
+## Phase 3B2B-A — Walking Scale-Up Engineering & Snap Threshold Analysis — preparation only
+
+- [x] Deterministic scale-up manifest (`scripts/select-walking-scale.py` →
+      `data/logistics/walking-scale-manifest.json`): every "A pie" edge not in the pilot's 24,
+      derived from the live dataset (never hardcoded) — 308 edges over the current dataset.
+      Verified: pilot ∪ scale == every current "A pie" relation, zero overlap.
+- [x] Per-place Snap store (`data/logistics/walking-snap-places.json`, keyed by `placeId`,
+      never by edge): a null measurement is `"unknown"`, never coerced into a `0`-meter
+      `"resolved"` entry. Seeded offline from Phase 3B2A's already-measured 35 places
+      (`scripts/seed-walking-snap-store.py`) — zero new network requests; 34 of the scale
+      manifest's 137 unique places are already resolved this way.
+- [x] Pipeline split into independent, restart-safe steps (`scripts/validate-walking-scale.py`):
+      Snap backfill, Directions execution, and snap/distance recombination are separate modes
+      that can each resume after an interruption without re-doing already-completed work.
+      Shared network/result-shape code (`scripts/ors_client.py`,
+      `scripts/walking_result_builder.py`) extracted so both the pilot and scale-up pipelines
+      use the exact same logic — Phase 3B2A's own pipeline behavior is unchanged (its 63-test
+      suite passes unmodified).
+- [x] **Corrective review**: three blocking gaps closed before any real batch could run.
+      (1) A real sliding-window Directions rate limiter (`ors_client.RateLimiter`) applied to
+      every HTTP attempt including retries, with injectable clock/sleep so pacing is tested
+      under a fake clock — pacing is proactive, never HTTP-429-driven. (2) True checkpointing:
+      the results artifact is rewritten after every completed edge, so an interruption costs at
+      most the in-flight edge, and the app-facing copy is published only once the batch covers
+      the whole manifest (never a partial dataset). (3) A machine-readable three-state Snap
+      status (`resolved` / `no-snap` / `request-error`, never parsed from text) plus a
+      Directions preflight that refuses to start a bulk run while any place is
+      missing/stale/request-error, and requires an explicit `--allow-unknown-snap` to proceed
+      over `no-snap` places. Snap gained the same bounded transient retry, with no invented
+      per-minute/day ceiling for an endpoint openrouteservice does not document one for.
+- [x] Snap-threshold audit against Phase 3B2A's real 24-edge sample (see
+      `docs/WALKING_SCALE_PREP.md`): found one "clean" edge (JP-184→JP-185) with a 139.31 m
+      single-endpoint snap that the combined/ratio rule doesn't catch. N=24 is not enough to
+      responsibly calibrate a second per-endpoint threshold, so none was set — instead
+      `classify_endpoint_snapping()` gained an explicit, disabled-by-default, auditable seam
+      (`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS = None`) for a future phase to set once
+      justified. No Phase 3B2A result was reclassified.
+- [x] Offline dry-run (`--dry-run`, no network): reports the derived edge/place counts, hub and
+      distance distributions, and a Directions/Snap request plan checked against
+      openrouteservice's documented community-plan quota (2,000/day, 40/minute Directions;
+      5,000 locations/request Snap) — see `docs/WALKING_SCALE_PREP.md` for the full real
+      output and sources.
+
+**Phase 3B2B-A did not execute the scale-up batch.** No Directions request was made against
+any of the 308 scale edges during preparation, and `data/logistics/walking-scale-results.json`
+did not exist at the end of that phase.
+`--backfill-snap-places` was exercised only against mocks, never for real, for the 103
+still-unresolved places. See `docs/WALKING_SCALE_PREP.md` for what remains before a future
+phase could actually run the batch. The subsequent real execution is recorded below.
+
+## Phase 3B2B-B — Walking Scale-Up Execution — complete
+
+- [x] Verify exact preparation base `f4be15901e50cc1a93006783d4cea47e805f882b`,
+      dataset/pilot-manifest hashes, reproducible scale manifest, and the 332 = 24 + 308
+      walking partition with zero overlap. Restore exact LF checkout bytes locally
+      after an authorized pause for Windows CRLF conversion; no dataset/hash changes.
+- [x] Real Snap backfill on 2026-09-04: 1 request resolved 103 pending places;
+      all 137 scale-required places resolved, no no-snap/error/stale/missing entries.
+- [x] Execute all 308 scale edges against `api.heigit.org`, `foot-walking`:
+      **303 validated, 5 no-route, 0 request-error/missing**. 312 Directions requests
+      total, including 3 bounded retries and one later re-query of a failed edge.
+      Stop after persistent HTTP 429 at 40/min; resume only after explicit authorization
+      at 20/min (192 requests, no retries, 116 cached terminal results untouched).
+- [x] Verify terminal completeness, recombine snapping offline (0 changes), and publish
+      the byte-identical app-facing copy using the existing completeness gate.
+      All 303 validated scale results are clean; significant/unknown are both zero.
+- [x] Record statistics, all five no-route edges, outliers, limitations, and the larger
+      Snap-distribution audit in [WALKING_SCALE_EXECUTION.md](WALKING_SCALE_EXECUTION.md).
+      No absolute threshold proposed or applied without independent calibration evidence;
+      the existing `None` setting and pilot classifications remain unchanged.
+- [x] Pass final Python suites (63 + 125), app tests (104), lint, build, dataset,
+      geography, and logistics validation. No pipeline, UI, or dataset content changes.
+
+The app-facing artifact is prepared; application behavior still consumes the pilot
+artifact only. This phase does not wire scale results into the UI or start Phase 3C.
+
+## Phase 3B2B-C — Walking Scale Integration — complete
+
+- [x] Merge the pilot's 24 and the scale-up's 308 walking results into one directed-key
+      index (`buildValidatedWalkingIndex` in `app/src/lib/transfer.ts`), so
+      `getBestTransfer` reads both artifacts — together, the current dataset's full 332
+      "A pie" edges — through the same lookup and the same unchanged snap-clean gate.
+      `toTransferEdge()`, `nearby.json`, and the snapping thresholds are untouched.
+- [x] Preserve directed, non-fabricating, single-edge lookup semantics exactly:
+      `getBestTransfer(fromId, toId)` still resolves only that exact direction, never
+      infers the reverse, never chains edges, and never computes a shortest path or a
+      summed time.
+- [x] The scale-up's five `"no-route"` results fall back to the recorded `nearby.json`
+      estimate — never `0` minutes, never a fabricated distance, never promoted to
+      `validated-static` — exactly like a pair neither artifact covers.
+- [x] Explicit, fail-loud protection against a duplicate directed key between the pilot
+      and scale-up artifacts: `buildValidatedWalkingIndex` throws immediately, naming both
+      the edge and both source artifacts, rather than silently letting one overwrite the
+      other. Not triggered by this checkout's real data (verified disjoint in Phase
+      3B2B-A) — a defensive guard against a future regression.
+- [x] Ten new/extended `app/src/lib/transfer.test.ts` cases against real data and pure
+      fixtures: a clean pilot edge and a clean scale edge each resolve to
+      `validated-static`; a scale no-route edge, a scale-sourced significant/unknown/absent
+      snapping result, and an uncovered relation all fall back to `estimated`; a direction
+      with no relation returns `null`; the reverse direction is never used automatically;
+      and a synthetic pilot/scale duplicate throws explicitly without overwriting.
+
+No ORS request was made, no dataset file changed, no UI was touched, and Phase 3C
+(route/day planning, sequencing, itineraries) was not started.
+
+## Phase 3B2D — Walking Exceptions Audit — complete
+
+- [x] Independently investigated, with official evidence, the five large per-endpoint
+      Snap displacements (JP-029, JP-185, JP-064, JP-181, JP-069) and the five
+      `no-route` results (all touching JP-090), fulfilling the "Later" item this phase
+      replaces below. Full case-by-case sourcing and interpretation in
+      [WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md).
+- [x] Classified each large-displacement case against four hypotheses (visual/interior
+      coordinate vs. routing access point; provider/graph connectivity; physically
+      restricted access; insufficient evidence) using only official sources (Imperial
+      Household Agency, each place's own official site, public tourism authorities) —
+      never blogs, forums, or aggregators.
+- [x] Determined the five JP-090-linked `no-route` results are best explained as a
+      provider/graph connectivity anomaly, not real-world pedestrian inaccessibility —
+      documented together as one cluster sharing JP-090, not as five independent cases.
+- [x] Evaluated (not assumed) whether the evidence justifies setting
+      `SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS`: **no** — the constant remains
+      `None`, unchanged, because the cases are explained by place type, not by
+      displacement magnitude, and one case (JP-064) could not be evaluated at all.
+- [x] Recommended a future display-coordinate-vs-logistics-access-point model over any
+      absolute threshold, and proposed (without starting) a small, reversible future
+      phase to design an evidenced, provenance-tracked, multi-point-capable
+      access-point override — see "Proposed next phase" in the audit document.
+
+This phase made zero ORS requests, zero coordinate/dataset/threshold changes, zero UI
+changes, and did not start the proposed next phase or Phase 3C.
+
+## Phase 3B2E — Access-Point Override Design — complete
+
+- [x] Define the separate, provenance-tracked, multi-access-point contract in
+      [ACCESS_POINT_DESIGN.md](ACCESS_POINT_DESIGN.md), preserving the display coordinate on
+      `Place` and separating access contexts from `TransferMode`.
+- [x] Specify stable identity, explicit-coordinate ordering, default/ambiguity rules,
+      historical-result compatibility, and a staged migration without changing runtime data.
+
+Phase 3B2E decided the model only. It created no artifact, coordinates, routing behavior, ORS
+requests, or UI.
+
+## Phase 3B2F — Access-Point Data Foundation — complete
+
+- [x] Add the empty authoritative `data/logistics/access-points.json` catalog and its
+      parity-validated app-facing copy. The exact current catalog is `[]`: zero real coordinates.
+- [x] Add logistics-specific TypeScript roles, contexts, confidence, provenance, and access-point
+      types plus non-selecting ID/place/context read primitives.
+- [x] Add a dedicated offline validator and synthetic fixture suite for identity, references,
+      coordinates, provenance, vocabularies, defaults, duplicates, secrets, and app/source parity.
+- [x] Document Stage 1 and preserve every existing product behavior and historical routing result.
+
+Phase 3B2F is Stage 1 only. Access points are not connected to `getBestTransfer`; no routing
+requests, routing-result regeneration, UI, or Phase 3C work occurred. The next proposed phase —
+**Phase 3B2G — Evidenced Access-Point Population** — would research and add only officially
+verifiable real coordinates with provenance, still without routing integration. It is not started.
+
+## Phase 3B2G — Evidenced Access-Point Population — complete
+
+- [x] Populate `data/logistics/access-points.json` (and its byte-identical app copy) for the
+      first time with **4 real access points across 2 place IDs**: three officially designated
+      East Gardens entrance/exit gates for **JP-029** (`AP-JP-029-001` Ōte-mon,
+      `AP-JP-029-002` Hirakawa-mon, `AP-JP-029-003` Kitahanebashi-mon) and the external
+      arrival/reception point for **JP-181** (`AP-JP-181-001`).
+- [x] Create **no default for any point**: `selection.defaultForContexts` is empty on all four.
+      Three official gates do not make one of them the answer; JP-029 is deliberately the
+      multi-candidate, no-default case the design's selection rules describe.
+- [x] Investigate and deliberately create **no record** for **JP-185** (the official Furuzamami
+      bus stop exists in the village's own timetables, but no official source publishes its
+      coordinate), for **JP-064** and **JP-069** (evidence still insufficient), and for **JP-090**
+      (`no-route` is provider behaviour, not physical provenance). For JP-181, the trailhead and
+      the internal shuttle stage were investigated and not created — no verifiable coordinate.
+- [x] Record the complete research trail in [ACCESS_POINT_EVIDENCE.md](ACCESS_POINT_EVIDENCE.md):
+      sources consulted per case, how each coordinate was obtained, candidate sources evaluated
+      and rejected, ambiguities, and why each absent record is absent.
+- [x] Extend the offline and app suites with real-catalog coverage without relaxing a single
+      validation rule.
+
+Access points are **not** used by routing. `getBestTransfer()`, `Place.coordinates`, the
+workbook, `nearby.json`, the GeoJSON, and the historical walking pilot/scale results are all
+unchanged, and there was no UI work, no Phase 3C work, and zero openrouteservice, Snap,
+Directions, or automated-geocoding calls. The next proposed phase, **not started**, is
+**Phase 3B2H — Targeted Access-Point Walking Revalidation**.
+
+## Phase 3B2H — Targeted Access-Point Walking Revalidation — complete
+
+- [x] Derive the target set programmatically from the committed walking manifests/results:
+      **6 directed edges** (all from the scale artifact, none from the pilot) — the historical
+      `A pie` relations with **JP-029** or **JP-181** at either end. Direction preserved; no
+      edge invented and no edge outside the set ever queried.
+- [x] Expand it into **14 routed candidates**: 12 for JP-029 (its four directed edges × all
+      **three** approved gates, because it has no default and choosing by ID, array position or
+      haversine is forbidden) and 2 for JP-181 (its single external reception point
+      `AP-JP-181-001` — no trailhead, no invented `internal-hike`/`internal-shuttle` endpoint).
+      The non-target end of every edge stays on its place coordinate.
+- [x] Ship `scripts/revalidate-walking-access-points.py` (manifest / dry-run / snap-backfill /
+      execute / recompare), the versioned manifest
+      `data/logistics/walking-access-point-manifest.json` carrying each candidate's historical
+      lineage, `scripts/validate-walking-access-point-results.py`, and
+      `scripts/test_walking_access_points.py` (**71 offline tests**).
+- [x] **Execute the batch** against openrouteservice: **1 batched Snap request** (4 access-point
+      coordinates) + **14 Directions requests** = 15 outbound calls, none outside the target set
+      and none to any other provider. **14/14 `validated`, 0 `no-route`, 0 `request-error`, all
+      `clean`.** The three place-coordinate endpoints were not re-snapped.
+- [x] Validate the artifacts and record the per-edge historical comparison in
+      `data/logistics/walking-access-point-results.json`.
+
+**Findings.** JP-029's display coordinate snaps **198.63 m** (it sits inside the palace grounds);
+its three gates snap **0.66–6.20 m**, cutting worst-case displacement by **96.9 %** — real gates
+explain and correct that behaviour. Routed distance moves −50.22 % to +6.93 % by gate, and the
+best gate **flips with the counterpart** (Hirakawa-mon from Jimbocho, Ōte-mon from Tokyo Station;
+spread up to 859.1 m), empirically confirming that no static default is correct — **none was
+created**. JP-181 via its evidenced reception is 2963.3 m / 36 min vs a historical 211.4 m /
+3 min, because its display coordinate sits 136.6 m from Cape Hedo but 1286.4 m from the actual
+reception; that `places.json` precision question is **recorded, not acted on**, here.
+
+`getBestTransfer()`, `app/src/lib/transfer.ts`, precedence/fallback, `Place.coordinates`, the
+workbook, `nearby.json`, the GeoJSON, the access-point catalog and evidence, the historical
+walking pilot/scale results, both walking manifests and the snap-places store are all
+unchanged; no threshold moved (`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` is still
+`None`); no candidate became a persistent default; nothing is mirrored under `app/src/data/`;
+and there was no UI and no Phase 3C work. See
+[ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
+
+## Phase 3B2I — Walking Transfer UI Integration — complete
+
+- [x] Closed the gap Phase 3B3C's design work identified: `PlaceDetail.tsx` rendered
+      `nearby.json`'s raw `Distancia km`/`Min aprox.` directly, so none of the 325 snap-clean
+      `validated-static` walking results (Phase 3B2A pilot + 3B2B-C scale-up) were ever shown to a
+      user, even though `getBestTransfer()` already computed the better answer for every one of
+      them. `PlaceDetail` now resolves each existing directed `nearby` relation through
+      `getBestTransfer(place.id, target.id)` — same direction the relation already records, no
+      reverse lookup — and renders whatever it returns.
+- [x] New presentation-only module `app/src/lib/transfer-display.ts` (7 tests) maps a
+      `TransferEdge` to display text without touching confidence, provenance, direction or
+      fallback semantics, all of which stay owned by `getBestTransfer()`: `estimated` keeps its
+      `~` approximation marker and the label **"Estimación geográfica"**; `validated-static` drops
+      the `~` and labels a walked route **"Ruta a pie validada"** (a non-walk mode, not produced by
+      any data today, labels as **"Ruta validada"** rather than hard-coding "a pie"); the
+      unreachable-today `schedule-aware` case is still handled and labeled **"Horario en vivo"**,
+      kept visually and lexically distinct from the static labels so a future live result could
+      never be mistaken for one of them. A footnote below the list states plainly, in every case,
+      that a validated route is static routing data and never a live timetable.
+- [x] **Reviewed against the checked-out dataset rather than assumed**: the "325" figure was
+      independently recomputed from `data/logistics/walking-pilot-results.json` +
+      `walking-scale-results.json` (`status: "validated"` and `endpointSnapping.assessment:
+      "clean"`) and confirmed exact; `nearby.json`'s 403 relations were confirmed to contain zero
+      duplicate directed pairs, so no relation can silently share another's resolved transfer.
+- [x] **Architecture decision, made against evidence rather than by default**: `PlaceDetail`
+      imports `getBestTransfer()` directly rather than receiving it as an injected resolver prop
+      from `App.tsx`. The one existing injected-resolver prop, `getPlace`, exists because `App.tsx`
+      is the layer that reconciles which of several place collections a nearby target id lives in
+      — a real single-source-of-truth concern. `getBestTransfer()` has no such ambiguity: one
+      module, one precomputed lookup, exactly like the half-dozen other pure `lib`/`data` functions
+      (`resolveDuration`, `alertSeverity`, `formatPrice`, …) `PlaceDetail` already imports directly.
+      Injecting it as a prop would diverge from that dominant convention for no behavioral or
+      testing benefit — this repository has no component-level test harness (no `jsdom`, no
+      Testing Library) for a stubbed prop to serve.
+- [x] **One real defect found and fixed in review**: the quality/confidence label reused the
+      `.nearby-item__relation` CSS class already used for the unrelated relation-type text (e.g.
+      "Cercano"), which would make the two impossible to restyle independently later and reads as
+      if confidence were a kind of relation. Given its own class
+      (`.nearby-item__quality`, with `--validated`/`--live` modifiers using the app's existing
+      `--color-ok`/`--color-info` tokens) so a validated route is visually distinguishable from an
+      estimate, not only distinguishable by reading its label text.
+- [x] `getBestTransfer()`, `app/src/lib/transfer.ts`, the walking pilot/scale/access-point result
+      artifacts, the Phase 3B3D transit skeleton and its activation gate, the dataset, the access
+      point catalog, `scripts/`, `package.json` and the lockfile are all unchanged. No live
+      provider request, no client transport, no React hook, no ordering/aggregation/itinerary
+      (Phase 3C) work.
+
+## Transit Access-Point Evidence Audit — complete (evidence only, activation still OFF)
+
+Deliberately not numbered `3B3E`: that identifier stays reserved for the client transport / live
+transit React hook. This is evidence work in the Phase 3B2G lineage, and it is what the former
+"Access-point evidence for `external-local-transit`" backlog item asked for.
+
+- [x] **Settled the semantics first, because the repository contradicted itself.**
+      `ACCESS_POINT_DESIGN.md` §§9/13/18/20 and both consumers (`getAccessPointsForContext`,
+      `resolveTransitEndpoint`, neither of which reads `role`) define `applicableContexts` as
+      **endpoint eligibility**; Phase 3B2G's prose had withheld the context on the different
+      reading that it marks a point as *being a transit stop*. Resolved in favour of the
+      contract: `role` says what a point physically **is**, `applicableContexts` says which
+      routing question it is a legitimate **endpoint** for. Recorded in
+      [TRANSIT_ACCESS_POINT_EVIDENCE.md](TRANSIT_ACCESS_POINT_EVIDENCE.md) §1, with a pointer
+      added to `ACCESS_POINT_EVIDENCE.md` rather than a rewrite of its history.
+- [x] **Recomputed the candidate universe from the checkout** (never carried over): 403 relations,
+      332 walking, 71 non-walking, 69 `Transporte local`, 2 `Disney Resort Line`, **78 unique
+      places** (Kioto 27, Tokio 21, Okinawa 20, Osaka 10).
+- [x] **Triaged on a measured, repo-internal signal** — each place's worst recorded
+      `endpointSnapping` displacement, i.e. how far its display coordinate sits from a routable
+      way. Most useful negative result of the audit: the two worst coordinates in the dataset
+      (**JP-029 198.63 m**, **JP-185 139.31 m**) are the two cases the project had already
+      identified, and **no third case emerges from the measurements**.
+- [x] **One change, and only one: JP-029's three gates gained `external-local-transit`** — the
+      context goes from **0 to 3 members**. The Imperial Household Agency documents each gate as
+      the arrival point of a named subway approach (Otemachi C13a ≈5 min, Nijubashimae ≈10 min and
+      JR Tokyo ≈15 min for Ōte-mon; Takebashi 1a ≈5 min for the other two), and JP-029 has a real
+      `Transporte local` relation. **No default** — Phase 3B2H measured the best gate flipping
+      with the counterpart — so the resolver now answers `ambiguous` instead of querying a point
+      inside the palace grounds.
+- [x] **Everything else: no record, deliberately.** `JP-181` upheld as `external-walk` only (its
+      documented access is by car and it has zero non-walking relations); `JP-185` re-checked —
+      the village bus page still names the 古座間味ビーチ stop but publishes no coordinate;
+      **Disney** (JP-203/JP-204) rejected on two independent grounds — illustrated maps are not a
+      coordinate source, and `TransferMode` separates `disney-resort-line` from `local-transit`
+      while `AccessContext` has no matching member, so tagging it would be schema expansion by
+      anticipation; ferry ports (JP-184/JP-186/JP-197) real as a concept but no published
+      coordinate; `JP-064`/`JP-069`/`JP-089` unchanged under the existing rulings that a large
+      snap and a `no-route` are not provenance.
+- [x] **No coordinate was invented, no default created, no new record added**, and 45 of the 78
+      candidates carry no empirical red flag at all — `use-place-coordinate` is their correct,
+      deliberate answer. A nearby station was never treated as a reason to catalogue a point.
+- [x] Added the missing regression coverage for the behaviour that actually changed (172 tests,
+      from 169), mutation-checked; the validator needed no change and its parity check was
+      verified to fire on induced drift.
+
+**Provider activation remains OFF** and still `REQUIRES VENDOR CONFIRMATION` (Phase 3B3B §7.2).
+This audit made **zero requests to Ekispert, NAVITIME or openrouteservice and zero geocoding/routing
+API calls of any kind** — its sources are official web pages read directly — and created zero
+accounts, keys and secrets. It changed no `places.json`, `nearby.json`, workbook, walking
+pilot/scale artifact, walking access-point result, threshold or `getBestTransfer()`; built no UI,
+no hook and no client; and started no Phase 3C work.
+
+## Phase 3B3A — Transit & Schedule-Aware Logistics Provider Decision / Coverage Audit — research complete, BLOCKED
+
+- [x] Derive the non-walking gap programmatically from the current dataset (never carried
+      forward from a prior phase's report): of 403 directed `nearby.json` relations, **332 are
+      walking** (325 already `validated-static`, 7 still `estimated` — the already-investigated
+      `JP-063↔JP-065` pair and the `JP-090` `no-route` cluster, both Phase 3B2D's closed
+      findings, not this phase's problem) and **71 are non-walking** (`Transporte local` 69,
+      `Disney Resort Line` 2) — **100 % of the non-walking relations are still pure
+      haversine-distance estimates**, untouched by any validation work to date. All 403
+      relations, with no exception, are intra-hub; the dataset has **zero** inter-hub relations
+      (no Tokyo↔Kyoto, no mainland↔Okinawa) — inter-city transport is not a gap in today's data,
+      it is an unmodeled relation category.
+- [x] Define provider requirements from that gap plus the hub set (urban rail/JR/metro/bus
+      confirmed necessary; Shinkansen/ferry/flight are forward-looking, not required by today's
+      403 relations; national coverage including Okinawa, since Okinawa carries 23 of the 71
+      non-walking relations — 32 %).
+- [x] Evaluate Google Routes (re-confirmed live: still a 100-day transit horizon, still a
+      caching/storage-restrictive policy — excluded, same conclusion as Phase 3B1's original
+      research), HERE Public Transit (Japan routing access is sales-gated, not self-serve —
+      excluded), NAVITIME API (capable, but its realistic paid tier is disproportionate for a
+      personal project and its caching terms were not reviewed), Ekispert API (best cost fit —
+      a real non-subscription pay-as-you-go tier — and the broadest Japan-specific mode
+      coverage, but its terms-of-use PDF governing response caching/storage was not opened this
+      session, and Okinawa/Yui-Rail coverage was not confirmed), and open-data alternatives
+      (ODPT, GTFS aggregators — open licensing, but neither is a routing engine; adopting either
+      means building a trip planner ourselves).
+- [x] Specify the `static-validated`/`schedule-aware` boundary a future artifact must respect: a
+      schedule-aware result is bound to a specific service date and must never be treated as
+      evergreen just because the route exists.
+- [x] Specify (without implementing) how a future transit layer resolves an endpoint through the
+      existing access-point model via the already-reserved, still-unused `"external-local-transit"`
+      context — no access point changed, no default created, `JP-181` not touched.
+- [x] Full research, requirements, comparative matrix, provenance strategy, and decision
+      rationale in [TRANSIT_PROVIDER_DECISION.md](TRANSIT_PROVIDER_DECISION.md).
+
+**Decision: BLOCKED.** Not for lack of a plausible candidate — Ekispert is a credible primary
+and NAVITIME a credible secondary — but because choosing either now would decide an
+architecture-defining question (can a response be cached/versioned as static repository data,
+the way every other artifact in `data/logistics/` is, or must it be queried live) without having
+read the one document that actually answers it: each candidate's terms of use. Google's case is
+the cautionary example: its documented policy is caching-hostile and would force a different
+architecture than this project has used since Phase 3B2A. Proceeding on an unread assumption
+would repeat that mistake. A named next phase (proposed, not started) reads those terms and
+confirms Okinawa/Kyoto/Osaka coverage before any PROCEED decision is made.
+
+This phase made **zero requests to any transit provider and zero new ORS requests**; changed no
+threshold, no access point, no `getBestTransfer()` behavior, no dataset file, and no UI; and did
+not start ordered-sequence logistics, city-sequence comparison, day-level itinerary generation,
+or any other Phase 3C work.
+
+## Phase 3B3B — Provider Terms & Coverage Confirmation — complete, PROCEED WITH HYBRID DESIGN (provider activation pending)
+
+- [x] Read the actual Ekispert Standard Plan terms of use (「駅すぱあと API スタンダードプラン」
+      利用規約, latest revision **2025-12-15**, confirmed current), extracted directly from the
+      official PDF with `pdftotext` and read article-by-article — not summarized from a
+      secondary source. **Article 27** prohibits: using output data for AI development/feature
+      expansion/training (§6); secondary use or resale of output data (§7, unqualified by data
+      category); retaining/reusing railway-timetable-derived output — must be re-fetched every
+      time (§8); and developing a competing service — explicitly naming route-search/transfer
+      guide services, public-transport-data services, **AI models/analysis tools handling
+      public-transport data**, and public-transport consulting — without Val Laboratory's prior
+      written consent (§10).
+- [x] Read NAVITIME's direct-contract and RapidAPI terms (Article 5 §§2/5/6) with somewhat less
+      certainty (automated extraction, not manually verified line-by-line like the Ekispert
+      PDF): a blanket "no caching except what the application form/contract authorizes,"
+      **broader** than Ekispert's since it isn't limited to any data category and explicitly
+      names output lat/lng as one example. No explicit AI clause found (a documentation gap,
+      not a confirmed absence).
+- [x] Confirmed, via two independent sources — Ekispert's own live demo and Okinawa Prefecture's
+      official Ekispert-powered bus portal (`watta-bus.com`, fetched directly) — that Ekispert's
+      engine **names by operator**: Yui Rail (ゆいレール), Naha Bus, Okinawa Bus, Ryukyu Bus
+      Kotsu, and Toyo Bus. Kyoto/Osaka private rail remains only **PARTIAL** (general "nationwide
+      private rail" claims, no operator-by-name confirmation). NAVITIME's Okinawa coverage is
+      **NOT CONFIRMED for the API** (only its separate consumer map product was found to list
+      Yui Rail — not the same fact as API/contract access).
+- [x] Applied the terms to six concrete AI/storage scenarios (write integration code without
+      real data; share real output with an AI coding assistant; train a model on output;
+      live display-and-discard; commit output to this public GitHub repo; an AI tool consuming
+      the data directly) and classified each PERMITTED / PROHIBITED / SUBJECT TO AUTHORIZATION /
+      REQUIRES VENDOR CONFIRMATION for both providers — see
+      `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §1.3/§2.1.
+- [x] Confirmed **neither provider's terms permit this project's historical walking pattern**
+      (committing real routing output as versioned JSON in `data/logistics/`) for a **public**
+      repository — a structurally different rule than openrouteservice's attribution-based
+      terms, not a variation of it.
+- [x] Reconfirmed current pricing (Ekispert pay-as-you-go ¥5,500/5,000 requests unchanged;
+      NAVITIME $200–300/month unchanged) with an explicitly-caveated, unverified illustrative
+      MXN order of magnitude.
+- [x] **Reconciled Article 27(9)/(10)** (competing-service restriction, incl. "AI models/analysis
+      tools handling public-transport data") against Ekispert's own official MCP Server / "for
+      AI" program (`docs.ekispert.com/v1/for-ai/mcp-server/`, its pricing page, and Val
+      Laboratory's release announcement — all read directly this session) and its observed
+      real-world licensing pattern (the Okinawa bus portal is itself a route-search/transfer-
+      guide service built on the API, not treated as a violation). Distinguished three separate
+      questions the original pass had conflated: using an LLM as a query interface to Ekispert
+      (supported by Val Laboratory's own MCP Server, conditioned on configuring the AI agent
+      opt-out of training); using output to train/extend a model (still flatly prohibited,
+      Article 27(6), unaffected by MCP's existence); and building a standalone AI analysis/
+      recommendation *product* around public-transport data (Article 27(10)③'s actual named
+      target, gated on prior written consent).
+
+**Decision — two parts, not one.** **7.1 Architecture: PROCEED WITH HYBRID DESIGN.**
+Static/versioned: integration code, schema, synthetic fixtures, and this project's own derived
+comparison statistics — never real provider output. Live, never persisted: any real Ekispert
+route/station/timetable/fare result, queried at request time and discarded after rendering to
+the requesting user. **Recommended provider: Ekispert** (best cost fit, confirmed Okinawa
+coverage, most thoroughly read terms). **Secondary: NAVITIME** (same live-only shape, weaker
+cost fit, unconfirmed Okinawa coverage). **7.2 Provider activation: REQUIRES VENDOR
+CONFIRMATION.** A narrowly-scoped live-display feature (show the requesting user a real route,
+nothing more) is *likely* within Ekispert's ordinary licensed use on the public evidence
+gathered — but this project's own longer-term ambition (helping order places/cities, generating
+planning recommendations from logistics data) risks Article 27(10)③'s gated
+competing-service category, and this phase did not determine where Nihon's actual eventual
+product lands on that spectrum, nor sought Val Laboratory's consent. **Actually connecting real
+Ekispert queries to this application — for its full intended trajectory — is not yet cleared,
+distinct from the architecture recommendation above being sound.** A specific vendor question is
+drafted (not sent) in `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3. Open, non-blocking
+questions (private-only caching of non-timetable categories; Kyoto/Osaka private-rail
+operator-level confirmation; the remaining 8 of NAVITIME's 9 prohibited-use examples) are
+recorded, not resolved, in the same document's §7–8.
+
+This phase made **zero authenticated requests to any transit provider, zero ORS requests, zero
+accounts created, zero API keys introduced**; changed no code, no dataset, no access point, and
+no UI; and did not start Phase 3B3C (proposed: live integration *design* against synthetic
+fixtures only, still not implementation, and still not provider activation) or any Phase 3C
+work.
+
+## Phase 3B3C — Live Transit Integration Design — complete (design only, activation still OFF)
+
+- [x] Design, against the **verified current system** rather than an assumed one, how a live
+      schedule-aware transit layer could be added later. Four facts checked directly in this
+      checkout shape every decision: **there is no backend at all** (static Vite/React SPA, four-line
+      `vite.config.ts`, runtime deps only `leaflet`/`react`/`react-dom`/`react-leaflet`, no
+      deployment platform chosen, zero runtime `fetch` — all data are build-time JSON imports);
+      **`app/src/lib/transfer.ts` has no consumers** (imported only by its own test — the UI renders
+      raw `nearby.json` via `store.getNearby()` in `PlaceDetail.tsx`, so the 325 `validated-static`
+      walking results are not shown to any user today); the seams `"schedule-aware"`,
+      `"external-local-transit"` and `TransferProvenance` exist but are empty; and a regression test
+      already guards against unordered aggregation.
+- [x] Establish why an Ekispert credential **cannot** live in the frontend — Vite inlines `VITE_*`
+      into the shipped bundle, and Article 26 §1 deems every action taken with the key the
+      contractor's own — and design the required flow: browser → **Nihon-controlled server
+      boundary** (holds the key, validates, rate-limits, normalizes, discards the raw response) →
+      provider → normalized ephemeral result → browser.
+- [x] **Backend contract decided; hosting provider deferred** — deployment-neutral
+      `POST /api/transit/route`, because the repository has chosen no deployment platform at all;
+      serverless / edge / small API service compared as alternatives without picking one.
+- [x] Close the design decisions: request contract (our own `RoutingEndpoint` ids, tagged
+      depart/arrive union, explicit `serviceDate` + IANA zone); provider adapter with a closed
+      outcome union and error **categories** (never provider text), with `synthetic` a first-class
+      member; minimal normalized result (no fares, no station ids, no geometry); refined
+      `TransitProviderProvenance` (mandatory `serviceDate`, literal `ephemeral: true`);
+      access-point flow reusing `"external-local-transit"` and **never** silently collapsing
+      JP-029-style ambiguity; fallbacks that never relabel an estimate as schedule-aware;
+      non-persistence guardrails (no client storage, no artifacts, no server cache, no payload
+      logs — operational metadata only); security boundary; cost control **without** caching
+      prohibited output (explicit user action, cancellation, in-flight dedup only); and a
+      synthetic-only testing strategy with obviously-fictional fixtures.
+- [x] **Async strategy resolved with evidence:** `getBestTransfer()` stays **sync/static** — it
+      reads two build-time JSON imports through a `Map` and does no I/O, so a `Promise` signature
+      would be a false statement about it; a **separate async boundary** serves live transit, and
+      arbitration between them belongs in a React hook that knows user intent, not in the data
+      layer. Existing callers broken: none.
+- [x] Full design in [LIVE_TRANSIT_INTEGRATION_DESIGN.md](LIVE_TRANSIT_INTEGRATION_DESIGN.md).
+
+**Provider activation remains OFF** and still `REQUIRES VENDOR CONFIRMATION` (Phase 3B3B §7.2).
+The architecture is deliberately buildable and testable end-to-end against the `synthetic`
+provider while OFF, so no provider relationship is needed to make progress. This phase made
+**zero requests to Ekispert, NAVITIME or openrouteservice, created zero accounts, introduced zero
+API keys, and used zero real provider payloads**; changed no `app/src/`, `scripts/`, `data/`,
+deployment config, `package.json` or lockfile; built no backend and no UI; and started no
+Phase 3C work (no sequencing, no optimization, no itinerary generation).
+
+## Phase 3B3D — Synthetic Transit Skeleton — complete (synthetic provider only, activation still OFF)
+
+- [x] Implement the Phase 3B3C design in code against the **`synthetic` provider only**: a
+      provider-neutral contract in `app/src/lib/transit.ts` (`RoutingEndpoint`, tagged
+      `depart-after | arrive-by` request with explicit `serviceDate` + IANA zone,
+      `NormalizedTransitResult`, closed `TransitLookupOutcome`, sanitized `ProviderErrorCategory`,
+      `TransitProviderProvenance` with mandatory `serviceDate` and literal `ephemeral: true`), and
+      a deployment-neutral route handler in `app/server/transit.ts` for the future
+      `POST /api/transit/route`.
+- [x] **Activation gate held OFF in code**: `REAL_TRANSIT_PROVIDER_ACTIVATION = "off"` as a
+      literal, and an `ekispert`/`navitime` adapter is rejected **before** its lookup function can
+      run — asserted by test. No account, key, secret, SDK, request or captured payload exists on
+      this branch, for Ekispert, NAVITIME or openrouteservice.
+- [x] **Runtime request validation fails closed**: unknown or provider-specific fields are
+      rejected, instants require an explicit UTC offset, service dates must be real calendar days,
+      time zones must resolve, and identifiers and the correlation id are length-bounded and
+      character-restricted (an unsafe correlation id is never echoed back).
+- [x] **Server-only code moved out of the browser type graph.** `app/src/server/` fell under
+      `tsconfig.app.json`'s `include: ["src"]`, which compiles with `DOM`, so browser globals
+      type-checked cleanly inside the one module that must never persist anything. It now lives in
+      `app/server/` under its own `tsconfig.server.json` (no `DOM`), and the residual
+      `localStorage` gap — `@types/node`'s web-globals shim, pulled in transitively by vitest — is
+      closed by an explicit source-scanning test rather than overclaimed in a comment.
+- [x] **Review of the initial draft found and fixed real defects**, each now covered by a test: a
+      failing `npm run build`; synthetic provenance claiming `schedule-aware-live`; a second
+      spelling of `validated-static`; an unsound `no-catalogued-endpoint` inference at a boundary
+      that never ran access-point resolution; cancellation reported as a provider network failure;
+      and `unauthorized` answered with `401`. Full record in
+      [LIVE_TRANSIT_SYNTHETIC_SKELETON.md](LIVE_TRANSIT_SYNTHETIC_SKELETON.md).
+- [x] **`TransitProviderProvenance` deliberately stays out of `transfer.ts`'s canonical
+      `TransferProvenance` union.** That union describes the provenance *of a `TransferEdge`*, and
+      nothing converts a transit result into one; widening it now would force every `TransferEdge`
+      consumer to handle a variant that cannot occur there.
+- [x] **`getBestTransfer()` untouched** — still sync, static, directed and non-fabricating;
+      `app/src/lib/transfer.ts` and its 61 tests are byte-identical to `main`.
+
+**Provider activation remains OFF** and still `REQUIRES VENDOR CONFIRMATION` (Phase 3B3B §7.2).
+This phase made **zero requests to Ekispert, NAVITIME or openrouteservice, created zero accounts,
+introduced zero API keys or secrets, and used zero real provider payloads**; changed no dataset,
+no access point, no `scripts/`, no deployment config, no `package.json` and no lockfile; added no
+UI wiring, no React hook and no automatic runtime request; persisted nothing; and started no
+Phase 3C work (no sequencing, no aggregation, no itinerary generation).
+
+## Phase 3C-A — Ordered Sequence Builder — complete
+
+**Product decision, stated here because it changes what "later" means for the rest of this
+document:** live-transit integration is **not currently planned** for this product's scope.
+Phase 3B3E (the client transport / live-transit React hook) is **deferred, not blocked** —
+Ekispert/NAVITIME activation is not being pursued now, no provider account or key is being
+sought, and the existing synthetic transit architecture (`app/src/lib/transit.ts`,
+`app/server/transit.ts`) stays in the repository, dormant, as historical/future-ready work. It is
+not deleted, and the activation gate stays `"off"`. This phase instead builds directly on the two
+data layers that already exist and need no provider: validated-static walking results and honest
+geographic estimates.
+
+- [x] First real consumer of an **explicit, ordered** sequence of places — the case
+      `transfer.ts`'s own "No aggregation without order" guard (§3B1) reserved for a later phase
+      that takes "an explicit sequence of ids/edges as input, never a bare `Place[]`". New pure
+      module `app/src/lib/ordered-sequence.ts`: for each consecutive pair in a caller-supplied
+      list of place ids, calls `getBestTransfer(fromId, toId)` in exactly that direction — never
+      the reverse, never a search across other pairs, never a shortest path, never a haversine
+      fallback, never a network request. A pair with no recorded transfer becomes an honest
+      `transfer: null` leg.
+- [x] **Known vs. complete kept structurally distinct.** `OrderedSequenceSummary` carries
+      `knownLegCount`/`unknownLegCount` alongside a `transferMinutes` subtotal over the known legs
+      only, and a `complete` flag that is only ever `true` when every leg in the sequence is
+      known. The UI is written so a partial sum is always labelled "traslados conocidos", never
+      "traslados totales" — that wording only appears when `complete` is true.
+- [x] **UX entry point**: "Construir recorrido" alongside (not replacing) "Analizar selección" in
+      `SelectionPanel`, visible once **2** places are saved (analysis needs 3, since a 2-place
+      group has nothing to group; a 2-place *route* already has one leg to describe). Opens
+      `OrderedSequenceBuilder`, a modal reusing the same dialog/backdrop/focus-trap chrome
+      `SelectionAnalysis` already established.
+- [x] **The route draft is not "Quiero ir".** It is component-local state, initialized from the
+      saved places' current order when the builder opens, holding only a reordered/reduced subset
+      of the same ids. Removing a place from the route does not unsave it; a removed place can be
+      added back. No new `localStorage` key, no change to the existing saved-ids format — the
+      draft is never persisted.
+- [x] **Reordering is keyboard-accessible, no drag-and-drop.** Every route item has explicit
+      "move up" / "move down" / "remove" buttons with place-specific `aria-label`s
+      (e.g. "Mover Meiji Jingu hacia arriba"), disabled rather than omitted at the first/last
+      position. No pointer-only interaction; no new npm dependency was added for reordering.
+- [x] **Each leg displayed honestly, reusing the existing vocabulary.** `describeTransferForUi`
+      still owns the confidence label (`"Ruta a pie validada"` / `"Ruta validada"` /
+      `"Estimación geográfica"` / `"Horario en vivo"`); a new `transferModeIcon` derives a glyph
+      from the edge's real, closed `TransferMode` rather than a guess. A leg with no recorded
+      transfer reads plainly "Sin traslado registrado" — including for an intentional cross-hub
+      jump (e.g. Tokio → Kioto), which has no fabricated Shinkansen estimate.
+- [x] **Visit time and transfer time stay separate.** The activity-time total reuses
+      `summarizeSelection()` unchanged, so day-scale commitments ("Día completo") stay excluded
+      from the minute sum exactly as Phase 3A established — never converted to invented minutes,
+      never folded into the transfer total.
+- [x] **No optimisation of any kind.** No auto-sort, no nearest-neighbour, no shortest path, no
+      suggested or candidate sequence, no comparison between sequences, no day assignment, no
+      disabled placeholder button for any of those. The order is entirely the user's.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**, created
+zero accounts and introduced zero API keys or secrets; changed no `places.json`, `nearby.json`,
+access-point catalog, walking pilot/scale/access-point artifact, threshold, `package.json` or
+lockfile; and did not touch `getBestTransfer()`'s semantics. `app/src/lib/ordered-sequence.ts` is
+the only place in the app that sums transfer time across more than one edge, and it only ever does
+so over an order the user supplied. No Phase 3C-B work (comparing candidate sequences, day-level
+itinerary generation) was started.
+
+## Phase 3C-B — User-Defined Sequence Comparison — complete
+
+Compares exactly **two user-defined orderings of the same places** — both defined by the user,
+never generated, permuted, or ranked by the app. "Candidate generation" (enumerating orderings,
+auto-sort, nearest-neighbour, TSP, shortest path, an "optimise" button, a recommended itinerary)
+remains explicitly out of scope, with no disabled placeholder control added for any of it.
+
+- [x] New pure module `app/src/lib/sequence-comparison.ts`. `compareSequences(placeIdsA,
+      placeIdsB)` builds each side through `orderedSequenceFromLookup`/`buildOrderedSequence`
+      (Phase 3C-A) — it never reimplements directed-lookup, reversal, or chaining semantics, only
+      reasons about two already-built `OrderedSequence`s. The **same-set invariant** is checked
+      first and independently of ordering: both candidates must be duplicate-free and represent
+      exactly the same set of place ids, or the comparison is `"invalid"` — comparing order
+      presupposes the same places, and a composition difference is not an ordering question.
+- [x] **Incomplete routes never produce a winner.** If either candidate has any unknown leg, the
+      outcome is `"incomplete"` regardless of the two known subtotals — a candidate with 40 known
+      minutes and one unrecorded leg is never declared faster than one with 55 known minutes and
+      full coverage. Unknown is not zero, and a known subtotal is shown without ever being
+      compared as if it were the whole route.
+- [x] **Range overlap never produces a false winner.** For two complete candidates, A is
+      `"a-clearly-faster"` only when `A.maxMinutes < B.minMinutes` (and symmetrically for B) —
+      never from comparing minima or midpoints. Equal ranges are `"equivalent"`; anything else
+      that isn't a strict one-sided win is `"overlapping"`, reported as "no hay una diferencia
+      clara con los datos disponibles" rather than a guessed winner.
+- [x] **A declared advantage is always conservative.** `guaranteedAdvantageMinutes` is
+      `loser.minMinutes − winner.maxMinutes` — the gap that survives the winner's worst case
+      against the loser's best case — never a midpoint-derived figure. A same-precision
+      possible-difference range is computed alongside it (interval subtraction of the two
+      independent ranges) but is not surfaced in this UI, to keep the result readable at a glance.
+- [x] **Confidence stays visible, not scored.** Each candidate reports its known/unknown leg
+      counts plus a tally of `validated-static`/`estimated`/`schedule-aware` legs (reusing
+      `TransferConfidence` unchanged) — no new confidence vocabulary, no invented numerical score.
+      A route built entirely from estimates does not read as equally certain as one built from
+      validated routes.
+- [x] **Every conclusion is scoped to these two candidates.** Result wording always reads "entre
+      estos dos órdenes…", never "la mejor ruta" or any claim of global optimality — no ordering
+      outside A and B was ever evaluated.
+- [x] **UX**: "Comparar otro orden" inside the existing `OrderedSequenceBuilder`, once the route
+      has 2+ places. Opens as a **nested view in the same dialog** (one focus trap, one
+      Escape-closes-everything behaviour) rather than a modal over a modal. Candidate A starts as
+      a clone of the current route draft, Candidate B as a clone of Candidate A; both are
+      independently reorderable (move up/down, disabled at the ends, place- and candidate-
+      specific `aria-label`s like "Mover Meiji Jingu hacia arriba en orden B") through the same
+      accessible mechanism Phase 3C-A already established — no drag-and-drop dependency added.
+      Composition is fixed once the comparison opens: neither candidate can add or remove a
+      place there, only reorder — that keeps the same-set invariant true by construction through
+      this UI, though the domain function still checks it for any other caller. "Volver al
+      recorrido" returns to the plain builder without touching "Quiero ir" or the route draft;
+      nothing here is persisted.
+- [x] **Visit time is not duplicated.** Both candidates hold the same places, so activity time is
+      identical between them; the view states this once rather than repeating a visit-time total
+      under both candidates, and never merges it into the transfer comparison.
+- [x] **Cross-hub gaps behave exactly as Phase 3C-A defined them**: a pair with no recorded
+      relation stays an honest unknown leg (making that candidate incomplete), never a fabricated
+      Shinkansen/flight/ferry estimate and never treated as an infinite cost.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**, created
+zero accounts and introduced zero API keys or secrets, and added zero new npm dependencies;
+changed no `places.json`, `nearby.json`, access-point catalog, walking artifact, threshold,
+`package.json` or lockfile; and did not touch `getBestTransfer()`'s or `ordered-sequence.ts`'s
+semantics. No automatic candidate generation, no permutation enumeration, no global optimisation,
+and no Phase 3C-C work (day assignment, itinerary generation) was started.
+
+## Phase 3C-C — User-Defined Day Assignment — complete
+
+The user manually divides the current route into ordinal day buckets — **Día 1, Día 2, …** —
+choosing the day count, which places belong to each day, and their order inside each day. Nihon
+only describes the resulting split; it never chooses a day for a place, decides how many days
+are needed, distributes or balances places, or produces a recommended split.
+
+- [x] New pure module `app/src/lib/day-assignment.ts`. `buildDayAssignment(routeIds, days)`
+      builds each day's logistics through Phase 3C-A's own `orderedSequenceFromLookup` — it never
+      reimplements directed lookup, reversal, or chaining semantics, and never sums or searches
+      across more than one day.
+- [x] **The day boundary breaks transfer aggregation, structurally, not by a special case.**
+      Each day's ids are passed to `orderedSequenceFromLookup` on their own, so the pair between
+      the last place of day *N* and the first place of day *N+1* is never assembled into a
+      consecutive pair in the first place — there is no code path that could look it up. No
+      overnight transfer, no hotel, and no inter-day commute is ever assumed or queried; proven
+      with an injected lookup spy across two- and three-day splits.
+- [x] **Partition validity is enforced independently of the UI**: every route id must appear in
+      exactly one day, in exactly one position — `"no-days"`, `"missing-route-ids"`,
+      `"extra-ids"`, `"duplicate-in-day"`, and `"duplicate-across-days"` are each detected and
+      reported (not just the first found). An empty day is explicitly allowed; at least one day
+      bucket is required.
+- [x] **Inside a day, Phase 3C-A's guarantees hold exactly**: directed lookup only, no reverse
+      inference, no chaining, no haversine fallback, no fabricated Shinkansen/flight/ferry. A
+      missing same-day leg keeps that day's sequence incomplete, and its known subtotal is never
+      mislabeled as a complete total — the same `complete`/`transferMinutes` distinction Phase
+      3C-A defined, reused unchanged.
+- [x] **No fake "day total".** Visit time (`summarizeSelection()`, unchanged — day-scale
+      commitments such as "Día completo" are never converted to minutes) and transfer time
+      (known subtotal vs. complete total, unknown-leg count, day-scale commitment count) stay
+      separate, factual quantities per day — never merged into one number, and no capacity
+      judgement ("bien equilibrado", "no cabe", "óptimo") is ever rendered; none has been defined.
+- [x] **UX**: "Distribuir por días" alongside "Comparar otro orden" in the builder view, visible
+      at 2+ route places. Opens as a **nested view in the same dialog** — one focus trap, one
+      Escape-closes-everything behaviour — starting with a single day holding the exact current
+      route order (not a recommendation: simply the route before any day boundary exists).
+      Per-place duration is shown next to each name, reusing `resolveDuration`/`formatRange`
+      exactly as `SelectionPanel` already does — no second duration parser, and a day-scale
+      editorial value (e.g. "Día completo") renders verbatim rather than being converted.
+- [x] **Day controls**: add an empty day; remove a day only while it is empty (disabled
+      otherwise, and while only one day remains); move a place to the adjacent day (appended to
+      the end of that day's order, never silently reordering what was already there) with
+      day-specific `aria-label`s ("Mover … al día anterior/siguiente"), disabled at the first/last
+      day. **No drag-and-drop.** The existing `ReorderableList` (Phase 3C-B) was extended, not
+      duplicated, with optional adjacent-group controls — the builder's and comparison's reorder
+      mechanics, remove-from-route, and candidate-specific `aria-label`s are unchanged.
+- [x] **Ordinal days only.** No calendar date, weekday, timezone, or opening-hour solver — "Día
+      1/2/3" are labels, not scheduled dates. `place.bestTime`/`schedule.hours`/`schedule.closures`
+      are not structurally parsed in this phase.
+- [x] **Nothing persisted.** The day draft is component-local state, discarded on close exactly
+      like the route and comparison drafts; no new `localStorage` key, no change to
+      `useSavedPlaces`, no backend.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**, created
+zero accounts and introduced zero API keys or secrets, and added zero new npm dependencies;
+changed no `places.json`, `nearby.json`, access-point catalog, walking artifact, threshold,
+`package.json` or lockfile; and did not touch `getBestTransfer()`'s, `ordered-sequence.ts`'s, or
+`sequence-comparison.ts`'s semantics. No automatic day distribution, no candidate generation, no
+permutation enumeration, no shortest path, no scoring function, no exact clock scheduling — and
+no Phase 3C-D work was started.
+
+## Phase 3C-D — Persisted Manual Planning Draft — complete
+
+Until this phase, Phase 3C-A's route order and Phase 3C-C's day assignment were purely
+component-local state that disappeared the moment the builder closed (see those sections
+above). This phase persists that **canonical manual plan** — the route and the day
+assignment, and only those — locally in the browser, under a new, separate storage key. It
+stores user *decisions*; it does not generate any.
+
+- [x] **New versioned storage key, `nihon.manualPlanningDraft`**, entirely separate from
+      `nihon.savedPlaceIds` ("Quiero ir"), which is untouched and remains exclusively the saved-
+      place set. Schema: `{ version: 1, routeIds: string[], days: string[][] | null }`. Only ids
+      and user-authored structure are ever persisted — no `Place` objects, names, durations,
+      transfer edges/results, visit-time summaries, transfer totals, confidence tallies, or any
+      other value recomputable from the current dataset/domain logic.
+- [x] **Phase 3C-B's comparison candidates are deliberately excluded from this schema and always
+      will be.** "Orden A"/"Orden B" remain plain, ephemeral component state — cloned fresh from
+      the current route each time the comparison view opens, discarded on close, exactly as
+      before this phase.
+- [x] **Restore semantics distinguish "no valid stored plan" from "a valid stored plan whose
+      route happens to be empty".** No stored draft (or a malformed one) initialises the route
+      from the current saved ids, preserving Phase 3C-A's original first-run behaviour. A stored
+      `routeIds: []` is an intentional empty route and stays empty after reload — it is never
+      reinterpreted as "nothing was stored."
+- [x] **Reconciliation, not silent repair.** A stored route id no longer present in "Quiero ir"
+      is pruned from the route and from any day bucket that referenced it — never re-added,
+      replaced, or used to infer another place. A place newly saved to "Quiero ir" after a
+      planning draft already exists is **not** auto-added to the route or assigned to a day; it
+      stays under the existing "Guardados fuera del recorrido" flow until the user explicitly
+      adds it.
+- [x] **Route-edit vs. day-edit semantics.** Changing only the route's *order* (the exact set of
+      ids unchanged) retains the existing canonical day assignment untouched. Changing the
+      route's *composition* (a place added or removed) invalidates it (`days: null`) — this
+      phase never invents which day a new place belongs to, or repairs a day that no longer
+      accounts for a removed one.
+- [x] **One shared partition validator, reused, not duplicated.** `day-assignment.ts`'s issue
+      taxonomy (`no-days`, `missing-route-ids`, `extra-ids`, `duplicate-in-day`,
+      `duplicate-across-days`) was extracted into a transfer-lookup-free `validateDayPartition`,
+      which both `dayAssignmentFromLookup` (transfer-lookup context) and the new
+      `app/src/lib/planning-draft.ts` (persistence-reconciliation context) call — one source of
+      truth for what counts as a valid day split, proven by regression tests that the extraction
+      changed nothing about the taxonomy, the transfer semantics, or the day-boundary guarantee.
+- [x] **Storage failures never reach the UI.** No stored value, malformed JSON, the wrong object
+      shape, an unsupported version, non-string ids, duplicate stored route ids, and a
+      `localStorage` read/write exception are all handled by falling back to an in-memory
+      default — no invented migration for an unrecognised version, no thrown error.
+- [x] **UX**: a factual, low-key disclosure ("Este recorrido se guarda automáticamente en este
+      navegador…") in the builder view — no toast per reorder, no new modal, no implied cloud or
+      account sync. An optional **"Restablecer recorrido"** control resets the route to the
+      current saved ids in their saved order and clears the day assignment, without touching
+      "Quiero ir" itself.
+- [x] Accessibility/mobile unchanged: still one dialog, one focus trap, Escape closes
+      everything, the same keyboard reorder controls and `aria-label`s. No `<select>` was
+      introduced, so the existing focusable-element selector needed no change. No drag-and-drop,
+      no new npm dependency.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**,
+created zero accounts and introduced zero API keys or secrets, and added zero new npm
+dependencies; changed no `places.json`, `nearby.json`, access-point catalog, walking artifact,
+threshold, `package.json`, or lockfile; and did not touch `getBestTransfer()`'s,
+`ordered-sequence.ts`'s, or `sequence-comparison.ts`'s semantics. No automatic route generation,
+ordering, day count, or day assignment; no balancing; no itinerary generation or
+recommendation; no optimisation, TSP, nearest-neighbour, or shortest path; no scoring; no
+calendar dates, weekdays, clock scheduling, or opening-hours solving — not even as a disabled
+placeholder. No Phase 3C-E work was started.
+
+## Phase 3C-E — Manual Calendar Anchoring — complete
+
+Phase 3C-D's persisted plan stored the day assignment as purely ordinal buckets — "Día 1",
+"Día 2", … — with no relationship to a real calendar. This phase lets the user manually anchor
+"Día 1" to a real civil date; every later day is derived by calendar offset, exactly like the
+ordinal numbering already was. It stores one more user *decision*; it still never decides one.
+
+- [x] **Schema bumped to a versioned V2**, `{ version: 2, routeIds: string[], days: string[][] |
+      null, startDate: string | null }`. `startDate` is a plain `YYYY-MM-DD` string or `null` —
+      never a serialized `Date`, never a derived weekday, never a month name. A V1 draft (Phase
+      3C-D's original shape, no `startDate` field) is migrated deterministically
+      (`migrateV1ToV2`): `routeIds`/`days` pass through unchanged and `startDate` is always
+      `null` — no date is ever invented for a plan that never had one.
+- [x] **One start date, offset per day, not per-day dates.** The user picks a single civil date
+      for "Día 1"; "Día N" is that date plus `N − 1` calendar days, computed on every render
+      (`app/src/lib/civil-date.ts#addCivilDays`) and never stored per bucket. This was chosen
+      over an independent date per day bucket because it cannot represent an internally
+      inconsistent calendar (gaps, duplicates, an out-of-order day) and needs no reconciliation
+      of its own when a day is added, removed, or reordered — the trade-off is that all days are
+      necessarily consecutive; the user cannot anchor "Día 2" to a non-consecutive date.
+- [x] **The calendar anchor is independent of the route and the day assignment.** Adding,
+      removing, or reordering a day; moving a place between days; a pure route reorder; a route
+      composition change that invalidates the day assignment (`days: null`); and "Restablecer
+      recorrido" all leave `startDate` untouched — resetting *what* the plan contains is not a
+      decision about *when* it starts. Only the user explicitly setting or clearing the date
+      (`withStartDate`) changes it.
+- [x] **Deterministic, conservative validation.** `civil-date.ts#isValidCivilDate` checks both
+      shape (`YYYY-MM-DD`) and calendar reality (rejects `2027-02-30`, `2027-13-01`, and
+      `2027-02-29` in a non-leap year; accepts `2028-02-29`) via a round-trip through
+      `Date.UTC`/`getUTC*`. An invalid `startDate` is rejected outright by `withStartDate` (the
+      draft is returned unchanged) and, in stored data, invalidates the *entire* stored draft
+      (falls back to a fresh one) — the same "corrupted data taints the whole record" policy
+      Phase 3C-D already applies to a duplicate route id.
+- [x] **No timezone off-by-one.** Every date computation reads/writes calendar components via
+      `Date.UTC(...)`/`getUTC*` and passes `timeZone: "UTC"` to `Intl.DateTimeFormat` — a civil
+      date picked by the user renders as that same date regardless of the browser's local
+      timezone. Verified both by unit tests that flip `process.env.TZ` across UTC−12/UTC+14/
+      `America/Los_Angeles` and by manual visual QA of the real UI under Playwright browser
+      contexts pinned to those same timezones.
+- [x] **UI**: a single native `<input type="date">` inside the existing "Distribuir por días"
+      view (no new modal, no dialog-over-dialog), labelled "Fecha de inicio (Día 1)", plus a
+      "Quitar fecha" control to clear it. Each day card shows its derived date (e.g. "vie, 19 feb
+      2027") under its "Día N" heading — the weekday/month abbreviation comes from
+      `Intl.DateTimeFormat("es", …)`, never a hand-maintained Spanish weekday table. An
+      unobtrusive disclaimer states the date is the user's own choice.
+
+This phase made **zero reads of `place.bestTime`, `schedule.hours`, or `schedule.closures`**, no
+check of whether anything is open on the chosen date, no opening-hours solver, no slot/hour
+scheduling, no automatic route/day generation, ordering, balancing, or recommendation, no
+optimisation, TSP, nearest-neighbour, shortest path, or scoring, and no live provider
+integration (no Ekispert, NAVITIME, Google Maps, or openrouteservice requests) — not even as a
+disabled placeholder. Zero new npm dependencies; no dataset, workbook, `nearby.json`, logistics/
+access-point/walking artifact, `package.json`, or lockfile changes. No Phase 3C-F (or any later
+phase) work was started.
+
+## Phase 3D-A — Temporal Data Audit & Normalization Contract — complete
+
+Phase 3C-E gave every manually assigned day a real civil date. This phase starts a new
+product/domain family — temporal *feasibility* — but is deliberately audit-and-contract only: it
+determines which parts of the existing dataset are safe enough to support a future "what can
+Nihon safely say about this day's places" answer. It is **not** Phase 3C-F, and it does not
+answer that question itself.
+
+- [x] Programmatically audited all 214 places' `schedule.hours`, `schedule.closures`, `bestTime`,
+      `reservation.required`/`leadTime`/`raw`, and `febMar2027.status`/`warning`/`action` with a
+      new deterministic, offline, zero-network script (`scripts/audit-temporal-data.py`, pure
+      classification rules in `scripts/temporal_data_lib.py`) — every count in
+      [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md), including every distinct-
+      raw-value count and raw-value frequency, is emitted by the script's generic
+      `raw_value_stats()` helper and reproducible by re-running it, never hand-transcribed or
+      hardcoded.
+- [x] Derived the pattern-family taxonomy **from the data**, not from a predetermined list:
+      13 `schedule.hours` families and 10 `schedule.closures` families, each tagged SAFE / PARTIAL
+      / OPAQUE / UNKNOWN. Coverage: hours SAFE 80/214, PARTIAL 50/214, OPAQUE 19/214, UNKNOWN
+      65/214; closures SAFE 61/214, PARTIAL 31/214, OPAQUE 83/214, UNKNOWN 39/214. A real
+      recurring-weekday closure example exists (30/214, always carrying an uncertainty marker in
+      this checkout, e.g. `"Lunes; verificar"` — classified PARTIAL, never SAFE) and is kept
+      structurally distinct from the irregular `"Muchos domingos"` pattern, which is never treated
+      as a safe recurring rule. A "24 h" token is likewise never promoted to SAFE merely by being
+      present: `known-24h-with-caveat` (4/214, e.g. `"Abierto 24 h; puede cerrar por viento"`)
+      keeps a 24h claim paired with a weather/operator/seasonal/other material caveat PARTIAL,
+      never SAFE, distinct from the 15/214 genuinely unqualified `known-24h` places.
+- [x] **`reservation.required` audited independently, not merely read off the raw text**:
+      verified a real `bool` for all 214 places, with exact True=41/214, False=173/214 counts,
+      and mechanically cross-checked against `reservation.raw`'s own classification via
+      `classify_reservation_consistency()` — **0/214 inconsistent pairs found today**, checked
+      per place and named explicitly (never assumed) had any existed. That mechanical check is
+      what turns the finding below from a plausible guess into a proven one.
+- [x] **Two real findings, recorded rather than silently fixed**: `reservation.required` collapses
+      39/214 places (18 %) whose raw text is `"Recomendable"`/`"Opcional"`/`"No para espectador"`
+      into the same `false` a plain `"No"` gets, losing a real nuance the raw string still
+      preserves; and `data/seasonal-alerts.json` (33 entries, keyed by free-text `"Lugar / tema"`,
+      not by place id) is a structurally separate collection from the 214 per-place `febMar2027`
+      objects, confirmed by grep to have **zero consumers anywhere in `app/src/`**.
+- [x] **`bestTime` audited and bounded, never conflated with availability**: all 214 values (a
+      closed 10-item vocabulary — `Mañana`, `Tarde`, `Noche`, `Atardecer`, …) classify as one
+      opaque `editorial-recommendation` category; `classify_best_time()` branches on presence only,
+      never on content, so a value that happens to look time-shaped can never leak into the hours
+      domain. `schedule.hours` is not overridden by `bestTime` anywhere.
+- [x] **`febMar2027` kept on its own axis, never merged into weekly hours/closures**: `status`
+      alone drives its classification (`classify_feb_mar_status()` takes exactly one argument, a
+      regression test pins this down). `warning`/`action` are formally included in the audit
+      contract as their own classified field — `classify_editorial_prose()`, presence-only,
+      structurally identical to `classify_best_time()` — rather than merely counted on the side:
+      all 214/214 places classify `editorial-prose`/OPAQUE for both, with 34 distinct warnings and
+      34 distinct actions over 214 places (backed by the same `raw_value_stats()` helper, not a
+      one-off computation). The dominant `pending-verification` bucket (152/214, e.g.
+      `"CALENDARIO / CONDICIÓN PENDIENTE"`) is tiered UNKNOWN, not a weaker OPAQUE — "the calendar
+      isn't published yet" is not a closure signal of any kind.
+- [x] **Malformed nested field types fail loudly, never silently stringify into ordinary text**:
+      `load_places()` now type-checks every nested temporal leaf against the canonical `Place`
+      contract (`app/src/types.ts`) — `schedule.hours`/`closures`, `reservation.leadTime`/`raw`,
+      and `febMar2027.status`/`warning`/`action` must be `str`; `reservation.required` must be a
+      real `bool`, rejecting a look-alike string like `"false"` or an int like `1`/`0` even though
+      `bool` is a Python `int` subclass. `_norm()` (used by every classifier) independently raises
+      `TypeError` on anything that isn't `str`/`None`, as a second guard for any direct caller.
+      Regression tests cover `schedule.hours = 123`, `reservation.required = "false"`, and
+      `febMar2027.warning = []` each failing with a specific message rather than becoming an
+      ordinary-looking UNKNOWN/OPAQUE classification.
+- [x] **Normalization contract** in [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md):
+      raw editorial text stays authoritative and is never dropped; SAFE facts are parseable without
+      guessing; PARTIAL facts expose only their safely-extractable part and carry the rest forward
+      as text; OPAQUE data (weather, tides, an unnamed operator, a festival calendar) stays
+      editorial indefinitely, not "until parsed better"; UNKNOWN is never coerced to any other
+      tier — enforced by a regression test, not just documented intent.
+- [x] **A future domain model sketched, not implemented** — following Phase 3B2E's own precedent
+      of deciding a model without shipping code. No new TypeScript type, file, or export was added
+      to `app/src/`; the sketch in the contract doc is scoped tightly to what the audit actually
+      justifies (no `open`/`closed` boolean anywhere in it — even a SAFE fact only supports "this
+      is what the editor recorded," never "open right now") and explicitly excludes `bestTime` and
+      `febMar2027` from it.
+- [x] **82 offline tests** (`scripts/test_temporal_data_audit.py`): per-category classification
+      invariants, priority ordering (e.g. weather-dependence outranks a generic third-party
+      mention, a caveat outranks a bare "24 h"), malformed-input handling (missing file, non-array
+      JSON, invalid JSON, a place missing a required nested field, and — since the corrective
+      review below — every malformed nested leaf type — each fails with a specific message rather
+      than guessing a default), a generic `raw_value_stats()` helper's own unit tests
+      (determinism, tie-breaking, `None` handling), real-dataset coverage-existence checks that
+      assert an example currently exists without hardcoding a fragile count, CLI-level determinism
+      (two subprocess runs produce byte-identical stdout), and that the CLI never modifies
+      `data/places.json`.
+- [x] **Corrective review**: a second pass found and fixed four audit-contract defects before this
+      phase's PR was reviewed. (1) `reservation.required` and `febMar2027.warning`/`.action` were
+      claimed as "audited" without the script actually checking or reporting them — now each has
+      its own classification and, for `reservation.required`, an independent boolean audit plus a
+      mechanical cross-check against `reservation.raw` (0/214 inconsistent, proven not assumed).
+      (2) `load_places()` type-checked only presence, not type, for every nested temporal leaf — a
+      `schedule.hours: 123` or `reservation.required: "false"` would have passed through to a
+      classifier and silently become an ordinary-looking UNKNOWN/OPAQUE answer; both now fail
+      loudly with the actual offending type named. (3) The contract document cited several
+      distinct-raw-value and frequency numbers the script itself never emitted (bestTime
+      frequencies, leadTime/status/warning/action distinct counts) — closed with a generic,
+      reusable `raw_value_stats()` helper wired into every audited field, so the "every number is
+      reproducible by rerunning the script" claim is now literally true rather than aspirational.
+      (4) `classify_hours()` checked "24 h" before any weather/operator/seasonal/variable caveat,
+      so a real dataset value — `"Abierto 24 h; puede cerrar por viento"` — was misclassified
+      SAFE; fixed with a new `known-24h-with-caveat` PARTIAL family, checked before the corrected
+      priority could hide the same class of defect in a still-uncaught shape, and the resulting
+      real coverage-number changes (hours SAFE 84→80, PARTIAL 46→50) were propagated everywhere
+      they appeared rather than left stale to minimize the diff.
+
+**No opening-hours solver, no date-feasibility check, no "this day works" UI, and no clock-time,
+timezone, or per-place scheduling of any kind exist after this phase.** Phase 3C-E's manual civil-
+date anchoring is unchanged and still reads none of `bestTime`/`schedule.hours`/
+`schedule.closures`; `PlaceDetail.tsx` and `OrderedSequenceBuilder.tsx` are unmodified. This phase
+made **zero requests to any official source, provider, or API**, changed no `places.json`
+(canonical or `app/src/data/` copy), no `seasonal-alerts.json`, no workbook, no logistics/access-
+point/walking artifact, `package.json`, or lockfile, and added no npm dependency. No Phase 3D-B (or
+any later phase) work was started.
+
+## Phase 3D-B — Weekday Closure Signals — complete
+
+The first RUNTIME consumer of Phase 3D-A's audit contract. Deliberately narrow: it answers only
+"does the weekday of a civil date the user already assigned to a day bucket match a candidate
+recurring-weekday closure recorded in `place.schedule.closures`" — never "is the place open,"
+"can I visit at 14:00," "is the whole day feasible," or "what is the best day." It is not an
+opening-hours solver, and none of Phase 3D-A's other audited fields (`schedule.hours`, `bestTime`,
+`febMar2027`) are read for feasibility here.
+
+- [x] **`getCivilWeekday(iso): CivilWeekday | null`** added to `app/src/lib/civil-date.ts` — the
+      smallest possible extension, reading calendar components via `Date.UTC(...)`/`getUTCDay()`
+      exclusively (timezone-invariant, like every other function in that module), returning
+      `null` for an invalid civil date rather than guessing. The module still knows dates and
+      weekdays only — no `Place`, no closure text, no business rule was added to it.
+- [x] **`app/src/lib/temporal-availability.ts`** — a new, small, pure domain module: `ClosureFact`
+      (`"no-known-closure"` SAFE / `"candidate-weekday"` PARTIAL with extracted `CivilWeekday[]` /
+      `"not-evaluable"` for everything else) derived on read from `place.schedule.closures`, never
+      persisted and never a new field on `Place`. `interpretClosureText()` is a direct TypeScript
+      port of **only** `scripts/temporal_data_lib.py`'s `classify_closures()` — same category
+      names, same priority order, same SAFE/PARTIAL/OPAQUE/UNKNOWN tier per category — not a
+      port of the hours/bestTime/reservation/febMar2027 taxonomies, which stay exactly as
+      unparsed at runtime as Phase 3D-A left them. `assessWeekdayClosure()` combines one
+      `ClosureFact` with one civil-date string into a closed
+      `"possible-weekday-closure-match" | "no-weekday-match" | "no-known-closure" |
+      "not-evaluable" | "not-assessed"` outcome — `"no-weekday-match"` is never "open," never
+      "compatible," only "this one recorded candidate didn't match this one date."
+- [x] **Parity with the Phase 3D-A contract, proven not assumed**: `"Sin cierre"`/`"Sin cierre
+      ordinario"` classify SAFE; `"Sin cierre ordinario; clima"` does **not** (a caveat
+      disqualifies it, exactly as the audit found); `"Lunes; verificar"` and every other
+      single/multi-named-weekday pattern the audit already found PARTIAL becomes a candidate;
+      `"Muchos domingos"` and `"Miércoles/domingo variable"` — the audit's own
+      `irregular-weekday-pattern` OPAQUE family — never become a candidate; every
+      weather/tide/third-party/scheduled-unspecified/genuinely-unrecognized family from the audit
+      stays `"not-evaluable"`. A real-dataset test asserts no OPAQUE/UNKNOWN closure category is
+      ever promoted into a definitive weekday conflict, across all 214 current places and a full
+      reference week of dates.
+- [x] **UI: the day-assignment view only.** `OrderedSequenceBuilder.tsx`'s existing "Distribuir
+      por días" day cards gained a `WeekdayClosureNotice` section, rendered only when a day
+      already has a derived date (Phase 3C-E's `startDate` + day offset) and at least one place —
+      no warning was added to the national map, ordinary place cards, sequence comparison, or the
+      unordered selection analysis. A match reads "N posible(s) coincidencia(s) con cierre
+      semanal" (amber, non-alarmist — the same warm palette `.alert--pending` already uses, never
+      the stronger red risk treatment) and names each matched place with its raw closure text
+      verbatim; zero matches reads only "Sin coincidencias de cierre semanal detectadas" — never a
+      "day is valid" claim; places that could not be evaluated are counted and disclosed
+      separately. A standing disclaimer states plainly that the check does not verify opening
+      hours, holidays, temporary closures, weather, reservations, or live status. Manually
+      verified end-to-end in a real browser (`npm run dev` + Playwright): a Monday start date
+      correctly surfaced both saved places whose recorded closure is `"Lunes; verificar"`; a
+      Tuesday date correctly showed the neutral no-match line for the same places; clearing the
+      date removed the section entirely.
+- [x] **No automation of any kind.** Nothing here moves a place to another day, recommends a
+      different day, scores days, auto-distributes, auto-orders, or offers a "fix this day"/"best
+      day" control. The user's manual route/day/date decisions remain exactly as canonical as
+      Phase 3C left them.
+- [x] **Nothing persisted.** No `ManualPlanningDraftV3`, no new `localStorage` key — the signal is
+      recomputed on every render from the day's already-derived date and each place's existing raw
+      `schedule.closures` text. A source-scanning regression test asserts neither new module
+      references `localStorage`/`sessionStorage`/`indexedDB` at all, the same technique Phase
+      3B3D's `transit.test.ts` already established for exactly this kind of guarantee.
+- [x] **76 new tests**: 9 new `getCivilWeekday` cases in `civil-date.test.ts` (known Monday/Sunday,
+      every weekday across one reference week, a leap date, a century leap year, month/year
+      boundaries, invalid input, timezone invariance across UTC−12/UTC/UTC+14-equivalent zones);
+      44 in `temporal-availability.test.ts` (parity cases above, accent/case handling,
+      multi-weekday extraction in fixed order, all five `assessWeekdayClosure` outcomes including
+      the explicit "no boolean field anywhere that could be read as open" check, real-dataset
+      throw/coverage/non-promotion invariants, a full-vocabulary table-driven parity check, and a
+      subprocess-free source-check against `scripts/temporal_data_lib.py`'s actual `CLOSURES_TIER`
+      — see "Corrective review" below); 13 in `day-weekday-signal.test.ts` (no-date/invalid-date →
+      unassessed, a match/no-match/empty-day case each, not-evaluable counted and individually
+      identifiable, moving a place to a different day and changing the start date each recomputing
+      from the new date, determinism, an outcome-vocabulary regression check, and the persistence
+      source-scan above); 10 in the new `OrderedSequenceBuilder.test.ts` (source-scanning
+      integration coverage — see "Corrective review" below).
+- [x] Updated `docs/DATA_MODEL.md` (new "Weekday closure signals" section, pointer-only — no
+      `Place` field changed) and `docs/TEMPORAL_DATA_CONTRACT.md` (records this runtime consumer
+      and its exact boundary, without reopening the audit numbers themselves).
+- [x] **Corrective review**: a second pass found and fixed two defects before human review. (1) A
+      real category-name parity defect: `interpretClosureText()`'s TypeScript category was named
+      `no-known-closure-with-caveat` while the canonical Python audit
+      (`scripts/temporal_data_lib.py`'s `CLOSURES_TIER`) names the same family
+      `no-ordinary-closure-with-caveat` — the existing parity test had encoded the same wrong name,
+      so it didn't actually protect the parity claim it existed to enforce. Fixed with the exact
+      canonical name (tier/behavior unchanged: still PARTIAL, still `not-evaluable`, still never
+      SAFE), and hardened with a table-driven test covering the complete 11-category
+      `schedule.closures` vocabulary plus a lightweight, subprocess-free source-check that parses
+      `CLOSURES_TIER` directly out of the Python file's text and fails if either language's
+      category set or tier values ever drift from the other — verified to actually catch the
+      original defect by deliberately reintroducing it and confirming the new tests fail. (2)
+      Added `OrderedSequenceBuilder.test.ts`, a source-scanning structural test (the same technique
+      `server/transit.test.ts` already established) proving the component still imports and calls
+      `buildDayWeekdaySignal(places, dayDate)`, still renders `<WeekdayClosureNotice
+      signal={weekdaySignal} />`, contains the exact conservative match/no-match/disclaimer wording
+      scoped to that function's own source region (never the whole file, to avoid false positives
+      against this module's own "does not read X" doc comments), never contains "está
+      cerrado"/"día válido"/"día compatible"/"mejor día," and introduces no second
+      `role="dialog"` — verified to actually catch a real regression by deliberately removing the
+      render call and confirming the test fails. Both fixes verified by deliberately reverting them
+      and confirming the new tests catch the reversion, not merely by inspection.
+
+This phase made **zero requests to any official source, provider, or API**, changed no
+`places.json` (canonical or `app/src/data/` copy), no `seasonal-alerts.json`, no workbook, no
+logistics/access-point/walking artifact, `package.json`, or lockfile, and added no npm dependency.
+It reads no `schedule.hours`, no `bestTime`, and no `febMar2027` field for feasibility, assigns no
+clock time or timezone to anything, and does not touch the planning-draft schema. No Phase 3D-C
+(or any later phase) work was started.
+
+## Phase 3D-C — Reservation Semantics — complete
+
+Fixes a real correctness gap Phase 3D-A proved mechanically, not a hypothetical one:
+`place.reservation.required` is a lossy derived boolean (`scripts/export-dataset.py`'s
+`required = raw.lower() == "sí"`), so 39/214 places whose `reservation.raw` is
+`"Recomendable"`/`"Opcional"`/`"No para espectador"` collapse into the same `false` a plain
+`"No"` gets. `reservation.raw` already preserves the real nuance; this phase is what makes
+runtime UI/filter logic respect it. It does **not** normalize lead time into booking deadlines —
+that remains a distinct, later, unscheduled phase (see "Later" below).
+
+- [x] **`app/src/lib/reservation.ts`** — a new, small, pure domain module: `ReservationFact`
+      (`category` / `tier` / `raw` / `required` / `consistentWithDerivedBoolean`) derived on read
+      from `reservation.raw` + `reservation.required`, never persisted and never a new field on
+      `Place`. `reservation.required` itself is untouched and stays exported — it remains
+      internally consistent with the exporter, and removing it would be unnecessary schema churn
+      this phase doesn't need; what changes is that no UI/filter code decides "requires
+      reservation" from that boolean alone anymore.
+- [x] **Exact parity with the Phase 3D-A contract**: `classifyReservationCategory()` is a direct
+      TypeScript port of `scripts/temporal_data_lib.py`'s `classify_reservation_raw()` — same 7
+      category names (`missing`, `not-required`, `required`, `recommended-not-required`,
+      `optional-not-required`, `not-required-role-specific`, `unrecognized-value`), same
+      SAFE/PARTIAL/UNKNOWN tier per category, same expected-boolean mapping
+      (`RESERVATION_RAW_EXPECTED_REQUIRED`). Protected the same way Phase 3D-B's own corrective
+      review established for `schedule.closures`: a table-driven test covering the complete
+      7-category vocabulary, plus a subprocess-free source-check that parses
+      `RESERVATION_RAW_TIER`/`RESERVATION_RAW_EXPECTED_REQUIRED` directly out of the Python file's
+      text — verified to actually catch a deliberately reintroduced category-name drift.
+- [x] **Boolean consistency cross-checked, never assumed.** `consistentWithDerivedBoolean` compares
+      `required` against what the export pipeline's own rule expects for that raw category — on
+      the current dataset this is `true` for all 214 places (Phase 3D-A's own finding,
+      re-mechanically-proven here by a real-dataset test), never hardcoded as an invariant that
+      would silently pass if it stopped holding. An inconsistent record (none exist today) would
+      surface structurally on the fact itself, never be silently trusted or hidden, and this phase
+      does not mutate the dataset to "fix" one if it appeared.
+- [x] **`PlaceDetail.tsx` no longer reads `place.reservation.required` at all.** Both the tag and
+      the "Reserva" practical-info row are driven by `describeReservationForUi()`: `required` →
+      tag "Requiere reserva" / row "Necesaria · &lt;leadTime&gt;"; `recommended-not-required` →
+      tag "Reserva recomendable" (new, softer green tone, never the same visual urgency as
+      "required") / row "Recomendable · &lt;leadTime&gt;"; `optional-not-required` → tag "Reserva
+      opcional" (new, neutral blue tone) / row "Opcional · &lt;leadTime&gt;"; `not-required` → no
+      tag, row "No es necesaria"; `not-required-role-specific` → no tag, row shows the raw text
+      verbatim ("No para espectador") rather than being rewritten as the generic not-required
+      wording; `missing`/`unrecognized-value` → no tag, conservative fallback text, never guessed
+      into a specific state. `leadTime` is shown as **raw text only** — a `"—"`/empty value omits
+      the suffix entirely rather than rendering "Necesaria · —"; no magnitude bucketing, no
+      deadline math, no comparison against any date.
+- [x] **The false Requiere/Sin-reserva binary is gone from the filter.** `Filters.reservation` is
+      now the closed union `"all" | "required" | "recommended" | "not-required" | "optional" |
+      "role-specific"` (`ReservationFilterValue`, defined in `lib/reservation.ts` and imported into
+      `types.ts` — the same cross-module pattern `PlanningBlock` already established). `App.tsx`'s
+      `matchesFilters` calls the one shared predicate, `matchesReservationFilter()`, instead of
+      reading the boolean inline; `FilterPanel.tsx`'s "Reserva" group now offers all six options
+      (Todas / Requiere reserva / Reserva recomendable / No requiere reserva / Reserva opcional /
+      Depende del rol) as a static list — matching this filter's own existing convention (unlike
+      category/grade/tourism-level, it was never dynamically computed from the active hub's
+      places, so this phase didn't invent a new dynamic-filter architecture to add the three new
+      options). "Recomendable" no longer falls under "Sin reserva": each of the five real
+      categories is mutually exclusive under the new filter, verified across all 214 current
+      places.
+- [x] **No date/time intelligence of any kind.** No booking deadlines, no days-until-booking
+      calculation, no reference to today's date, no clock time or timezone, no availability, no
+      lottery/release-date interpretation, no official booking-site scraping or API, no reminders.
+      This phase fixes semantics, not timing.
+- [x] **No automation.** Nothing here reserves anything, opens a booking flow, recommends or moves
+      a place between days, reorders the trip, scores reservation difficulty, or sends a
+      notification.
+- [x] **64 new tests**: 53 in `lib/reservation.test.ts` (classification parity, the source-check
+      above, derived-boolean consistency including a deliberately inconsistent synthetic case,
+      real-dataset invariants — all 214 places classify without throwing, all five real raw values
+      exist, 0/214 inconsistencies today, `Recomendable`/`Opcional`/`No para espectador` never
+      classify as plain `not-required`, only `"Sí"` maps to `required` — filter-predicate
+      mutual-exclusivity across the real dataset, and `describeReservationForUi` display-text
+      cases including the no-lead-time-suffix guard); 5 in the new `PlaceDetail.test.ts`
+      (source-scanning: imports and calls the domain function, renders its tag/row output, and no
+      longer contains the old boolean-gated patterns — verified to actually catch a deliberately
+      reintroduced old pattern); 3 in the new `FilterPanel.test.ts` (all six filter values/labels
+      present, the old "Sin reserva" label gone); 3 in the new `App.test.ts` (imports and calls
+      `matchesReservationFilter`, no longer reads the boolean inline — verified to actually catch
+      a deliberately reintroduced old predicate).
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright), one representative place per
+      raw category: Shibuya Crossing (`"No"`) → no tag, "No es necesaria"; SHIBUYA SKY (`"Sí"`) →
+      "Requiere reserva" tag, "Necesaria · 2–4 semanas; atardecer antes"; Nezu Museum
+      (`"Recomendable"`) → "Reserva recomendable" tag, "Recomendable · Días o semanas para
+      exposición popular"; Tokyo Marathon 2027 (`"No para espectador"`) → no tag, row shows "No
+      para espectador" verbatim; Yanagawa canal cruise (`"Opcional"`) → "Reserva opcional" tag,
+      "Opcional · Grupos: reservar; individuales según operador". The "Reserva" filter group
+      confirmed rendering all six options.
+
+This phase touched no `schedule.hours`, no `bestTime`, no `febMar2027` field, and did not start
+lead-time normalization, booking-deadline calculation, live availability, or any date/time
+intelligence. `data/places.json`, `app/src/data/places.json`, the workbook, and every
+logistics/access-point/walking/temporal artifact are byte-identical to `main`; no dependency was
+added; the planning-draft schema and `localStorage` keys are unchanged. No Phase 3D-D (or any
+later phase) work was started.
+
+## Phase 3D-D — Reservation Lead-Time Signals — complete
+
+Turns the already-audited `reservation.leadTime` free text into a conservative runtime planning
+signal, given a place the user already selected. It does **not** implement booking deadlines: it
+never answers "when exactly must I book," "am I already too late," "book by \<date\>," "when do
+tickets go on sale," or "is there availability."
+
+- [x] **`app/src/lib/reservation-lead-time.ts`** — a new, small, pure domain module, deliberately
+      separate from `lib/reservation.ts` (which keeps owning reservation-*necessity* semantics —
+      required/recommended/optional/role-specific — from Phase 3D-C). `classifyLeadTimeCategory()`
+      is a direct TypeScript port of `scripts/temporal_data_lib.py`'s `classify_lead_time()`: the
+      same 3 category names (`not-applicable`, `bare-magnitude`,
+      `opaque-entity-or-mechanism-specific`), the same SAFE/PARTIAL/OPAQUE tier per category, and
+      an exact port of `_BARE_MAGNITUDE_RE` — an anchored (`^...$`) whole-string pattern, never a
+      substring search. Protected by the same subprocess-free source-check technique
+      `reservation.test.ts` established for `RESERVATION_RAW_TIER`, applied here to
+      `LEAD_TIME_TIER`, plus a direct assertion that the Python pattern text is itself anchored.
+- [x] **The whole-string opacity rule is load-bearing and explicitly tested.** A string is
+      `bare-magnitude` only when the ENTIRE normalized string matches the canonical pattern — a
+      magnitude-shaped substring inside a longer sentence never qualifies. Proven against the
+      exact adversarial examples the phase brief named: `"Lotería 3 meses antes; revisar
+      liberaciones"`, `"2–4 semanas; atardecer antes"`, `"Días o semanas para exposición
+      popular"`, `"App obligatoria para timed entry desde 2026"`, and `"Grupos: reservar;
+      individuales según operador"` all stay `opaque-entity-or-mechanism-specific` and never
+      produce a `magnitude` field, despite each containing a magnitude-shaped token.
+- [x] **Coarse magnitude extraction, canonical-pattern-only.** For a bare-magnitude string only,
+      `deriveMagnitude()` buckets it into `days` / `weeks` / `months` / `days-to-weeks` /
+      `weeks-to-months` — a closed, discriminated-union field (`ReservationLeadTimeFact`) that
+      cannot exist on an opaque or not-applicable fact. No numeric range (`minDays`/`maxDays`) is
+      ever derived; `"1–2 semanas"` stays `magnitude: "weeks"` with `raw: "1–2 semanas"` preserved
+      verbatim — the precise editorial range lives in `raw` only, never turned into arithmetic.
+      A real quirk of the canonical Python pattern is reproduced exactly, not "fixed": `"Meses"`
+      (plural) is bare-magnitude, but bare singular `"Mes"` is not (the pattern's `meses?`
+      pluralizes `"mese"`, not `"mes"`) — covered by its own regression test naming this
+      explicitly, since silently "fixing" it would break parity with the audited Python ceiling.
+- [x] **`app/src/lib/reservation-planning.ts`** — a small pure aggregation,
+      `buildReservationPreparationSummary(places)`, composing `lib/reservation.ts`'s
+      `ReservationFact` and this phase's `ReservationLeadTimeFact` per place without merging or
+      overriding either axis. A `not-applicable` lead time omits the place from the summary
+      entirely (no lead-time signal to show); `bare-magnitude` and
+      `opaque-entity-or-mechanism-specific` are both included. Preserves the caller's exact route
+      order — never resorted by magnitude, reservation category, or any derived urgency; no
+      scoring, no prioritization.
+- [x] **UI**: `OrderedSequenceBuilder.tsx`'s existing "Construir recorrido" view gained one new,
+      route-wide, read-only section — "Reservas por preparar" — built from the current canonical
+      route (`routePlaces`), rendered in the main builder view rather than inside a day card so it
+      is useful before the route is even split into days. It reads no `startDate`, no derived day
+      date, and performs no date arithmetic. A summary line
+      ("`N` con anticipación registrada · `M` con mecanismo específico para revisar") is followed
+      by one entry per applicable place naming its reservation category (Phase 3D-C's existing
+      vocabulary), its coarse magnitude or "Mecanismo específico; revisar", and the original raw
+      `reservation.leadTime` text verbatim — the only detailed information Nihon may safely show
+      for an opaque record. A standing disclaimer states plainly that the section describes a
+      recorded fact only and computes no booking deadline and no calendar comparison.
+- [x] **No fake urgency UI.** No traffic-light coloring by urgency, no countdown, no priority
+      score, no ranking, no progress-toward-a-deadline bar. The one visual distinction (a warmer
+      tone on "Mecanismo específico; revisar") mirrors Phase 3D-B's own precedent of using the
+      existing warm "pending" palette for a conservative planning signal, not an alarm.
+- [x] **Real-dataset counts re-derived, not copied from documentation**: 128/214 places
+      `not-applicable` (SAFE), 21/214 `bare-magnitude` (PARTIAL), 65/214
+      `opaque-entity-or-mechanism-specific` (OPAQUE) — matching Phase 3D-A's original audit
+      exactly, independently reproduced here by both a Python audit re-run and new TypeScript
+      tests against `data/places.json`. Route-level aggregation over the full dataset yields
+      21 + 65 = 86 preparation items, omitting exactly the 128 not-applicable places.
+- [x] **62 new tests**: 38 in `lib/reservation-lead-time.test.ts` (category/tier parity including
+      the Python source-check, magnitude extraction for every bucket, the five adversarial
+      whole-string opacity cases, the `"Mes"`/`"Meses"` quirk, determinism, and real-dataset
+      invariants — all 214 places classify without throwing, exact category counts, every
+      bare-magnitude place has a valid magnitude, every opaque place has none, raw text preserved
+      verbatim for all 214); 16 in `lib/reservation-planning.test.ts` (omission/inclusion rules,
+      mixed-list counts, order preservation and reordering, removal, no deduplication invented, no
+      sorting, and full-dataset aggregation totals); 8 new source-scanning integration tests added
+      to `components/OrderedSequenceBuilder.test.ts` (10 pre-existing Phase 3D-B tests untouched,
+      18 total in that file now), scoped to the new section's own function body (never a
+      whole-file scan), asserting the wiring, both signal kinds render, raw evidence always
+      renders, and no `startDate`/day-date/booking-deadline wording ever appears in that section.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright) against three real places
+      chosen programmatically to represent each category: Shibuya Crossing (`JP-001`, `"—"`,
+      not-applicable) correctly produces no preparation item; Yabiji coral reef (`JP-191`,
+      `"Semanas"`, bare-magnitude) shows "Anticipación registrada: semanas" and `Dato: «Semanas»`;
+      Nintendo Museum (`JP-097`, `"Lotería 3 meses antes; revisar liberaciones"`, opaque) shows
+      "Mecanismo específico; revisar" and the raw text verbatim. Reordering the route (moving
+      Nintendo Museum to the top) changed the section's display order to match while leaving both
+      facts' content unchanged — confirming order is route-derived, not resorted.
+- [x] **No date/time intelligence of any kind.** No booking deadlines, no days-remaining
+      calculation, no reference to today's date, `Date.now()`, or the user's timezone, no
+      `startDate`/day-date arithmetic, no lottery/release-date interpretation, no availability
+      claim, no automation (nothing books, opens a reservation flow, reorders the route, or sends
+      a reminder).
+- [x] **Corrective review**: three real defects found and fixed, none touching the dataset or
+      widening scope. (1) The original regex-parity test only proved
+      `scripts/temporal_data_lib.py`'s `_BARE_MAGNITUDE_RE` pattern text starts with `^` and ends
+      with `$` — true, but it could not have caught a Python-side change to the accepted language
+      itself (dropping `"Días/semanas"` support, adding a new form, changing numeric-range syntax)
+      as long as the anchors stayed. `reservation-lead-time.test.ts` now extracts the actual
+      pattern text and constructs a real `RegExp` from it (valid directly — the pattern uses only
+      character classes, alternation, and `?`/anchors), then cross-checks that regex's verdict
+      against `interpretLeadTimeText()` over a 20-entry accept/reject corpus, bidirectionally, so
+      *any* future divergence in accepted language fails a test, not just an anchoring drift. (2)
+      `buildReservationPreparationSummary()` had no defined behavior for a duplicate `place.id` in
+      its input, and its own test asserted the opposite of the aggregation contract's "no place is
+      duplicated" invariant (two items from one duplicated place, framed as intentional). Fixed to
+      fail loud: a repeated id now throws immediately, naming the exact duplicate — since the
+      canonical route is supposed to be duplicate-free already, silently keeping or dropping a
+      copy would have hidden an upstream regression instead of surfacing it. A valid,
+      duplicate-free route's behavior is unaffected. (3) The "N con anticipación registrada"
+      summary phrase incorrectly appended a pluralizing "s" onto "registrada" when the count
+      exceeded one — "anticipación" itself never pluralizes, so the adjective agreeing with it
+      must not either; fixed to a single invariant phrase for every count, with a source-scanning
+      regression test guarding the literal string. Test counts after this pass: 42 in
+      `lib/reservation-lead-time.test.ts` (was 38), 18 in `lib/reservation-planning.test.ts` (was
+      16), 19 in `components/OrderedSequenceBuilder.test.ts` (was 18) — **505 tests passing**
+      overall (was 498), `npm run lint`/`npm run build`/`python3
+      scripts/test_temporal_data_audit.py` all still clean. No dataset, `package.json`, lockfile,
+      planning-draft schema, or `localStorage` key changed; no Phase 3D-E work started.
+
+`data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
+logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the
+`ManualPlanningDraftV2` schema, `nihon.manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`,
+and the Filters union are all unchanged; no dependency was added, no new `localStorage` key was
+introduced, and `PlaceDetail.tsx` was not touched (Phase 3D-C's existing raw-text-only leadTime
+display there is untouched and still the only per-place surface — this phase's new signal lives
+in the route-wide planning surface only, not duplicated per place). No Phase 3D-E (or any later
+phase) work was started.
+
+## Phase 3D-E — Recorded Hours Signals — complete
+
+Turns the already-audited `schedule.hours` free text into a conservative runtime planning signal,
+given a place the user already selected. It does **not** implement an opening-hours feasibility
+solver: it never answers "will this place be open when I arrive," "can I visit this on Day 2," "go
+here at 14:00," "this closes before your visit ends," "this day works," or "move this place to
+Tuesday." Its narrower question: given a place the user already selected, what kind of
+recorded-hours information can Nihon safely state from the existing static `schedule.hours` field?
+
+- [x] **`app/src/lib/recorded-hours.ts`** — a new, small, pure domain module, deliberately separate
+      from `lib/temporal-availability.ts` (which owns `schedule.closures` semantics from Phase
+      3D-B). `classifyHoursCategory()` is a direct TypeScript port of
+      `scripts/temporal_data_lib.py`'s `classify_hours()`: the same 14 category names, the same
+      SAFE/PARTIAL/OPAQUE/UNKNOWN tier per category (`HOURS_TIER`), and — critically — the same
+      fixed priority order of checks (`HOURS_RULES`). Classifies against `normalizeText(raw)` (NFD
+      accent stripping + lowercasing), the same technique `temporal-availability.ts` and
+      `reservation.ts` already established, rather than porting Python's `s[eé]g[uú]n`-style
+      accented character classes verbatim. This is an equivalence over the canonical dataset and
+      its expected Spanish variants — generic NFD stripping is technically a broader accept set
+      than an explicit accented character class, not a formal proof the two regex engines accept
+      identical languages — proven by classification-outcome parity tests, not a character-class
+      comparison.
+- [x] **Priority order is preserved exactly, proven with the adversarial examples that motivate
+      it.** `"Abierto 24 h; puede cerrar por viento"` and `"Estación 24 h; comercios variables"`
+      both classify `known-24h-with-caveat` (PARTIAL), never plain `known-24h` (SAFE) — a 24h
+      baseline plus an unresolved weather/variability caveat is not a SAFE fact just because "24 h"
+      appears first. `"Según tienda, aprox. 11:00–20:00"` classifies
+      `third-party-operator-dependent` (OPAQUE), never `fixed-interval-clean`, even though it
+      contains a clock-shaped substring — the third-party check runs before the fixed-interval
+      check in both languages. `"Ferry estacional y meteorológico"` classifies
+      `weather-or-tide-dependent`, not `seasonal-variable`, despite containing "estacional" —
+      weather/tide is checked first. A genuinely unrelated `"Estación 24 h"` (train station) does
+      **not** false-positive into a seasonal caveat, since "estación" and "estacional" are
+      different substrings. All proven with dedicated adversarial-priority tests in
+      `recorded-hours.test.ts`, not just asserted in prose.
+- [x] **`RecordedHoursFact`** — a closed, kind-tagged union (`"recorded-24h"`,
+      `"recorded-interval"`, `"conditional"`, `"external-dependency"`, `"unknown"`) so a consumer
+      cannot accidentally confuse a SAFE recorded fact with a PARTIAL/OPAQUE/UNKNOWN one. Only
+      `"recorded-interval"` (the `fixed-interval-clean` category) ever carries an `intervalRaw`
+      field — the matched clock-interval token (e.g. `"09:00–20:00"`) preserved as a raw string,
+      never minutes-since-midnight, a `Date`, or any other arithmetic-ready form. Every other kind
+      that might contain a clock-looking substring (`"conditional"`, `"external-dependency"`) never
+      exposes one — proven by dedicated safe-interval-extraction tests, including the exact
+      adversarial cases the phase brief named (`"Según tienda, aprox. 11:00–20:00"`,
+      `"10:00–17:00 aprox.; verificar exposición"`, `"09:00–16:00/17:30 según temporada"` all
+      produce no `intervalRaw`). `raw` is carried on every variant, verbatim, per the Phase 3D-A
+      contract's rule 1.
+- [x] **`app/src/lib/hours-planning.ts`** — a small pure aggregation,
+      `buildRecordedHoursSummary(places)`, over the current canonical route. Unlike
+      `reservation-planning.ts`, **no place is ever omitted**: every route place has hours
+      information relevant to planning, even when the honest signal is "variable," "depends on an
+      outside operator," or "unknown" — so `items` always has exactly one entry per input place.
+      Preserves the caller's exact route order — never resorted by opening time, closing time,
+      tier, category, "urgency," duration, or reservation state; no scoring, no optimization. A
+      duplicate `place.id` in the input throws immediately, naming the exact duplicate — the same
+      fail-loud convention `reservation-planning.ts` established, protecting against a silently
+      hidden upstream route-invariant regression rather than repairing it.
+- [x] **UI**: `OrderedSequenceBuilder.tsx`'s "Construir recorrido" view gained one more route-wide,
+      read-only section — "Horarios registrados" — rendered next to "Reservas por preparar" for the
+      same reason: the signal is useful before the route is split into days, and it reads no
+      `startDate`, no derived day date, no `place.schedule.closures`, no `place.bestTime`, and no
+      `place.febMar2027`. A summary line (`"N claros · M con condiciones · K con dependencia
+      externa · J por revisar"`) is followed by one entry per route place naming its recorded-hours
+      signal and the original raw `schedule.hours` text verbatim. **`"con dependencia externa"` is
+      deliberately neutral over BOTH OPAQUE categories `externalDependencyCount` combines
+      (`weather-or-tide-dependent` and `third-party-operator-dependent`) — a corrective fix caught
+      the original wording, "N depende de un tercero," being semantically false for a
+      weather/tide-dependent place (no third party is involved at all); the neutral phrase is
+      correct for either, while each place's own per-item label stays category-specific
+      ("Horario depende de clima o marea; revisar" vs. "Horario depende de un operador externo;
+      revisar").** Wording is deliberately narrow throughout: `"Horario registrado: 09:00–17:00"`
+      states a recorded fact, never that the place is open at those hours on any date; every
+      PARTIAL/OPAQUE/UNKNOWN phrase ends in "revisar," a call to double-check, never "closed,"
+      "incompatible," or "bad." A standing disclaimer states
+      plainly that the section describes only what is recorded, never whether a place opens or
+      closes on the user's date, and does not check holidays or closures.
+- [x] **`bestTime`, `schedule.closures`, and `febMar2027` all stay out of this domain and this
+      section**, exactly as Phase 3D-A's contract requires: no composition of an hours fact with a
+      closure fact, a `febMar2027` status, or a `bestTime` recommendation into a stronger claim like
+      "open," "available," "compatible," or "this day works." Protected by source-scanning
+      regression tests on both the domain module and the UI section.
+- [x] **Real-dataset counts re-derived, not copied from documentation**: SAFE 80/214, PARTIAL
+      50/214, OPAQUE 19/214, UNKNOWN 65/214 — matching Phase 3D-A's original audit exactly,
+      independently reproduced here by both a Python audit re-run
+      (`python3 scripts/audit-temporal-data.py data`) and new TypeScript tests against
+      `data/places.json` (via `app/src/data/places.json`, still byte-identical). Route-level
+      aggregation over the full dataset yields exactly 214 summary items — every place included,
+      none omitted — with the same 80/50/19/65 split by tier.
+- [x] **No opening-hours feasibility vocabulary anywhere.** Neither the domain module nor the UI
+      section contains an outcome named `open`, `closed`, `available`, `unavailable`, `feasible`,
+      `infeasible`, `compatible`, `incompatible`, `fits`, `does-not-fit`, `valid-day`,
+      `invalid-day`, or `best-time` — protected by source-scanning regression tests against the
+      forbidden vocabulary, on both the domain module and the rendered UI section.
+- [x] **No automation.** Nothing assigns visit times, moves places between days, reorders the
+      route, suggests an optimized order, recommends a different date, removes a place, ranks
+      places, computes a route score, generates an itinerary, books anything, or creates reminders.
+- [x] **86 new tests relative to the 505-test Phase 3D-D baseline**: 54 in
+      `lib/recorded-hours.test.ts` (SAFE/PARTIAL/OPAQUE/UNKNOWN category coverage, the exact
+      adversarial priority-order examples above, safe-interval-extraction isolation, the Python
+      `HOURS_TIER`/`HOURS_RULES` source-check parity tests, determinism, and real-dataset
+      invariants — all 214 places classify without throwing, exact tier totals, `intervalRaw`
+      always a substring of `raw`, never present outside `"recorded-interval"`); 19 in
+      `lib/hours-planning.test.ts` (per-tier counts, order preservation and reordering,
+      duplicate-id fail-loud behavior naming the exact id, no omission by tier, no sorting, full
+      real-dataset aggregation totals: 214 items, 80/50/19/65); 13 new source-scanning integration
+      tests added to `components/OrderedSequenceBuilder.test.ts` (19 pre-existing Phase
+      3D-B/3D-D tests unchanged, 32 total in that file now), scoped to the new section's own
+      function body, asserting the wiring, every tier's wording renders distinctly, raw evidence
+      always renders, no `startDate`/day-date/`Date.now` read, no `schedule.closures`/`bestTime`/
+      `febMar2027` read, and no open/closed/feasibility vocabulary anywhere in the section
+      (including the corrective-review "un tercero" wording regression — see that entry below).
+      **591 tests passing overall** (was 505), `npm run lint`/`npm run build`/
+      `python3 scripts/test_temporal_data_audit.py` all still clean.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright) against five real places chosen
+      programmatically to represent each category: Takeshita Street (`JP-004`,
+      `"Tiendas aprox. 10:00–20:00"`, `fixed-interval-clean`) correctly shows
+      "Horario registrado: 10:00–20:00" with the "Tiendas aprox." prefix stripped; Shibuya Crossing
+      (`JP-001`, `"Espacio público 24 h"`, `known-24h`) shows "Acceso registrado: 24 h" distinctly
+      from the interval wording; Tokyo Station Marunouchi Building (`JP-030`,
+      `"Estación 24 h; comercios variables"`, `known-24h-with-caveat`) shows
+      "Acceso 24 h registrado con condiciones; revisar," never plain "24 h"; Omoide Yokocho
+      (`JP-014`, `"Según local, tarde–noche"`, `third-party-operator-dependent`) shows
+      "Horario depende de un operador externo; revisar" with no parsed interval; SHIBUYA SKY
+      (`JP-002`, `"Variable por fecha"`, `explicit-unknown-variable`) shows
+      "Horario variable; revisar dato original." The summary line read "2 claros · 1 con
+      condiciones · 1 con dependencia externa · 1 por revisar," matching the five places' tiers
+      exactly. Reordering the route (moving SHIBUYA SKY to the top via its own reorder button)
+      changed the section's display order to match while every place's rendered signal text stayed
+      byte-identical — confirming order is route-derived, never resorted by tier. The section
+      rendered correctly with no calendar/start date set at all, confirming it works before day
+      assignment and without any date.
+- [x] **No date/time intelligence of any kind.** No clock time, timezone, visit start time, arrival
+      or departure time, per-place time slot, morning/afternoon assignment, visit-duration-fit
+      calculation, opening/closing arithmetic, overnight interval or day-rollover handling, or
+      schedule-collision detection. No date comparison: nothing here reads `startDate`, a derived
+      day date, `addCivilDays()`, or `getCivilWeekday()`.
+- [x] **Corrective review**: one real defect found and fixed, not touching the dataset or widening
+      scope. `buildRecordedHoursSummary()`'s `externalDependencyCount` intentionally combines both
+      OPAQUE categories (`weather-or-tide-dependent` and `third-party-operator-dependent` — that
+      aggregation itself is correct and unchanged), but `HoursPlanningSection`'s route-summary line
+      rendered that combined count as `"N depende(n) de un tercero"` — semantically false for a
+      route containing only a weather/tide-dependent place, since no third party is involved at
+      all. Fixed by changing only the summary phrase to the neutral `"N con dependencia externa"`,
+      correct for either OPAQUE category; the per-item labels were already, and remain,
+      category-specific (`"Horario depende de clima o marea; revisar"` vs. `"Horario depende de un
+      operador externo; revisar"`) and were never part of the defect. A new aggregation-level test
+      in `lib/hours-planning.test.ts` pins down that a weather-only route and a third-party-only
+      route both produce the same `externalDependencyCount` shape that made the old wording wrong,
+      and the existing source-scanning wording test in `components/OrderedSequenceBuilder.test.ts`
+      now additionally asserts the section never contains the literal string `"un tercero"`. A
+      focused browser QA re-verification against one weather-or-tide-dependent place (Tomogashima,
+      `JP-146`, `"Ferry estacional y meteorológico"`) and one third-party-operator-dependent place
+      (Omoide Yokocho, `JP-014`, `"Según local, tarde–noche"`) together confirmed the route-summary
+      line now reads truthfully for both — see the manual-QA bullet above, updated to match. Test
+      counts after this pass: 19 in `lib/hours-planning.test.ts` (was 18), 32 in
+      `components/OrderedSequenceBuilder.test.ts` (was 31) — **591 tests passing** overall (was
+      589), `npm run lint`/`npm run build`/`python3 scripts/test_temporal_data_audit.py` all still
+      clean. No dataset, `package.json`, lockfile, planning-draft schema, or `localStorage` key
+      changed; no Phase 3D-F work was started.
+
+`data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
+logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the
+`ManualPlanningDraftV2` schema, `nihon.manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`,
+and the Filters union are all unchanged; no dependency was added, no new `localStorage` key was
+introduced, and `PlaceDetail.tsx` was not touched (its existing raw-text-only `schedule.hours`
+display there is untouched and still the only per-place surface — this phase's new signal lives in
+the route-wide planning surface only, not duplicated per place). No Phase 3D-F (or any later phase)
+work was started.
+
+## Phase 3D-F — Feb–Mar 2027 Status Signals — complete
+
+Turns the already-audited `febMar2027.status` field into a conservative runtime confidence/review
+signal, and replaces `PlaceDetail.tsx`'s old, independently-regexing `alertSeverity()` with it. This
+is a semantics/correctness phase: the existing per-place February–March 2027 card is corrected and
+formalized, not redesigned. It does **not** solve opening hours, does not combine status with
+`schedule.hours`/`schedule.closures`/`bestTime`, does not infer that a particular day works, does
+not determine that a place is actually open or closed, and performs no live verification.
+
+- [x] **`app/src/lib/feb-mar-status.ts`** — a new, small, pure domain module.
+      `classifyFebMarStatusCategory()` is a direct TypeScript port of
+      `scripts/temporal_data_lib.py`'s `classify_feb_mar_status()`: the same 12 category names, the
+      same `FEB_MAR_STATUS_TIER` tier-per-category mapping, and the same fixed priority order of
+      checks. Unlike `recorded-hours.ts`/`temporal-availability.ts`, this port needs no
+      `normalizeText` accent-stripping step at all — the Python classifier itself upper-cases the
+      whole string and does plain ASCII substring checks (`"RIESGO"`, `"CONFIRMADO"`,
+      `"PENDIENTE"`, ...), so `.trim().toUpperCase()` + `.includes()` is an exact match, not an
+      approximation.
+- [x] **Priority order preserved exactly**, proven both by adversarial examples and a structural
+      check: a source-scanning test extracts the literal sequence of `return "<category>"`
+      statements from both `classify_feb_mar_status()`'s and `classifyFebMarStatusCategory()`'s
+      source text and asserts they are identical in order — so a future edit that reorders either
+      side's `if`-chain fails immediately, not just when an adversarial example happens to exercise
+      the swapped pair. Adversarial cases covered: a sale/lottery marker outranks a `"PENDIENTE"`
+      token in the same string; `"RIESGO"` outranks a `"CONFIRMADO"` token appearing later;
+      `"MANTENIMIENTO"`/`"CIERRE PARCIAL"` each outrank a bare `"PENDIENTE"`; a historical-pattern
+      marker (both `"PATR"` and `"HIST"` present) outranks `"OPORTUNIDAD"`; `"CONFIRMADO"` plus
+      `"PENDIENTE"` together is **not** `confirmed` — `pending-verification` wins that combination,
+      exactly as `docs/TEMPORAL_DATA_CONTRACT.md` describes; a bare `"ABIERTO"` prefix with no other
+      marker is `open-with-condition`, never `confirmed`; a mid-string (non-leading) `"ABIERTO"`
+      does not trigger `open-with-condition` at all (`text.startsWith`, not `text.includes`).
+- [x] **`FebMarStatusFact`** — `{ category, tier, raw }`, no more and no less. `raw` is preserved
+      verbatim. **No `open`/`closed`/`available`/`feasible` field exists anywhere in this type or
+      in `FebMarStatusDisplay`** — proven by a dedicated test asserting no boolean field exists on
+      any produced fact, for every representative category.
+- [x] **Never reads `febMar2027.warning` or `febMar2027.action`.** `classifyFebMarStatusCategory()`
+      takes a single `raw: string` parameter — structurally incapable of consulting either field —
+      and a source-scanning test additionally confirms neither `.warning` nor `.action` appears
+      anywhere in the module's actual code (comments legitimately mention both, to document that
+      they are never read; the scan strips comments first so it cannot false-pass on that
+      distinction going the other way, nor false-fail on the prose). A behavioral test mutates a
+      real place's `warning`/`action` to unrelated text and confirms the classification is
+      byte-identical. Reads no `schedule.hours`, `schedule.closures`, `bestTime`, `reservation.*`,
+      `startDate`, derived day date, or current date/time either; no network requests; no `Date`
+      arithmetic; no timezone logic.
+- [x] **`describeFebMarStatusForUi(fact)`** — the display adapter `PlaceDetail.tsx`'s existing card
+      needs, following the same precedent `lib/reservation.ts`'s `describeReservationForUi` already
+      set (classification and its display adapter in one small module, rather than a second
+      `*-display.ts` file, since the display surface is one card in one component). Derives a
+      three-value `tone` (`"confirmed"` | `"attention"` | `"pending"`) from `tier` alone — never
+      from `category` directly, so no single category can drift from its tier's meaning:
+      **`safe` → `confirmed`, `partial` → `attention`, `opaque` → `attention`, `unknown` →
+      `pending`.** The label is deliberately generic per tone, never per category — `"Requiere
+      atención"` for `attention`, the same neutral phrasing (never the word "riesgo"/"risk") the
+      card's old severity label already used, so a `seasonal-opportunity` status (OPAQUE, tone
+      `attention`) is never described as a risk. `cssModifier` (`"confirmed"` | `"risk"` |
+      `"pending"`) is an **adapter reusing the card's three pre-existing `.alert--<modifier>` CSS
+      classes** — no new palette introduced, no unrelated CSS churn — the same "reuse an existing
+      class as an implementation detail" technique `lib/reservation.ts`'s `tag.className` already
+      established.
+- [x] **`PlaceDetail.tsx`** now computes
+      `describeFebMarStatusForUi(interpretPlaceFebMarStatus(place))` once and renders the card's
+      icon/label/CSS modifier from that structured output — replacing the old
+      `alertSeverity(place.febMar2027.status)` regex heuristic (`/riesgo|cerrad|cierre|cupo|loteria|
+      venta futura/`) entirely. The card's visible content is otherwise untouched: `status`,
+      `warning`, and `action` still render exactly as before, verbatim, as human-facing editorial
+      prose — neither is parsed or used as rule-engine input anywhere in this phase. The component
+      was not otherwise redesigned.
+- [x] **Legacy `alertSeverity`/`severityLabel`/`AlertSeverity` audited and removed, not left as a
+      second competing classifier.** A repo-wide grep confirmed `PlaceDetail.tsx` was their only
+      consumer — no other component or module referenced any of the three — so all three were
+      deleted cleanly from `lib/place.ts` rather than kept dormant or deprecated in place.
+- [x] **No route-wide UI section added.** Repository evidence (this phase's own per-place scope, and
+      the fact that `febMar2027` is a trip-window-confidence axis, not a route-composable fact — see
+      `docs/TEMPORAL_DATA_CONTRACT.md` §5) did not justify one; the primary purpose here is
+      correcting and formalizing the semantics of the existing per-place card. Whether trip-window
+      confidence needs a separate route-wide planning surface is left for a future, separately
+      decided phase.
+- [x] **`data/seasonal-alerts.json` untouched, no join invented.** That 33-entry collection is keyed
+      by `Hub` + free-text `"Lugar / tema"`, not by place id, and remains exactly as
+      `docs/TEMPORAL_DATA_CONTRACT.md` §5 already documented it: exported, versioned, and unread by
+      the application. This phase does not read it, join it, or change that.
+- [x] **Real-dataset counts re-derived, not copied from documentation**: SAFE 6/214, PARTIAL 15/214,
+      OPAQUE 41/214, UNKNOWN 152/214 — matching Phase 3D-A's original audit exactly, independently
+      reproduced by new TypeScript tests against `data/places.json` (via `app/src/data/places.json`,
+      still byte-identical) and confirmed against a fresh `python3
+      scripts/audit-temporal-data.py data` run. All 214 places classify without throwing.
+- [x] **55 new tests**: 48 in `lib/feb-mar-status.test.ts` (category/tier table-driven coverage,
+      the adversarial priority-order examples above, the structural Python-source priority-order
+      check, the Python `FEB_MAR_STATUS_TIER` source-check parity test, the warning/action
+      non-consultation tests, determinism, real-dataset invariants — all 214 places classify
+      without throwing, exact 6/15/41/152 tier totals, every fact's raw text matches
+      `place.febMar2027.status` verbatim, a real `seasonal-opportunity` place's display never
+      mentions "riesgo"/"risk", a real `pending-verification` place stays `pending` tone, a real
+      `confirmed` place gets `confirmed` tone, and `describeFebMarStatusForUi`'s own tone/label/
+      CSS-modifier mapping); 7 new source-scanning integration tests added to
+      `components/PlaceDetail.test.ts` (5 pre-existing Phase 3D-C tests unchanged, 12 total in that
+      file now), scoped to this component's own Feb–Mar-status expression/card markup, asserting
+      the wiring, the old `alertSeverity`/`severityLabel`/`AlertSeverity` imports are gone, the card
+      still renders raw `status`/`warning`/`action` verbatim, the display computation reads none of
+      `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`, and the card's own markup
+      contains no open/closed/available/feasible vocabulary. **646 tests passing overall** (was
+      591), `npm run lint`/`npm run build`/`python3 scripts/test_temporal_data_audit.py` all still
+      clean.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright) against five real places chosen
+      programmatically to represent `confirmed`, `open-with-condition`, `pending-verification`, an
+      OPAQUE attention case, and `seasonal-opportunity`. The existing card rendered the raw
+      `status`/`warning`/`action` text exactly as before in every case; the visual tone/label came
+      from the new structured `describeFebMarStatusForUi` output rather than the old regex; the
+      `seasonal-opportunity` place's card read "Requiere atención" — never "Riesgo" or any
+      risk-implying word; the `pending-verification` place read "Por confirmar," honestly, never
+      promoted to "Confirmado"; no card anywhere stated or implied that the place would actually be
+      open on a specific date.
+- [x] **No date/time intelligence of any kind.** No clock time, timezone, current-date read, `Date`
+      arithmetic, `startDate`/day-date comparison, holiday handling, live verification against an
+      official source, date recommendation, or automatic rescheduling.
+- [x] **No automation.** Nothing assigns visit times, moves places between days, reorders the route,
+      computes booking deadlines, checks holidays, calls an official website or API, or performs
+      live verification.
+
+`data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
+logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the
+`ManualPlanningDraftV2` schema, `nihon.manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`,
+route ordering/day assignment, and the Filters union are all unchanged; no dependency was added, no
+new `localStorage` key was introduced, and `OrderedSequenceBuilder.tsx` was not touched (no
+route-wide UI section was added this phase — see above). No opening-hours or availability solver of
+any kind was implemented. No Phase 3D-G (or any later phase) work was started.
+
+## Phase 3D-G — Reservation Deadline Design Gate — complete
+
+Design/audit only — no runtime code, UI, or dataset changed. Decides whether, and how narrowly, a
+safe booking-deadline feature could be built on top of Phase 3D-D's `ReservationLeadTimeFact`
+without fabricating precision. Full contract, real-data audit, and rationale:
+[`docs/RESERVATION_DEADLINE_DESIGN.md`](RESERVATION_DEADLINE_DESIGN.md).
+
+- [x] **Re-derived the real `reservation.leadTime` inventory** (214 places, 66 distinct raw
+      values; 128 `not-applicable` / 21 `bare-magnitude` / 65 `opaque-entity-or-mechanism-specific`
+      — matching `docs/TEMPORAL_DATA_CONTRACT.md` exactly, independently reproduced, not copied)
+      and partitioned the 21 `bare-magnitude` records into **four** computability classes: **A**
+      (explicit numeric day/week range) 5 places, **B** (unit only, no quantity) 5 places, **C**
+      (mixed unit, no quantity) 10 places, **D** (numeric month range) 1 place — `5+5+10+1 = 21`.
+      **Class E is not a fifth `bare-magnitude` class**: it is the separate 65-place
+      `opaque-entity-or-mechanism-specific` bucket, which never reaches `bare-magnitude` at all.
+      Whole-dataset accounting is six-way: A 5 + B 5 + C 10 + D 1 + E 65 + `not-applicable` 128
+      = 214.
+- [x] **Executive decision: only Class A (5/214 places) can safely support a deterministic date
+      window** — everything else must stay a non-computable, manual-review signal, permanently for
+      B/C/E and pending further evidence for D (a single record does not justify building
+      calendar-month clamping machinery).
+- [x] **Visit-date source contract**: a range derivation requires BOTH an unambiguous day
+      assignment (`DayAssignment.valid === true`, from `day-assignment.ts`) AND a valid `startDate`
+      — `visitDate = addCivilDays(startDate, dayIndex)`, reusing the arithmetic expression
+      `OrderedSequenceBuilder.tsx` already uses for the weekday-closure signal. The
+      `valid === true` prerequisite is a **new rule introduced by this design**, not inherited:
+      the existing UI computes and renders per-day dates even while showing its invalid-assignment
+      warning, so the helper is reused but the validity guard is not. `startDate` alone is
+      explicitly rejected as a proxy visit date for an unassigned place.
+- [x] **Numeric/month/OPAQUE semantics decided**: the unit conversion 1 week = 7 days is exact,
+      but the underlying editorial guidance ("1–2 semanas") stays approximate — converting the
+      unit exactly does not turn coarse guidance into day-level booking policy, which is why the
+      terminology discipline is load-bearing. Months are refused for a first implementation rather
+      than approximated. An OPAQUE record's numeric-looking substring (e.g. a lottery's "3 meses
+      antes") is never re-scanned once Phase 3D-D has classified it opaque: classification first,
+      numeric parsing second, and only for the eligible `coarse-magnitude` category.
+- [x] **Neutral calendar-edge naming, replacing false booking semantics**: the two derived edges
+      are `farAdvanceDate`/`nearAdvanceDate` — named for distance from the visit date, never
+      `earliestDate`/`latestDate`. `farAdvanceDate` is **not** "the earliest date booking is
+      allowed" (booking earlier may be possible and preferable) and `nearAdvanceDate` is **not** a
+      guaranteed last booking date; neither edge implies inventory availability.
+- [x] **`febMar2027` cross-axis contract — orthogonal, composed only at presentation**: Feb–Mar
+      operating-calendar confidence is a separate axis from lead-time computability and is **not**
+      an input to the parser or a prerequisite for computability — a Class A lead time stays
+      computable when the Feb–Mar status is pending. Where both are shown, the derived range must
+      be subordinate to the pending-status warning, must say the calendar/conditions still need
+      reconfirmation, and must never read as evidence the visit itself is confirmed. Documented
+      with the three currently-affected Class A places (`JP-019`, `JP-034`, `JP-095` — 3 of 5).
+- [x] **Reservation-level eligibility, not a digit parser**: a numerically clean `leadTime` must
+      not override reservation-level semantics indicating a specific mechanism or an
+      uninterpretable record. Gates on the existing `interpretPlaceReservation` categories
+      (`tier`/`consistentWithDerivedBoolean`), reusing the existing interpreter rather than adding
+      a competing one, and explicitly never on literal `reservation.raw` values.
+- [x] **Current-date/urgency explicitly deferred**: a first implementation should compute a window
+      relative to a visit date only, never "today" — no "book now"/"deadline passed"/"days
+      remaining" claims, consistent with every prior Phase 3D module never calling `Date.now()`.
+- [x] **Illustrative future domain model, UI placement (extend "Reservas por preparar" and the day
+      view, not a new surface), failure/unknown-state table, a separate presentation-state table,
+      and a full test strategy** — all documented, none implemented.
+- [x] **Two states recorded as explicit non-problems**: "assignment outside trip bounds" is not
+      representable (the planning draft has no trip end date, and none is being added), and a
+      dataset lead-time edit cannot strand a stale derived range (the range is derived on read and
+      never persisted).
+- [x] **Recommends, but does not schedule, a narrow future Phase 3D-H** (Class A only, no months,
+      no urgency) as the smallest safe next step.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, test, or runtime source file was changed by this phase — see
+`docs/RESERVATION_DEADLINE_DESIGN.md` for the full contract. No Phase 3D-H (or any later phase)
+work was started.
+
+## Phase 3D-H — Explicit Lead-Time Window (Class A only) — complete
+
+Implements the design gate `docs/RESERVATION_DEADLINE_DESIGN.md` (Phase 3D-G), narrowly: only the
+Class A evidence class (an explicit numeric range over a single, non-mixed day/week unit) may ever
+produce a derived advance-notice window. Every other evidence class stays exactly the non-computable
+signal Phase 3D-D/the design gate already decided — no new arithmetic, no fabricated precision.
+
+- [x] **New pure domain module, `app/src/lib/reservation-deadline.ts`.** Reuses
+      `reservation-lead-time.ts`'s `interpretLeadTimeText` as the sole classifier — never
+      reimplements or loosens it — and adds a second, narrower numeric-extraction pass gated
+      strictly behind the `coarse-magnitude` category. Safety order matches the design gate exactly:
+      `not-applicable` and `specific-mechanism` return immediately, before any numeric parsing; a
+      `specific-mechanism` record's `raw` text is never re-scanned for digits, proven both by
+      adversarial unit tests (`"Lotería 3 meses antes; revisar liberaciones"` stays
+      `not-computable`/`specific-mechanism`) and a structural test.
+- [x] **`ReservationDeadlineSignal`** — a closed union: `not-applicable`; `not-computable` with an
+      explicit `reason` (`specific-mechanism` / `unit-without-quantity` / `unusable-numeric-range` /
+      `mixed-unit-without-quantity` / `month-range-not-supported`); or `explicit-lead-window`
+      (`minLeadDays`, `maxLeadDays`, `raw`) for Class A only. A mixed unit (`"Días/semanas"`) is
+      always `mixed-unit-without-quantity` regardless of whether a quantity is present — which unit
+      a count would apply to is inherently ambiguous — and a month unit is always
+      `month-range-not-supported`, matching the design gate's explicit refusal to add
+      `addCivilMonths` or any fixed-day month approximation for a single real record. Week-to-day
+      conversion is exactly `1 week = 7 days`. **Corrective pass (independent audit finding
+      MINOR-2):** a numeric range that matched the explicit-range shape but cannot become an
+      ordered positive pair of safe-integer day bounds — reversed (`"4–2 semanas"`), zero/
+      non-positive (`"0–2 semanas"`, `"2–0 semanas"`), or beyond `Number.MAX_SAFE_INTEGER` either
+      before or after the ×7 week conversion — now classifies as its own `unusable-numeric-range`
+      reason, never `unit-without-quantity` (that reason would falsely say no quantity was
+      recorded about text that plainly contains one). None of these shapes occur in the real
+      dataset; a degenerate but positive equal range (`"2–2 semanas"`) still classifies as a
+      computable `explicit-lead-window`, since it is one exact recorded quantity, not a
+      contradiction. The implementation is unit-general by design (tested with synthetic `"X–Y
+      días"` fixtures), even though the real dataset's 5 Class A places are all `"semanas"` today.
+- [x] **Reservation-level eligibility (§10.4), not a digit parser.** A numerically clean `leadTime`
+      never overrides reservation-level semantics: `isReservationEligibleForDeadlineWindow` gates on
+      `interpretPlaceReservation`'s existing `tier !== "unknown"` and
+      `consistentWithDerivedBoolean === true`, reusing the existing interpreter rather than adding a
+      second reservation parser and never matching on literal `reservation.raw` strings. Pinned by
+      synthetic fixtures (an unknown-tier record, an internally-inconsistent record, and a clean
+      record), never on the dataset's current `"Sí"`/`"Recomendable"` values.
+- [x] **Visit-date contract (§5), deliberately stricter than the existing per-day date.**
+      `deriveVisitDateForPlace(dayAssignment, startDate, placeId)` requires
+      `DayAssignment.valid === true` — not just a valid `startDate` — before returning a visit date,
+      unlike `OrderedSequenceBuilder.tsx`'s pre-existing `dayDate` (line ~1058), which is computed
+      unconditionally regardless of assignment validity. An invalid assignment yields `null` for
+      every place, never a partial reading. Pinned by tests covering every `DayAssignmentIssue`
+      shape, a missing/invalid `startDate`, Día 1 vs. Día N, an empty day bucket ahead of a place's
+      day, and a place absent from every bucket.
+- [x] **`ReservationDateWindow`** — `no-visit-date` / `no-window` (carrying the underlying signal) /
+      `derived-window` (`visitDate`, `farAdvanceDate`, `nearAdvanceDate`, `signal`).
+      `farAdvanceDate`/`nearAdvanceDate` are named for distance from the visit date, never
+      `earliestDate`/`latestDate`/`opensAt`/`closesAt` — matching the design gate's naming
+      discipline exactly. Date arithmetic reuses `civil-date.ts#addCivilDays`; a `null` result
+      (an already-invalid `visitDate`) falls back to `no-visit-date` rather than a guessed date.
+      **Corrective pass (independent audit finding MINOR-1):** for an extreme (but already
+      safe-integer-bounded) `minLeadDays`/`maxLeadDays`, `addCivilDays` can overflow JS `Date`'s
+      representable range and return a syntactically string-shaped but semantically invalid result
+      (containing `NaN` components) instead of `null` — the consumer boundary now also requires
+      `isValidCivilDate(...)` on both derived dates before returning `derived-window`, so a
+      malformed date string can never reach a caller labeled `derived-window`; this does not touch
+      `civil-date.ts` itself. Tested across a month boundary, a year boundary, a leap-year
+      February, an oversized-range date-overflow case, plus a real-dataset invariant that every
+      Class A place's `farAdvanceDate <= nearAdvanceDate < visitDate`.
+- [x] **`febMar2027` orthogonality (§6.2), structural, not just a convention.**
+      `reservation-deadline.ts` never imports `feb-mar-status.ts`, never reads `place.febMar2027` in
+      any form, and never accepts a Feb–Mar status argument — proven by a comment-stripped
+      source-scan and a behavioral test: two synthetic places with identical reservation data but
+      different `febMar2027.status` produce byte-identical `ReservationDateWindow` results. A real
+      Feb–Mar-pending Class A place (`JP-019`) still yields `derived-window` with real values — the
+      domain computation is never suppressed by pending calendar status (Rule 3).
+- [x] **UI: `OrderedSequenceBuilder.tsx`'s existing day view, next to `WeekdayClosureNotice` —
+      no new surface, `PlaceDetail.tsx` untouched.** A new `ReservationDeadlineNotice` renders one
+      entry per place in a day bucket that has both a valid visit date and an eligible Class A
+      signal; every other place (no visit date yet, or a non-Class-A/opaque record) is simply absent
+      — the existing "Reservas por preparar" section already shows its coarse signal and is
+      unchanged. **Corrective pass (independent audit finding MAJOR-1) — full non-`confirmed`
+      Feb–Mar composition, not pending-only.** `describeFebMarStatusForUi`'s existing three-value
+      `tone` is derived once per place and reused as-is — never a second classifier, never
+      category-specific wording — and BOTH non-`confirmed` tones now render their own status
+      callout FIRST, above the derived range, in both markup order and visual treatment, per the
+      design gate's §12.1 row 3 ("some other caveat... compose the same way"): `tone === "pending"`
+      (tier `unknown`) keeps the existing reconfirmation callout (warm "pending" palette, same as
+      `.alert--pending`); `tone === "attention"` (tiers `partial`/`opaque` — e.g. seasonal risk,
+      maintenance, a sale/lottery caveat) now renders a neutral caveat callout using
+      `describeFebMarStatusForUi(...).label` (e.g. "Requiere atención") rather than inventing
+      category-specific copy, reusing the same risk-soft palette the presentation adapter itself
+      already maps that tone to (`.alert--risk`'s `cssModifier: "risk"`); `tone === "confirmed"`
+      renders no extra callout. Neither callout implies closed/unavailable/dangerous/impossible/
+      confirmed/deadline. Either callout is visually heavier (bold) than the plain-text range
+      beneath it, so the range never reads as evidence the calendar is confirmed. The recorded raw
+      `leadTime` text is always shown alongside the derived range, exactly like the existing
+      reservation/hours sections. No real Class A place is currently `attention`-toned; the
+      composition was verified with a synthetic fixture (both automated and manual QA), never by
+      editing the real dataset.
+- [x] **Conservative wording, no forbidden deadline/availability/urgency vocabulary.** "Ventana de
+      anticipación registrada," never "fecha límite," "reserva antes de," "último día para
+      reservar," "disponible desde," "se abre la reserva," "fecha de apertura," or "garantizado" —
+      checked by a dedicated forbidden-phrase test scoped to the new component's own source.
+- [x] **No current-date/urgency axis.** No `Date.now()`, no `daysRemaining`/`isLate`/`isUrgent`
+      field anywhere in the new module or component, no "book now"/"deadline passed"/countdown/
+      urgency-badge/reminder logic — checked structurally, mirroring `feb-mar-status.test.ts`'s own
+      precedent for "no boolean field" checks.
+- [x] **No month arithmetic.** No `addCivilMonths`, no fixed-30-day approximation, no calendar-month
+      clamping — Class D (`"1–3 meses"`, 1 place) stays `month-range-not-supported`, unchanged from
+      the design gate's decision.
+- [x] **No persistence, schema, or dataset change.** `ManualPlanningDraftV2`, `nihon.
+      manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`, `data/places.json`,
+      `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, `package.json`, and the
+      lockfile are all unchanged. `ReservationDeadlineSignal`/`ReservationDateWindow`/derived visit
+      dates are recomputed on every read, never written to storage — no new `localStorage` key.
+- [x] **81 tests in this phase's two files**: 69 in `lib/reservation-deadline.test.ts` (the
+      original 58 — evidence-class coverage for A–E including synthetic days-unit fixtures, the
+      real-dataset partition re-derived and pinned as a regression — `5/5/10/1/65/128 = 214`,
+      matching Phase 3D-G's audit exactly — reservation-level eligibility fixtures,
+      date-application boundary tests, the visit-date contract's every branch, structural "no
+      availability boolean" checks, and cross-axis orthogonality checks — plus 11 corrective tests
+      for `unusable-numeric-range` and the date-overflow guard, covering a reversed range, a zero
+      lower/upper bound, a zero-length range, an unsafe raw integer, bounds unsafe only after the
+      ×7 conversion, a synthetic oversized signal proving `deriveReservationDateWindow` can never
+      surface `NaN`, defense-in-depth over the extractor's own output, and a regression pinning the
+      three real Class A values and the adversarial classification-order examples unchanged); 48 in
+      `components/OrderedSequenceBuilder.test.ts` (32 pre-existing Phase 3D-B/D/E tests unchanged,
+      12 original Phase 3D-H source-scanning tests, plus 4 net new/updated corrective tests proving
+      the `attention` callout's markup precedence, its reuse of `describeFebMarStatusForUi(...)
+      .label`, its avoidance of closed/unavailable/dangerous/confirmed/deadline language, that the
+      tone/label is derived exactly once per place with no category-specific branching, and that a
+      `confirmed` tone renders neither callout). **731 tests passing overall** (was 716 before this
+      corrective pass, 646 before the original Phase 3D-H implementation), across 25 test files —
+      `npm run lint`, `npx tsc -b`, and `npm run build` all clean; `git diff --check` clean.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright), seeding a saved route and
+      manual planning draft directly via `localStorage` for determinism: Case 1 (a confirmed Class A
+      place, `teamLab Borderless`/`JP-033`) showed a plain derived range with no callout; Case 2 (a
+      Feb–Mar-pending Class A place, `Tokyo Skytree`/`JP-019`) showed the reconfirmation callout
+      first, then the same range, never replaced or hidden; Case 3 (an opaque record, `Nintendo
+      Museum`/`JP-097`, the real lottery-text place) showed no guessed range anywhere, only the
+      existing "Mecanismo específico; revisar" signal with its raw text verbatim; Case 4 (start date
+      cleared) showed no range at all while the rest of the day-planning UI stayed fully functional.
+      **Corrective pass:** Case 5 (an `attention`-toned Class A place) was verified using a
+      temporary, uncommitted local edit to `app/src/data/places.json` only for the QA session
+      (`Mori Art Museum + Tokyo City View`/`JP-034`'s `febMar2027.status` set to a synthetic
+      seasonal-risk value) — the attention callout rendered first, bold, in the risk-soft palette,
+      the range still rendered in full beneath it, the raw `leadTime` text stayed visible, and
+      nothing implied confirmed operation; the fixture was reverted byte-for-byte before committing
+      (confirmed via `git status`/`git diff`, both clean on that file) — no dataset edit is part of
+      this phase's committed change. Verified at both desktop (1280px) and narrow/mobile (390px)
+      widths with no layout breakage, including with the attention callout present.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, `ManualPlanningDraftV2` schema, or `nihon.manualPlanningDraft`/`nihon.savedPlaceIds` stored
+shape was changed by this phase. `PlaceDetail.tsx` was not touched. No current-date/urgency logic,
+no month-range arithmetic, and no availability/bookable claim of any kind was implemented. No Phase
+3D-H design-document edit was needed — no contradiction in `docs/RESERVATION_DEADLINE_DESIGN.md`
+surfaced during implementation. No Phase 3D-I (or any later phase) work was started.
+
+### Corrective pass (independent adversarial audit)
+
+An independent audit of the original implementation (`36ecc3d`) found one MAJOR and three MINOR
+findings, all addressed in a follow-up commit on the same PR/branch, without touching classification
+order, reservation-level eligibility, the visit-date contract, cross-axis orthogonality, or any of
+the other findings the audit verified as correct:
+
+- **MAJOR — Feb–Mar composition covered only `tone === "pending"`**, leaving the `attention` tone
+  (56/214 places today, tiers `partial`/`opaque`) to render a derived range with no caveat at all,
+  contradicting the design gate's §12.1 row 3. Fixed by deriving `describeFebMarStatusForUi`'s tone
+  once per place and branching presentation on all three tones (`confirmed`/`attention`/`pending`).
+- **MINOR — `addCivilDays` overflow could leak a malformed (`NaN`-containing) date as a
+  `derived-window`.** Fixed by requiring `isValidCivilDate(...)` on both derived dates before
+  returning `derived-window`, falling back to `no-visit-date` otherwise.
+- **MINOR — a malformed numeric range (reversed, zero, or unsafe-integer) was mislabeled
+  `unit-without-quantity`**, which is false when a quantity was plainly recorded. Fixed by adding a
+  dedicated `unusable-numeric-range` reason, used only when a quantity was matched but could not
+  become a usable ordered positive pair of safe-integer bounds.
+- **MINOR — the malformed/unsafe-bounds branch had zero test coverage**, which is how the
+  mislabeling above went unnoticed. Fixed by the 11 corrective tests described above.
+
+No Phase 3D-G design-document edit was made or needed. No Phase 3D-I (or any later phase) work was
+started by this corrective pass.
+
+## Phase 3D-I — Opening-Hours & Closure Composition Design Gate — complete
+
+**Design/audit only — zero runtime code, zero UI, zero dataset changes, zero schema/persistence
+changes.** Decides whether, and exactly how, the already-audited `RecordedHoursFact` (Phase 3D-E)
+and `ClosureFact` (Phase 3D-B) could ever be composed into a single per-day, per-place presentation
+without ever asserting that a place is open, closed, compatible, available, or that a day "works" —
+see `docs/OPENING_HOURS_CLOSURE_COMPOSITION_DESIGN.md` for the full contract. The word
+"feasibility" is deliberately avoided throughout: this gate does not decide whether a place can
+actually be visited.
+
+- [x] **Executive decision: composition is safe, strictly confidence-preserving, never
+      confidence-increasing.** A closed, four-class vocabulary (`jointly-presentable` /
+      `present-with-caveat` / `keep-separate` / `not-composable`) derived by taking the **weaker**
+      of the two facts' tiers (`safe`/`partial`/`opaque`/`unknown`, worst-tier-wins) — nothing
+      composed here is ever a stronger claim than either input alone supports. The four tiers
+      themselves are unchanged Phase 3D-A/3D-B/3D-E vocabulary; the worst-tier-wins ordering (in
+      particular, ranking UNKNOWN weaker than OPAQUE for this purpose) is this gate's own new
+      policy decision for composition, not something an earlier contract already declared.
+      `keep-separate` and `not-composable` currently prescribe identical presentation behavior (no
+      composed statement, existing sections unchanged) — they are kept as separate names for
+      analytical/debugging clarity (an OPAQUE vs. an UNKNOWN axis are different reasons composition
+      failed), not because a future implementation must treat them differently in the UI.
+- [x] **Real-dataset cross-tab, re-derived against the live TypeScript classifiers** (not a
+      Python approximation, not assumed): the full 4×4 `RecordedHoursFact.tier` ×
+      `ClosureFact.tier` matrix over all 214 places sums to exactly 214 and its row/column totals
+      match `docs/TEMPORAL_DATA_CONTRACT.md`'s independently-audited single-axis totals exactly.
+      Composition-class populations: `jointly-presentable` 31, `present-with-caveat` 43,
+      `keep-separate` 56, `not-composable` 84 — 74/214 places (35%) fall into one of the two
+      composable classes, a real, non-trivial population.
+- [x] **Load-bearing finding: `ClosureFact`'s `not-evaluable` kind is not a single tier.** One real
+      record (`JP-019`, `"Sin cierre ordinario; clima"`, category
+      `no-ordinary-closure-with-caveat`) has `kind: "not-evaluable"` but `tier: "partial"` — a
+      future implementation must dispatch composition on `.tier`, never on `.kind`, or it would
+      silently misclassify this record as opaque/unknown-equivalent.
+- [x] **Provenance/confidence rule (load-bearing):** a SAFE fact on one axis must never dilute or
+      launder a PARTIAL/OPAQUE caveat on the other. Pinned with two real records (`JP-030`, `JP-041`
+      — both `known-24h-with-caveat` hours paired with SAFE `no-known-closure`) as the worked
+      example of the risk: composing "24h + no known closure" naively could read as "generally
+      accessible," which the recorded caveat ("comercios variables"/"shows variables") directly
+      contradicts.
+- [x] **Date prerequisite adopts Phase 3D-H's stricter visit-date contract** (`dayAssignment.valid
+      === true`, not just a valid `startDate`, per-place day-bucket membership, and an
+      `isValidCivilDate` guard on the derived date) over Phase 3D-B's looser existing `dayDate`
+      contract — for the same reason Phase 3D-H gave for its own stricter guard: a composed
+      statement is a stronger combined claim than either signal alone. No trip end date is
+      invented; `ManualPlanningDraftV2` still has none.
+- [x] **Duration-fit evaluated and explicitly refused for now.** 65 places have a SAFE recorded
+      interval; 62 of those are numerically evaluable (both `duration.minMinutes`/`maxMinutes`
+      populated) — **0 of those 62** show the recorded visit duration exceeding the recorded
+      interval's span. The remaining 3 (`JP-121`, `JP-147`, `JP-211`) carry only a qualitative
+      duration ("Medio día"/"Medio día–día completo"/"Día completo") and are not numerically
+      evaluable at all — named explicitly rather than folded into the "0" result, since a full-day
+      duration against a ~7.5–8h interval is exactly the shape most likely to produce a real
+      mismatch if it could ever be checked. Building and testing interval-span-vs-duration
+      arithmetic to serve zero *confirmed* real records would repeat the exact
+      disproportionate-engineering pattern Phase 3D-G's own Class D decision (1 real record)
+      already established a precedent for refusing, and inventing a numeric mapping for "Día
+      completo" would itself fabricate a precision the recorded text never claims. This is a
+      data-triggered revisit condition, not a scheduled one, and is not part of this gate's
+      approved composition scope.
+- [x] **Language contract**: permitted vocabulary stays exactly in the register already
+      established by Phase 3D-B/3D-D/3D-H ("horario registrado," "posible coincidencia de cierre
+      semanal," "información no evaluable," "conviene revisar"); forbidden vocabulary includes
+      "abierto," "cerrado," "puedes ir," "este día funciona," "compatible," "disponible,"
+      "garantizado," and "horario confirmado para tu visita," regardless of composition class.
+- [x] **Explicit non-goals**, restated in full in the design document: no opening-hours solver, no
+      `Date.now()`/current-time axis, no holiday/special-calendar handling, no live/temporary
+      closure verification, no availability/capacity claim, no composition with reservation
+      deadlines (Phase 3D-G/H stays fully separate), no composition with `bestTime` or
+      `febMar2027` (both remain excluded per their own already-decided boundaries), no external
+      API calls, and no runtime/UI/dataset/schema change of any kind in this phase.
+- [x] **Illustrative domain-model sketch only** (`HoursClosureComposition`, `CompositionClass`) —
+      no `.ts` file created, no `open`/`closed`/`feasible` boolean anywhere in the sketch, matching
+      `docs/TEMPORAL_DATA_CONTRACT.md`'s own prior sketch precedent.
+- [x] **Future UI surface, future test strategy, and future browser QA cases are documented as
+      recommendations for a future implementing phase**, not executed or implemented here — there
+      is no new runtime surface to test yet.
+
+**This phase recommends, but does NOT schedule or approve, a future Phase 3D-J** implementing
+exactly the `jointly-presentable`/`present-with-caveat` composition this gate decided is safe.
+Phase 3D-J is not started, not scheduled, and not approved by this entry — only proposed, per this
+codebase's own precedent (Phase 3D-G recommended but did not schedule Phase 3D-H).
+
+**Known pre-existing documentation gap, not addressed by this phase:** `docs/DATA_MODEL.md` does
+not currently mention Phase 3D-G or Phase 3D-H at all. This predates Phase 3D-I, is unrelated to
+the hours/closures composition question this gate decides, and this phase does not fix it — recorded
+here, and in the design document itself, so the gap is not lost.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, any `.ts`/`.tsx`/`.css` file, or `docs/RESERVATION_DEADLINE_DESIGN.md` was changed by this
+phase. No Phase 3D-J (or any later phase) work was started.
+
+## Phase 3D-J — Hours / Closure Composition Implementation — complete
+
+- [x] Added the pure, non-persisted `app/src/lib/hours-closure-composition.ts` domain consumer over
+      the existing `RecordedHoursFact`, `ClosureFact`, and `WeekdayClosureAssessment` contracts.
+      Its closed `CompositionClass` vocabulary is `jointly-presentable`, `present-with-caveat`,
+      `keep-separate`, and `not-composable`; selection is total, deterministic, commutative, and
+      strictly worst-tier-wins over `safe=0 < partial=1 < opaque=2 < unknown=3` (3 is weakest, so
+      UNKNOWN remains weaker than OPAQUE). Classification dispatches exclusively through each
+      fact's `.tier`, never `.kind`; the real JP-019 `not-evaluable`/PARTIAL closure is pinned as a
+      load-bearing regression.
+- [x] Enforced the full visit-date prerequisite before any per-place composition: globally valid
+      `dayAssignment`, present and valid civil `startDate`, exactly one containing day bucket,
+      successful `addCivilDays`, and a valid derived civil date. Every failed guard produces
+      `no-visit-date`, with no partial fallback; moving a place recomputes against its new bucket
+      date from current inputs, with no retained composed state. The post-gate composition helper
+      is module-private, so no public consumer can mint `kind: "composed"` from an unchecked date.
+- [x] Preserved both original classified facts (including complete raw hours/closure text and
+      provenance) plus the existing weekday assessment. The new domain contains no availability/
+      feasibility booleans, current-time read, API call, persistence, schema field, or duration-fit
+      logic. No prior classifier and no source dataset was changed.
+- [x] Integrated `HoursClosureCompositionNotice` as an additional signal inside each existing day
+      card, alongside `WeekdayClosureNotice` and `ReservationDeadlineNotice`. Only
+      `jointly-presentable` and `present-with-caveat` render; `keep-separate` and `not-composable`
+      leave the existing surfaces unchanged. PARTIAL evidence keeps its full raw text and receives
+      a review callout plus a per-fact warm treatment at least as prominent as the SAFE peer.
+- [x] Added 34 focused domain tests: the complete 16/16 tier matrix and symmetry, no-promotion,
+      determinism, JP-019 `.tier` dispatch, raw/provenance retention, malformed inputs, all date
+      guards including overflow, a regression that the unchecked post-gate helper is not public,
+      move/recompute behavior, behaviorally tested presentable-class filtering, structural safety
+      scans, and the live 214-place dataset regression. Added 6 component wiring checks (54 total in
+      `OrderedSequenceBuilder.test.ts`) for visibility/omission classes, complete caveat evidence,
+      coexistence with both earlier temporal notices, single-dialog containment, distinct
+      accessible names for repeated day-card regions, and forbidden decision language. Full app
+      result: **771 tests passing across 26 files**.
+- [x] Re-derived the dataset invariants unchanged: hours×closures rows SAFE `31/18/19/12`, PARTIAL
+      `15/10/20/5`, OPAQUE `0/0/17/2`, UNKNOWN `15/3/27/20`; hours marginals `80/50/19/65`;
+      closure marginals `61/31/83/39`; composition classes `31/43/56/84`; total `214`.
+- [x] Manual browser QA covered JP-017 (`jointly-presentable`), JP-030's load-bearing
+      PARTIAL-hours presentation, Ghibli Museum/JP-044 (SAFE hours + PARTIAL closure), an OPAQUE
+      place, an UNKNOWN place, missing `startDate`, and moving JP-044 from Monday to Tuesday (the
+      visit date and existing weekday-match context both recomputed, with no stale notice). The UI
+      cannot create an invalid partition through its normal controls, so the global invalidation
+      branch is covered at the pure boundary with a synthetic invalid assignment. The same route
+      was visually checked at an exact 390×844 viewport: no clipping, overflow, caveat dilution,
+      confusing merged copy, or duplicate accessible region names; browser console produced no
+      warnings/errors.
+- [x] Final validation: focused tests 88/88; full app tests 771/771; Python suite 370/370; temporal
+      audit 82/82; lint, TypeScript build, production build, dataset validation (214 places/403
+      nearby relations/0 broken references, with the same 13 editorial warnings), geography
+      validation (47 prefectures/47 polygons/9 regions/214 places), logistics validation (24 pilot
+      and 308 scale edges/results), and `git diff --check` all clean.
+
+No merge was performed by Phase 3D-J. No later phase was started.
+
+**Independent corrective audit:** one MAJOR and two MINOR findings were corrected in a separate
+follow-up commit on the same branch: the exported post-gate helper accepted arbitrary malformed
+date strings while still returning `kind: "composed"`; visibility/omission behavior was protected
+only by source scanning rather than a pure behavioral test; and repeated per-day composition
+regions had indistinguishable accessible names. The fixes kept the helper private behind the full
+date/assignment gate, moved presentable-class selection into a behaviorally tested pure boundary,
+and included the day number in each region's accessible name. No classifier, dataset, schema,
+persistence, duration-fit, or later-phase scope changed.
+
+## Phase 3D-K — Visit-Time / Opening-Hours Feasibility Design Gate — complete
+
+**Design/audit only — zero runtime code, zero UI, zero persistence/schema change, zero dataset
+change, zero new dependency, and no visit times introduced anywhere.** Decides whether, and at
+exactly what scope, a future phase could answer *"given a place, a civil date, a start time the
+user chose explicitly, and a recorded duration, does the whole visit fit inside the recorded clock
+interval?"* — without ever claiming the place is open, available, or visitable. See
+[`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md) for the full contract.
+
+- [x] **Executive decision: APPROVE NARROW IMPLEMENTATION.** The evidence supports a strictly
+      limited future phase over `fixed-interval-clean` SAFE hours only, a manually entered local
+      `HH:mm` start time, and numerically resolvable durations — with no timezone, no overnight
+      support, no `recorded-24h`, no transport, and no scheduling. Every decision the future phase
+      needs is closed by the design document; nothing is left to discover during implementation.
+- [x] **Real-dataset inventory, re-derived against the live TypeScript classifiers** (temporary
+      Vitest harnesses, deleted after use — the phase diff contains no `.ts` file), not
+      copied from Phase 3D-I: 214 places; **65** SAFE `recorded-interval`; **15** SAFE
+      `recorded-24h`; **62** of the 65 numerically evaluable via `resolveDuration()`; **3** not
+      (`JP-121`, `JP-147`, `JP-211` — qualitative day-scale durations); hours tier totals
+      80/50/19/65; composition classes 31/43/56/84. Interval tokens: 29 distinct, **all**
+      `HH:MM–HH:MM` with U+2013, **0** parse failures, **0** overnight, **0** degenerate, **0**
+      out-of-range clock values, and no `00:00`/`24:00` token anywhere in the dataset's hours text.
+      Spans 390–780 min; opens 06:00–10:30; closes 14:00–22:30.
+- [x] **Every one of those figures coincides exactly with Phase 3D-I's**, including the span-only
+      duration check (0 of 62 exceeding, 0 boundary equalities) and the `bestTime` distribution —
+      re-derived, not copied, and recorded as a match rather than assumed.
+- [x] **The conclusion differs from Phase 3D-I's without contradicting it, and the audit shows
+      why.** Phase 3D-I refused *duration vs. interval span* (no start time), correctly: it returns
+      one constant answer for the whole dataset (62/62 fit, 120 min of slack even in the tightest
+      case, `JP-093`). This gate evaluates *duration vs. the interval remaining after a
+      user-chosen start*, and re-derivation shows all three informative outcomes are reachable for
+      **62 of 62** evaluable places. The span-only check stays refused and is not part of the
+      approved scope.
+- [x] **Exhaustive eligibility table by kind × category × tier.** Only `recorded-interval` /
+      `fixed-interval-clean` / SAFE may enter arithmetic. `fixed-interval-with-caveat` (PARTIAL, 12
+      places) is refused despite carrying a parseable token — a PARTIAL fact must never be promoted
+      by a second parser. OPAQUE and UNKNOWN never enter, including `JP-026`'s
+      `"Según tienda, aprox. 11:00–20:00"`. Eligibility must narrow the existing union on `.kind`,
+      never on `.tier === "safe"` (which also admits `recorded-24h`).
+- [x] **`recorded-24h` refused outright** — the phase brief left this open; the gate closes it as a
+      "no". There is no recorded start or end to be an operand, and **3 of the 15 SAFE records
+      narrow themselves in their own text** (`JP-016` `"Recinto exterior 24 h; salón aprox.
+      06:00–17:00"`, `JP-066`, `JP-144`). `JP-016` even names a full hall interval that the
+      `known-24h` classification discards. The arithmetic would trivially succeed for all 15 — a
+      result that is true and useless, and would be read as "you can go".
+- [x] **A second, narrower parser is authorised for the future phase, and the classifier stays
+      untouched.** It takes only a `recorded-interval` fact's `intervalRaw`, anchors, requires both
+      ends to have minutes, and range-checks components. Two shapes that today's `TIME_RANGE_RE`
+      would classify SAFE — `"09:00–17"` (optional end minutes) and `"25:00–26:00"` (no range
+      check) — get named refusals rather than repairs. Degenerate `09:00–09:00` is refused and
+      specifically not read as "always open"; a `00:00` end bound falls into the deferred overnight
+      branch rather than being silently rewritten to 1440.
+- [x] **Overnight deferred on evidence, not on convenience** — 0 of 65 tokens cross midnight and
+      the whole dataset opens 06:00–22:30. The parser detects `crossesMidnight` and the evaluator
+      returns a named `overnight-interval-not-supported` refusal. What a future overnight model
+      would have to settle (rollover, which civil date owns the start, which weekday a closure
+      assessment would apply to, and disambiguation from a transposed record) is written down so
+      the deferral is a decision rather than an oversight.
+- [x] **Range duration semantics decided: a three-way rule, no midpoint, no min-only, no
+      max-only.** `max ≤ remaining` → fits; `min ≤ remaining < max` → only the minimum fits;
+      `remaining < min` → exceeds. This is not an edge case: **all 77** numerically resolvable
+      durations across both SAFE groups are ranges and **none** is a point value.
+- [x] **Duration fit and place feasibility kept structurally separate**, confirming the initial
+      bias and adding a second argument it did not rest on: gating the arithmetic on a closure
+      composition class would silently drop 42 of the 62 evaluable places (only 20 are
+      `jointly-presentable`), and that omission would itself communicate a visitability signal. The
+      computation reads no `ClosureFact`, no `WeekdayClosureAssessment`, and no `CompositionClass`;
+      Phase 3D-B's and 3D-J's notices are unmodified, and `no-known-closure` still does not mean
+      "guaranteed open".
+- [x] **No timezone in the first implementation**, and the reason is scope, not Japan: civil-clock
+      arithmetic within one place on one day never leaves the local frame, so it stays correct even
+      if the dataset were extended beyond Japan. Absolute instants, DST, and cross-zone transport
+      remain `transit.ts`'s domain, which already requires an IANA `timeZone` and stays dormant.
+      `Asia/Tokyo` must not be hardcoded, and no approved function may return or construct a
+      `Date`, an epoch value, or an ISO instant.
+- [x] **`visitStartTime` is a manual user decision only** — never inferred from `bestTime`, route
+      order, opening time, transport, duration, or another place, and with **no default** (not
+      `09:00`, not the opening time). Prefilling the opening time is refused by name: it would turn
+      a recorded fact into a decision the user never made.
+- [x] **`bestTime` audited and kept completely separate.** `"Mañana"` does not mean "opens in the
+      morning" (`JP-004`, recorded `10:00–20:00`), "must be visited in the morning" (`JP-024`,
+      recorded `06:00–17:00`), "09:00" (`JP-004` again — a `bestTime`-derived 09:00 would fall
+      outside the recorded interval), or "before noon" (`JP-032`, recorded `06:00–14:00`).
+      `"Apertura"` is not an hours signal either: 2 of its 3 places record
+      `schedule.hours = "Calendario variable"`.
+- [x] **Closed eight-variant result union with no boolean and no catch-all.** The brief required
+      seven distinctions; the eighth, `start-time-outside-recorded-interval`, is added because a
+      user can type `07:00` for a `09:00–17:00` place — neither "does not fit" nor an unevaluable
+      input. No `open`, `available`, `feasible`, `visitable`, `valid`, or `compatible` appears as a
+      variant, a field, or a boolean anywhere in the sketch.
+- [x] **Language contract forced by the records, not by taste.** Only **4 of 65** SAFE interval
+      records are the bare token: 58 carry an explicit `"aprox."` and 7 attribute the interval to a
+      sub-facility or an external announcement (`"Tiendas…"`, `"Mayoría…"`, `JP-211`'s
+      `"09:00–17:00 según anuncio"`). So the raw text is always shown alongside, «registrado» is
+      mandatory in every evaluated sentence, «confirmado» is forbidden in any construction, and no
+      approval/rejection colour or icon may be used.
+- [x] **Persistence decided but not applied**: a future `visitStartTime` belongs in the planning
+      draft, because `planning-draft.ts` persists user decisions and not derived results. The exact
+      migration is specified — `ManualPlanningDraftV3`, `visitStartTimes: Record<placeId, "HH:mm">`
+      defaulting to `{}`, `migrateV2ToV3` as a pure addition chaining after `migrateV1ToV2`,
+      `^([01]\d|2[0-3]):[0-5]\d$` shape validation with the existing all-or-nothing rejection
+      rule, and staleness pruning with the route (unlike `startDate`, which is about the trip).
+      **No schema change was made by this phase.**
+- [x] **Future UI documented as a recommendation only**: one optional time input per eligible place
+      inside the existing day card, empty by default, rendered between the Phase 3D-J and Phase
+      3D-H notices, with no control at all for the 149 non-interval places. No auto-scheduling, no
+      temporal drag/drop, no timeline, no "optimise", no "suggest a better time", and no new
+      surface.
+- [x] **Transport interaction explicitly out of scope**, named separately because the route already
+      has an order and known transfer durations, so an arrival time at the next place is
+      arithmetically derivable — and deriving it would be scheduling.
+- [x] **The closest boundary in the codebase is addressed head-on rather than left for a reviewer
+      to find:** `recorded-hours.ts`'s own module header names *"this closes before your visit
+      ends"* among the questions it refuses, which is adjacent to the approved
+      `recorded-duration-exceeds-interval` outcome. The design document reconciles the two — that
+      sentence scopes that module (the same self-scoping every Phase 3D classifier states, which
+      Phase 3D-J already consumed without widening), the refused question is about the place while
+      the approved outcome is about the record, and the refusal was made with no user-chosen start
+      time available. The implementing phase is obliged to leave `recorded-hours.ts` untouched.
+
+**This phase recommends, but does NOT schedule or approve, a future Phase 3D-L — Manual
+Visit-Start-Time vs. Recorded Interval Fit (`fixed-interval-clean` SAFE only)**, whose exact
+six-item scope is written out in the design document §21. Phase 3D-L is not started, not scheduled,
+and not approved by this entry — only proposed, per this codebase's own precedent (Phase 3D-G
+recommended but did not schedule Phase 3D-H; Phase 3D-I recommended but did not schedule Phase
+3D-J).
+
+**Known pre-existing documentation gap, not addressed by this phase:** `docs/DATA_MODEL.md` still
+does not mention Phase 3D-G, 3D-H, 3D-I, or 3D-J. Phase 3D-I recorded this gap; it is unrelated to
+the visit-time question this gate decides, and this phase does not fix it either — recorded again
+so it is not lost.
+
+**Two dataset findings recorded, and deliberately NOT fixed** (this phase is not authorised to edit
+data): `JP-211`'s `"09:00–17:00 según anuncio"` classifies SAFE because `"anuncio"` is not in the
+third-party regex's word list, and `JP-016`'s recorded `06:00–17:00` hall interval is discarded by
+the `known-24h` priority branch. Both are named in the design document.
+
+**Independent corrective audit** (separate follow-up commit on the same branch): four findings,
+all in the design document, none changing the gate's decision. The start-time reachability figure
+in §4.7 had been enumerated over `open ≤ t ≤ close`, which includes a start equal to the closing
+minute that the document's own result union classifies as outside the interval — recomputed over
+strictly interior starts only (`open ≤ t < close`), still 62/62 for all three outcomes, and the
+stricter definition is now stated. The `recorded-hours.ts` "this closes before your visit ends"
+boundary was reconciled explicitly (new §3.8) instead of being left implicit. The separator scan
+was restated precisely (89 matches over 89 places, counting every match rather than the first per
+record). The harness count was dropped from the method section, since a fifth verification pass
+was run during the review.
+
+**Second independent audit, before merge** (separate commit on the same branch): every critical
+figure was re-derived once more from the live classifiers and all matched, and the two named
+classifier shapes were falsified empirically — `"09:00–17"` and `"25:00–26:00"` do in fact classify
+`fixed-interval-clean`/SAFE today, and the design's candidate parser rejects both with the named
+reasons. Two documentation findings were corrected. **MAJOR:** the design document used a bare
+`startMinutes` for two different quantities — the parsed interval's opening bound and the user's
+chosen start — which made §9's normative formula (`endMinutes − startMinutes`) literally readable
+as the interval *span*, the exact quantity Phase 3D-I evaluated and refused; the two are now named
+`intervalStartMinutes`/`intervalEndMinutes` and `chosenStartMinutes` throughout, and §9 states
+explicitly that `R` is not the span. **MINOR:** §4.10's `bestTime` enumeration omitted
+`Muy temprano` 1 while asserting the listed values summed to 214 (they summed to 213); all ten
+distinct values are now listed and the sum is correct. Neither finding changed the gate's decision,
+its approved scope, or any other figure.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, any `.ts`/`.tsx`/`.css` file, or any prior design document was changed by this phase. No
+Phase 3D-L (or any later phase) work was started.
+
+## Phase 3D-L — Manual Visit-Start-Time vs. Recorded Interval Fit — complete
+
+Implements exactly the scope [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md)
+(Phase 3D-K) approved, and nothing wider. For one place on one assigned day it answers: *given the
+recorded clock interval, a start time the user typed by hand, and the recorded visit duration, how
+does that duration compare with the time remaining inside the recorded interval?* It never claims a
+place is open, that a visit is possible, that a day works, or that the user should go at that time.
+**`duration fits recorded interval` ≠ `place is visitable`** is the load-bearing distinction, and
+every type name, sentence and style decision below exists to keep the two apart.
+
+- [x] **New pure domain module `app/src/lib/recorded-interval-fit.ts`.** No React, no DOM, no
+      storage, no network, no `Date`, no `Date.now()`, no epoch value, no ISO instant, and no IANA
+      timezone. Every quantity is minutes since local midnight in one unnamed local frame, so the
+      arithmetic never leaves that frame — the reason no timezone is needed, and the reason it would
+      stay correct if the dataset ever covered a second country.
+- [x] **Eligibility narrows the discriminated union, never the tier.** Only
+      `fact.kind === "recorded-interval"` (category `fixed-interval-clean`, tier SAFE) may enter
+      arithmetic; `tier === "safe"` is deliberately never tested, because it would also admit
+      `recorded-24h`. Every PARTIAL, OPAQUE and UNKNOWN family returns
+      `interval-not-evaluable` / `hours-not-a-recorded-interval`, including
+      `fixed-interval-with-caveat`, whose token is parseable exactly where the caveat says the
+      interval may not hold. An excluded fact's `raw` text is never re-scanned for a usable
+      interval — classification first, arithmetic second, pinned by a test that a 60-minute visit
+      at 11:00 gets no result from `JP-026`'s `"Según tienda, aprox. 11:00–20:00"`.
+- [x] **`recorded-hours.ts` is untouched** — no regex, category, tier, priority-order,
+      `RecordedHoursFact`, entry-point or header change. Phase 3D-K approved a new downstream
+      consumer, not a widening of Phase 3D-E, and a regression test asserts the classifier still
+      stops at the raw token.
+- [x] **A second, strictly narrower parser.** It takes the fact (never a `string`, never
+      `place.schedule.hours`), reads `intervalRaw` only, anchors end to end, requires both endpoints
+      to carry minutes, and range-checks components. Named refusals, never repairs: `"09:00–17"` →
+      `end-without-minutes`, `"25:00–26:00"` → `clock-out-of-range` (both of which the classifier
+      calls SAFE today), `"09:60–17:00"` → `clock-out-of-range`, `"09:00–09:00"` → `degenerate` and
+      specifically not read as "always open". `"18:00–02:00"` and an end bound of `00:00` are
+      detected as `crossesMidnight` and refused as `overnight-interval-not-supported` — `00:00` is
+      never rewritten to 1440, and `00:00` as a *start* bound parses normally.
+- [x] **The closed eight-state result union**, with no ninth state, no `null`, no `undefined`, no
+      catch-all and no boolean anywhere: `visit-date-not-evaluable`, `interval-not-evaluable` (with
+      its three named reasons), `duration-not-evaluable`, `no-start-time-chosen`,
+      `start-time-outside-recorded-interval`, `recorded-duration-fits-interval`,
+      `only-minimum-duration-fits-interval`, `recorded-duration-exceeds-interval`. No `open`,
+      `available`, `feasible`, `visitable`, `compatible`, `valid` or `ok` appears as a variant, a
+      field, or a property, enforced by a test that serialises every reachable outcome and scans it.
+- [x] **Record-level refusals are decided before the user's missing input.** A place whose duration
+      or token can never be evaluated says so up front, rather than inviting the user to type a time
+      that could never produce an answer — the three real `recorded-interval` places with a
+      qualitative duration (`JP-121`, `JP-147`, `JP-211`) show `duration-not-evaluable` immediately.
+- [x] **Half-open start eligibility and the correct remaining-time formula.**
+      `intervalStartMinutes <= chosenStartMinutes < intervalEndMinutes`: exactly at the recorded
+      opening is inside, exactly at the recorded closing is outside. `remainingMinutes` is
+      `intervalEndMinutes - chosenStartMinutes` and never the interval's *span* — the MAJOR
+      ambiguity Phase 3D-K's second corrective review removed from the design document. The two
+      quantities keep distinct names in code for that reason, and a test proves a 300-minute
+      duration from 15:00 in a `09:00–17:00` record exceeds rather than fits.
+- [x] **Three-way range semantics, both bounds always considered.** `max <= remaining` → the whole
+      recorded range fits; `min <= remaining < max` → only the minimum fits; `remaining < min` →
+      exceeds. Equality is meaningful on both boundaries and is tested exactly. No midpoint, mean,
+      median, preferred value or probability is ever computed, and neither end of the range is ever
+      discarded — pinned by tests that a min-only rule and a max-only rule would each get wrong.
+- [x] **The visit start time is a manual user decision only**, a local `HH:mm` validated by shape
+      and range. It is never inferred from `bestTime`, the opening or closing bound, route order,
+      transfers, the duration, reservations, closures, or another place, and there is **no
+      default** — not `09:00`, not the opening time, not the current clock. An empty value is
+      `no-start-time-chosen` and is never converted to another state.
+- [x] **The date gate is Phase 3D-H/3D-J's existing strict contract, reused unchanged** via
+      `deriveHoursClosureVisitDate` rather than reimplemented, so no competing second date contract
+      exists: `dayAssignment.valid === true`, a valid `startDate`, exactly one containing day
+      bucket, and a valid derived civil date. That import is a date helper only — a test asserts it
+      is the sole symbol imported from that module, so reusing it gives this phase no closure
+      dependency.
+- [x] **No closure composition in the arithmetic.** The evaluator consumes no `ClosureFact`, no
+      `WeekdayClosureAssessment`, no `CompositionClass`, no `assessWeekdayClosure` and no
+      `classifyHoursClosureComposition`; Phase 3D-B's and 3D-J's notices render unchanged and are
+      never suppressed, reordered or weakened by this signal. A SAFE interval with an UNKNOWN
+      closure still gets a mathematical result, because the result is not a visitability claim.
+- [x] **Persistence: `ManualPlanningDraftV3`** under the same `nihon.manualPlanningDraft` key, with
+      `visitStartTimes: Record<placeId, "HH:mm">` defaulting to `{}` (never `null` — one state, one
+      spelling). Only the typed clock text is stored: never parsed minutes, a parsed interval, a
+      resolved duration, a comparison result, a derived visit date, or a formatted sentence. A test
+      asserts the serialised draft contains exactly the five schema keys and none of those derived
+      values. `PLANNING_DRAFT_VERSION` moves 2 → 3.
+- [x] **Real V1 → V2 → V3 migration**, chained: `migrateV1ToV2` is retained unchanged and
+      `migrateV2ToV3` is a pure addition setting `visitStartTimes: {}` — no time is ever invented
+      for a historical draft. Both prior shapes stay loadable, and an unrecognised version is still
+      treated exactly like a missing draft.
+- [x] **Strict V3 validation with the module's existing all-or-nothing corruption policy.** A single
+      malformed entry rejects the WHOLE stored draft rather than being quietly dropped: `"9:00"`,
+      `"24:00"`, `"12:60"`, a number, `null`, an array, a nested object, a boolean, and a
+      `visitStartTimes` that is itself `null`, an array, a string or missing are all covered.
+- [x] **Reconciliation and mutation semantics.** A time is a decision about a *place*, so it is
+      pruned by the same staleness rule as the route (unlike `startDate`, which is about the trip):
+      a stale route id loses its time, a surviving id keeps it, a newly saved id never receives one,
+      and an orphan entry is dropped. A pure route reorder, a day re-split, moving a place between
+      buckets, and changing or clearing `startDate` all leave every time untouched.
+      `withVisitStartTime(draft, placeId, time)` sets, replaces or clears one time, and rejects both
+      a malformed clock and a place id outside the route by returning the draft unchanged — it can
+      never create orphan state. `resetRoute` carries still-saved times forward and prunes the rest.
+- [x] **`usePlanningDraft` exposes `visitStartTimes` and `setVisitStartTime`**, delegating to the
+      pure mutation. The draft remains the single canonical source — exactly one `useState` call
+      site in the hook, and no component-local copy of the map.
+- [x] **One UI surface, inside the existing day card**, rendered after
+      `HoursClosureCompositionNotice` and before `ReservationDeadlineNotice`, with no other notice
+      reordered. No new page, modal, drawer or planning mode. A native `<input type="time">` per
+      eligible place, empty by default, clearable, with an accessible label naming both the place
+      and the day ("Hora de inicio para Kyoto Railway Museum en Día 1") and a per-day region label,
+      so no two controls share an accessible name. Places that are not `recorded-interval` get no
+      control at all — including all 15 `recorded-24h` places — and the absence is intentional: a
+      disabled placeholder would invite the false reading "this place has no hours".
+- [x] **Language contract per design §16, verbatim**, with the original recorded text always shown
+      beside the result (`Dato: «10:00–17:00 aprox.»`) because the parsed token is derivative
+      evidence that would silently drop the editorial hedging 61 of the 65 records carry. The
+      forbidden vocabulary is absent from the surface, checked by a comment-stripped source scan.
+- [x] **Neutral visual treatment**: one style for all outcomes, no per-outcome class name, no green
+      check, no red cross, no success/error badge, and deliberately not Phase 3D-J's composed-notice
+      styling — so this signal cannot read as carrying closure evidence. Verified in-browser: every
+      result line computes to the same colour on the same background.
+- [x] **Transport and scheduling remain out of scope.** No transfer edge, transfer minute, previous
+      or next place time is read, and no arrival time, departure time, chained itinerary time,
+      recommended start or suggested correction is derived anywhere.
+- [x] **Real-dataset regression tests, re-derived rather than pasted into behaviour**: 214 places;
+      65 SAFE `recorded-interval`; 15 SAFE `recorded-24h`; 62 interval places with a numeric
+      duration and 3 without (`JP-121`, `JP-147`, `JP-211`); 29 distinct eligible tokens; 0 parse
+      failures, 0 overnight and 0 degenerate across all 65 real tokens; every real clock value
+      inside 00:00–23:59; and all 15 `recorded-24h` places refused at every chosen time, `JP-016`
+      named explicitly because its own SAFE text contains a `06:00–17:00` hall interval the
+      `known-24h` branch discards. These counts live only in tests, never in production behaviour.
+- [x] **Validation**: 950 app tests (up from 771 — 98 new domain, 66 new persistence, 15 new
+      component/hook), 370 Python tests with 82 subtests, oxlint, TypeScript build, production
+      build, dataset validation (214 places / 403 nearby relations / 0 broken references, the same
+      13 pre-existing editorial warnings), geography validation (47 prefectures / 47 polygons / 9
+      regions / 214 places), logistics validation (24 pilot and 308 scale edges/results), and
+      `git diff --check` — all clean.
+- [x] **Manual browser QA at 390×844 and 1280×900** against real records: `JP-093` Kyoto Railway
+      Museum (`10:00–17:00 aprox.`, `3–5 h`) produced a full fit at 12:00, minimum-only at 13:00 and
+      at the exact 14:00 boundary, an excess at 14:01, and an out-of-interval result at 08:00 and at
+      exactly 17:00; `JP-121` showed `duration-not-evaluable`; `JP-016` correctly showed **no
+      control at all**; moving a timed place to Día 2 kept its time and relabelled the control;
+      changing `startDate` rewrote no time; a reload restored the chosen time; clearing returned the
+      place to the no-time state; raw hours text stayed visible throughout; the existing weekday and
+      hours/closure notices remained present and unchanged; no clipping or horizontal overflow; no
+      duplicate accessible names; and the browser console produced no errors or warnings.
+
+**Independent hostile review** (separate commit on the same branch): all twenty attack vectors were
+worked, and no BLOCKER or MAJOR was found — no path reaches arithmetic from `recorded-24h` or any
+PARTIAL/OPAQUE/UNKNOWN family, no time is defaulted or inferred, no `bestTime`, closure, transfer,
+`Date` or timezone reference exists in the new or changed runtime (checked with comments stripped),
+overnight is refused rather than evaluated, nothing derived is persisted, a malformed V3 draft is
+never partially repaired, stale times never survive removal, accessible labels are unique per
+place and day, no wording or styling implies an open/available/valid state, no control appears for
+an ineligible place, no evaluation goes stale, no bare `startMinutes` name was reintroduced,
+`recorded-hours.ts` is byte-identical to its pre-phase state, and no scheduling or later-phase work
+exists. **MINOR (corrected):** six invariants the implementation satisfied were not pinned by any
+test — a pruned time must not be resurrected when its place returns to the route or is reconciled
+back, a routed place's time must survive while no day split exists yet, no mutation helper may
+mutate its input, and a prototype-shaped key in stored JSON must neither pollute `Object.prototype`
+nor be mistaken for a place id. Regression tests were added for each. **NIT (recorded, not
+changed):** sharing `VISIT_START_TIME_PATTERN` widens `planning-draft.ts`'s transitive import graph
+by five modules so persistence and arithmetic cannot disagree about a valid clock time. The
+direction matches the module's existing precedent (it already imports `validateDayPartition` and
+`isValidCivilDate` from domain modules), there is no import cycle, and every alternative either
+inverts the dependency or duplicates the pattern — so it was left as-is rather than churned. Two
+defects found *during* implementation were fixed before the first commit and are part of it: a
+`ManualPlanningDraftV3` written as `Omit<…> & {…}` did not make TypeScript report a MISSING
+`visitStartTimes` on an object literal (now spelled out in full, which caught twelve fixtures), and
+the new stylesheet referenced a `--color-text-soft` variable that does not exist in `App.css`.
+
+**Final corrective review, before merge** (separate commit on the same branch): one MINOR contract
+defect corrected, one NIT recorded and pinned rather than changed. **MINOR (corrected) — manual
+`HH:mm` exactness.** `parseChosenStartMinutes` applied `VISIT_START_TIME_PATTERN` to
+`visitStartTime.trim()`, so the domain evaluator read `" 09:00"`, `"09:00 "` and `"\t09:00"` as 540
+while `withVisitStartTime` and the V3 stored-draft validator — which test the same shared pattern
+against the raw value — refuse those exact strings. That contradicted the stated reason the pattern
+is exported at all: persistence and arithmetic must never disagree about what a well-formed manual
+time is, and design §7 requires the manual time to be validated by shape and range and "refused
+rather than coerced on anything else". The `.trim()` was removed; the original string is now matched
+directly, so a manually entered `HH:mm` is validated exactly, with no whitespace coercion anywhere.
+`parseRecordedInterval` still trims `intervalRaw` and was deliberately left alone — a recorded token
+is dataset text whose surrounding whitespace is an editorial artifact, while a manual time is a user
+decision persisted verbatim that must round-trip through storage unchanged; two separate contracts,
+not one inconsistency. No user-visible behaviour changed: the native `<input type="time">` emits
+`""` or an exact `HH:mm`, never a padded value. **NIT (recorded, not changed):**
+`parseVisitStartTimes` reads own enumerable string keys via `Object.entries`, so `new Date()` and
+`new Map()` would validate as empty maps and `Object.create(null)` as an ordinary map — unreachable
+through the actual `JSON.parse`-only persisted path, and no defect follows (the returned map is
+always a fresh object literal, a `__proto__` key with a string value is a silent no-op on the
+setter rather than pollution, no inherited property is ever read back as a saved time, and no input
+draft is mutated), so it was pinned by regression tests instead of widened into a new validation
+subsystem. **12 regression tests were added** (938 → 950): cross-layer `HH:mm` exactness asserted
+for `parseChosenStartMinutes`, `withVisitStartTime` and V3 stored-draft validation over the same
+accept/refuse vectors (`"09:00"`, `"00:00"`, `"23:59"` accepted; `" 09:00"`, `"09:00 "`,
+`"\t09:00"`, `"09:00\n"`, `" 09:00 "`, `"9:00"`, `"24:00"`, `"12:60"` refused), end to end through
+`evaluateRecordedIntervalFit`, plus the whole-draft rejection rule when one of several entries is
+padded and the object/prototype probes above; all 12 fail if the `.trim()` is reinstated. **Final
+validation: 950 app tests**, 370 Python tests with 82 subtests, oxlint, `tsc -b`, production build,
+dataset/geography/logistics validators, and `git diff --check`.
+
+**Explicit non-goals, unchanged from the design gate:** no opening-hours solver or open/closed
+judgment; no `Date.now()`, "now", urgency or countdown axis; no holidays or special calendars; no
+live or temporary verification against any source (zero network requests); no composition with
+`bestTime`, `febMar2027` or reservation deadlines; no capacity, admission, last-entry or queue
+modelling; no overnight support; no `recorded-24h` arithmetic; and no dataset edit — `JP-211`'s
+`"según anuncio"` and `JP-016`'s discarded hall interval remain recorded findings, not this phase's
+to fix.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, `app/src/lib/recorded-hours.ts`, or any prior design document was changed by this phase,
+and no new dependency was added. No later phase was started.
+
+## Phase 3D-M — Opening-Hours Feasibility Design Gate — complete
+
+**Design/audit only — zero runtime code, zero UI, zero persistence/schema change, zero dataset
+change, zero new dependency, and no solver of any kind.** Asks the question Phase 3D-L's arrival
+makes unavoidable: given only what Nihon can already derive conservatively — a civil visit date, a
+manually chosen local `HH:mm` start time, a recorded duration, a recorded-hours fact, a closure fact
+and the existing hours/closure composition — is there any subset of evidence strong enough to assert
+something *more* than "the recorded duration fits inside the recorded interval", without turning
+editorial data into a false claim of openness or visitability? See
+[`docs/OPENING_HOURS_FEASIBILITY_DESIGN.md`](OPENING_HOURS_FEASIBILITY_DESIGN.md) for the full
+audit.
+
+- [x] **Executive decision: DO NOT IMPLEMENT a full opening-hours solver.** No reliable real-world
+      open/closed judgment and no reliable visitability/admission judgment are supported by the
+      current evidence contract. No immediate successor is recommended because no new,
+      non-redundant safe proposition was identified. This does not prove that every future temporal
+      signal or every confidence-preserving product of recorded facts is impossible.
+- [x] **Trip-specific corroboration: the triple-SAFE intersection is empty.** Re-derived across all 214
+      places — **31** hold both SAFE hours and a SAFE closure fact (20 `recorded-interval` + 11
+      `recorded-24h`), and **0** of those 31 also hold a SAFE `febMar2027` trip-window status.
+      **0 of the 65** SAFE `recorded-interval` places do either. The strongest combination that
+      actually exists is *SAFE interval + SAFE closure + UNKNOWN trip-window confidence* (17
+      places). This is strong evidence against a Feb–Mar 2027 OPEN/VISITABLE claim, not a necessary
+      precondition for ordinary recorded-hours statements, interval arithmetic or other independently
+      true record-level propositions. The Phase 3D-G/H orthogonality principle remains: a weak
+      second axis may require a caveat but must not suppress an independently computable first-axis fact.
+- [x] **The strongest existing combination was tested directly and still fails, on four independent
+      grounds.** Class A — the 20 places with a SAFE interval, a numeric duration, a SAFE closure
+      fact, a valid civil date, a manual `HH:mm` inside the interval, and a `fits` result — is
+      defeated by (1) the closure record's own adjective: all 20 read exactly
+      `"Sin cierre ordinario"`, *no ordinary closure*, and `JP-019` proves the scoping is real by
+      being the same sentence plus `"; clima"` and demoted to PARTIAL; (2) hedging in 19 of the 20
+      hours records (`JP-080` is the only bare token); (3) an unverified trip window in all 20 (17
+      UNKNOWN, 2 PARTIAL, 1 OPAQUE), which blocks a trip-specific confirmation but not arithmetic;
+      and (4) the current contract lacking schedule-field provenance/currency, extraordinary-
+      closure and admission semantics needed for the stronger claim. Class A is strongest for this
+      real-world claim, not the only class relevant to weaker recorded-evidence propositions.
+- [x] **Confounders and provenance are classified at their actual scopes.** `place.schedule` has
+      exactly two keys, `hours` and `closures`. Dedicated last-admission, holiday-calendar,
+      dated-extraordinary-closure, capacity/queue and schedule-field source/`verifiedAt` fields are
+      structurally absent. Raw editorial text nevertheless contains last admission
+      **1** mention (`JP-038`, and its hours classify UNKNOWN so it can never reach arithmetic),
+      capacity **0**, queues **0**, public holidays **2** incidental closure mentions (`JP-018`
+      OPAQUE, `JP-039`) with no calendar anywhere, temporary works **19** closure strings, and
+      operator discretion (`según`/`verificar`/`variable`) in **31 of the 65** eligible closure
+      records. Dataset/place-level editorial provenance exists through `Place.officialUrl`,
+      `Place.updatedAt`, exporter mappings from `"Página oficial/fuente"`/`"Actualizado"`, and
+      `data/sources.json`. What is missing is source and meaningful verification linkage for each
+      schedule assertion, plus currentness/completeness guarantees sufficient for a future-date
+      opening claim; `updatedAt` alone proves neither re-verification nor currency of `schedule.hours`.
+- [x] **Absence of a matching recurring closure is NOT evidence of openness, and the contract proves
+      it rather than merely failing to disprove it.** `assessWeekdayClosure`'s own source says
+      `"no-weekday-match"` "does NOT mean open, feasible, compatible, or 'no closure'". Measured:
+      over the 18 `candidate-weekday` interval places across one civil week, the synthetic matrix
+      contains 18 × 7 = 126 cells, split
+      **108 `no-weekday-match` / 18 `possible-weekday-closure-match`** — the 6-in-7 a single named
+      weekday must produce by construction. These are not visits, independent records or measured
+      user behaviour; the figure supports classifier asymmetry, not an empirical UX conclusion.
+- [x] **A closed recorded-evidence product is reachable but not justified as a new feature now.** It
+      can truthfully carry `RecordedIntervalDurationFit`, `WeekdayClosureAssessment`,
+      `HoursClosureComposition` and raw caveats while the record remains the subject. That is
+      juxtaposition/presentation composition permitted by Phase 3D-I/J, not a solver. It derives no
+      new proposition: interval fit is already 3D-L; ordinary-closure and weekday candidate facts
+      are already 3D-B/J. Stronger OPEN/VISITABLE variants remain unsupported, so no new union or
+      domain model is proposed for product-value reasons rather than type-theoretic unreachability.
+- [x] **Three near-miss alternatives worked individually and refused with reasons**, which is most
+      of this gate's practical value: an evidence-completeness disclosure (it is the refused
+      "insufficient evidence" state as a widget, implying a top of scale no place reaches); a
+      *weakening* cross-reference from the closure notice to the fit line (conservative in direction,
+      but its selective absence could plausibly be read as clearance; the 108/126 synthetic matrix
+      demonstrates classifier asymmetry, not observed user behaviour); and
+      restricting the shipped fit line to `jointly-presentable` places (a regression that would hide
+      it for 45 of 65). Selective omission is a plausible and important UX risk that is sufficient
+      to reject these proposals absent user testing or explicit neutral framing; it is not proof
+      that omission is logically equivalent to an explicit claim or that the domain fact is impossible.
+- [x] **Every prior boundary re-tested against live data and reaffirmed, none loosened.**
+      `bestTime` stays completely excluded from feasibility (inside the 65: Mañana 45, Tarde 15,
+      Atardecer 4, Apertura 1 — 45 "morning" recommendations against intervals opening 06:00–10:30).
+      `recorded-24h` stays excluded from remaining-minutes arithmetic because it supplies no bounded
+      closing interval; no closing bound may be invented. It may still participate in the existing
+      Phase 3D-J recorded hours/closure presentation, and this gate identifies no new arithmetic or
+      stronger opening signal for it. Overnight stays unsupported: an overnight
+      interval spans two civil dates and Phase 3D-B's contract says nothing about which weekday a
+      closure assessment would apply to. `febMar2027` stays orthogonal: a non-SAFE value blocks a
+      strong trip-window confirmation but does not invalidate or suppress an independently true
+      record-level arithmetic result.
+- [x] **An explicit intermediate Level 2.5 reconciles the gate with Phase 3D-I/J.** Level 1 is
+      recorded evidence; Level 2 is arithmetic about it; Level 2.5 is confidence-preserving
+      composition whose semantics remain the conjunction/product of existing recorded facts;
+      Level 3 is a genuine opening-hours fact; Level 4 is visitability. 1→2 and 1/2→2.5 are safe
+      while the record remains the subject and no component is strengthened. **2.5→3 is forbidden
+      under the current evidence contract.** It requires a stronger authoritative/current schedule
+      contract; field-level provenance/currency is necessary but insufficient without relevant
+      extraordinary-closure, holiday, last-admission, scope and admission semantics.
+- [x] **Real-dataset inventory re-derived against the live classifiers**, including — for the first
+      time — the **shipped** `parseRecordedInterval()` and `evaluateRecordedIntervalFit()` rather
+      than an audit-only candidate parser: 214 places; hours tiers 80/50/19/65; closure tiers
+      61/31/83/39; 65 SAFE `recorded-interval` (62 numeric durations, 0 point values, 29 distinct
+      tokens, 65/65 parsing, 0 overnight, 0 degenerate); 15 `recorded-24h`; closure evidence within
+      the 65 split 20 SAFE / 18 PARTIAL / 17 OPAQUE / 10 UNKNOWN with **38 of 65** structured enough
+      for any proposed composition and **37** of those also numerically evaluable; composition
+      classes 20/18/17/10 over the 65 and 31/43/56/84 over all 214; and 62/62 places reaching all
+      three informative fit outcomes. Every figure that coincides with Phase 3D-I's or 3D-K's is
+      recorded as a **verified match**, not inherited. Harnesses deleted before commit — this
+      phase's diff contains no `.ts` file.
+- [x] **Ambiguity ledger after a manual `HH:mm`**: extraordinary closure unresolved for 65/65,
+      public holiday 65/65, last admission 65/65, capacity and queues 65/65, `"aprox."` magnitude
+      58/65, sub-facility scope 7 explicit and unknowable for the other 58, trip-window confidence
+      not SAFE for 64/65, and closure evidence not even structured for 27/65. **Every one of the 65
+      remains ambiguous on at least four axes after the user supplies a time.** The manual `HH:mm`
+      resolves the one variable Phase 3D-I lacked; it resolves none of these.
+- [x] **Reopening gates are claim-specific, not five universal prerequisites.** Schedule-field
+      source plus meaningful verification date is necessary but insufficient for a strong
+      authoritative/current hours claim, not for record arithmetic. Structured extraordinary-
+      closure coverage is needed for a strong "not closed on this date" claim. Last admission is
+      needed where admission/visitability may diverge from closing. Scope/`"aprox."` semantics are
+      required only for claims that include ambiguous records or demand exactness; eligibility may
+      instead exclude them. Nihon already uses external editorial research: the distinct product
+      choice is live/runtime verification and/or a stronger curated static schedule-field contract
+      with provenance, currency and refresh guarantees. Any future gate must select only the
+      conditions required by its proposed claim. The six constraints recorded for a continuation
+      of the current Phase 3D-L arithmetic surface apply only when that continuation explicitly
+      preserves its evidence/product contract; they do not override a different claim-specific gate.
+- [x] **Validation**: 950 app tests across 27 files (unchanged — this phase adds and modifies no
+      test); 82 temporal-audit tests; `npx oxlint`; `npx tsc -b`; production build (105 modules);
+      dataset validation (214 places, 403 nearby relations, 0 broken references, the same 13
+      secondary-metadata warnings); geography validation (47 prefectures, 47 polygons, 9 regions,
+      214 places); logistics validation (24 pilot and 308 scale results); and `git diff --check`.
+      All pass. No validator input changed: the diff remains two Markdown files.
+
+**One new risk recorded that no prior phase had named:** `JP-038`'s last-admission rule
+(`"Variable; última entrada 1 h antes"`) is invisible to interval arithmetic only because its hours
+classify UNKNOWN. Therefore it cannot reach interval arithmetic today and no current wrong fit is
+produced. A future promotion/data edit could create an apparently clean interval without preserving
+that admission boundary, and no existing regression specifically protects this case: **existing-
+feature hardening debt / future correctness protection gap**, not a current runtime defect and not
+fixed in this documentation-only PR. Also confirmed: `JP-089`'s exact raw value is `"Martes en meses
+específicos; fin de año"`; `interpretClosureText` extracts Tuesday and `assessWeekdayClosure` may
+return `possible-weekday-closure-match` on any Tuesday. That over-warns relative to the unidentified
+month scope, but remains intentionally PARTIAL/candidate semantics and never means "closed".
+
+**Carried forward, still not fixed and still not this phase's to fix:** `JP-211`'s
+`"09:00–17:00 según anuncio"` classifies SAFE because `"anuncio"` is absent from the third-party
+regex word list; `JP-016`'s recorded `06:00–17:00` hall interval is discarded by the `known-24h`
+priority branch; and `docs/DATA_MODEL.md` still does not mention Phase 3D-G, 3D-H, 3D-I, 3D-J, 3D-K
+or 3D-L.
+
+**Explicit non-goals for this phase:** no opening-hours solver or open/closed judgment; no composition of an hours
+fact with a closure fact, `febMar2027`, `bestTime` or a reservation field into a stronger real-world
+claim (confidence-preserving recorded-evidence juxtaposition remains valid); no
+`Date.now()`, "now", urgency or countdown; no timezone or absolute instant; no holiday or special
+calendar; no live/temporary verification against any source (zero network requests, and no use of
+`place.officialUrl` beyond the existing link); no last-admission, capacity, queue or timed-entry
+modelling; no overnight support; no `recorded-24h` arithmetic; no derived arrival/departure time or
+transport interaction; and no automatic itinerary generation, route optimisation, day scoring,
+rescheduling, hotel modelling or live transit.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, any `.ts`/`.tsx`/`.css` file, any test, or any prior design document was changed by this
+phase — Phase 3D-A's, 3D-I's and 3D-K's contracts are cited here, never edited. No planning-draft
+schema change and no `PLANNING_DRAFT_VERSION` move. No later phase was started. No immediate
+successor is recommended under the current contract; future reconsideration is not categorically
+closed if data semantics, product scope, or the proposed record-level proposition changes.
+
+### Corrective pass — independent hostile review
+
+The review found four **MAJOR reasoning-scope defects**: provenance/currency was overstated as
+absent; triple-SAFE was used beyond `febMar2027`'s orthogonal scope; closed-union reachability was
+confused with semantic/product novelty; and five reopening conditions were treated as universally
+necessary. The rationale is now narrower: composed recorded-evidence products are possible but
+currently redundant, and reopening gates are claim-specific.
+
+A second corrective pass resolved two residual **MAJOR scope contradictions** left by that first
+pass: §15's current-product constraints no longer govern every claim-specific reopening, and the
+eligibility/UI/styling/test contracts in §§17/21/22/24 no longer bind every future proposition.
+They remain mandatory for Phase 3D-L and for a successor that explicitly preserves its arithmetic
+contract. A different proposition must instead derive its tests and presentation from its exact
+claim, legitimate inputs, semantic invariants, provenance/currency limits and non-claims. Reading or
+composing closures or `febMar2027` is not universally prohibited, but it never licenses an
+OPEN/CLOSED/FEASIBLE/VISITABLE inference by itself. The four original MAJOR findings are therefore
+finally resolved after this second pass.
+
+Unchanged: no full solver, no open/closed judgment, no visitability/admission judgment, no
+implementation, and no immediate successor recommendation for Phase 3D-M's refused opening-hours
+solver. At the close of Phase 3D-M, Phase 3D-N had not started; it began subsequently as a separate
+reservation-timing gate and does not reopen the opening-hours line or change Phase 3D-M's decision.
+
+## Phase 3D-N — Reservation Window Reference-Date Design Gate — design/audit only
+
+**Design/audit only — zero runtime code, zero UI, zero persistence/schema change, zero dataset
+change, zero new dependency, and no implementation of the relation.** See
+[`docs/RESERVATION_WINDOW_REFERENCE_DATE_DESIGN.md`](RESERVATION_WINDOW_REFERENCE_DATE_DESIGN.md)
+for the full contract.
+
+**Decision: approve only the following proposition as safe for a future successor:** given an
+explicit reference civil date and a `ReservationDateWindow` already derived by Phase 3D-H, determine
+whether the reference date is **before**, **within**, or **after** the recorded advance-guidance
+window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nearAdvanceDate` is
+`within`.
+
+- [x] **Phase 3D-H remains the sole owner of `reservation.leadTime` interpretation.** This gate does
+      not widen eligibility to month ranges, mixed units, unit-only values, or specific mechanisms;
+      it consumes an existing Phase 3D-H `ReservationDateWindow` and never manufactures one.
+- [x] **The window names retain their narrow meaning.** `farAdvanceDate` is not reinterpreted as
+      booking-open, and `nearAdvanceDate` is not reinterpreted as a booking deadline. The relation
+      proves no availability, booking-open/booking-closed state, `book now`, late/urgent/last-chance
+      state, countdown, reminder, automation, or guaranteed deadline.
+- [x] **The domain boundary requires an explicit `referenceDate: YYYY-MM-DD`.** The pure evaluator
+      reads no ambient clock. A future application boundary may capture the device-local civil date,
+      but it must derive that value from `getFullYear()`, `getMonth()`, and `getDate()` — never
+      `toISOString()`, `getUTCFullYear()`, `getUTCMonth()`, or `getUTCDate()` — while the existing
+      civil-date arithmetic remains UTC-component-based and timezone-free.
+- [x] **The concrete reference date used must be disclosed.** It must not be called "today in
+      Japan," introduce an IANA timezone or Japan business-date inference, or promise automatic
+      refresh when local midnight passes.
+- [x] **All orthogonal contracts remain orthogonal.** No persistence/version migration; no change
+      to `reservation.required` or required/recommended/optional semantics; and no composition with
+      opening hours, closures, `febMar2027`, `bestTime`, visit-start-times, or logistics may produce
+      a stronger claim.
+- [x] **Corrective review closed three precision gaps:** exact separation between device-local
+      capture and UTC/timezone-free arithmetic; reservation requirement/optionality remaining
+      orthogonal to the relation; and the absence of any implicit midnight-freshness contract.
+
+**Recommended successor: Phase 3D-O — Reservation Window Reference-Date Relation.** Phase 3D-O is
+**NOT STARTED**: it is recommended only, not implemented or scheduled by this design gate. No Phase
+3D-P or later work was started.
+
+## Later (unscheduled)
+
+- [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
+      reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
+- [ ] Phase 3B3E — client transport / React hook for live transit: **deferred by product
+      decision, not blocked and not currently planned** (see the Phase 3C-A product-decision
+      note above). This is no longer "waiting on" anything — no vendor answer is being sought,
+      no account or key is being pursued. The synthetic transit architecture
+      (`app/src/lib/transit.ts`, `app/server/transit.ts`) stays in the repository, dormant, in
+      case a future scope decision revisits live transit; it is not deleted and the activation
+      gate stays `"off"`. Current logistics strategy instead: validated-static walking via
+      `getBestTransfer()`, honestly-labelled estimates for everything else, and an explicit "sin
+      traslado registrado" for what neither covers — never fabricated. A user may still use
+      Google Maps or another consumer app manually during the actual trip; that is outside this
+      application. See `docs/LIVE_TRANSIT_SYNTHETIC_SKELETON.md`.
+- [ ] Ekispert/NAVITIME provider activation: **not being pursued for the current scope** (see
+      above). If revisited later, before any real account, API key, or live query is introduced,
+      either get Val Laboratory's written answer to the drafted question in
+      `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3 (does Article 27(10)'s
+      prior-written-consent requirement apply to Nihon's intended use, including its
+      planning-recommendation direction), or deliberately scope the feature to only the narrow,
+      lower-risk live-display case (§1.6) and accept that boundary.
+- [ ] Clock-time / timezone / per-place scheduling — **still not started**, and this item's
+      wording is updated here specifically because part of it would otherwise now be misleading.
+      Phase 3C-E can manually anchor Día 1 to a civil date and derive consecutive calendar
+      dates/weekday labels for the remaining day buckets, but nothing in the app assigns clock
+      times, timezones, arrival/departure times, or dates/times to individual places. **Studied,
+      not implemented (Phase 3D-K):** a per-place, manually entered local `HH:mm` visit start time
+      compared against a recorded clock interval has now been designed and gated end to end
+      (see [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md) and the
+      Phase 3D-K entry above), and **Phase 3D-L then built exactly that narrow slice**: a manual
+      `HH:mm` visit start time per eligible place, persisted in `ManualPlanningDraftV3`, compared
+      against one recorded `fixed-interval-clean` SAFE interval and the recorded duration, with
+      **no** IANA timezone — because civil-clock arithmetic within one place on one day never leaves
+      the local frame. **Everything else in this item remains not started**: no clock time is
+      assigned to a place by the app, no arrival or departure time is derived, no time is chained
+      between places, no timezone or absolute instant exists anywhere in the planner, and no day is
+      scheduled. See the opening-hour item just below for the related
+      `schedule.hours`/`schedule.closures`/`bestTime` boundary.
+- [ ] Opening-hour constraint solving — still **not started**, and this item's wording is updated
+      here again specifically because it would otherwise now be false. Phase 3D-A audited and
+      classified `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`/`febMar2027` offline
+      (see [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md)). Phase 3D-B added the
+      first narrow **runtime** interpretation, on `schedule.closures`'s candidate-recurring-weekday
+      family, surfaced as a conservative date/weekday match warning in the day-assignment view (see
+      the Phase 3D-B entry above). **DONE (Phase 3D-E)**: `schedule.hours` itself now has a runtime
+      classification too — `app/src/lib/recorded-hours.ts` turns the raw text into one of five
+      conservative signal kinds (a SAFE recorded 24h/interval fact, a PARTIAL conditional fact, an
+      OPAQUE external-dependency fact, or an UNKNOWN fact), with exact Phase 3D-A category/tier/
+      priority-order parity, and a route-wide "Horarios registrados" summary in
+      `OrderedSequenceBuilder.tsx` (see the Phase 3D-E entry above). **Still not done, and not
+      implied by either of those runtime additions**: any actual open/closed judgment about a place
+      (neither phase ever asserts one — Phase 3D-B only says "this recorded weekday candidate
+      matches/doesn't match this date," and Phase 3D-E only says "this is the kind of hours
+      information recorded for this place"); any composition of an hours fact with a closure fact,
+      a `febMar2027` status, or a `bestTime` recommendation into a stronger claim; clock-time,
+      timezone, or per-place visit-time scheduling of any kind; a visit-duration-fit calculation
+      against a recorded interval; holiday handling; temporary or live closure/hours verification
+      against an official source; a date recommendation; or automatic rescheduling. **Two of those
+      have since been studied and are no longer unexamined, but remain unbuilt.** Phase 3D-I
+      evaluated composing an hours fact with a closure fact and approved a strictly
+      confidence-preserving presentation, which Phase 3D-J then shipped — it still asserts nothing
+      about a place being open. Phase 3D-K evaluated the visit-duration-fit question in full (see
+      [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md)) and approved a
+      narrow future phase over `fixed-interval-clean` SAFE hours with a manually entered start
+      time, which **Phase 3D-L implemented** (`app/src/lib/recorded-interval-fit.ts`): a manual time
+      input, a narrow second parser over an already-classified interval token, and a closed
+      eight-state comparison of the recorded duration against the time remaining in that interval.
+      **Still not done, and not implied by it**: any open/closed judgment, `recorded-24h`
+      arithmetic, overnight support, timezone or absolute-instant handling, holiday handling, and
+      any derived arrival time or scheduling between places. **DECIDED AGAINST (Phase 3D-M):** a
+      full opening-hours feasibility solver was audited end to end and **refused** — see
+      [`docs/OPENING_HOURS_FEASIBILITY_DESIGN.md`](OPENING_HOURS_FEASIBILITY_DESIGN.md) and the
+      Phase 3D-M entry above. Under the **current data/evidence contract**, the audit proves no
+      reliable real-world open/closed or visitability judgment and identifies no new,
+      non-redundant composed recorded-evidence proposition worth an immediate successor. A safe
+      Level-2.5 product of existing facts is possible but currently redundant with Phase 3D-B/J/L.
+      This is not a permanent closure against every possible future data or product change.
+      Reopening must be claim-specific: stronger schedule-field provenance/currency, extraordinary-
+      closure coverage, last admission, scope/exactness or live/runtime verification matter only
+      where the proposed claim requires them. A future revisit is legitimate if data semantics
+      improve, a genuinely new record-level proposition is identified, or product scope changes.
+      The current arithmetic surface's input-isolation and UI/test contracts remain correct for it
+      and for an explicit contract-preserving successor, but are not permanent architecture for a
+      different proposition. Phase 3D-N began subsequently as a separate reservation-window /
+      reference-date design gate; it is not an opening-hours successor and does not reopen Phase
+      3D-M's decision.
+- [ ] Reservation booking-deadline intelligence — **partially implemented through Phase 3D-O;
+      broader deadline and availability intelligence remains unscheduled. DONE:** Phase 3D-D
+      provides coarse lead-time classification and its conservative preparation summary. Phase
+      3D-G established the numeric-window design gate, and Phase 3D-H implemented the Class A
+      explicit numeric lead-time window: exact weeks-to-days conversion (`1 week = 7 days`),
+      `minLeadDays`/`maxLeadDays`, and the neutral `farAdvanceDate`/`nearAdvanceDate` bounds of a
+      recorded advance-guidance window. **DESIGNED (Phase 3D-N) AND IMPLEMENTED (Phase 3D-O):**
+      the planner now compares one explicitly disclosed civil reference date with that already-derived
+      Phase 3D-H window and reports only `before-recorded-window`, `within-recorded-window`, or
+      `after-recorded-window`; equality at either bound is within. The pure evaluator receives the
+      reference date explicitly, while the application boundary captures one device-local civil date
+      with local calendar getters when the planner instance opens. The exact reference date is shown
+      beside the relation, the original raw lead-time evidence remains visible, and the UI explicitly
+      discloses that this is not Japan's operating date and does not auto-refresh at midnight.
+      **STILL NOT DONE:** converting month ranges, mixed-unit text, or unit-only text into dates;
+      interpreting specific mechanisms, lotteries, or releases; Japan business-date/timezone semantics;
+      urgency, late, `book now`, booking opening/closing, or a guaranteed deadline; availability;
+      reminders or automation; live inventory or booking integration; or any inference stronger than
+      the recorded evidence.
+- [ ] Hotel-origin/return modelling — **manual runtime implemented through Phase 3D-Q;
+      automatic hotel routing remains unscheduled.** Phase 3D-P designed separate user-authored
+      accommodation anchors and explicit start/end choices per day; Phase 3D-Q implemented those
+      choices plus exact directed accommodation↔place durations entered manually by the user.
+      Missing/unknown legs stay missing, never zero or reversed. Still not implemented: automatic
+      hotel routing, geometry-derived fallback, runtime ORS/live transit, geocoding, booking
+      integration, synthetic hotel `Place` objects, hotel-to-hotel inference, or automatic
+      station/airport access/egress. Phase 3D-X keeps inter-hub transport separate from this model.
+- [ ] Automatic itinerary recommendation/optimisation (auto-sort, automatic day
+      distribution, nearest-neighbour, TSP, shortest path, recursive improvement, multi-candidate
+      ranking, a day-quality score, a "best order"/"best split" claim) — **still not started and
+      still unapproved.** Phase 3D-X measured the current local graph at 403 directed relations
+      across 214 places (0.88% of all possible directed pairs); Phase 3D-Y added manual inter-hub
+      evidence for the CURRENT plan; Phase 3E-A composes the current trip without inventing a grand
+      total; Phase 3E-C now ships the first generated alternative as one explicit adjacent interior
+      same-hub swap. **Phase 3E-D broadens only the one-step local move shape:** one interior place
+      may be relocated by two or more positions while every other place keeps its relative order,
+      endpoints remain fixed, the affected temporal span is locked, both orders require complete
+      exact directed evidence, candidates stay unranked, and Apply remains one explicit
+      stale-guarded action. The current graph shows 24 five-place cases where such a relocation adds
+      value beyond any one adjacent swap, 19 fully validated-static. This still does not authorize
+      arbitrary permutations, repeated hill climbing, automatic chaining of local improvements or
+      any global optimisation claim.
+
+## Phase 3D-O — Reservation Window Reference-Date Relation — implemented
+
+- [x] **Pure closed relation over the existing Phase 3D-H result.** `reservation-window-reference.ts`
+      consumes only an already-derived `ReservationDateWindow` plus one explicit civil reference date and
+      returns `before-recorded-window`, `within-recorded-window`, `after-recorded-window`, or a named
+      `not-assessed` refusal. Both recorded edges are inclusive; Phase 3D-H remains the sole owner of
+      lead-time parsing and window derivation.
+- [x] **Explicit device-local clock boundary, not an ambient domain clock.**
+      `captureDeviceLocalCivilDate()` derives `YYYY-MM-DD` from local calendar getters on an injected/runtime
+      `Date`; the pure evaluator does not construct a current date. UTC extraction, ISO serialization,
+      `Asia/Tokyo`, countdowns and Japan business-date inference remain absent.
+- [x] **Existing per-day reservation surface extended, not replaced.** `ReservationDeadlineNotice` remains
+      the only user-facing surface for the derived Phase 3D-H window. For each eligible place it now also
+      shows `Fecha de referencia (tu dispositivo): YYYY-MM-DD` plus neutral before/within/after copy while
+      retaining the original recorded window, raw lead-time evidence and the existing Feb–Mar caveat.
+- [x] **Reference freshness is disclosed.** The planner captures one concrete device-local civil date when
+      that planner instance opens. The exact date used remains visible; the copy explicitly says it is not
+      Japan's operating date and does not imply an automatic midnight refresh.
+- [x] **No persistence or evidence-boundary expansion.** No planning-draft schema/version change, dataset
+      edit, dependency/package/lockfile change, month/mixed/specific-mechanism widening, reservation
+      requirement reinterpretation, availability claim, booking-open/deadline claim, urgency or reminder.
+- [x] **Deterministic coverage.** Domain tests cover invalid/no-window states, before/within/after, both
+      inclusive edges, month/year rollover, leap day and a same-day window. Clock-boundary tests prove local
+      getters are used even when local and UTC civil dates diverge. Structural integration tests pin the
+      existing day-card wiring, exact reference-date disclosure, raw evidence retention, one-dialog surface
+      and absence of persistence/stronger booking-state copy.
+- [x] **Validation gate.** This closure is committed only after `npm test`, `npm run build`, `npm run lint`
+      and `git diff --check` all pass on the exact resulting tree.
+
+**Phase 3D-P or later work is NOT STARTED by this implementation.**
+
+## Phase 3D-P — Accommodation Commute Design Gate — design/audit only
+
+- [x] **Current boundary audited.** `day-assignment.ts` intentionally excludes hotel/cross-day
+      legs; `transfer.ts` only resolves known directed place-to-place evidence and never synthesizes
+      a missing edge from geometry. The repository has no accommodation entity and live transit is off.
+- [x] **Automatic hotel routing refused under the current architecture.** A hotel pin must not be
+      converted into minutes through haversine/speed heuristics, reverse-edge inference, runtime ORS,
+      hidden nearest-place substitution or an invented synthetic `Place`.
+- [x] **Separate accommodation identity/location contract approved.** A future successor may persist
+      user-authored accommodation anchors with stable local ids, display labels and user-selected
+      `{lat, lng}` map coordinates. Those coordinates are planning context only in the first successor;
+      they do not themselves create transfer evidence.
+- [x] **Multiple hotels and hotel-change days are first-class.** Each day has independent explicit
+      start/end choices: `unselected`, `no-accommodation`, or one chosen anchor. No choice is
+      auto-filled, and differing adjacent boundaries do not imply a hotel-to-hotel transfer.
+- [x] **Manual directed commute evidence approved.** The first safe source is a positive safe-integer
+      minute value entered by the user for one unique exact accommodation→place or
+      place→accommodation key. Direction and endpoint identity are load-bearing. Missing means
+      unrecorded, never zero; reverse/sibling legs are never reused.
+- [x] **Aggregation remains evidence-preserving.** Accommodation legs compose outside
+      `OrderedSequenceSummary`; existing place-to-place confidence/provenance stays unchanged. A
+      complete door-to-door total requires `intraDay.complete === true` plus present manual start and
+      end legs; all other cases remain explicitly incomplete/partial.
+- [x] **Persistence boundary decided, not implemented.** A future runtime implementation requires
+      `ManualPlanningDraftV4`. V3→V4 creates no accommodation evidence; when V3 already has `days`, it
+      creates only the structurally-required same-length all-`unselected` boundary vector. Anchor
+      deletion, place removal/reconciliation, reorder, day-boundary edits and start-date changes have
+      explicit invariants in [`docs/ACCOMMODATION_COMMUTE_DESIGN.md`](ACCOMMODATION_COMMUTE_DESIGN.md).
+- [x] **Non-goals remain explicit.** No hotel search/inventory/pricing, geocoding, runtime routing,
+      live transit, luggage logic, check-in/out inference, itinerary optimisation or automatic hotel
+      recommendation is authorized by this gate.
+
+Recommended successor: **Phase 3D-Q — Manual Accommodation Commute Legs**. Phase 3D-Q is **NOT
+STARTED** by this design gate.
+
+## Phase 3D-Q — Manual Accommodation Commute Legs — implemented
+
+Implements the contract approved by
+[`docs/ACCOMMODATION_COMMUTE_DESIGN.md`](ACCOMMODATION_COMMUTE_DESIGN.md) (Phase 3D-P), with no
+alternative design of its own.
+
+- [x] **Accommodation is a separate entity, never a `Place`.** `accommodation-commute.ts` defines
+      `AccommodationAnchor` (`id`, user-typed `label`, `{lat, lng}`) as user-authored planning state.
+      No anchor id enters `routeIds`, `days`, an `OrderedSequence`, a day bucket, `nearby.json` or any
+      tourism dataset, and no dataset file is touched by this phase.
+- [x] **Identity is the id alone.** Ids are unique within a draft, minted through an injected factory
+      that fails safely on collision instead of overwriting. Two anchors with the same label and/or the
+      same coordinates stay two anchors; array order carries no priority and nothing merges them
+      heuristically. A persisted duplicate id invalidates the whole draft.
+- [x] **Coordinates are identity/context only.** They are validated (finite, lat −90…90, lng −180…180)
+      and displayed. No module reads them for arithmetic: no haversine, distance, speed, nearest place,
+      walking or transit time, and no routing. No geocoding, hotel search, Booking/Expedia inventory,
+      Google Maps or runtime ORS call exists anywhere in the phase.
+- [x] **Two independent explicit day-boundary decisions.** `DayAccommodationBoundary` carries a tagged
+      `start` and `end` choice: `unselected`, `no-accommodation`, or one chosen anchor. `unselected` is
+      missing input; `no-accommodation` is a positive statement that the accommodation model does not
+      apply on that side — neither asserts a zero-minute transfer and neither models an airport, station
+      or port. A day may start at one anchor and end at another; no Hotel A → Hotel B leg is ever
+      inferred, and no anchor is ever auto-selected.
+- [x] **Empty days hold no accommodation decision.** An empty bucket evaluates to
+      `not-applicable`/`empty-day` on both sides, produces no combined total, renders no control, and a
+      persisted selected boundary on an empty bucket makes the draft invalid.
+- [x] **Manual, exact, directed evidence only.** A `ManualAccommodationLeg` is keyed by
+      `(direction, accommodationId, placeId)` with at most one record per key. `Hotel A → Place X`
+      never supplies `Place X → Hotel A`, `Hotel B → Place X`, or `Hotel A → Place Y`. Minutes must
+      satisfy `Number.isSafeInteger(minutes) && minutes > 0`; zero, negatives, fractions, `NaN`,
+      infinities and unsafe integers are rejected rather than rounded or coerced. A missing leg is
+      `missing`, never `0 min`.
+- [x] **The existing transfer contract is untouched.** A manual accommodation leg is not a
+      `TransferEdge`; `getBestTransfer()` is never called with an accommodation id and its signature is
+      unchanged. Accommodation composes OUTSIDE `OrderedSequenceSummary`
+      (`buildDayLogisticsWithAccommodation`), so place-to-place semantics, provenance and confidence
+      display stay exactly as they were.
+- [x] **`ManualPlanningDraftV4` is the single canonical runtime draft.** It adds `accommodations`,
+      `dayAccommodationBoundaries` and `accommodationLegs` under the SAME existing
+      `nihon.manualPlanningDraft` key — no second key, no parallel V3 runtime state.
+      `planning-draft.ts` remains the historical V1 → V2 → V3 chain and the shared shape-validator for
+      the four inherited fields.
+- [x] **V3 → V4 migration invents nothing.** `routeIds`, `days`, `startDate` and `visitStartTimes` pass
+      through unchanged; `accommodations` and `accommodationLegs` start empty. `days === null` migrates
+      to `dayAccommodationBoundaries: null`; existing days migrate to a same-length all-`unselected`
+      vector — structural scaffolding, not an inferred hotel choice. V1/V2/V3 drafts stored earlier
+      still load through the chain.
+- [x] **The V4 parser rejects rather than repairs.** Duplicate anchor ids, duplicate exact leg keys,
+      invalid coordinates, invalid minutes, unknown accommodation references, a leg whose `placeId` is
+      outside the stored `routeIds`, a boundary vector of the wrong length, a vector present while
+      `days` is null, a null vector while days exist, a selected boundary on an empty bucket, malformed
+      tagged unions and corrupt structural shapes all fail the whole stored draft. Nothing is
+      deduplicated, padded, truncated, shifted, rounded, first-wins/last-wins resolved or rebound.
+- [x] **Reconciliation rules are explicit and tested.** A pure route reorder preserves anchors,
+      endpoint-keyed legs, the day matrix and its boundary vector. A route-composition change keeps the
+      historical `days` behaviour, sets `dayAccommodationBoundaries` to `null` with it, and prunes legs
+      whose place left the route without ever rebinding them. Anchors survive every route edit until
+      the user deletes them.
+- [x] **`withDays` resets on ANY difference.** The boundary vector survives only when the new day
+      matrix is element-for-element identical (bucket count, membership, bucket, and order within each
+      bucket). Any other valid assignment resets every side of every day to `{ kind: "unselected" }` —
+      no positional shifting, no similarity matching. Endpoint-keyed legs survive the re-split unused
+      and apply again only when the user explicitly chooses a boundary whose exact endpoints match.
+- [x] **Deletion never reassigns.** Deleting an anchor removes it, removes its manual legs, and turns
+      every boundary that referenced it into `{ kind: "unselected" }` — never another anchor, never
+      `no-accommodation`.
+- [x] **`startDate` stays an independent axis.** Setting, changing or clearing it leaves anchors,
+      boundaries and manual minutes untouched.
+- [x] **Aggregation stays honest.** `DayLogisticsWithAccommodation` exposes the intra-day summary, both
+      boundary results, a registered subtotal and `completeDoorToDoor`. The subtotal adds only known
+      minutes: unknown intra-day legs, unselected boundaries, missing manual legs and explicit
+      `no-accommodation` sides contribute nothing — never zero. `completeDoorToDoor` is true only for a
+      non-empty day with `intraDay.complete === true` and BOTH sides resolved to a recorded manual leg;
+      a one-place day can qualify vacuously, an empty day never produces a combined total, and
+      `no-accommodation` can never upgrade a subtotal into a complete claim.
+- [x] **Hook and UI integrated without duplicating state.** `usePlanningDraft` holds one V4 draft and
+      exposes the accommodation state plus setters (add/delete anchor, choose one side of one day,
+      set/replace/clear one exact directed leg) alongside the existing route/days/startDate/visit-time
+      operations; persistence stays automatic under the same key. `OrderedSequenceBuilder`'s existing
+      "Distribuir por días" view gains an anchor manager (label + manual lat/lng, since a Leaflet pin
+      picker would require a second interactive map inside the dialog — out of scope here) and, per
+      non-empty day, two boundary selects, the exact directed endpoint pair, a manual-minutes field and
+      a way to clear it.
+- [x] **Copy stays inside the approved families.** Recorded minutes always read `· dato manual`; an
+      absent leg reads `sin registrar`; an explicit no-accommodation side reads `no aplica en este día`;
+      the registered total reads `incompleto` unless `completeDoorToDoor` holds, in which case it says
+      only that it is `completo según los componentes registrados`. No copy claims an optimal or best
+      route, a best/most convenient hotel, real time, current traffic, a confirmed timetable, a provider
+      attribution, confirmed transport or confirmed availability.
+- [x] **Coverage.** 1060 tests pass. Domain tests cover coordinate validation, positive-safe-integer
+      minutes, exact direction, no reverse inference, no accommodation/place cross-use, exact-key
+      replacement, missing-stays-missing, unselected vs. no-accommodation, empty days, exact
+      first/last place, differing start/end anchors, no inferred hotel-to-hotel leg, complete/incomplete
+      aggregation, a one-place day, and the absence of geometry/transfer/provider access. Persistence
+      tests cover both V3 → V4 shapes, the V1/V2 chain, every parser rejection above, malformed tagged
+      unions, fail-safe loading, a storage round trip, reorder preservation, composition invalidation,
+      stale-place pruning, identical-vs-any-non-identical `withDays`, unused surviving legs, anchor
+      deletion, and start-date independence. Source-scanning component/hook tests pin the wiring,
+      empty-day gating, manual labelling, the incomplete/complete total rule and the forbidden-copy and
+      no-routing boundaries. Manual browser verification (Playwright, dev server) confirmed anchor
+      creation, exact endpoint display, persistence across reload, rejection of a fractional value,
+      boundary reset on adding a day, and anchor deletion clearing legs and resetting only its own
+      boundaries.
+- [x] **No dependency, package, lockfile or dataset change.** Phase 3D-Q required none.
+- [x] **Validation gate.** Closed only after `npm test`, `npm run build`, `npm run lint` and
+      `git diff --check` all passed on the exact resulting tree.
+
+**Not implemented and not claimed by this phase:** automatic hotel routing, hotel optimisation or
+recommendation, geometry-derived minutes, live transit, timetable data, booking/inventory
+integration, luggage logic, check-in/check-out inference, and any stable day-identity contract that
+would let boundaries survive a re-split.
+
+**Phase 3D-R or later work is NOT STARTED by this implementation.**
+
+## Phase 3D-R — Stable Day Identity Design Gate — design/audit only
+
+Design/audit gate only, recorded in
+[`docs/PHASE_3D_R_ROADMAP_NOTE.md`](PHASE_3D_R_ROADMAP_NOTE.md). The authoritative contract is
+[`docs/STABLE_DAY_IDENTITY_DESIGN.md`](STABLE_DAY_IDENTITY_DESIGN.md) together with its normative
+[`corrective addendum`](STABLE_DAY_IDENTITY_DESIGN_CORRECTIVE.md), which takes precedence wherever
+the two conflict. No runtime, UI, dataset, dependency, routing, optimisation, scheduling, luggage,
+booking, geocoding or transport-evidence change was implemented by that gate.
+
+Recommended successor: **Phase 3D-S — Stable Day Identity Runtime**.
+
+## Phase 3D-S — Stable Day Identity Runtime — implemented
+
+Implements the contract approved by [`docs/STABLE_DAY_IDENTITY_DESIGN.md`](STABLE_DAY_IDENTITY_DESIGN.md)
+and [`docs/STABLE_DAY_IDENTITY_DESIGN_CORRECTIVE.md`](STABLE_DAY_IDENTITY_DESIGN_CORRECTIVE.md)
+(Phase 3D-R), with no alternative design of its own. Those two documents remain the normative record
+and are not rewritten by this phase.
+
+- [x] **A day is now a persisted entity.** `lib/planning-draft-v5.ts` defines `PlanningDayV5`
+      (`id`, `placeIds`, `accommodationBoundary`) and makes `ManualPlanningDraftV5` the single
+      canonical runtime draft, under the same existing `nihon.manualPlanningDraft` key. The separate
+      positional `dayAccommodationBoundaries` vector is gone: each boundary is structurally part of its
+      own day, so array lengths cannot drift, a splice cannot shift a choice onto another day, deleting
+      a day deletes its boundary, and moving a day carries its boundary with it. There is no second
+      storage key, no second day-id store, and no parallel V4 state — `planning-draft-v4.ts` remains
+      only as the historical V1 → V2 → V3 → V4 chain.
+- [x] **Identity is id-only and carries no other meaning.** A day id says exactly "this is the same
+      user-authored day bucket" and encodes no ordinal position, date, weekday, hub/city/region,
+      accommodation, first/last place, place count, route quality, recommendation, priority or creation
+      order. Identity is never inferred from array index, equal or similar `placeIds`, endpoints, hotel
+      choice, date, the `Día N` label, geography, or any edit-distance or similarity score.
+- [x] **V4 → V5 migration is deterministic and invents nothing.** For the V4 day at index `i`,
+      `placeIds` and `dayAccommodationBoundaries[i]` are copied exactly and packaged under the
+      migration-only id `legacy-v4-day-${i}`. The historical position creates identity exactly once;
+      re-parsing the same stored value always yields the same ids, they are unique within the draft,
+      and no id is recomputed from a position afterwards. `days: null` stays `days: null`, an empty V4
+      day migrates with its all-`unselected` boundary, and no anchor, leg, visit time, date, route id
+      or boundary choice is created, removed, changed or rebound.
+- [x] **New day ids are opaque and collision-safe.** `createDayId` draws from an injected factory
+      until it yields a non-empty unused id, then fails safely with `null` after bounded retries
+      rather than overwriting a day or falling back to a derived id. `usePlanningDraft` injects a
+      `crypto.randomUUID`-backed factory (with a `crypto.getRandomValues`/`Math.random` fallback
+      chain, corrected below to carry no creation-time signal); tests inject a deterministic one. No
+      id is derived from a date, a creation time, an index, a place id, an accommodation, a
+      coordinate or any day content.
+- [x] **The V5 parser stays strict and all-or-nothing.** The whole stored draft is rejected for a
+      malformed day object, an empty or duplicate day id, a malformed `placeIds`, a projected matrix
+      that fails `validateDayPartition`, a selected boundary on an empty day, an unknown accommodation
+      reference, a malformed or duplicate-key manual leg, invalid minutes, a malformed tagged union, or
+      any inherited V1–V4 violation. Nothing is renumbered, regenerated, deduplicated, similarity-
+      matched, rebound or partially salvaged; a duplicate id is corruption, not a merge instruction.
+- [x] **`DayAssignment` was not redefined.** `dayMatrixFromPlanningDays` is the pure projection to
+      `string[][]`, preserving day order and each day's place order exactly, and it is the only day
+      value handed to `validateDayPartition`, `buildDayAssignment`, `addCivilDays`, weekday signals,
+      reservation evaluation, hours composition and intra-day transfers. No day id crosses that line
+      and no temporal or logistics module was widened to know about persistence identity. Changing only
+      a day id provably cannot alter a `DayAssignment`, a civil date, a weekday signal, or an intra-day
+      transfer sequence — and, proven by the corrective pass below via the real
+      `deriveVisitDateForPlace` / `derivePlaceReservationDateWindow` / `evaluateReservationWindowReference`
+      evaluators against a genuine Class A reservation fixture, a real reservation-date/window/
+      reference result either.
+- [x] **Mutations are identity-aware.** Reordering inside a day preserves the id, the boundary and
+      every stored leg, changing only `placeIds`. Moving a place between two days preserves both ids
+      and both boundaries while each day stays non-empty. A day emptied by an edit keeps its id as an
+      empty bucket and resets both boundary sides to `unselected` — never to `no-accommodation`, with
+      no hidden state stashed, and repopulating it later does not resurrect the old choice. Adding a
+      day mints one fresh opaque id with `placeIds: []`, both sides `unselected` and no date stored
+      inside it. Deleting an empty day removes only that entity, leaving anchors, manual legs, visit
+      start times, the start date and every other day untouched.
+- [x] **The bulk `withDays(string[][])` setter fails closed.** An element-for-element identical matrix
+      preserves every current entity, id and boundary; any non-identical matrix is rejected and the
+      draft is returned unchanged. It never carries ids by index, similarity-matches, compares
+      endpoints or accommodation, regenerates ids as a fallback, or partially applies. `withInitialDays`
+      covers only the `days === null` first split, where there is no identity to preserve or invent.
+- [x] **Route reconciliation stays conservative.** A route composition change that invalidates the day
+      assignment still sets `days: null`, taking every day id and embedded boundary with it, and no old
+      day is re-matched afterwards. Anchors survive, `startDate` stays independent, and manual legs are
+      pruned only for places that left the route. `resetRoute` still clears the assignment entirely.
+      Stale-place pruning (corrected below) is applied directly to each day entity's own `placeIds`,
+      addressed by its own `id` — never recovered by reading an index into a separately-computed
+      projected `string[][]` result.
+- [x] **Calendar semantics are unchanged.** No date is stored inside a day entity; a day's civil date
+      remains `addCivilDays(startDate, ordinalIndex)`. Changing or clearing `startDate` preserves every
+      id, place order and boundary, while adding, deleting or reordering days changes the derived
+      ordinal dates without changing any identity.
+- [x] **Accommodation semantics from Phase 3D-Q are untouched.** Accommodation is still a separate
+      entity and never a `Place`; manual legs are still exact directed tuples with no day identity in
+      the key; there is no reverse, sibling or geometry inference, no routing, no network lookup and no
+      invented minute; missing never equals zero. Stable identity only preserves the user's decision
+      better — it adds no new evidence.
+- [x] **UI adapted minimally.** The existing "Distribuir por días" view gained no new mode and no new
+      visual surface. Its four local day-matrix helpers were replaced by identity-aware calls addressed
+      by the day's stable id; the id is used only as a React key and a mutation address, never rendered.
+      Headings stay `Día 1`, `Día 2`, … from array position, and the approved Phase 3D-Q copy is
+      preserved verbatim.
+- [x] **Coverage.** 1213 tests pass (1060 before this phase, 153 added). New domain tests cover
+      deterministic migration and repeated re-parsing, boundary preservation, null days, empty-day
+      migration, every parser rejection above, storage round-trip, projection determinism and order
+      preservation, the four "changing only a day id changes nothing downstream" properties, every
+      identity-aware mutation including the empty/repopulate rule and the no-rebind endpoint rule, and
+      seven distinct non-identical bulk matrices each returning the draft unchanged. Component tests
+      replay the real user flows step by step and assert the rendered accommodation results, plus the
+      wiring, projection boundary, invisible-id and preserved-copy guarantees.
+- [x] **Browser QA.** Playwright against the dev server: 34/34 checks passed, covering an existing
+      draft loading, a stored V4 value migrating to V5 under the same key with deterministic legacy
+      ids and preserved choices, reorder inside a day, a move between days, accommodation selection
+      surviving both, a changed endpoint rendering `sin registrar` while its legs stay persisted and
+      resolve again when the order is restored, emptying a day resetting its selection, repopulating
+      not resurrecting it, add/delete of an empty day, and a reload preserving the V5 draft byte-for-byte.
+- [x] **No dependency, package, lockfile or dataset change.** Phase 3D-S required none.
+- [x] **Validation gate.** Closed only after `npm test`, `npm run build`, `npm run lint`, `tsc -b` and
+      `git diff --check` all passed on the exact resulting tree.
+
+**Not implemented and not claimed by this phase:** automatic day matching or content-similarity
+identity, itinerary optimisation or TSP, hotel recommendation/search, accommodation routing,
+geocoding, live transit, provider integrations, luggage/takkyubin logic, check-in/check-out
+inference, automatic chained times, timezone scheduling, booking integration, and a trip-end-date
+model.
+
+### Phase 3D-S — corrective pass (independent hostile review)
+
+A focused corrective pass on PR #48, responding to an independent hostile audit of the
+implementation above. All three findings are fixed; nothing else in Phase 3D-S was reopened.
+
+- [x] **Finding 1 — the day-id fallback no longer encodes creation time.** `randomDayId`'s
+      non-`crypto.randomUUID` path used `Date.now()`, which is a creation-time signal the identity
+      contract (§3.2) forbids. It now falls back to `crypto.getRandomValues` and, failing that, to
+      `Math.random()` alone — never the clock. A dedicated test isolates the non-`randomUUID` branch
+      itself (not merely the presence of `crypto.randomUUID()`) and pins that it contains no
+      `Date.now`, `startDate`, `dayIndex`, `placeId`, `accommodation` or coordinate reference.
+- [x] **Finding 2 — the reservation-result test now runs the real evaluator.** The single test named
+      "changing ONLY a day id cannot modify a reservation or intra-day transfer result" only ever
+      compared `buildDayAssignment` outputs; it never invoked any reservation-date evaluator, so it
+      could not have caught a regression in one. It is split into two precisely-named tests: the
+      intra-day transfer/sequence comparison (unchanged), and a new test that runs the real chain —
+      `deriveVisitDateForPlace` → `derivePlaceReservationDateWindow` →
+      `evaluateReservationWindowReference` — against JP-019, a real Class A dataset fixture already
+      proven elsewhere to yield a genuine `derived-window`, holding route, place membership/order,
+      `startDate` and reservation evidence fixed while changing only the day ids.
+- [x] **Finding 3 — reconciliation no longer recovers identity by array index.** `reconcileDraft`
+      used to project the draft to V3, prune it there, and read the result back by
+      `reconciledBase.days![index]` to decide what belonged to each V5 day entity — recovering
+      identity from a position in a separately-computed array, which Phase 3D-R forbids. It now
+      prunes each entity's own `placeIds` directly, keyed by its own `id`, and validates that
+      directly-pruned matrix itself; `reconciledBase` is used only for `routeIds`/`startDate`/
+      `visitStartTimes`, never to decide day content. A day emptied by the prune still keeps its id
+      and resets to `unselected`; an invalid resulting partition still yields `days: null`; manual
+      legs are still pruned only for the place that left. A source-scan test pins the absence of the
+      old `reconciledBase.days![index]` shape.
+- [x] **Coverage.** 1218 tests pass (1213 before this corrective pass, 5 added): one pinning the
+      day-id fallback, one running the real reservation-date/window/reference chain, and three for
+      the reconciliation refactor (boundary preservation distinguished by value across two
+      simultaneously non-empty days, leg pruning scoped to the departed place, and the source-scan
+      guard against index-based association).
+- [x] **Targeted browser QA.** A new Playwright pass against the flows this corrective pass touches —
+      V4→V5 migration, reorder within a day, move between days, stale-place reconciliation, empty-day
+      reset, and reload persistence — 25/25 checks passed, no uncaught page errors. (This is a fresh
+      targeted set, not a re-run of the prior 34-check script, which is not itself checked into the
+      repository.)
+- [x] **Validation gate.** `npm test`, `npm run build`, `npm run lint`, `npx tsc -b --force` and
+      `git diff --check` all passed on the exact resulting tree.
+
+**Phase 3D-T or later work is NOT STARTED by this implementation or this corrective pass.**
+
+## Phase 3D-U — Manual Day Reordering Runtime — implemented
+
+Implements the contract approved by
+[`docs/MANUAL_DAY_REORDERING_DESIGN.md`](MANUAL_DAY_REORDERING_DESIGN.md) (Phase 3D-T), with no
+alternative design of its own.
+
+- [x] **One narrow pure mutation.** `withDayMoved(draft, dayId, direction)` in
+      `lib/planning-draft-v5.ts` resolves the day by its stable id and swaps it with the ONE
+      adjacent whole `PlanningDayV5` entity, so `id`, `placeIds` (and their internal order), and
+      `accommodationBoundary` — and therefore every manual accommodation leg the day resolves
+      against — travel together byte-for-byte. `routeIds`, `startDate`, `visitStartTimes`,
+      `accommodations` and `accommodationLegs` are untouched by construction: the function only
+      ever reassigns `draft.days`. It is a plain array-position swap, never a rebuild through
+      `withDays`/`string[][]` and never a second day-order vector — day order stays the order of
+      `PlanningDayV5[]`, exactly as before this phase.
+- [x] **No-ops are exact, never partial.** Returns the draft unchanged for `days === null`, an
+      unknown day id, a direction other than `-1`/`1`, moving the first day up, moving the last
+      day down, and therefore also a one-day assignment. An empty day is an ordinary movable
+      entity — nothing distinguishes it, and it keeps its id, its empty `placeIds`, and both
+      boundary sides `unselected` after a move.
+- [x] **Narrow hook surface.** `usePlanningDraft.ts` exposes `moveDay(dayId, direction)`,
+      delegating to `withDayMoved` through the same canonical `setDraft` — no parallel
+      `dayOrder` state.
+- [x] **UI.** Each day card header in `OrderedSequenceBuilder.tsx` gained two buttons addressed by
+      `dayEntity.id` (never `dayIndex`), disabled at the first/last position, with accessible
+      names `Mover Día N hacia arriba`/`hacia abajo` that identify both the action and the day
+      without exposing the stable id. Visible headings stay ordinal (`Día 1`, `Día 2`, …), the
+      stable id stays the day card's React key, and no drag-and-drop dependency or confirmation
+      dialog was introduced.
+- [x] **Calendar consequences are deliberate.** `Día N` and `addCivilDays(startDate, ordinalIndex)`
+      stay derived from array position by every existing consumer, so a move can change what a
+      day's date, weekday signal, hours/closure composition, visit-time feasibility and
+      reservation-window relation compute — without this phase ever writing a date, weekday or
+      ordinal into a day entity. `routeIds` is never rewritten to mirror the new day order.
+      Logistics/accommodation invariants for the moved day (intra-day transfer sequence/subtotal,
+      exact manual-leg matching, no cross-day/hotel-to-hotel inference) are preserved because the
+      whole entity — and only that entity — moves.
+- [x] **Compatibility boundary stays closed.** The reorder never calls `withDays`; a source-scan
+      test pins that its body contains neither `withDays(` nor `dayMatrixFromPlanningDays`, only
+      the plain two-element array swap.
+- [x] **Coverage.** 1245 tests pass across 34 files (1218 before this phase; 27 added). New coverage in
+      `lib/planning-draft-v5.test.ts` (`withDayMoved`) proves: a middle day moves up/back down
+      byte-for-byte; first-up/last-down/unknown-id/`days: null`/one-day/invalid-direction are exact
+      no-ops; an empty day moves and stays empty/unselected; `routeIds`/`startDate`/
+      `accommodations`/`accommodationLegs`/`visitStartTimes` stay untouched; the projected matrix
+      changes only by whole-day order while `validateDayPartition` stays valid and every day's own
+      internal place order is unchanged; the moved day's accommodation-boundary/manual-leg result
+      and intra-day transfer sequence/subtotal are unchanged; ordinal labels/dates recompute
+      correctly; a REAL weekday-closure evaluator (`buildDayWeekdaySignal`) recomputes from the new
+      date; a REAL reservation evaluator (`derivePlaceReservationDateWindow` →
+      `evaluateReservationWindowReference`, against JP-019) recomputes a different relation from
+      the same reference date/evidence once only the day order changed; a persisted
+      write/load/reconcile round-trip preserves the reordered array; and the source-scan guard
+      above. New coverage in `OrderedSequenceBuilder.stable-day-identity.test.ts` pins the UI/hook
+      wiring: `moveDay` is called with `dayEntity.id`, the up/down buttons are disabled at the
+      boundaries, the accessible names identify the day without exposing its id, the stable id
+      stays the React key, and no drag-and-drop/confirmation dialog exists.
+- [x] **Browser QA.** A focused Playwright pass against a seeded persisted multi-day V5 draft with
+      distinct accommodation choices on two days — moving a day up (content and hotel choice moved
+      together, dates changed, a real Monday-closure notice appeared for the relocated place, the
+      manual accommodation minutes stayed resolved), moving it back down (exact restoration), and
+      adding then moving an empty day across a non-empty one, followed by a reload — 20/20 checks
+      passed, 0 console errors, 0 page errors. The reload confirmed the reordered persisted V5 day
+      array matched exactly, including the empty day's new position.
+- [x] **Validation gate.** `npm test` (1245/1245), `npm run build`, `npm run lint`,
+      `npx tsc -b --force` and `git diff --check` all passed on the exact resulting tree.
+- [x] **Non-goals held.** No automatic day ordering, route optimization, transfer-cost comparison
+      between day orders, drag-and-drop, bulk reorder suggestions, hotel-to-hotel inference,
+      schema V6, or unrelated refactor/dependency change was introduced.
+
+**Phase 3D-V or later work is NOT STARTED by this implementation.**
+
+---
+
+## Phase 3D-V — Trip Bounds Design Gate — design/audit only
+
+Design/audit gate only, recorded in
+[`docs/PHASE_3D_V_ROADMAP_NOTE.md`](PHASE_3D_V_ROADMAP_NOTE.md). The authoritative contract is
+[`docs/TRIP_BOUNDS_DESIGN.md`](TRIP_BOUNDS_DESIGN.md). **No runtime code, UI, persisted data,
+schema version, migration, test, dataset, dependency, routing, live-transit, hotel-search,
+luggage, flight, airport, clock-time, timezone, optimisation or booking change was implemented by
+this gate.** `ManualPlanningDraftV5` remains the canonical runtime schema, and `endDate` **does not
+exist in the codebase**.
+
+- [x] **Question audited, not assumed.** Given that a user can know the first and last civil day of
+      their trip independently of having built any day assignment, should Nihon persist an upper
+      calendar bound, and if so what is the minimum safe representation? All four required
+      candidates were compared explicitly.
+- [x] **Decision: APPROVED — one field, `endDate: string | null`.** The last civil calendar date the
+      user considers part of the trip, on a new `ManualPlanningDraftV6`, under the **unchanged**
+      storage key `nihon.manualPlanningDraft`. `[startDate, endDate]` is **inclusive**;
+      `tripCalendarDays = differenceInCivilDays(startDate, endDate) + 1` is derived on read only and
+      is absent whenever the range is unavailable. A civil date is explicitly not a flight time, a
+      UTC instant, a timezone, a check-in/check-out date, a night count, or a flight duration.
+      **Nights are never inferred** — that would need its own separate contract.
+- [x] **Alternatives rejected, with reasons recorded.** `tripLengthDays: number | null` — not
+      standalone (meaningless without `startDate`), reintroduces the days/nights inclusivity
+      ambiguity, is shaped like `days.length` and so invites the forbidden reconciliation, and
+      stores derived data. **Deriving the end from `days.length`** — conceptually circular: the last
+      bucket would *be* the end, so "out of bounds" stays permanently unrepresentable, the trip's
+      civil extent would evaporate on a route composition change, and adding or deleting an empty
+      day would silently rewrite the user's travel dates. **Adding nothing yet** — held open to the
+      end and rejected because the harm is present today (Nihon presents dates outside the trip with
+      full confidence and no annotation) and the day model reached its final shape in 3D-S/3D-U.
+- [x] **`endDate` is NOT redundant with `days.length`.** They are independent facts: the civil
+      extent is a trip decision that survives route changes and exists with `days: null`, while the
+      bucket count is downstream, invalidatable editing state. Their disagreement is the informative
+      signal, not a defect to correct.
+- [x] **Independence from `days` is the load-bearing invariant.** All eleven required cases are
+      resolved in the design (§5.1): bounds known with `days: null`; fewer, equal and more buckets
+      than calendar days; empty days; adding and deleting an empty day; day reorder; moving places
+      between days; a route composition change that invalidates `days`; and `resetRoute`. **No
+      auto-creation, auto-deletion, truncation or reordering of buckets to match the range, ever**,
+      and no bound is ever derived from the buckets. Both bounds survive a route change and a route
+      reset, exactly as `startDate` already does.
+- [x] **Out-of-bounds gets a derived vocabulary and nothing else.** A pure per-day assessment with
+      three kinds — `bounds-unavailable` (reasons `no-start-date`, `no-end-date`, `invalid-date`,
+      `inverted-range`), `within-bounds`, `after-trip-end` — computed in a new planning/composition
+      layer from `(bounds, ordinalIndex)`, never persisted, never given a day id. `before-trip-start`
+      is structurally unreachable (Día 1 *is* `startDate`) and is deliberately absent. An
+      out-of-range day is never silently made valid, never deleted, never reordered, never given a
+      new id, and its places are never relocated.
+- [x] **Presentation frontier decided.** **Every existing temporal computation continues unchanged**
+      for an out-of-bounds day — the arithmetic visit date, weekday/closure signals, hours
+      composition, recorded-hours feasibility and the reservation window/reference relation are all
+      still true facts about a real civil date. Only the *implicit claim that this is a day of the
+      trip* is false, and it is corrected by an **explicit warning**, never by withholding data.
+      Suppressing an evaluator's output because of an unrelated new field was rejected outright.
+- [x] **Persistence proposal.** `ManualPlanningDraftV6` is genuinely required: keeping `version: 5`
+      and tolerating a missing `endDate` would be a tolerant parse under a deliberately intolerant,
+      all-or-nothing parser, making "predates the feature" and "corrupted" indistinguishable.
+      `PlanningDayV5` is unchanged and keeps its name. Migration sets `endDate: null` and **may not
+      invent a value** from `days.length`, `startDate + days.length - 1`, `startDate`, the last day's
+      derived date, anchors, visit times or today's date. Strict parser, all-or-nothing, no silent
+      repair.
+- [x] **Validation policy, both directions decided explicitly.** Each endpoint is validated
+      independently (`null` or a real civil date per `isValidCivilDate`); an invalid write is
+      rejected and the draft returned unchanged. **`endDate` MAY exist while `startDate === null`** —
+      prohibiting it would require either discarding a fact the user entered or silently clearing a
+      neighbouring field. **`end < start` is storable and surfaced, never prevented and never
+      repaired**: a cross-field write guard would trap the user mid-edit when shifting a trip later,
+      and auto-shifting the other endpoint would invent a decision. It resolves to
+      `bounds-unavailable(inverted-range)`. **Critically, the order relation is NOT a parse
+      invariant** — making it one would turn a legitimately reachable state into whole-draft
+      corruption on reload.
+- [x] **Audit finding: the arithmetic helper does not exist.** `app/src/lib/civil-date.ts` exports
+      `isValidCivilDate`, `addCivilDays`, `formatCivilDateDisplay` and `getCivilWeekday` only —
+      there is **no `differenceInCivilDays` anywhere in the repository**. The successor must add it
+      as a pure, component-based (`Date.UTC`/`getUTC*`) helper returning a signed whole-day count or
+      `null`, never a guess. No `Date`/UTC instant, timezone or clock time is introduced anywhere.
+- [x] **Stable day identity guaranteed.** A bounds change only ever reassigns one scalar field, so
+      by construction it remints no day id, does not reorder `days`, changes no `placeIds`, touches
+      no `accommodationBoundary`, rebinds no `accommodationLeg`, modifies no anchor, and derives no
+      identity from any date. Reordering a day still transports the same entity byte-for-byte and
+      changes only its derived ordinal date — and now, as a derived read only, possibly its bounds
+      assessment.
+- [x] **Existing evaluators audited, none rewritten.** `deriveVisitDateForPlace`,
+      `deriveReservationDateWindow`, `derivePlaceReservationDateWindow`,
+      `evaluateReservationWindowReference`, `buildDayWeekdaySignal`, `assessWeekdayClosure`,
+      `derivePlaceHoursClosureComposition`, `evaluateRecordedIntervalFit`, `buildDayAssignment`,
+      `validateDayPartition`, `dayMatrixFromPlanningDays` and `captureDeviceLocalCivilDate` all stay
+      byte-for-byte unchanged. `endDate` must never become a partition input and `"after-trip-end"`
+      must never become a `DayAssignmentIssue`.
+- [x] **Accommodation, arrival/departure and luggage held out.** Trip bounds select no hotel, delete
+      no hotel, create no hotel-to-hotel transfer, change no manual leg or boundary, and never
+      interpret `no-accommodation` as an airport, station or port. The civil range represents no
+      landing time, airport, flight, hotel transfer, departure cut-off, check-out or check-in — it
+      leaves a clean seam for those future gates and nothing more. **Luggage (takkyubin, lockers,
+      oversized Shinkansen baggage, hotel and airport storage) remains an expressly separate axis**
+      that trip bounds neither model nor constrain.
+- [x] **UI proposal is minimal and neutral.** One additional `type="date"` control plus a clear
+      button inside the **existing** `.calendar-anchor` block, and one per-day warning. No new
+      product, page, panel or wizard. Spanish copy distinguishes three separate facts — the civil
+      range the user chose, the buckets that currently exist, and the mismatch between them — and
+      **never** recommends a duration, a night count, or adding/removing days. The equal-count and
+      fewer-count cases share wording deliberately so neither is endorsed as correct.
+- [x] **Test contract specified, not written.** A 71-case matrix for the successor covering
+      migration, the strict parser, civil-date validation and timezone invariance, the inclusive
+      count, every null state, route/reset independence, day addition/removal/empty days/reorder,
+      stable ids and untouched accommodations and manual legs, the out-of-bounds assessment,
+      persistence/reload round-trips, **real** temporal and reservation consumers exercised against
+      both bounded and out-of-bounds days, UI copy scanning, and source scans proving no
+      timezone/instant inference.
+- [x] **Supersession recorded precisely.** This gate supersedes the "assignment outside trip bounds
+      is not representable" statements in `RESERVATION_DEADLINE_DESIGN.md` §12.2.1,
+      `OPENING_HOURS_CLOSURE_COMPOSITION_DESIGN.md`, `STABLE_DAY_IDENTITY_DESIGN.md` and
+      `MANUAL_DAY_REORDERING_DESIGN.md` **only** on the question of whether a trip end date may
+      exist. Every other clause of those documents — including the prohibition on inventing handling
+      for states that do not exist, and on persisting derived deadline or range data — stays intact.
+      Those phases scoped the field out of their own work; none argued the model was wrong.
+- [x] **Diff is strictly documentary.** Only `docs/TRIP_BOUNDS_DESIGN.md`,
+      `docs/PHASE_3D_V_ROADMAP_NOTE.md` and this `docs/ROADMAP.md` entry changed. No file under
+      `app/`, `data/`, `scripts/`, no test, no `package.json` and no lockfile was touched. The
+      existing suite was **not** re-run, because a documentation-only diff cannot change it — no
+      claim is made here about executing it.
+
+Recommended successor: **Phase 3D-W — Trip Bounds Runtime**.
+
+**Phase 3D-W is NOT STARTED.** No `endDate` field, no `ManualPlanningDraftV6`, no
+`differenceInCivilDays`, no bounds assessment module and no UI control exists in the codebase as of
+this gate.
+
+## Phase 3D-W — Trip Bounds Runtime — implemented
+
+Implements exactly the runtime approved by Phase 3D-V
+([`docs/TRIP_BOUNDS_DESIGN.md`](TRIP_BOUNDS_DESIGN.md)) and nothing broader. The design document is
+the authority and was **not** rewritten: no contradiction with it was found while implementing.
+
+- [x] **Schema — `ManualPlanningDraftV6`** (`app/src/lib/planning-draft-v6.ts`, new). Canonical
+      persisted draft, under the **unchanged** storage key `nihon.manualPlanningDraft`. It adds
+      exactly one field, `endDate: string | null` — the last civil calendar date the user considers
+      part of the trip, with `[startDate, endDate]` **inclusive on both ends**. `PlanningDayV5` is
+      re-exported unchanged and keeps its name. No `tripLengthDays`, no persisted `tripCalendarDays`,
+      no persisted assessment, no per-day date or ordinal, no second order vector, no second storage
+      key. `planning-draft-v5.ts` stays in place as the V4 → V5 link of the historical chain and as
+      the shared implementation of everything V6 inherits; its historical contracts are untouched.
+- [x] **Migration V5 → V6** — one rule, `endDate: null`, and nothing else. It is structurally unable
+      to invent a value: `migrateV5ToV6` is `liftFromV5(draft, null)`, so `days.length`,
+      `startDate + days.length - 1`, `startDate`, the last bucket, the last place, anchors,
+      `visitStartTimes`, the current date and the dataset are all unreachable as sources. The
+      V1 → V2 → V3 → V4 → V5 chain runs first, unchanged, and V5 → V6 applies once. A test asserts
+      `endDate` is `null` for a five-bucket, start-dated, hotel-laden, visit-timed draft and spells
+      out each forbidden candidate value explicitly.
+- [x] **Strict parser, all-or-nothing.** At `version: 6` the `endDate` key must be present and must
+      be `null` or a real civil date per `isValidCivilDate`. Rejected — with the **whole** draft, no
+      partial salvage of route, days, anchors or legs: a missing key, an empty string, a malformed
+      shape, an impossible date, a datetime, a timezone-suffixed value, and any non-string non-null
+      type. Nothing is coerced, normalized, truncated or defaulted. **`endDate < startDate` is
+      deliberately NOT a parse invariant** — an inverted range is reachable mid-edit, and making it
+      corruption would discard the user's entire route, days, hotels and legs on the next reload.
+      Every pre-existing V5 rejection case still rejects at V6.
+- [x] **Civil-date helper** — `differenceInCivilDays(from, to)` added to `app/src/lib/civil-date.ts`.
+      Signed whole-day count, `null` (never `0`, never a guess) when either argument is not a valid
+      civil date, component-based through `Date.UTC(...)` exclusively and therefore
+      timezone-invariant. Correct across month, year, leap-year and leap-day boundaries, and
+      verified as the exact inverse of `addCivilDays` over an 1,600-day span. `addCivilDays`,
+      `isValidCivilDate`, `formatCivilDateDisplay` and `getCivilWeekday` are semantically unchanged.
+- [x] **Pure assessment module** (`app/src/lib/trip-bounds.ts`, new). Owns `TripBounds`,
+      `TripBoundsAssessment`, `assessTripBounds(bounds, ordinalIndex)`, `deriveTripCalendarDays` and
+      `buildTripBoundsSummary`, and depends on `civil-date.ts` **only**. Three kinds
+      (`bounds-unavailable` / `within-bounds` / `after-trip-end`) and five reasons
+      (`invalid-ordinal`, `no-start-date`, `no-end-date`, `invalid-date`, `inverted-range`) in that
+      resolution order. `tripCalendarDays = differenceInCivilDays(start, end) + 1`, derived on read,
+      absent (never `0`, never negative, never `days.length`) whenever the range does not resolve.
+      **The ordinal domain is closed first:** anything that is not a non-negative safe integer
+      resolves to `invalid-ordinal` **before `addCivilDays` is ever called** — asserted with a spy on
+      the real helper, plus a control proving the spy is genuinely wired. There is no
+      `before-trip-start`; the state is structurally unreachable. The assessment receives no day id
+      and no draft, so it provably cannot depend on identity or mutate anything, and it is never
+      persisted.
+- [x] **Independence is structural, not conventional.** Every inherited V6 mutation runs its V5
+      implementation against a `v5View` projection that does not carry `endDate` at all, and the
+      bound is re-attached afterwards from the original draft (`applyV5`/`liftFromV5`). So `endDate`
+      surviving `withRoute` (both the pure-reorder and composition-change branches), `resetRoute`,
+      `reconcileDraft` and every day and accommodation mutation is a property of the composition
+      itself. A V5 rejection (returning its input by reference) stays a true no-op. Conversely
+      `withEndDate` only ever reassigns one scalar, so it cannot touch `days`, day order, an id,
+      `placeIds`, an `accommodationBoundary`, a leg, an anchor, `routeIds`, `visitStartTimes` or
+      `startDate` — asserted by deep comparison across a six-state bounds matrix including inverted,
+      unpaired and cleared values. No cross-field write rule anywhere: an `endDate` before
+      `startDate`, and an `endDate` with `startDate === null`, are both stored as entered.
+- [x] **Existing evaluators unchanged.** Every consumer audited in design §11 is untouched.
+      `trip-bounds-consumers.test.ts` runs the **real** chain — `deriveVisitDateForPlace`,
+      `buildDayWeekdaySignal`, `buildPresentableDayHoursClosureCompositions`,
+      `buildDayRecordedIntervalFits`, `derivePlaceReservationDateWindow` →
+      `evaluateReservationWindowReference` — against a day that is genuinely `after-trip-end` and
+      asserts every result is deep-equal to the same computation with no end date recorded, while
+      separately asserting the assessment really did flip and that changing `startDate` **does**
+      move the derived dates (so the comparison is not vacuous). A source scan pins that no audited
+      module references `endDate`, `trip-bounds` or `after-trip-end`, and that `"after-trip-end"`
+      never became a `DayAssignmentIssue`. **Derivation is unconditional; presentation is
+      conditional.**
+- [x] **Hook** — `app/src/usePlanningDraft.ts` now holds `ManualPlanningDraftV6` as its canonical
+      state and adds `setEndDate(endDate: string | null)` through the same
+      `setDraft(current => ...)` as every other mutation. No parallel state, no second `useState`
+      for the end date, no persisted derived copy. The hook exposes `endDate`.
+- [x] **UI** — inside the **existing** `.calendar-anchor` block in `OrderedSequenceBuilder.tsx`,
+      immediately after `Fecha de inicio (Día 1)`: a structurally identical
+      `Fecha de fin (último día del viaje)` control (`<input type="date">`, canonical setter, and a
+      `Quitar fecha` button shown only when a value exists). No modal, wizard, page, panel or new
+      product surface — the component still contains exactly one `role="dialog"`. `TripBoundsNotice`
+      renders three **distinct**, separately classed facts: the chosen range with its inclusive
+      count, the buckets that exist, and — only when they disagree — how many fall after the end.
+      The fewer-than and equal cases are indistinguishable in the output by construction (there is
+      no branch on either). `TripBoundsDayWarning` adds
+      `⚠ Este día es posterior a la fecha de fin de tu viaje.` to an `after-trip-end` card, which
+      keeps its `Día N` heading, its derived date, its places, its transfers, its temporal and
+      reservation signals, its accommodation controls and its move/delete buttons — never hidden,
+      disabled, greyed out, reordered, relocated or auto-deleted. The inverted-range notice is
+      `role="status"` and stays a separate element from the pre-existing invalid-partition
+      `role="alert"` banner. A scoped scan asserts the copy contains no duration recommendation,
+      night count, add/remove-a-day suggestion, or check-in/check-out/flight/airport language.
+- [x] **Stable identity and accommodation invariants.** Every day id, `placeIds` order,
+      `accommodationBoundary`, `ManualAccommodationLeg` and `AccommodationAnchor` is identical before
+      and after any bounds change, clear or inversion. Moving a day changes only its derived ordinal
+      date and its derived assessment: the same entity is byte-for-byte equal at its new position,
+      and a move-and-move-back restores the exact draft. Bounds never select or delete a hotel,
+      rebind a leg, alter a boundary, create a hotel-to-hotel transfer, or reinterpret
+      `no-accommodation`.
+- [x] **Test counts, measured not assumed.** Baseline **before** implementation: **34 files /
+      1,245 tests passing**. **After: 38 files / 1,428 tests passing** — **+183 new tests**, and
+      1245 + 183 = 1428. New files: `lib/trip-bounds.test.ts` (55),
+      `lib/planning-draft-v6.test.ts` (76), `lib/trip-bounds-consumers.test.ts` (17),
+      `components/OrderedSequenceBuilder.trip-bounds.test.ts` (22); plus 13 added to
+      `lib/civil-date.test.ts`. Three pre-existing source scans were updated, not weakened: two
+      pinned the hook's canonical module/type (`planning-draft-v5` → `-v6`,
+      `ManualPlanningDraftV5` → `V6`), which is the expected update for a version bump, and one
+      "no parallel day-order state" scan now reads the hook's **code** rather than its comments,
+      because the new doc comment legitimately uses the word "reordered" to describe what the
+      mutation does not do. Behavioural tests carry the functional contract throughout; source scans
+      are used only for architectural invariants that this repository's harness (no jsdom, no
+      Testing Library — the Phase 3B2I precedent) cannot express behaviourally.
+- [x] **Validation gate, all passing.** `npm test` (1,428 passed), `npm run build`, `npm run lint`
+      (oxlint, clean) and `npx tsc -b --force` all succeed, and `git diff --check` is clean. Two type
+      errors in a new test file were caught by `tsc -b` (which `vitest run` does not perform) and
+      fixed before commit.
+- [x] **Browser QA (real Chromium via Playwright) — 49/49 checks passed, 0 console errors,
+      0 page errors.** A persisted V6 seed (`startDate: 2027-02-19`, `endDate: 2027-02-21` — three
+      calendar days — **four** buckets, stable ids `qa-day-1..4`, two different hotel choices, a
+      manual leg) verified end to end: the range renders as
+      `Rango elegido: vie, 19 feb 2027 – dom, 21 feb 2027 (3 días de calendario).`, the bucket count
+      as `Días creados: 4.` and the mismatch as `Hay 1 día(s) posteriores a la fecha de fin.`; the
+      warning appears on **Día 4 only**, which keeps its heading, its date (`lun, 22 feb 2027`), its
+      place and all three header controls. Moving the entity initially visible as Día 4 up placed
+      that same entity at visible Día 3 / zero-based ordinal 2, where it became `within-bounds`;
+      the entity it swapped with moved to visible Día 4 / zero-based ordinal 3 and became the sole
+      `after-trip-end` warning occupant. The moved entity kept its id, `placeIds` and hotel choice,
+      and bounds, anchors, legs and route were untouched. Clearing the end date removed every warning without clearing
+      `startDate`, reordering days or altering hotels; re-setting it to a two-day range put the last
+      **two** buckets out and recounted the mismatch to 2. A reload round-tripped the whole draft
+      byte-for-byte — `endDate`, day order, ids, boundaries and legs — and rehydrated the control.
+      An inverted range showed the neutral notice, no calendar-day count, no per-day warnings, both
+      values stored unrepaired, and stayed separate from the partition alert. A stored **V5** value
+      migrated in the browser to V6 with `endDate: null`, preserving ids, `startDate` and hotels,
+      under the single `nihon.manualPlanningDraft` key.
+- [x] **Non-goals honoured.** No dataset or workbook change; **no dependency, `package.json` or
+      lockfile change**; no routing or live transit; no hotel search or hotel-to-hotel inference; no
+      luggage/takkyubin/lockers/oversized baggage; no check-in/check-out; no flights, airports or
+      arrival/departure clock times; no timezone scheduling; no automatic itinerary generation; no
+      automatic day creation or removal from bounds; no optimization or recommendation; no
+      drag-and-drop; no booking; no night counts; no duration advice; no per-place persisted dates;
+      no second storage key; no day-level persisted date or ordinal.
+
+**Limitations, stated plainly.** The stored field is inert — all of its value is in the derived
+layer, which annotates and repairs nothing. Nihon still has no notion of nights, arrival or
+departure, and `tripCalendarDays - 1` is not a night count and is never presented as one. A day
+after the end of the trip keeps every existing temporal and reservation signal unchanged; only the
+implicit claim that it is a day *of* the trip is corrected, and only in presentation. The UI copy
+and the per-day warning have no automated component-level rendering test in this repository (no
+jsdom/Testing Library harness exists, and adding one was out of scope); they are covered by scoped
+source scans plus the real-browser QA recorded above.
+
+**Phase 3D-X is NOT STARTED.** Nothing in this phase begins, prepares data for, or implies any
+successor gate.
+
+## Phase 3D-X — Inter-Hub Transport Design Gate — design/audit only
+
+Audits the planner's largest remaining logistics blind spot after Phase 3D-W: movement between
+different city hubs. Full contract: [`docs/INTER_HUB_TRANSPORT_DESIGN.md`](INTER_HUB_TRANSPORT_DESIGN.md).
+
+- [x] **Measured the actual graph before authorizing automation.** Current base has **214 places**
+      and **403 directed nearby relations** out of 45,582 possible directed pairs (**0.88% global
+      coverage**). Every recorded relation is intra-hub. Within the four large hubs, directed
+      coverage is only Tokio 4.3%, Kioto 5.4%, Osaka 2.9%, Okinawa 2.5%. There are **zero**
+      Tokyo↔Kyoto/Osaka/Okinawa-style inter-hub relations.
+- [x] **Rejected automatic itinerary optimisation as the immediate successor.** With the current
+      sparse graph, auto-sort/TSP/nearest-neighbour would mainly optimize where Nihon happens to
+      have recorded edges, not the user's real travel burden. Phase 3C-B's rule remains intact:
+      incomplete candidates do not produce a winner.
+- [x] **Kept inter-hub transport out of `TransferEdge`.** Shinkansen, domestic flight, ferry,
+      limited express or highway bus are not added to the current place-to-place `TransferMode`
+      vocabulary. A major city-to-city decision has different endpoints, provenance and semantics
+      and must not be smuggled into `getBestTransfer()`.
+- [x] **Approved a narrow manual model for the successor.** A
+      `ManualInterHubSegment` is user-authored, directionally positioned between an explicit
+      `fromPlaceId → toPlaceId` pair, stores the hub pair it was created for, an explicit transport
+      mode, an exact positive integer duration in minutes, and
+      `source: { kind: "user-entered" }`. The place ids are plan-position anchors, **not**
+      claimed stations/airports or door-to-door endpoints. No mode or duration is inferred.
+- [x] **Hostile-review correction: day-pair anchoring rejected.** A Tokio→Kioto move can occur
+      inside one calendar day, so binding the model only to `fromDayId → toDayId` would force a
+      false day boundary. The corrected applicability model supports an adjacent cross-hub pair
+      inside one day **or** the exact last-place-of-Day-N → first-place-of-Day-N+1 boundary.
+- [x] **Applicability is derived, never repaired.** With no day assignment, route adjacency is used.
+      With a valid day assignment, the pair must be consecutive inside one day or across two
+      immediately consecutive day boundaries; an intervening empty day does not count. Current
+      place hubs must still match the stored hub snapshot. Reordering/moving places can make a
+      segment inactive without rewriting it.
+- [x] **Persistence contract for the recommended runtime:** promote the canonical planning draft
+      V6→V7 under the unchanged `nihon.manualPlanningDraft` key, adding exactly
+      `interHubSegments: []` on migration. No second key and no inference from route, days,
+      dates, hotels or existing transfer edges. Shape-valid segments may be temporarily inactive
+      after ordinary edits without turning the entire persisted draft into corruption.
+- [x] **Isolation preserved.** Inter-hub segments do not fill missing ordered-sequence legs, do not
+      alter `sequence-comparison.ts`, do not become intra-day legs, do not merge with manual
+      accommodation legs, and do not create a trip-level door-to-door total.
+- [x] **Non-goals explicit.** No timetable, fare, booking, terminal/airport/station modeling,
+      access/egress, luggage, JR Pass, clock time, timezone, automatic travel-day insertion,
+      candidate generation, optimization, live provider activation, dataset/workbook change or new
+      dependency.
+
+Recommended successor: **Phase 3D-Y — Manual Inter-Hub Segment Runtime**.
+
+## Phase 3D-Y — Manual Inter-Hub Segment Runtime — implemented
+
+- [x] **Separate manual domain.** Added the closed inter-hub mode vocabulary, strict segment parser,
+      injectable place/hub lookup, pure applicability assessment and eligible-pair derivation without
+      changing `TransferEdge`, `TransferMode`, `getBestTransfer()` or existing sequence semantics.
+- [x] **Canonical V7 persistence.** Promoted the planning draft V6→V7 under the unchanged
+      `nihon.manualPlanningDraft` key by adding only `interHubSegments: []`; the complete V1→V7
+      migration chain remains intact and no segment is inferred from other plan data.
+- [x] **Exact edit identity.** Create, mode/minutes edit and delete are canonical V7 mutations.
+      Route anchor removal prunes only referenced segments; route/day reorder, place moves, bounds
+      and accommodation edits preserve stored segments and only change their derived assessment.
+- [x] **Planner subsection.** “Traslados entre ciudades” works with route-only, same-day and exact
+      consecutive-day boundary pairs, copies hub snapshots from the selected places, requires the
+      user to enter mode and minutes, and keeps inactive segments visible with neutral copy. Manual
+      inter-hub minutes remain separate from all existing totals.
+- [x] **Normative test matrix added.** Pure and source-wiring tests cover migration/parser,
+      route-only and day applicability, identity-preserving edits, isolation, persistence and
+      browser-QA-ready controls. Local execution was intentionally deferred on this machine because
+      dependencies are absent and npm is blocked by the documented TLS certificate failure; no TLS
+      bypass or dependency mutation was attempted.
+- [x] **Non-goals honoured.** No dataset, workbook, walking/access-point artifact, package manifest
+      or lockfile change; no dependency, API, ORS/live-transit integration, schedule, fare, booking,
+      invented terminal or optimisation claim.
+
+## Phase 3D-Z — Whole-Trip Composition Design Gate — design/audit only
+
+Audits what must exist before Nihon can compare or optimise a trip without reducing the problem to
+transport alone. Full contract:
+[`docs/WHOLE_TRIP_COMPOSITION_DESIGN.md`](WHOLE_TRIP_COMPOSITION_DESIGN.md).
+
+- [x] **Composition before optimisation.** Phase 3D-Y supplies explicit manual inter-hub facts for
+      the current plan, but those facts are anchored to the current `fromPlaceId → toPlaceId`
+      position and cannot be transferred to arbitrary hypothetical candidates. Automatic route/day
+      optimisation remains unapproved.
+- [x] **Valid day assignment and resolvable route required.** Whole-trip composition is unavailable
+      when `days === null`, the day partition is structurally invalid, or any current `routeId`
+      fails to resolve to a `Place`. There is no route-only fallback and no silent filtering of an
+      unresolved place because hotel boundaries, trip bounds, visit duration and cross-day
+      inter-hub semantics all require complete plan context.
+- [x] **Movement slots are classified explicitly.** Same-day same-hub adjacencies continue to use
+      exact directed `TransferEdge` lookup; same-day cross-hub adjacencies use only the exact
+      active manual inter-hub segment. At day boundaries, ordinary place→place transfer remains
+      absent; only an exact active different-hub manual segment may contribute.
+- [x] **Registered transport subtotal approved with qualification.** A future runtime may sum known
+      local transfer ranges + active inter-hub exact minutes + exact manual accommodation legs, but
+      unknown/missing facts never add zero and the subtotal must be labelled as registered/partial
+      whenever coverage is incomplete. A zero-slot plan must not render positive "all tramos
+      covered" copy. It is not a real-world total or door-to-door claim.
+- [x] **Visit time stays separate.** Quantified visit-duration ranges remain separate from day-scale
+      commitments and unclassified durations, and Phase 3D-Z explicitly rejects one
+      visit+transport "total trip time".
+- [x] **Temporal/reservation facts remain constraints, not scores.** Closure, hours, visit-fit,
+      reservation-window and Feb–Mar signals are not converted into minute penalties or a route
+      score.
+- [x] **Bounds annotate; they do not filter.** Day buckets assessed `after-trip-end` remain part
+      of visit/movement/accommodation subtotals; the mismatch is surfaced separately. Missing or
+      inverted bounds do not block an otherwise valid composition.
+- [x] **No persistence change.** The approved successor is a pure derived layer over existing V7
+      plan state, current places and existing evidence domains. No schema version, cached total,
+      second storage key, dataset/workbook edit or dependency is approved.
+- [x] **Future optimisation frontier narrowed.** The first plausible later candidate generator is a
+      separately-designed local, evidence-complete reorder inside fixed day/hub structure that
+      preserves accommodation endpoints and every required active inter-hub anchor. No such runtime
+      is started here.
+
+Recommended successor: **Phase 3E-A — Whole-Trip Composition Runtime**.
+
+## Phase 3E-A — Whole-Trip Composition Runtime — implemented
+
+- [x] **Pure derived composition.** Added `whole-trip-composition.ts` with injected place resolution
+      and transfer lookup seams. It requires a valid day partition and every route place to resolve;
+      no route-only fallback, repair, network call, score or recommendation exists.
+- [x] **Evidence-preserving visit and movement summaries.** Visit ranges delegate to the existing
+      selection taxonomy, keeping day-scale and unclassified durations non-numeric. Every actual
+      same-day slot and eligible different-hub day boundary is classified exactly once as known or
+      missing, without reverse lookup, flattening, chaining, geometry fallback or double counting.
+- [x] **Accommodation and inter-hub identity retained.** Accommodation sides delegate to the exact
+      existing boundary-leg semantics. Active inter-hub segments contribute once; inactive segments
+      remain identifiable, contribute nothing and are never reassigned to another pair.
+- [x] **Bounds annotate without filtering.** The existing trip-bounds summary is projected unchanged.
+      Buckets after the end date still participate in visits, movement, accommodation and inter-hub
+      figures; missing, invalid or inverted bounds do not block an otherwise valid composition.
+- [x] **Qualified registered transport figure only.** Known movement ranges and exact manual
+      accommodation minutes may be shown together as “Traslado registrado”, with missing-component
+      counts and partial-coverage copy. Visit minutes remain separate and no grand total exists.
+- [x] **Read-only planner surface and normative tests.** “Resumen del plan completo” appears inside
+      the existing planner/day views with neutral unavailable states and browser-QA-ready derived
+      updates. The §19 matrix is covered by pure behavioural and scoped source-wiring tests.
+- [x] **Persistence and non-goals preserved.** The canonical draft remains V7 under
+      `nihon.manualPlanningDraft`; no composition, total, cache or score is persisted. No dataset,
+      workbook, package, lockfile, existing domain semantics, dependency, API, ORS or live-transit
+      integration changed.
+
+## Phase 3E-B — Evidence-Complete Local Swap Design Gate — design/audit only
+
+Defines the first safe generated-alternative frontier after whole-trip composition. Full contract:
+[`docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md`](EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md).
+
+- [x] **Global optimisation still refused.** No auto-sort, day redistribution, TSP, shortest path,
+      recursive improvement loop, route score or "best itinerary" claim is approved.
+- [x] **One-step local frontier only.** A candidate swaps exactly two adjacent interior places inside
+      one maximal contiguous same-hub block of one existing day. Block endpoints and day endpoints
+      stay locked.
+- [x] **Real-data utility confirmed.** The current 214-place / 403-directed-edge dataset contains
+      348 ordered four-place patterns where both the baseline and adjacent-swap order can be fully
+      evaluated from exact directed relations: Osaka 114, Kioto 98, Tokio 94, Okinawa 42. This
+      justifies the narrow feature without implying broad graph completeness.
+- [x] **Complete evidence required on both sides.** The current block must have a complete exact
+      directed local sequence, and every candidate must also be complete. Missing evidence is never
+      zero, infinity, reversed, chained or filled from geometry/network routing.
+- [x] **Conservative Phase 3C-B comparison reused.** Only a candidate whose complete range is
+      strictly below the baseline range (`b-clearly-faster`) may be surfaced as an improvement.
+      Equivalent, overlapping, incomplete and baseline-faster candidates remain non-claims.
+- [x] **Coverage completeness is not confidence.** Baseline and candidate confidence counts are
+      disclosed using the existing Phase 3C-B vocabulary. A fully-covered comparison may still
+      contain estimated evidence and must never be relabelled as real-world validation; confidence
+      is not converted into a ranking bonus or penalty.
+- [x] **No candidate ranking.** Every proved adjacent swap is compared only with the current
+      baseline and returned in deterministic day/block/position order. Nihon does not select a best
+      generated candidate.
+- [x] **Temporal context stays fixed around the changed edges.** For a swap
+      `L-A-B-R → L-B-A-R`, none of those four places may have a persisted manual visit start
+      time, because all three local legs in that window change. A timed place elsewhere may remain
+      untouched. The feature never derives arrival/departure times or schedule feasibility.
+- [x] **Accommodation/inter-hub/bounds invariants preserved.** Locking maximal same-hub block
+      endpoints keeps day endpoints, accommodation endpoints and every cross-hub adjacency fixed.
+      A valid apply must leave all stored inter-hub objects and assessments unchanged; trip bounds
+      remain annotation only.
+- [x] **Explicit user apply + stale guard.** A candidate is ephemeral. Application requires a click
+      and must verify the current stable day/baseline/pair before swapping exactly two ids. No
+      automatic second swap follows.
+- [x] **No persistence change.** V7 and `nihon.manualPlanningDraft` remain authoritative; no
+      candidate, advantage, rank, optimisation marker or score is stored.
+
+Recommended successor: **Phase 3E-C — Evidence-Complete Local Swap Runtime**.
+
+**Phase 3E-C is NOT STARTED.** This gate changes documentation only.
+
+## Phase 3E-C — Evidence-Complete Local Swap Runtime — implemented
+
+Implements the Phase 3E-B contract in `docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md` without
+amending it. Nihon's first generated alternative, and deliberately the smallest provable one.
+
+- [x] **Pure domain module with injected seams.** Added `evidence-complete-local-swap.ts` with an
+      injected place resolver and exact directed transfer lookup. It owns no persistence, transfer
+      parsing, inter-hub assessment, accommodation logic, trip-bounds arithmetic or UI state, and
+      makes no network call. `ordered-sequence.ts`, `sequence-comparison.ts`, `transfer.ts`,
+      `day-assignment.ts`, `inter-hub-segment.ts`, `accommodation-commute.ts`,
+      `whole-trip-composition.ts` and the trip-bounds and visit-duration semantics are reused
+      unchanged — none was modified.
+- [x] **Structural availability without fallback.** Generation requires a non-null day assignment,
+      a valid day partition and every route id to resolve to a `Place`; otherwise it refuses with
+      `no-day-assignment`, `invalid-day-partition` or `unresolved-route-place`. No route-only
+      fallback, no repair, no silent filtering of an unresolved place. Trip bounds are not an input
+      and never block generation; a day after the trip end keeps its existing warning and may still
+      have alternatives.
+- [x] **Maximal same-hub blocks with locked endpoints.** Each day is split into maximal contiguous
+      runs sharing one `Place.hub`. Blocks never merge across a hub boundary, a day boundary or an
+      empty day. Only interior adjacent pairs may swap, so the first and last place of every block —
+      and therefore of every day — stay fixed. A block needs at least four places, and a block of
+      length `n` yields at most `n - 3` candidates: linear, never factorial. No permutation search,
+      nearest-neighbour, TSP, shortest path, hill climbing, beam search or recursion exists.
+- [x] **Temporal lock across the whole affected window.** For `L → A → B → R` all three local legs
+      change, so a candidate is refused when any of `L`, `A`, `B` or `R` carries a non-empty
+      persisted manual visit start time. A timed place outside that window does not block an
+      unrelated swap. No start time is read for anything else, derived, moved or written.
+- [x] **Complete exact evidence required on both sides.** A block is comparison-eligible only when
+      its current sequence is `complete` with a non-null range, and a candidate is kept only when it
+      is complete too. Unknown is neither zero nor infinity: a missing edge removes the block or the
+      candidate. No reverse edge, chained path, sibling edge, haversine, ORS, network call or
+      synthetic estimate can repair one.
+- [x] **Phase 3C-B comparison reused verbatim.** Both orders go through
+      `sequenceComparisonFromLookup`; only `b-clearly-faster` is surfaced. Equivalent, overlapping,
+      baseline-faster, incomplete and invalid outcomes stay non-claims. `guaranteedAdvantageMinutes`
+      and `possibleAdvantageRange` are taken unchanged, never redefined.
+- [x] **Confidence disclosed, never scored.** Baseline and candidate confidence counts are carried
+      and displayed in the existing Phase 3C-B vocabulary. A complete comparison may rest on
+      estimated or schedule-aware edges and is never relabelled validated; confidence produces no
+      bonus, penalty or rank.
+- [x] **All proved alternatives, no ranking.** Every proved swap is emitted in deterministic
+      day → block → position order, each compared only against the current baseline. No sorting by
+      advantage and no `best`, `recommended`, `rank` or `score` field exists.
+- [x] **Explicit, stale-guarded apply.** Nothing is applied automatically. “Aplicar este
+      intercambio” re-verifies that the day still exists, its `placeIds` still equal the captured
+      baseline, the pair is still adjacent at legal interior positions, all four window places still
+      resolve to the block hub, and none has since acquired a manual start time — otherwise it is a
+      no-op and alternatives regenerate. Application delegates to the existing single-day reorder, so
+      `day.id`, `accommodationBoundary`, every other day, `routeIds`, `startDate`, `endDate`,
+      `visitStartTimes`, accommodations, manual accommodation legs and every stored inter-hub segment
+      object survive untouched.
+- [x] **Inter-hub, accommodation and composition invariants asserted.** Tests prove every stored
+      inter-hub segment object and assessment — active same-day, active between-day and inactive
+      alike — is unchanged after a valid apply, and that an inactive segment never becomes active.
+      Accommodation boundary results and registered manual minutes are unchanged. Whole-trip visit,
+      accommodation, inter-hub and bounds composition, day count and place membership are unchanged;
+      only local movement order, the registered local movement range and `registeredTransportMinutes`
+      move, by exactly the evidenced delta, with no fabricated missing edge.
+- [x] **Local-only claim strength in the UI.** “Alternativas locales con evidencia completa” renders
+      inside the existing day card — no page, modal or wizard. Each alternative names both exchanged
+      places, both registered block ranges, both evidence mixes, the minimum gap between the recorded
+      ranges, the local-only qualification and an explicit Apply button. The empty state stays
+      neutral; no “mejor orden”, “óptimo”, “recomendado”, “ahorras X” or whole-trip claim appears.
+- [x] **Persistence unchanged.** The canonical draft remains V7 under `nihon.manualPlanningDraft`.
+      No candidate, advantage, confidence tally, rank, score, evaluated block, optimisation marker or
+      candidate history is persisted; a reload derives fresh alternatives from the current day order.
+      No dataset, workbook, walking artifact, access-point data, `package.json`, lockfile or
+      dependency changed, and no API, ORS or live-transit integration was added.
+- [x] **Verified locally.** `tsc -b`, `oxlint`, `vite build` and `vitest run` all clean:
+      1660 tests pass, of which 116 are new (100 domain, 16 UI contract). A probe over the shipped
+      214-place / 403-relation dataset confirms the feature is not vacuous in production data:
+      153 real four-place windows yield a provable alternative, e.g. Tokio
+      `JP-001 → JP-008 → JP-002 → JP-005` (baseline 29 min, candidate 27 min, minimum gap 2 min,
+      both orders fully `validated-static`).
+
+## Phase 3E-D — Evidence-Complete Local Relocation Design Gate — design/audit only
+
+Defines the next bounded local alternative after adjacent swaps. Full contract:
+[`docs/EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md`](EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md).
+
+- [x] **Single-place relocation only.** A future candidate moves exactly one interior place to a
+      different interior final position inside one maximal same-hub block while preserving every
+      other place's relative order. Block/day endpoints stay fixed.
+- [x] **Adjacent moves excluded.** `abs(fromIndex - toIndex) === 1` remains Phase 3E-C territory;
+      Phase 3E-E would generate only genuinely non-adjacent relocations and therefore requires a
+      block of at least five places.
+- [x] **Incremental real-data value demonstrated.** Among 1,616 complete ordered five-place
+      baselines, 24 contain a proved non-adjacent relocation improvement that no single adjacent
+      swap from the same baseline discovers; 19/24 are fully `validated-static`. Breakdown:
+      Tokio 8/7 validated, Kioto 4/2, Osaka 11/9, Okinawa 1/1.
+- [x] **Evidence quality is no longer the main bottleneck for this frontier.** Across the existing
+      Phase 3E-C opportunity set, 109/153 proved alternatives are fully validated-static, 44 are
+      mixed validated/estimated, and none is fully estimated.
+- [x] **Candidate count is quadratic, not factorial.** Relocations are derived independently from
+      the current baseline in deterministic day/block/from/to order. The document explicitly does
+      not misstate total runtime as O(n²): a naïve full-block evaluator may require O(n³) lookups.
+      No recursion, permutation search or candidate-from-candidate expansion is approved.
+- [x] **Affected temporal span locked.** Every place from `min(from,to)-1` through
+      `max(from,to)+1` is protected: if any has a manual visit start time, that relocation is not
+      generated. A timed place outside the changed span does not block an unrelated candidate.
+- [x] **Complete exact evidence on both orders.** Baseline block and candidate block must both be
+      complete under the existing directed lookup, and only Phase 3C-B's `b-clearly-faster`
+      relation may be surfaced. Confidence remains disclosure, never a score.
+- [x] **Explicit, stale-guarded Apply.** A future runtime may add one pure
+      `withPlaceRelocatedWithinDay`-style V7-preserving mutation; it must create the final order in
+      one domain mutation, not by a series of async adjacent UI clicks.
+- [x] **Larger-trip invariants preserved.** Day membership, day identity, accommodation endpoints,
+      all inter-hub objects/assessments, trip bounds and all non-movement whole-trip composition
+      stay unchanged. Only complete local movement and the exact corresponding registered-transport
+      delta may change.
+- [x] **No persistence or optimisation-session state.** V7 and `nihon.manualPlanningDraft` remain
+      authoritative; relocation candidates, indices, advantage, confidence, score, rank and history
+      are derived only and never persisted.
+
+Recommended successor: **Phase 3E-E — Evidence-Complete Local Relocation Runtime**.
+
+**Phase 3E-E is NOT STARTED.** This gate changes documentation only.
+
+## Phase 3E-E — Evidence-Complete Local Relocation Runtime — implemented
+
+Implements `docs/EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md` without amending its contract.
+
+- [x] **Pure baseline-derived domain.** `evidence-complete-local-relocation.ts` imports Phase
+      3E-C's maximal same-hub block derivation and injects both place resolution and exact directed
+      transfer lookup. It enumerates only one-place, non-adjacent interior relocations in stable
+      day/block/from/to order, with quadratic candidate count and no repeated or factorial search.
+- [x] **Structural and temporal refusal.** Missing days, an invalid partition or an unresolved route
+      place make generation unavailable; trip bounds do not. A candidate is suppressed when any
+      place in `min(from,to)-1 … max(from,to)+1` has a non-empty persisted manual start time.
+- [x] **Complete evidence and conservative comparison.** The full baseline block passes through
+      `orderedSequenceFromLookup`; every relocated block passes through the exact lookup via
+      `sequenceComparisonFromLookup`. Only `b-clearly-faster` is emitted, with both confidence
+      tallies and Phase 3C-B advantage arithmetic unchanged.
+- [x] **Unique, unranked alternatives.** Duplicate candidate day orders are removed by first-seen
+      deterministic order. Nothing is sorted by advantage or labelled best, recommended or ranked,
+      and relocation candidates cannot duplicate the adjacent-swap group.
+- [x] **One pure V7 mutation and stale-safe Apply.** `withPlaceRelocatedWithinDay` removes one id
+      and inserts it directly at its final coordinate in one synchronous draft mutation. Apply
+      revalidates the exact baseline day, moved identity, legal interior destination, locked block
+      endpoints/hub and affected temporal window before calling it.
+- [x] **Larger-plan invariants retained.** Route membership, day identity, accommodation boundary,
+      dates, manual times, accommodation data and every stored inter-hub segment remain structurally
+      unchanged. Tests pin active same-day, active between-day and inactive segment assessments,
+      accommodation composition, and the exact whole-trip registered movement/transport delta.
+- [x] **Existing day-card surface extended.** The heading now contains separate “Intercambios
+      adyacentes” and “Reubicaciones de un lugar” groups. Relocations name the moved place and a
+      natural destination, show both registered ranges and confidence mixes, disclose the minimum
+      recorded-range gap and local-only limitation, and require “Aplicar esta reubicación”.
+- [x] **Persistence and schema unchanged.** Only the resulting day order is stored in
+      `ManualPlanningDraftV7` under `nihon.manualPlanningDraft`; no candidate, index, temporal
+      window, advantage, confidence, history, score or rank is persisted.
+- [x] **Contract coverage.** The 103 numbered Phase 3E-E contracts have domain/UI coverage, plus an
+      executable Playwright audit for explicit Apply, reload persistence, zero console errors and
+      zero page errors. Local typecheck, lint and production build pass; the final focused
+      Phase 3E-E suite reports 104/104 and the Phase 3E-C regression suite 116/116. The Chromium
+      audit passed on a real matching Playwright Chromium runtime on two consecutive runs, with the
+      exact expected applied order preserved after reload and zero console/page errors. The final
+      full suite reports 1764/1764 tests passing; `feb-mar-status` also passes on the audited base
+      and branch, with its related files byte-identical across both.
+
+## Phase 3E-F — Evidence-Complete Interior Transposition Design Gate — design/audit only
+
+Defines the next bounded local-alternative frontier after one-place relocation. Full contract:
+[`docs/EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md`](EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md).
+
+- [x] **Still no arbitrary optimisation.** No permutation search, recursive improvement, whole-day
+      reorder, TSP, shortest-path search, hill climbing or ranked "best itinerary" is approved.
+- [x] **Exactly two non-adjacent interior places exchange positions.** Every other place stays at
+      the same index; block/day endpoints remain fixed. Adjacent pairs remain Phase 3E-C territory,
+      while one-place moves remain Phase 3E-E territory.
+- [x] **Real-data incremental value confirmed.** The current 214-place / 403-directed-edge graph
+      reproduces 1,616 complete ordered same-hub five-place baselines. 76 have complete evidence for
+      the genuinely non-adjacent interior transposition, and **11 remain incrementally faster after
+      excluding every baseline already improved by one adjacent swap or one single-place relocation**.
+      Of those 11, 4 are fully validated-static, 7 are mixed validated/estimated and 0 are fully
+      estimated. Breakdown: Tokio 2/2 fully validated, Kioto 4/0, Osaka 5/2, Okinawa 0/0.
+- [x] **Representative fully validated case.** Jimbocho Book Town → Retro game hunt → Ameyoko →
+      Kanda Myojin → Akihabara Electric Town records 68 min; directly exchanging the first and
+      third interior places yields Jimbocho → Kanda Myojin → Ameyoko → Retro game hunt →
+      Akihabara at 60 min. Both complete orders are fully validated-static, and neither a single
+      adjacent swap nor a single relocation from that baseline is faster.
+- [x] **Quadratic candidate frontier only.** For a block of length `n`, genuine non-adjacent
+      interior transpositions number `(n - 3)(n - 4) / 2`. The gate explicitly does not claim total
+      runtime is O(n²): straightforward full-sequence evaluation may be O(n³) in directed lookups.
+- [x] **Exact affected temporal set.** Manual start times lock the union of predecessor/self/
+      successor positions around the two exchanged indices. Untouched interior places outside that
+      set do not block the candidate.
+- [x] **Complete exact evidence and conservative comparison remain mandatory.** Baseline and
+      candidate must both be complete under the existing directed lookup; only Phase 3C-B's
+      `b-clearly-faster` outcome may be surfaced. Confidence remains disclosure, never a score.
+- [x] **One pure V7 mutation only.** A future runtime may add a synchronous
+      `withPlacesTransposedWithinDay`-style helper that directly creates the final order. No
+      two-click/two-relocation implementation or intermediate persisted state is approved.
+- [x] **Larger-plan invariants remain fixed.** Day membership/identity, accommodation endpoints,
+      inter-hub objects and assessments, trip bounds and non-movement whole-trip composition remain
+      unchanged. Only complete local movement and the exact matching registered-transport delta may
+      change.
+- [x] **No persistence expansion.** V7 and `nihon.manualPlanningDraft` remain authoritative;
+      transposition candidates, indices, affected sets, advantage, confidence, rank, score and
+      history remain derived only.
+
+Recommended successor: **Phase 3E-G — Evidence-Complete Interior Transposition Runtime**.
+
+**Phase 3E-G is NOT STARTED.** This gate changes documentation only.
+
+
+## Phase 3E-G — Evidence-Complete Interior Transposition Runtime — implemented
+
+Implements `docs/EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md` without amending its contract.
+
+- [x] **Pure baseline-derived domain.** `evidence-complete-interior-transposition.ts` imports Phase
+      3E-C's maximal same-hub block derivation and injects both place resolution and exact directed
+      transfer lookup. It enumerates only non-adjacent interior pairs in stable
+      day/block/left/right order — `(n - 3)(n - 4) / 2` descriptors for a block of length `n`, with
+      no recursion, no permutation search and no candidate-from-candidate expansion. The source
+      states that figure is the candidate count and explicitly does not claim total runtime is
+      O(n²).
+- [x] **Exactly two places exchange, everything else stays put.** `transposeTwoPlaces` swaps the two
+      identified indices directly; no intervening place shifts, which is what separates the move
+      from a Phase 3E-E relocation. Adjacent pairs are never emitted, so Phase 3E-C keeps them, and
+      a block needs at least five places to yield any candidate.
+- [x] **Structural and temporal refusal.** Missing days, an invalid partition or an unresolved route
+      place make generation unavailable; trip bounds are not an input at all. A candidate is
+      suppressed when any place in the exact affected set — the unique union of
+      `{i-1, i, i+1}` and `{j-1, j, j+1}`, deduplicated when `j === i + 2` — carries a non-empty
+      persisted manual start time. An untouched interior place that keeps both neighbours is not
+      locked, and no manual time is ever moved, rewritten or inferred.
+- [x] **Complete evidence and conservative comparison.** The full baseline block passes through
+      `orderedSequenceFromLookup`; every transposed block passes through the exact lookup via
+      `sequenceComparisonFromLookup`. Only `b-clearly-faster` is emitted, with both confidence
+      tallies and Phase 3C-B advantage arithmetic unchanged. No reverse edge, chained path,
+      geometry, haversine, network routing or synthetic estimate can repair a missing edge.
+- [x] **Unique, unranked alternatives.** Duplicate candidate day orders are removed by first-seen
+      deterministic order, and the surface additionally drops any order already shown by the
+      adjacent-swap or relocation group. Nothing is sorted by advantage or labelled best,
+      recommended or ranked.
+- [x] **One pure V7 mutation and stale-safe Apply.** `withPlacesTransposedWithinDay` exchanges two
+      ids in one synchronous draft mutation — no splice, no intermediate order, no second persisted
+      state. Apply revalidates the exact baseline day, both place identities, interior legality, the
+      minimum index distance of two, locked block endpoints, block hub continuity, the captured
+      candidate order and the exact affected set before calling it.
+- [x] **Larger-plan invariants retained.** Route membership, day identity, accommodation boundary,
+      dates, manual times, accommodation data and every stored inter-hub segment remain structurally
+      unchanged. Tests pin active same-day, active between-day and inactive segment assessments,
+      accommodation composition and minutes, and the exact whole-trip registered movement/transport
+      delta against the evidenced block delta.
+- [x] **Existing day-card surface extended.** The one “Alternativas locales con evidencia completa”
+      section now composes three groups: “Intercambios adyacentes”, “Reubicaciones de un lugar” and
+      “Intercambios no adyacentes”. Transpositions name both exchanged places in natural copy, show
+      both registered ranges and confidence mixes, disclose the minimum recorded-range gap and the
+      local-only limitation, and require “Aplicar este intercambio no adyacente”. No page, modal or
+      wizard was added, and the existing neutral empty state is retained.
+- [x] **Persistence and schema unchanged.** Only the resulting day order is stored in
+      `ManualPlanningDraftV7` under `nihon.manualPlanningDraft`; no candidate, index, affected set,
+      advantage, confidence, history, score or rank is persisted.
+- [x] **Contract coverage.** All 125 numbered Phase 3E-G contracts are covered across the domain,
+      V7/invariant, UI-wiring and browser layers: contracts 1–104 in the domain/V7/invariant suite
+      and 105–123 in the scoped UI-wiring suite. The executable Chromium audit
+      (`scripts/phase3e-g-browser-audit.mjs`) covers the runtime behaviours it genuinely exercises —
+      contracts 105–116 and 122–125. Contracts 117–121 (inter-hub, accommodation and bounds
+      surfaces left untouched; the manual-time lock on the exact affected set) are deliberately
+      covered at the domain, invariant and UI-source layers rather than in the browser, because
+      they are statements about state the local-alternatives surface never renders. The focused
+      Phase 3E-G suite reports 123/123; Phase 3E-C and Phase 3E-E regression suites report 220/220
+      together.
+- [x] **Executable browser evidence.** The Chromium audit passed on a real matching Playwright
+      runtime: the committed Tokio fixture renders at 1 h 8 min (68 min) against 1 h (60 min) with
+      an 8 min minimum recorded-range gap and four validated edges on each side; nothing is applied
+      before the explicit click; Apply produces exactly `JP-028 JP-027 JP-022 JP-026 JP-025`; the
+      draft stays V7 under a single planning-draft storage key with no candidate state persisted;
+      no automatic second Apply occurs; and console and page errors are zero. After reload the
+      audit navigates the real UI back into the planner and shows the alternatives are re-derived
+      from the reloaded baseline: the persisted day keeps its id and applied order, the applied
+      candidate does not reappear, and — because that order admits no provable local alternative —
+      the surface renders the existing neutral empty state with zero candidate groups. Because the
+      Phase 3E-G fixture deliberately admits no adjacent swap and no relocation, the audit proves
+      both earlier capabilities still *apply*, to their exact orders, on a second real fixture
+      rather than merely still being present.
+
+
+## Phase 3E-H — Evidence-Complete Four-Place Interior Reversal Design Gate — design/audit only
+
+Defines the next bounded local-alternative frontier after Phase 3E-G. Full contract:
+[`docs/EVIDENCE_COMPLETE_FOUR_PLACE_INTERIOR_REVERSAL_DESIGN.md`](EVIDENCE_COMPLETE_FOUR_PLACE_INTERIOR_REVERSAL_DESIGN.md).
+
+- [x] **No general 2-opt or arbitrary reversal.** The proposed move reverses exactly four consecutive
+      interior places inside one current maximal same-hub block. Reversal length 2 is already Phase
+      3E-C; reversal length 3 is already Phase 3E-G. Length 5+, arbitrary slices, rotations,
+      multi-swap search and recursive improvement remain deferred.
+- [x] **Real-data frontier is nearly exhausted.** The current 214-place / 403-directed-edge graph
+      yields 2,131 complete ordered same-hub six-place baselines. After excluding every baseline
+      already clearly improved by one 3E-C adjacent swap, one 3E-E single-place relocation or one
+      3E-G non-adjacent transposition, 1,693 remain. Exhausting all four-interior permutations finds
+      only two baselines with any still-unowned clearly-faster order and only three such orders total.
+- [x] **The selected move captures the strongest remaining order.** One exact four-place interior
+      reversal remains incrementally useful: in Okinawa, JP-202 → JP-153 → JP-155 → JP-156 →
+      JP-161 → JP-154 records 91 min, while reversing exactly the four interior places produces
+      JP-202 → JP-161 → JP-156 → JP-155 → JP-153 → JP-154 at 72 min. The minimum recorded-range
+      gap is 19 min and all five edges on both sides are validated-static.
+- [x] **Smaller claim, smaller search.** For block length `n`, candidate count is exactly `n - 5`
+      (for `n >= 6`) in deterministic day/block/start-index order: linear candidate growth, no
+      candidate-from-candidate expansion and no ranking by advantage.
+- [x] **Exact temporal lock.** The affected positions are exactly the six-place window from the
+      predecessor before the reversed four through the successor after them. A manual start time on
+      any of those six suppresses the candidate; timed places outside that window do not.
+- [x] **Complete exact evidence remains mandatory.** Entire baseline and candidate blocks must both
+      resolve under the existing exact directed transfer lookup. No reverse repair, chaining,
+      geometry, runtime routing or synthetic minutes are approved. Only Phase 3C-B's
+      `b-clearly-faster` outcome may be surfaced.
+- [x] **Earlier neighbourhoods remain distinct.** Adjacent swaps stay in 3E-C, one-place relocations
+      in 3E-E and non-adjacent transpositions in 3E-G. Candidate day orders should still be
+      defensively deduplicated across all local groups without ranking them.
+- [x] **One pure V7 mutation only.** A future runtime may add one synchronous
+      `withFourPlacesReversedWithinDay`-style helper. Day identity, route/day membership, dates,
+      visit times, accommodation state, inter-hub objects and all unaffected indices remain fixed.
+- [x] **No persistence expansion.** V7 and `nihon.manualPlanningDraft` remain authoritative;
+      candidate/window/affected-set/evidence/advantage/confidence/rank/history remain derived only.
+- [x] **Other unowned compound orders remain deferred.** The audit also found one compound
+      two-transposition order (18 min gap) and one two-block rotation (11 min gap), both fully
+      validated-static in Okinawa. Neither is approved by this gate.
+
+Recommended successor: **Phase 3E-I — Evidence-Complete Four-Place Interior Reversal Runtime**.
+
+**Phase 3E-I is NOT STARTED.** This gate changes documentation only.
+
+## Phase 3E-I — Evidence-Complete Four-Place Interior Reversal Runtime — implemented
+
+Implements `docs/EVIDENCE_COMPLETE_FOUR_PLACE_INTERIOR_REVERSAL_DESIGN.md` without amending its
+contract.
+
+- [x] **Pure baseline-derived domain.** `evidence-complete-four-place-interior-reversal.ts` imports
+      Phase 3E-C's maximal same-hub block derivation and injects both place resolution and exact
+      directed transfer lookup. It enumerates only four-place interior windows in stable
+      day/block/windowStartIndex order — `n - 5` windows for a block of length `n`, with no
+      recursion, no permutation search and no candidate-from-candidate expansion. The source
+      documents `n - 5` as the candidate count and states that straightforward full-sequence
+      evaluation may still cost `O(n²)` directed lookups.
+- [x] **Exactly four places reverse, and only four.** `reverseFourPlaces` performs two direct
+      end-for-end exchanges — never a splice — so no place outside the window can shift. A window of
+      two remains one Phase 3E-C adjacent swap and a window of three remains one Phase 3E-G
+      transposition; four is the first genuinely new reversal length, and a block needs at least six
+      places to hold one. This is not generic slice reversal and not 2-opt: no other length, no
+      second window, and no reversal combined with another move.
+- [x] **Structural and temporal refusal.** Missing days, an invalid partition or an unresolved route
+      place make generation unavailable; trip bounds are not an input at all. A candidate is
+      suppressed when any place in the exact six-place affected window — predecessor, the four
+      reversed places, successor — carries a non-empty persisted manual start time. A timed place
+      outside that window does not block, and no manual time is ever moved, rewritten or inferred.
+- [x] **Complete evidence on every reversed direction.** The full baseline block passes through
+      `orderedSequenceFromLookup`; every reversed block passes through the exact lookup via
+      `sequenceComparisonFromLookup`. Because reversing four places flips several internal directed
+      edges, each reversed direction must itself be recorded: dropping `d→c`, `c→b` or `b→a`
+      discards the candidate even though its forward twin still exists. No reverse edge, chained
+      path, geometry, haversine, network routing or synthetic symmetry can repair a missing edge.
+- [x] **Conservative comparison, unranked output.** Only `b-clearly-faster` is emitted, with both
+      confidence tallies and Phase 3C-B advantage arithmetic unchanged. Duplicate candidate day
+      orders are removed by first-seen deterministic order, and the surface additionally drops any
+      order already shown by the adjacent-swap, relocation or transposition group. Nothing is sorted
+      by advantage, no group ranks another, and no earlier group is suppressed because a later one
+      has a larger gap.
+- [x] **One pure V7 mutation and stale-safe Apply.** `withFourPlacesReversedWithinDay` reverses four
+      contiguous ids in one synchronous draft mutation — no splice, no intermediate order, no second
+      persisted state — wired through one `reverseFourPlacesWithinDay` hook callback making exactly
+      one `setDraft` call. Apply revalidates the exact baseline day, all four window identities,
+      integer and strictly-interior window placement, locked block endpoints, block hub continuity,
+      the captured candidate order and the exact six-place affected set before calling it.
+- [x] **Larger-plan invariants retained.** Route membership, day identity, accommodation boundary,
+      dates, manual times, accommodation data and every stored inter-hub segment remain structurally
+      unchanged. Tests pin active same-day, active between-day and inactive segment assessments,
+      accommodation composition and minutes, and the exact whole-trip registered movement/transport
+      delta against the evidenced local delta, with no missing local edge introduced.
+- [x] **Existing day-card surface extended.** The one “Alternativas locales con evidencia completa”
+      section now composes four groups: “Intercambios adyacentes”, “Reubicaciones de un lugar”,
+      “Intercambios no adyacentes” and “Reversiones de cuatro lugares”. Reversals name all four
+      places in natural copy, show both registered ranges and confidence mixes, disclose the minimum
+      recorded-range gap and the local-only limitation, and require “Aplicar esta reversión de
+      cuatro lugares”. No page, modal or wizard was added, and the existing neutral empty state
+      still covers all four groups being empty.
+- [x] **Persistence and schema unchanged.** Only the resulting day order is stored in
+      `ManualPlanningDraftV7` under `nihon.manualPlanningDraft`; no candidate, start index, window,
+      affected set, advantage, confidence, history, score or rank is persisted.
+- [x] **Contract coverage.** All 125 numbered Phase 3E-I contracts are covered across the domain,
+      pure-V7, invariant, UI-wiring and browser layers: contracts 1–121 in the domain/V7/invariant
+      suite and 122–123 in the scoped UI-wiring suite. The executable Chromium audit
+      (`scripts/phase3e-i-browser-audit.mjs`) covers the runtime behaviours it genuinely exercises —
+      contracts 122–125. The focused Phase 3E-I suite reports 129/129; the Phase 3E-C, 3E-E and
+      3E-G regression suites report 343/343 together; planning-draft, whole-trip, inter-hub and
+      accommodation regressions report 123/123; the full suite reports 2016/2016.
+- [x] **Executable browser evidence.** The Chromium audit passed on a real matching Playwright
+      runtime on two consecutive runs. The committed Okinawa fixture renders at 1 h 31 min (91 min)
+      against 1 h 12 min (72 min) with a 19 min minimum recorded-range gap and five validated edges
+      on each side; nothing is applied before the explicit click; Apply produces exactly
+      `JP-202 JP-161 JP-156 JP-155 JP-153 JP-154`; the draft stays V7 under a single planning-draft
+      storage key with no candidate metadata persisted; no automatic second Apply occurs; and
+      console and page errors are zero. After reload the audit navigates the real UI back into the
+      planner and shows the alternatives are re-derived from the reloaded baseline: the persisted
+      day keeps its id and applied order, the applied candidate does not reappear, and — because
+      that order admits no provable local alternative — the surface renders the existing neutral
+      empty state with zero candidate groups. Because the Phase 3E-I fixture deliberately admits no
+      adjacent swap, relocation or transposition, the audit proves all three earlier neighbourhoods
+      still *apply*, to their exact orders, on their own real fixtures rather than merely still
+      being present.
+
+
+## Phase 3E-J — Evidence-Complete Two-Pair Block Swap Design Gate — design/audit only
+
+Defines the next bounded local-alternative frontier after Phase 3E-I. Full contract:
+[`docs/EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md`](EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md).
+
+- [x] **Exact 2+2 move only.** The proposed move takes one four-place interior window
+      `[A,B,C,D]` and produces exactly `[C,D,A,B]`: two adjacent two-place blocks exchange
+      positions while the internal order of each pair is preserved. This is not generic block
+      relocation, generic slice rotation, three-position cycling or 2-opt.
+- [x] **Residual frontier audited after C/E/G/I.** The current 214-place / 403-directed-edge graph
+      yields 2,131 complete ordered same-hub six-place baselines. After excluding every baseline
+      already clearly improved by one adjacent swap, one single-place relocation, one non-adjacent
+      transposition or one exact four-place reversal, 1,692 remain. Only one baseline still has a
+      clearly-faster exact 2+2 block swap.
+- [x] **Fully validated Okinawa fixture.** JP-202 → JP-153 → JP-156 → JP-161 → JP-154 → JP-155
+      records 92 min. Swapping the two interior pairs produces JP-202 → JP-161 → JP-154 → JP-153 →
+      JP-156 → JP-155 at 81 min. The minimum recorded-range gap is 11 min and all five edges on
+      both sides are validated-static.
+- [x] **No new cubic cyclic-rotation primitive.** The only stronger residual direct order is 74 min,
+      but after the proposed 92 → 81 Apply the already-shipped Phase 3E-E generator exposes an
+      independently evidenced 81 → 74 single-place relocation. The same final order is therefore
+      reachable through two explicit bounded actions without adding a three-position cycle search.
+- [x] **No automatic chaining.** The 81 → 74 relocation is regenerated only after the first Apply
+      and still requires a second explicit user action. The proposed pair-block candidate may claim
+      only its own 92 → 81 evidence; no combined 18-minute optimisation claim is approved.
+- [x] **Linear candidate count.** For block length `n >= 6`, legal four-place window starts are
+      `1 ... n-5`, so the candidate count is exactly `n - 5`. Straightforward full-sequence
+      evaluation may still cost O(n²) directed lookups; there is no recursion or candidate chaining.
+- [x] **Exact six-place temporal lock.** The affected context is the predecessor, the four places in
+      the 2+2 window and the successor. A manual start time on any of those six suppresses the
+      candidate; a timed place outside the window does not.
+- [x] **Complete exact directed evidence remains mandatory.** Baseline and candidate blocks must
+      both be complete under the current exact lookup. No reverse repair, chaining, geometry,
+      runtime routing, synthetic symmetry or fabricated minutes are approved. Only
+      `b-clearly-faster` may be surfaced.
+- [x] **Earlier neighbourhoods remain distinct and authoritative.** C/E/G/I candidate orders retain
+      ownership if a future schema ever creates an exact duplicate. The fifth group is appended
+      without ranking or suppressing any earlier group.
+- [x] **V7 and larger-plan invariants remain fixed.** A future runtime may add one direct synchronous
+      2+2 mutation, while route/day membership, dates, manual times, accommodation state, inter-hub
+      objects, trip bounds, storage key and schema version remain unchanged.
+
+Recommended successor: **Phase 3E-K — Evidence-Complete Two-Pair Block Swap Runtime**.
+
+**Phase 3E-K is NOT STARTED.** This gate changes documentation only.
+
+
+## Phase 3E-K — Evidence-Complete Two-Pair Block Swap Runtime — implemented
+
+Implements the Phase 3E-J gate exactly. Full contract:
+[`docs/EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md`](EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md).
+
+- [x] **Exactly one new movement primitive.** `lib/evidence-complete-two-pair-block-swap.ts` takes
+      one four-place interior window `[A,B,C,D]` of one existing maximal same-hub block and produces
+      exactly `[C,D,A,B]`: two adjacent two-place blocks exchange positions while `A` stays before
+      `B` and `C` stays before `D`. Every place outside the window keeps its exact index and both
+      block endpoints stay fixed. No generic block relocation, unequal-size or non-adjacent block
+      swap, slice rotation, three-position cycle, 2-opt, arbitrary permutation, recursion or
+      automatic multi-step optimisation is implemented.
+- [x] **Architecture mirrors 3E-C / 3E-E / 3E-G / 3E-I.** The new pure domain module owns legal
+      window enumeration, the exact 2+2 transformation (`swapAdjacentTwoPlaceBlocks`), the exact
+      affected temporal window, generation, stale applicability assessment and the explicit Apply
+      wrapper — and nothing else. `validateDayPartition`, `deriveSameHubBlocks`,
+      `orderedSequenceFromLookup`, `sequenceComparisonFromLookup`, `getBestTransfer`,
+      `ConfidenceCounts` and `MinuteRange` are reused rather than duplicated.
+- [x] **Linear, deterministic enumeration.** For block length `n >= 6` the legal window starts are
+      `1 ... n-5`, so the candidate count is exactly `n - 5`. The module documents that as the
+      candidate count only and states the O(n²) directed-lookup cost of full-sequence comparison
+      explicitly. Emission order is day → block → window start; nothing is sorted by advantage,
+      minutes, confidence, hub or grade, and no candidate is derived from another candidate.
+- [x] **Exact six-place temporal lock.** The affected set for window start `s` is positions
+      `s-1 … s+4`: the predecessor, all four moved places and the successor. A non-empty persisted
+      manual `visitStartTime` on any of those six suppresses the candidate; a timed place outside
+      the window does not. No manual time is moved, copied, inferred or recalculated.
+- [x] **Complete exact directed evidence on both sides.** The whole baseline block must be complete
+      with a non-null range, and the candidate must resolve `L→C`, `C→D`, `D→A`, `A→B` and `B→R`
+      under exact directed lookup. There is no reverse-edge repair, chained path, geometry,
+      haversine, runtime ORS, network fallback, synthetic symmetry or fabricated minute anywhere in
+      the module. Only `outcome === "b-clearly-faster"` is surfaced, and the existing advantage
+      arithmetic and confidence tallies are reused unchanged as disclosure — never a score or rank.
+- [x] **Ownership order C → E → G → I → K.** The fifth group is appended after the four existing
+      ones and defensively deduplicated by exact `candidateDayPlaceIds` against all four. No earlier
+      group is suppressed or reordered because this one has a larger gap.
+- [x] **One pure synchronous V7 mutation.** `withTwoPairBlocksSwappedWithinDay` performs four direct
+      index assignments — never a splice, never two persisted relocations, never any existing
+      one-place mutation called four times — so one explicit action produces the final order with no
+      intermediate persisted state. `usePlanningDraft` exposes `swapTwoPairBlocksWithinDay` with
+      exactly one `setDraft` call. The draft stays version 7 under `nihon.manualPlanningDraft`;
+      `routeIds`, day ids, dates, `visitStartTimes`, accommodation boundaries, accommodations,
+      accommodation legs and every stored inter-hub segment object travel through untouched, and
+      unaffected day objects are preserved by identity.
+- [x] **Stale guard before every Apply.** Immediately before mutating, the runtime re-verifies that
+      days exist, the target day exists, the current day order equals the captured baseline, the
+      window start is an integer, the four-place window is still strictly interior, both pair
+      identities still match, both block endpoints still match, the current block equals the
+      captured block, every block place still resolves to the captured hub, the exact 2+2 operation
+      still yields the captured candidate order, the exact six-place affected set matches, and no
+      affected place acquired a manual start time. Any failure performs no mutation, and the phase
+      never applies from the window start index alone.
+- [x] **Larger-plan invariants pinned.** Stored inter-hub segment objects stay identical and the
+      same-day active, between-day active and inactive-reason assessments are unchanged.
+      Accommodation boundary choices, legs, assessment and registered minutes are unchanged. Visit,
+      accommodation, inter-hub and bounds composition, day count, route/day membership and dates are
+      unchanged. Only the local order, the registered local movement range, the corresponding
+      registered transport range and the local confidence mix move, by exactly the evidenced local
+      delta and with no missing local edge introduced.
+- [x] **Fifth UI subgroup on the one existing surface.** "Alternativas locales con evidencia
+      completa" gains **Intercambios de bloques de dos lugares** after the four existing groups —
+      no new page, modal or wizard. The copy names both two-place blocks naturally
+      ("Intercambiar los bloques de dos lugares Kokusai Street → Sakaemachi Arcade nightlife y
+      Okinawa Prefectural Museum & Art Museum → First Makishi Public Market dentro del bloque de
+      Okinawa."), shows both recorded ranges, the minimum recorded-range gap, both confidence mixes
+      and the local-only disclaimer, and applies nothing until "Aplicar este intercambio de bloques"
+      is clicked. The approved claim is that the swap demonstrably reduces this block's recorded
+      local transfer range; no forbidden optimisation claim and no combined 92 → 74 claim appears.
+- [x] **Continuation proved without automatic chaining.** From the original 92-minute Okinawa
+      baseline there is no clearly-faster 3E-C, 3E-E, 3E-G or 3E-I candidate, so this phase is
+      genuinely incremental. The one pair-block candidate is 92 → 81 with an 11 min minimum gap and
+      five validated-static edges on each side. Applying only that candidate persists exactly
+      `JP-202 JP-161 JP-154 JP-153 JP-156 JP-155` and nothing else happens automatically.
+      Regeneration from the new 81-minute baseline then surfaces the already-shipped Phase 3E-E
+      relocation at 81 → 74 with a 7 min gap, fully validated-static — generated by the existing
+      3E-E runtime, never folded into this phase's candidate, never advertised as one 18-minute
+      step, and requiring its own second explicit Apply.
+- [x] **Contract coverage.** All 125 numbered Phase 3E-K contracts are covered across the domain,
+      pure-V7, invariant, UI-wiring and browser layers: contracts 1–122 in the domain/V7/invariant
+      suite and 123 in the scoped UI-wiring suite. The executable Chromium audit
+      (`scripts/phase3e-k-browser-audit.mjs`) covers the runtime behaviours it genuinely exercises —
+      contracts 123–125. The focused Phase 3E-K suite reports 131/131; the Phase 3E-C, 3E-E, 3E-G
+      and 3E-I domain and UI-wiring regression suites report 472/472 together; the planning-draft
+      V7, whole-trip, inter-hub and accommodation regressions report 141/141; the full suite reports
+      2147/2147.
+- [x] **Executable browser evidence.** The Chromium audit passed on a real matching Playwright
+      runtime on two consecutive runs. The committed Okinawa fixture renders at 1 h 32 min (92 min)
+      against 1 h 21 min (81 min) with an 11 min minimum recorded-range gap and five validated edges
+      on each side; nothing is applied before the explicit click; one click produces exactly
+      `JP-202 JP-161 JP-154 JP-153 JP-156 JP-155`; the draft stays V7 under a single planning-draft
+      storage key with no candidate metadata persisted; no automatic second Apply occurs; and
+      console and page errors are zero. After that Apply the pair-block candidate is gone and the
+      regenerated Phase 3E-E relocation renders at 1 h 21 min against 1 h 14 min with a 7 min gap
+      and is *not* already applied. The audit then reloads, proves the persisted 81-minute state
+      survives, re-enters the planner so the 3E-E candidate is freshly regenerated from that
+      baseline, and only then performs a second, separate explicit click that yields exactly
+      `JP-202 JP-161 JP-156 JP-154 JP-153 JP-155`. The two actions are never represented as one
+      candidate. Because the Phase 3E-K fixture deliberately admits no adjacent swap, transposition
+      or four-place reversal, the audit proves each of those earlier neighbourhoods still *applies*,
+      to its exact order, on its own real fixture rather than merely still being present.
+
+
+## Phase 3E-L — Evidence-Complete Local Neighbourhood Closure Audit — design/audit only
+
+Closes the current Phase 3E local-ordering frontier after the shipped C/E/G/I/K movement families. Full audit:
+[`docs/EVIDENCE_COMPLETE_LOCAL_NEIGHBOURHOOD_CLOSURE_AUDIT.md`](EVIDENCE_COMPLETE_LOCAL_NEIGHBOURHOOD_CLOSURE_AUDIT.md).
+
+- [x] **Closure criterion strengthened.** The audit no longer asks only whether an unowned direct
+      target exists. It asks whether any baseline with no clearly-faster C/E/G/I/K move nevertheless
+      has any clearly-faster complete interior permutation.
+- [x] **Six-place exhaustive closure.** 2,131 complete same-hub six-place baselines; 1,691 are local
+      minima under C/E/G/I/K. Every one of those minima was compared against all 24 interior
+      permutations. Zero has a clearly-faster complete permutation.
+- [x] **Seven-place exhaustive closure.** 2,970 complete seven-place baselines; 2,219 local minima.
+      Every minimum was compared against all 120 interior permutations. Zero residual faster order.
+- [x] **Eight-place exhaustive closure.** 4,127 complete eight-place baselines; 2,825 local minima.
+      Every minimum was compared against all 720 interior permutations. Zero residual faster order.
+- [x] **Consolidated state.** 9,228 complete baselines, 6,735 C/E/G/I/K local minima, and exactly
+      zero local minima with any clearly-faster complete interior permutation in the exhaustively
+      audited 6–8 place spaces.
+- [x] **Former 92 → 74 residual is resolved without a broader primitive.** 3E-K provides the explicit
+      92 → 81 step and the existing 3E-E runtime regenerates the independent 81 → 74 relocation.
+      The former direct three-position cycle is therefore no longer evidence for another movement
+      family.
+- [x] **No optimality overclaim.** The audit proves only evidence-bounded closure for fixed-endpoint,
+      complete same-hub blocks of length 6–8 under current transfer evidence. It does not claim
+      whole-route, schedule, hotel, 9+ permutation or mathematical shortest-path optimality.
+- [x] **Five movement groups are the current ceiling.** Adjacent swap, single-place relocation,
+      non-adjacent transposition, exact four-place reversal and exact 2+2 pair-block swap remain the
+      complete shipped local-assistance surface. No sixth group is approved.
+- [x] **No generic solver escalation.** Three-position cycles, larger/variable reversals, arbitrary
+      block relocation, 2-opt, arbitrary permutation search, hill climbing, auto-chain and TSP remain
+      deferred.
+- [x] **Explicit reopen criteria.** Reopen only for a concrete evidence-complete local-minimum
+      counterexample, a material evidence/dataset change, a changed product contract, or a concrete
+      9+ place counterexample.
+- [x] **Documentation only.** No runtime, UI, tests, schema, persistence, datasets, dependencies or
+      transfer semantics change.
+
+**No Phase 3E-M runtime is recommended.** Future work should move to a different product capability
+unless one of the documented reopen conditions is met.
+
+
+## Phase 3F-A — Official Reservation Mechanism Evidence Design Gate — design/audit only
+
+Defines the next product frontier after Phase 3E closure. Full contract:
+[`docs/OFFICIAL_RESERVATION_MECHANISM_EVIDENCE_DESIGN.md`](OFFICIAL_RESERVATION_MECHANISM_EVIDENCE_DESIGN.md).
+
+- [x] **Reservation evidence, not another route move.** Phase 3E-L closed the current local-ordering
+      expansion. The next measured gap is reservation evidence: 41 places currently carry
+      `reservation.required === true`, but only 3 have a Phase 3D-H Class-A explicit numeric
+      day/week window; 12 are coarse non-Class-A magnitudes and 26 are opaque/mechanism-specific.
+- [x] **Official sources prove richer structure exists.** Current operator/government evidence
+      includes monthly fixed releases (Ghibli Museum), rolling calendar-month releases (Tokyo Disney
+      Resort), relative application windows plus lottery-on-oversubscription (Katsura Imperial
+      Villa), current relative sale horizons (USJ), and fixed event sale dates (Grand Sumo Osaka
+      2027). These propositions cannot be represented faithfully by the current editorial
+      `reservation.leadTime` field alone.
+- [x] **Separate evidence collection.** Do not rewrite `Place.reservation` and do not add
+      operator-specific regexes to `reservation-deadline.ts`. The recommended successor introduces
+      a separate versioned official-evidence collection keyed by stable `placeId`, with independent
+      records for distinct reservation scopes.
+- [x] **Provenance/currentness are mandatory.** Every structured rule requires an official source,
+      source entity, consultation date, evidence paraphrase and explicit confidence. Active vs
+      superseded state is part of the contract because booking rules can change.
+- [x] **Only positive explicit evidence structures a rule.** Missing ticket information means no
+      mechanism record, not "not on sale". Historical rules are never projected forward. AnimeJapan
+      2027 is the canonical current example: event dates are published, but the 2027 public-ticket
+      schedule is not yet evidence for a structured release rule.
+- [x] **Narrow first-pass mechanism families.** Approved design families are monthly fixed release,
+      rolling calendar-month release, rolling day release, relative application window and fixed
+      sale date. Allocation (drawing / lottery-if-oversubscribed / capacity-limited / etc.) remains
+      a separate evidence axis.
+- [x] **Timezone evidence may be stored, not computed.** Official local release times and JST /
+      `Asia/Tokyo` provenance may be recorded when explicitly supported. No runtime timezone,
+      instant, countdown or reminder arithmetic is approved by this gate.
+- [x] **Data-first successor.** Recommended Phase 3F-B is a data foundation only, with a small
+      high-confidence pilot spanning materially different mechanism families and deterministic
+      validation/parity checks. No UI, reminder, availability or booking consumer is authorized yet.
+- [x] **Existing Phase 3D reservation semantics remain unchanged.** The new official evidence is a
+      second source domain; any future composition with Phase 3D-H/3D-O requires its own design gate.
+
+Recommended successor: **Phase 3F-B — Official Reservation Mechanism Evidence Foundation**.
+
+**Phase 3F-B is NOT STARTED.** This gate changes documentation only.
+
+
+### Phase 3F-A — corrective pass: USJ current sale-horizon source conflict
+
+Independent source verification before starting Phase 3F-B found a material conflict in the Phase 3F-A
+example set:
+
+- the legacy `s.usj.co.jp` FAQ still states a three-month sales horizon;
+- the current main-site ticket FAQ states two months;
+- the current main-site purchase guide states two months; and
+- USJ's own 2025 Expo notice explicitly described the three-month horizon as temporary and planned a
+  return to approximately two months after the Expo.
+
+Phase 3F-A is corrected to treat **two months** as the current generic main-site statement and the
+legacy three-month page as conflicting/stale evidence. Because the current source does not define
+every calendar-alignment edge case required by the first-pass rolling-month schema, JP-125 is moved
+from the mandatory Phase 3F-B pilot to optional: populate it only if the successor can encode the
+official proposition without guessing.
+
+No runtime or data change is made by this corrective pass.
+
+
+## Phase 3F-B — Official Reservation Mechanism Evidence Foundation — data foundation
+
+Implements the data-only successor approved by Phase 3F-A. Execution record:
+[`docs/RESERVATION_MECHANISM_EVIDENCE.md`](RESERVATION_MECHANISM_EVIDENCE.md).
+
+- [x] **Five-record official pilot.** The canonical catalog contains Ghibli Museum (JP-044),
+      Katsura Imperial Villa (JP-077), Tokyo Disneyland (JP-203), Tokyo DisneySea (JP-204) and
+      Grand Sumo Tournament Osaka 2027 (JP-212). Every record is active, scoped, and backed by
+      official-explicit provenance consulted on 2026-09-12.
+- [x] **Four materially different mechanism families exercised.** The pilot covers monthly fixed
+      release, rolling calendar-month release with an explicit missing-date fallback, relative
+      application window, and fixed event sale date. No generic parser is added and no editorial
+      `reservation.leadTime` value is rewritten.
+- [x] **Allocation stays separate.** Disney records preserve the operator's daily-sales-limit
+      condition as `capacity-limited`; Katsura records `lottery-if-oversubscribed`; Ghibli and
+      Sumo remain `not-stated` rather than inferring first-come behaviour.
+- [x] **USJ deliberately omitted after corrective source audit.** Current main-site USJ pages say
+      two months while a legacy subdomain still says three months. The current two-month rule is
+      acknowledged, but no pilot record is created because the first-pass calendar-month shape
+      would require alignment semantics the source does not explicitly state.
+- [x] **Nintendo Museum and AnimeJapan 2027 deliberately omitted.** Nintendo's drawing evidence does
+      not yet justify a stable first-pass release-window record. AnimeJapan 2027 has no current
+      official 2027 public-sale schedule to structure. No historical projection is used.
+- [x] **Canonical/app parity artifact.** `data/reservation-mechanisms.json` and
+      `app/src/data/reservation-mechanisms.json` carry the same evidence; the validator requires
+      byte-for-byte parity.
+- [x] **Offline validator.** `scripts/validate-reservation-mechanisms.py` enforces record identity,
+      place references, closed vocabularies, mechanism-specific shapes, safe integers, dates,
+      local times, timezone boundary, allocation/status, provenance, duplicate active
+      `placeId + scope`, secret scanning and source/app parity.
+- [x] **Offline unit tests.** `scripts/test_reservation_mechanisms.py` covers every approved
+      mechanism family, negative schema cases, parity drift and real-catalog invariants.
+- [x] **No runtime consumer.** No React, TypeScript domain consumer, planning-draft field, storage
+      key, UI, availability logic, current-date comparison, reminder or booking action is added.
+      Existing Phase 3D reservation semantics remain untouched.
+
+A future **Phase 3F-C** may be considered only as a new design gate for runtime derivation/composition.
+Phase 3F-B itself does not authorize booking-date UI, availability, urgency, reminders or automation.
+
+
+## Phase 3F-C — Trip-Specific Reservation Date Derivation Design Gate — design/audit only
+
+Defines the safe runtime contract for turning Phase 3F-B official mechanism evidence into trip-specific
+civil reservation dates. Full contract:
+[`docs/TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_DESIGN.md`](TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_DESIGN.md).
+
+- [x] **Pure visit-date derivation only.** Input is one validated official mechanism record plus one
+      explicit visit civil date. No device clock, current-date comparison, availability, urgency,
+      reminder, notification or purchase action enters this phase.
+- [x] **Official evidence stays independent from Phase 3D editorial guidance.** Phase 3F never
+      reparses `reservation.leadTime`, never suppresses a Phase 3D-H result, and never intersects
+      the two sources into one synthetic range.
+- [x] **Calendar-month arithmetic is exact.** Month-based mechanisms use calendar months rather than
+      30/60/90-day approximations. Invalid same-day alignments never roll silently; an operator
+      fallback is used only when that fallback is itself recorded in the mechanism.
+- [x] **Ghibli semantics pinned.** A visit in February 2027 derives 10 January 2027 at 10:00 with
+      `Asia/Tokyo`; a January 2027 visit rolls back to 10 December 2026.
+- [x] **Tokyo Disney semantics pinned.** A 20 February 2027 visit derives 20 December 2026 at
+      14:00. A 30 April 2027 visit has no valid 30 February alignment, so the recorded operator
+      fallback yields 1 March 2027. The evidence timezone remains null rather than being inferred.
+- [x] **Katsura application window pinned.** A 15 March 2027 visit derives an online application
+      window of 1 December 2026 at 05:00 through 12 March 2027 at 23:59, preserving
+      `lottery-if-oversubscribed` as disclosure only.
+- [x] **Osaka Sumo fixed-date applicability pinned.** Any visit from 14–28 March 2027 inclusive
+      derives the recorded 6 February 2027 advance-sale date. A visit outside that recorded event
+      period is not applicable; missing applicability bounds never mean universal applicability.
+- [x] **Multiple scopes stay independent.** Future records for admission, timed entry, workshops,
+      etc. derive separately in stable source-data order. No ranking or "primary reservation"
+      selection is introduced.
+- [x] **Time evidence is preserved, never upgraded.** A recorded IANA timezone survives; a null
+      timezone stays null. No UTC instant, user-local conversion or DST arithmetic is produced.
+- [x] **Domain-only successor.** Recommended Phase 3F-D adds typed evidence parsing, pure calendar
+      derivation and tests only. No React/UI, hooks, persistence, V8, new localStorage key, network
+      or visible booking copy is authorized.
+- [x] **106 normative contracts.** The successor contract covers parsing, visit-date eligibility,
+      civil/month arithmetic, all five mechanism families, real 3F-B fixtures, timezone boundaries,
+      current-date exclusions, persistence and Phase 3D separation.
+
+Recommended successor: **Phase 3F-D — Trip-Specific Reservation Date Derivation Runtime Foundation**.
+
+**Phase 3F-D is NOT STARTED.** This gate changes documentation only.
+
+
+## Phase 3F-D — Trip-Specific Reservation Date Derivation Runtime Foundation — domain runtime
+
+Implements the domain-only successor approved by Phase 3F-C. Execution record:
+[`docs/TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_RUNTIME.md`](TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_RUNTIME.md).
+
+- [x] **Typed official-evidence runtime domain.** `reservation-mechanism-evidence.ts` parses the
+      app-facing 3F-B JSON into a closed union, preserves record/place/scope/allocation/provenance
+      semantics, rejects malformed records, duplicate IDs, duplicate active `placeId + scope`
+      identities and unsupported extra fields, and preserves stable source order.
+- [x] **Pure trip-specific date derivation.** `reservation-mechanism-date-derivation.ts` derives
+      only civil release dates or application windows from one validated mechanism plus one explicit
+      visit civil date. It has no device clock, no network, no storage and no current-date relation.
+- [x] **Exact calendar-month semantics.** Ghibli uses previous calendar month + recorded day;
+      Tokyo Disney uses exact two-calendar-month same-day alignment and only its recorded
+      `first-day-of-next-month` fallback; no generic clamp or 30/60/90-day approximation exists.
+- [x] **Katsura and Sumo semantics pinned.** Katsura preserves independent open/close edges and
+      `lottery-if-oversubscribed`; Osaka 2027 Sumo applies the fixed 6 Feb sale date only to the
+      recorded 14–28 Mar event interval, inclusive.
+- [x] **Superseded evidence is non-current.** It yields `inactive-evidence`; no `consultedAt`
+      sorting invents a current winner.
+- [x] **Phase 3D remains independent.** The only reused Phase 3D owner is
+      `deriveVisitDateForPlace` for plan-day/date composition. The new modules never parse
+      `reservation.leadTime`, gate on `reservation.required`, intersect windows or create
+      cross-source precedence.
+- [x] **No action/availability semantics.** Outputs contain no open/closed, urgency, countdown,
+      inventory, reminder, notification, recommendation or purchase-action fields.
+- [x] **45 repository-native Vitest tests.** Parser, real-data fixtures, synthetic rolling-day behavior, leap/year
+      boundaries, Disney fallback/no-fallback, Katsura, Sumo applicability, superseded evidence,
+      invalid visit dates, plan-date reuse, stable multiple scopes, determinism and source-boundary
+      scans are covered.
+- [x] **Isolated compile/runtime validation passed.** The exact new domain source and real 3F-B JSON
+      compile with TypeScript in the execution sandbox and the approved real fixtures pass before
+      and after the hostile parser corrective.
+- [x] **Repository-native validation gate.** Real-checkout validation passed after the corrective:
+      focused Vitest **45/45**, relevant regression **153/153**, full Vitest **2192/2192**,
+      oxlint exit **0**, build exit **0**, `git diff --check` exit **0**, and the Phase 3F-B
+      Python validator confirmed catalog validity plus source/app byte parity.
+- [x] **No UI/persistence/data-schema expansion.** No React component, CSS, hook, planning-draft
+      version, localStorage key, package manifest, canonical/app JSON or workbook changes.
+
+Phase 3F-D has passed the repository-native validation gate and is eligible for Ready-for-review after focused review.
+
+## Phase 3F-E — Official Reservation Date Presentation Design Gate — design/audit only
+
+Design record:
+[`docs/OFFICIAL_RESERVATION_DATE_PRESENTATION_DESIGN.md`](OFFICIAL_RESERVATION_DATE_PRESENTATION_DESIGN.md).
+
+Base audited: `07c38353c0ddb478242a65dac8be52152b9b8b0a` (`main` after Phase 3F-D).
+
+- [x] **Placement audited against the live planner.** Trip-specific official reservation facts belong
+      in the per-day `OrderedSequenceBuilder` surface where the strict visit-date contract already
+      exists; they do not belong in route-wide pre-date "Reservas por preparar" or `PlaceDetail`.
+- [x] **Phase 3D / Phase 3F evidence domains remain visibly separate.** The official record is not
+      intersected with, substituted for or ranked against the editorial Phase 3D-H advance-guidance
+      window.
+- [x] **Safe official-date copy defined.** Release dates and application-window edges may be shown as
+      recorded official calendar facts, never as booking-open/closed, availability, urgency,
+      countdown, inventory or purchase instructions.
+- [x] **Timezone uncertainty remains explicit.** Recorded `Asia/Tokyo` is preserved; `null`
+      remains unknown and must not be silently upgraded to JST/Japan time.
+- [x] **Provenance remains visible.** The presentation should expose source entity, concrete
+      `consultedAt` and an ordinary official-source link without background fetch/scraping or
+      freshness claims.
+- [x] **Scope/allocation semantics remain disclosures.** Multiple scopes remain independently
+      visible in source order; allocation never becomes probability, priority or urgency.
+- [x] **Current-date composition explicitly deferred.** Phase 3F-F must not reuse the existing
+      Phase 3D-O device/reference date, compare dates to "today", convert timezones or infer whether
+      sales are currently open.
+- [x] **No persistence/data expansion.** V7, storage keys, evidence JSON, places data, workbook and
+      package dependencies remain unchanged by this design gate.
+- [x] **UI successor requires browser audit.** The proposed runtime successor changes visible React
+      output, so focused tests, full regression, lint, build, `git diff --check` and repeated
+      post-final-change browser validation are mandatory.
+
+Recommended successor: **Phase 3F-F — Official Reservation Date Presentation Runtime**.
+
+**Phase 3F-F is NOT STARTED.** Phase 3F-E changes documentation only.
+
+## Phase 3F-F — Official Reservation Date Presentation Runtime — UI runtime
+
+Execution record:
+[`docs/OFFICIAL_RESERVATION_DATE_PRESENTATION_RUNTIME.md`](OFFICIAL_RESERVATION_DATE_PRESENTATION_RUNTIME.md).
+
+Base: `8152d6a22e3f45dbe8b12074ca88b7593484103d` (`main` after Phase 3F-E).
+
+- [x] **Pure presentation boundary.** `reservation-mechanism-presentation.ts` converts only an
+      already-derived Phase 3F-D result plus its exact matching evidence record into conservative
+      Spanish display facts; identity mismatch, inactive evidence and no-visit-date are not
+      presented.
+- [x] **Per-day official reservation surface.** `OfficialReservationDateNotice` renders immediately
+      after the existing Phase 3D-H/3D-O reservation window in each dated day card and preserves
+      current place order plus Phase 3F source order.
+- [x] **Phase 3D remains independent.** The new Phase 3F surface receives no device/reference date,
+      does not read editorial lead-time/requiredness, does not read Feb–Mar/hours/closures and does
+      not intersect or rank official vs editorial reservation evidence.
+- [x] **Timezone uncertainty is visible.** Recorded `Asia/Tokyo` is preserved, null timezone is
+      explicitly disclosed as unrecorded, and null local time remains absent.
+- [x] **Scope/allocation/provenance are preserved.** Every visible item carries its scope, matching
+      source entity, consultation date and ordinary official-source provenance link; allocation
+      remains factual disclosure only.
+- [x] **Read-only/no-persistence scope.** No controls, V8, storage key, data mutation, dependency or
+      network fetch is introduced.
+- [x] **Focused test contracts added.** New unit coverage pins the five real pilot records and
+      conservative copy boundaries; `OrderedSequenceBuilder.test.ts` pins the React wiring,
+      separation, provenance and forbidden-language contracts.
+- [x] **Neutral styling added.** `.official-reservation-date` uses ordinary evidence styling with
+      no success/risk/urgency state.
+- [x] **Repository-native validation gate.** Real-checkout validation after the final runtime
+      corrective passed: focused **150/150**, full Vitest **2216/2216**, oxlint exit **0**, build
+      exit **0**, and working-tree `git diff --check` exit **0**.
+- [x] **Browser audit harness added.** `app/scripts/phase3f-f-browser-audit.mjs` exercises the real
+      V7 planner with Ghibli, Disney null-timezone, DisneySea fallback, Katsura, Sumo
+      applicable/not-applicable, provenance, Phase 3D-H coexistence, day-move recomputation and
+      start-date clear/reload persistence boundaries.
+- [x] **Mandatory browser gate.** The dedicated audit passed **twice consecutively** on final code
+      HEAD `3579a1498ea160dd1c4a53f466df4d35542e9999`, with 0 console errors and 0 page errors
+      in both runs.
+- [x] **Focused hostile review.** No material finding remained after the two in-scope corrective
+      commits; provenance pairing, current-date separation, timezone uncertainty, stable ordering,
+      persistence boundaries and read-only semantics were rechecked.
+
+**Phase 3F-F has passed its validation gates and is eligible for Ready-for-review.**
+
+
+
+## Phase 3F-G — Official Reservation Reference-Date Relation Design Gate — design/audit only
+
+Design record:
+[`docs/OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_DESIGN.md`](OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_DESIGN.md).
+
+Base audited: `a006dc3a13bc20953e972ecbd414d5201c681824` (`main` after Phase 3F-F).
+
+- [x] **Civil-date relation only.** The next safe proposition compares one explicitly disclosed
+      device/reference civil date with already-derived Phase 3F official release dates or application
+      date spans; it does not infer current booking state.
+- [x] **Release semantics are before/on/after the recorded date.** Equality means only that the
+      device/reference date shares the same civil-date label as the official release date; a recorded
+      release time is not evaluated.
+- [x] **Application semantics are before/within/after the recorded date span.** Both date edges are
+      inclusive as calendar dates, but edge equality never means the application window is currently
+      open or closed.
+- [x] **Existing device/reference date may be shared as an explicit input.** Phase 3F may consume the
+      same concrete device-local civil date already captured for Phase 3D-O, provided the exact date
+      remains visible and the evidence/relation domains remain separate.
+- [x] **Phase 3F gets its own evaluator.** `evaluateReservationWindowReference` and the Phase 3D
+      relation union remain Phase 3D-only; no lead-time window semantics are imported into Phase 3F.
+- [x] **Clock/timezone boundary remains conservative.** Known timezone remains source evidence,
+      null timezone remains unknown, no time-of-day comparison or timezone conversion is approved,
+      and no instant/Japan-business-date semantics are introduced.
+- [x] **Only normal Phase 3F date results are assessable.** `release-date` and
+      `application-window` may receive a relation; no-visit, inactive, not-applicable and
+      not-derivable results remain unassessed.
+- [x] **No current-state/action semantics.** No open/closed, availability, inventory, urgency,
+      countdown, deadline, reminder, notification, recommendation or purchase behavior is approved.
+- [x] **No persistence/data expansion.** V7, localStorage, evidence JSON, places data, workbook and
+      package dependencies remain unchanged by the proposed successor.
+- [x] **Identity composition fails closed.** A relation must retain record/place/scope identity and
+      must be omitted if that identity does not match the Phase 3F derivation/presentation item it
+      would annotate; cross-record or cross-scope attachment is forbidden.
+- [x] **Browser reference date must be deterministic in QA.** The runtime browser audit must fix the
+      device/reference civil date before application boot through test-only browser environment
+      control, never through a production prop/query/storage/persistence seam or the machine's real
+      wall clock.
+- [x] **UI successor requires repeated browser validation.** The runtime successor must prove
+      before/on/after and date-span edge behavior, exact reference-date disclosure, Phase 3D
+      separation, no stale derived state and two consecutive browser-audit passes after final code.
+
+Recommended successor: **Phase 3F-H — Official Reservation Reference-Date Relation Runtime**.
+
+**Phase 3F-H is NOT STARTED. Phase 3F-G changes documentation only.**
+
+
+
+## Phase 3F-H — Official Reservation Reference-Date Relation Runtime — UI runtime
+
+Execution record:
+[`docs/OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_RUNTIME.md`](OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_RUNTIME.md).
+
+Base: `2a02bad414d1b8e01eb6bb88169506da30568677` (`main` after Phase 3F-G).
+
+- [x] **Phase 3F owns its own relation evaluator.** `reservation-mechanism-reference-date.ts` is a
+      pure closed union over one Phase 3F-D derivation plus one explicit civil reference date; it
+      does not import or wrap `evaluateReservationWindowReference`,
+      `ReservationWindowReferenceRelation`, `derivePlaceReservationDateWindow` or any Phase 3D-H
+      lead-time parsing, and its import set is pinned by test.
+- [x] **Release relation is before/on/after the recorded date.** Equality means only that the two
+      civil-date labels match; the recorded release time and source timezone are never read.
+- [x] **Application relation is before/within/after the recorded date span.** Both civil-date edges
+      are inclusive, and an edge date never becomes an open/closed, last-day or closing-day claim.
+- [x] **Only normal Phase 3F date results are assessed.** `no-visit-date`, `inactive-evidence`,
+      `not-applicable-to-visit-date` and `not-derivable` stay unassessed and keep their existing
+      neutral Phase 3F-F presentation.
+- [x] **One shared explicit reference-date value, no second clock.** The relation consumes the
+      single `captureDeviceLocalCivilDate()` value the planner already captures; no ambient
+      `new Date()`/`Date.now()` runs inside the Phase 3F domain and no second capture exists.
+- [x] **Identity composition fails closed.** Every assessed relation carries record/place/scope, and
+      the presentation composer returns nothing when any of the three disagrees with the Phase 3F-F
+      item it would annotate — no nearest match, no place-level relation, no cross-scope sharing.
+- [x] **Concrete reference date is always visible.** Each assessed relation renders
+      `Fecha de referencia (tu dispositivo): <fecha concreta>`; bare `hoy`/`ahora`/`actualmente` are
+      never used as the label.
+- [x] **Claim boundary held.** No open/closed, availability, inventory, sold-out, late, deadline,
+      countdown, remaining-days, urgency, recommendation or purchase vocabulary is introduced;
+      domain, copy and component scans assert each term.
+- [x] **Phase 3D-H/3D-O remains a separate sibling surface.** No intersection, union, precedence,
+      ranking or combined "best booking window" exists, and neither evaluator learns about the
+      other's domain.
+- [x] **No freshness or persistence expansion.** No timer, interval, midnight recapture, focus or
+      visibility listener, service worker or polling was added; V7, `nihon.manualPlanningDraft`,
+      every localStorage key, evidence JSON, places data, workbook and dependencies are unchanged,
+      and nothing derived is stored.
+- [x] **Focused test contracts added.** New relation, presentation and component suites cover the
+      full required matrix including year rollover, inclusive edges, clock/timezone invariance,
+      host-timezone invariance and the three identity-mismatch fail-closed cases.
+- [x] **Repository-native validation gate.** Re-run in full after the corrective below: focused
+      **243/243** across 10 files, full Vitest **2283/2283** across 59 files, oxlint exit **0**,
+      build exit **0**, and both `git diff --check` forms exit **0**.
+- [x] **Deterministic browser date.** `app/scripts/phase3f-h-browser-audit.mjs` fixes the browser's
+      local calendar date before application boot with a test-only Playwright `Date` shim, asserts
+      the fixed date took effect, and adds no production prop, query parameter, storage field or
+      dependency; production `captureDeviceLocalCivilDate` is unchanged and still on the real path.
+- [x] **Inverted application date spans fail closed.** Independent review found that the evaluator
+      validated `openDate` and `closeDate` individually but accepted an inverted interval, which
+      Phase 3F-D's parser does not by itself rule out. `openDate > closeDate` now returns
+      `not-assessed` / `derivation-not-date-relatable` before any comparison, with no swap, repair,
+      re-order or inferred intent; `openDate === closeDate` stays a valid one-day span and the real
+      Katsura edges stay `within`. Corrective `63b5756570ad8cf8e8afaa4c5a504bb67d35967c` touched only
+      the Phase 3F-H evaluator and its test file — no Phase 3F-D, evidence, data, schema, storage,
+      Phase 3D or copy change.
+- [x] **Mandatory browser gate.** The corrective above changed code after the first recorded gate, so
+      the browser gate was restarted from zero. The dedicated audit passed **twice consecutively** on
+      final code HEAD `63b5756570ad8cf8e8afaa4c5a504bb67d35967c`, covering Ghibli before/same/after,
+      Disney null-timezone same date, Katsura open and close edges, Sumo applicable and
+      not-applicable, Phase 3D coexistence, day-reassignment recomputation and start-date
+      clear/reload, with 0 console errors and 0 page errors in both runs and no relaxed assertion.
+      The Phase 3F-F audit was re-run as a regression on the same HEAD and also passed.
+- [x] **Focused hostile review.** Open/closed semantics, clock comparison, timezone inference,
+      Phase 3D evaluator reuse, identity mismatch, sorting, duplicated arithmetic, stale persisted
+      relation, a second clock capture, production test seams, machine-date dependence, currentness
+      copy, urgency/action language, Phase 3D/3F synthesis, recomputation and not-applicable leakage
+      were all rechecked; the one finding (a now-false Phase 3F-F disclaimer sentence) was fixed. The
+      separate independent-review finding above was fixed and its own post-fix hostile check —
+      inverted span refused, ordered span unchanged, equal edges still a one-day span, both Katsura
+      edges still `within`, no new time/timezone arithmetic, no Phase 3D reuse, no sorting/repair, no
+      persistence change, no copy change — is recorded in the execution record §10.1.
+
+**Phase 3F-H passed its validation gates. PR #77 subsequently passed independent focused review,
+transitioned out of Draft, and was merged into `main`.**
+
+
+
+## Phase 3F-I — Route-Wide Official Reservation Calendar Design Gate — design/audit only
+
+Design record:
+[`docs/ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_DESIGN.md`](ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_DESIGN.md).
+
+Base audited: `7c9536ff7128245a71c911504e732ab85f832c7a` (`main` after Phase 3F-H).
+
+- [x] **Aggregation, not derivation.** The approved next step is one route-wide, read-only view of
+      the Phase 3F facts already derived for the current plan. Nothing is newly derived, newly
+      claimed or newly ranked; every item traces back to a place, a planned visit, an official
+      record, a scope, a Phase 3F-D derivation and its Phase 3F-F presentation.
+- [x] **Chronology-only surface.** The route-wide view contains exactly those official facts that
+      have a valid, placeable civil date, and nothing else. The aggregator result has one collection
+      and one item type; there is no neutral block, no dateless row and no second list, and the whole
+      section is absent when no dated item exists — no empty heading and no absence message.
+- [x] **Phase 3F-E's deferral reasons re-audited.** The five reasons that blocked a route-wide
+      calendar are answered individually: the ordering/ranking questions are now settled by an
+      explicit contract, and the current-date relation the gate was waiting for shipped as
+      Phase 3F-G/3F-H.
+- [x] **Chronological order is declared non-semantic.** Ordering is by recorded civil date only and
+      carries no meaning about priority, importance, urgency, scarcity, risk or a recommended
+      sequence; no item may be labelled first, next, upcoming, current or last, and no count,
+      progress indicator or workload summary may be derived from the list.
+- [x] **Deterministic, total tie-break contract.** Ties break on day ordinal, then the place's
+      position within its day, then bundled source-record order. Allocation, requiredness, tourism
+      grade, price, inventory, urgency, `consultedAt`, source confidence and alphabetical order are
+      all forbidden ordering keys.
+- [x] **Application windows stay one honest item.** A recorded application window becomes exactly
+      one chronological item anchored at its recorded open date, always rendering both edges as a
+      span; the two-milestone alternative is rejected because a standalone end-date row manufactures
+      a deadline affordance and splits one record into two. A span is eligible only when both edges
+      are valid civil dates and `openDate <= closeDate`; otherwise it produces **zero** route-wide
+      items, with no neutral fallback and no swap, sort, repair or inferred direction — a rule a
+      synthetic aggregator unit test must pin, since no bundled record produces it.
+- [x] **Identity survives aggregation.** Every item keeps `recordId`, `placeId`, `scope`, the
+      planned day (ordinal, plus the stable day id when the caller has it), the visit civil date, the
+      official date or span and full provenance. Records are never merged, scopes never fused, and
+      items never deduplicated by date — two places sharing a date remain two facts.
+- [x] **Results with no applicable official date have no route-wide representation.**
+      `not-applicable-to-visit-date`, `not-derivable`, `no-visit-date` and `inactive-evidence` are
+      omitted from this surface entirely — no neutral item, placeholder, warning row or count — and
+      no such result may ever be given a substitute, sentinel, borrowed or inherited date. Nothing is
+      lost from the product: the per-day Phase 3F-F surface is unchanged and remains where those
+      facts stay visible. This is fixed by the design gate, not left to the runtime.
+- [x] **Phase 3F-H is reused verbatim, never re-invented.** The relation is rendered as secondary
+      context on every row where one is assessable, only by calling the shipped evaluator and its
+      fail-closed composition, consuming the
+      one already-captured device civil date, with the concrete reference date disclosed once at
+      section level and never labelled `hoy`/`ahora`/`actualmente`. The relation never affects
+      ordering, grouping, filtering, visibility or styling.
+- [x] **Phase 3D stays structurally separate.** The audit confirms Phase 3D's route-wide
+      "Reservas por preparar" renders in the `builder` view while the Phase 3F calendar belongs in
+      the dated `days` view. No merged list, shared heading, shared count, precedence, intersection
+      or mutual suppression is permitted, and apparent source conflicts stay unresolved and
+      unflagged.
+- [x] **Freshness, timezone and booking-state boundaries unchanged.** `consultedAt` remains
+      provenance and may not sort, colour, warn or expire; no timezone conversion, instant, offset or
+      DST logic is introduced; and the Phase 3F-H civil-date relation remains the maximum current-date
+      claim — no open/closed, availability, inventory, deadline, countdown or urgency claim is
+      approved.
+- [x] **No persistence and no automation.** The surface is entirely derived: no V8, no new storage
+      key, no persisted items, order, relations or reference date; reminders, notifications,
+      scheduled tasks, `.ics` and calendar integrations all stay deferred.
+- [x] **Placement decided from the real component.** One route-wide instance in the `days` view,
+      immediately after the accommodation manager and immediately before the day list, rendered only
+      when a valid day assignment and a valid start date exist; the per-day Phase 3F-F/3F-H notice is
+      unchanged and the calendar is never repeated inside a day card. New modals, new views and the
+      builder view were evaluated and rejected with reasons.
+- [x] **Copy boundary set.** Heading `Fechas oficiales de reserva del recorrido` is chosen over
+      `Calendario oficial de reservas`, which reads as a calendar of bookings to act on; the
+      disclaimer must state the derived-from-official-sources basis, the visit-date binding, that
+      chronological order is not priority, that availability and current sale state are not
+      indicated, and that any reference-date relation is civil-date only.
+- [x] **Flat list, no date grouping.** Every row carries its own complete date; grouping under a
+      shared date header is rejected for the first runtime because it implies a shared state and
+      invites a per-date count.
+- [x] **Normative contracts fixed.** 100 numbered contracts cover source inputs, eligibility,
+      chronology semantics, tie-breaking, identity, multiple scopes, application-window
+      representation, non-date results, Phase 3F-H reuse, Phase 3D separation, no ranking, no
+      timezone/instant, no booking state, no persistence, no network/automation, recomputation, the
+      real fixtures and browser validation.
+- [x] **Successor validation gate specified.** Phase 3F-J must pass focused aggregator tests, the
+      Phase 3F-D/F/H regressions, Phase 3D separation regressions, full Vitest, lint, build, both
+      `git diff --check` forms, and a dedicated browser audit twice consecutively on the same final
+      code HEAD with zero console and page errors, using the Phase 3F-H deterministic browser-date
+      shim and no production test seam.
+- [x] **Hostile design review performed.** All fourteen required questions were answered in the
+      design record; three substantive documentation findings (unordered-span disposition, undefined
+      neutral item type, a contradictory `Intl` source-scan expectation) and three minor ones were
+      fixed before the pull request was opened.
+- [x] **Independent-review corrective applied.** The non-date policy had been left "optional for the
+      runtime" while simultaneously requiring an inverted application span to reuse "existing Phase
+      3F-F neutral copy" that does not exist — `buildOfficialReservationDatePresentation` does not
+      validate edge ordering and still returns an ordinary `application-window` presentation for such
+      a span, so the design as written would have forced Phase 3F-J to invent an undesigned
+      presentation state. The corrective closes the policy as chronology-only, removes the neutral
+      block, neutral item type and `withoutApplicableDate` collection from the design, and re-runs
+      the hostile review against all fifteen post-corrective checks. Phase 3F-D and Phase 3F-H are
+      unchanged, and the successor's runtime scope is strictly smaller than before.
+
+Recommended successor: **Phase 3F-J — Route-Wide Official Reservation Calendar Runtime**.
+
+**Phase 3F-I changes documentation only.**
+
+
+
+## Phase 3F-J — Route-Wide Official Reservation Calendar Runtime — UI runtime
+
+Execution record:
+[`docs/ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_RUNTIME.md`](ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_RUNTIME.md).
+
+Base: `671b5980b23f8f856dd7c55f156d3431b7bae72f` (`main` after Phase 3F-I).
+
+- [x] **Pure route-wide aggregator.** `reservation-mechanism-calendar.ts` turns the current plan into
+      one chronologically ordered list of the Phase 3F facts already derived for it. It reuses the
+      Phase 3F-D derivation owner, the Phase 3F-F presentation and the Phase 3F-H relation verbatim,
+      and contains no React, storage, network, clock, instant, timezone conversion, re-derived
+      arithmetic, Phase 3D value or ranking field.
+- [x] **Chronology-only surface.** The result has exactly `chronological` and `referenceDate`. A
+      derivation enters only with a valid placeable civil date: a parsable release date, or a span
+      whose two edges parse and satisfy `openDate <= closeDate`.
+- [x] **Everything else produces zero items.** Outside the recorded event period, not derivable, no
+      visit, superseded evidence and any invalid or inverted span are omitted entirely — no neutral
+      row, placeholder, warning, count, sentinel or substitute date. An inverted span is never
+      swapped, sorted or repaired, and the input is proven unmutated. Those facts stay visible in
+      their existing per-day Phase 3F-F surface, which is unchanged.
+- [x] **Application windows stay one row.** Exactly one item anchored at the recorded open date,
+      rendering both edges as one neutral span through Phase 3F-F's own date/time formatter, with the
+      chronological anchor disclosed on the row. No standalone close-date row exists anywhere.
+- [x] **Deterministic, total ordering.** Anchor date ascending by civil-date lexical comparison, then
+      the place's position in the flattened plan, then bundled source-record order. Every key is
+      compared explicitly rather than relying on engine sort stability, and allocation, requiredness,
+      price, inventory, urgency, `consultedAt`, `confidence`, `sourceEntity`, place name, visit date
+      and relation kind are all absent from the module.
+- [x] **Order is not priority.** Declared in the module, in the section disclaimer and in tests; no
+      first/next/upcoming label, count, progress indicator, priority/rank/score/status field or
+      order- or relation-dependent styling exists.
+- [x] **Identity survives aggregation.** Every item carries record, place and scope copied from the
+      derivation, plus place name, `Día N`, the stable day id when the caller has it, visit date,
+      anchor date, the exact Phase 3F-F presentation and full provenance. Composition is fail-closed,
+      records are never merged and items are never deduplicated by date.
+- [x] **Phase 3F-H reused, never re-invented.** Evaluated mechanically for every eligible row from
+      the single already-captured device civil date; `not-assessed` renders no line and no
+      placeholder; the relation never affects order, visibility or styling. `referenceDate` is
+      reported only when a relation actually composed from it, so a date that was never used can
+      never be disclosed.
+- [x] **Placement and copy as designed.** One instance in the dated `days` view between the
+      accommodation manager and the day list, never in a day card, never in the builder view, no new
+      modal or view; heading `Fechas oficiales de reserva del recorrido`; the mandated disclaimer
+      including the order-is-not-priority negation; one neutral CSS family with no state palette.
+- [x] **Phase 3D remains separate.** The aggregator reads no Phase 3D value, and the two route-wide
+      surfaces stay in different views with no shared container, heading, count or precedence.
+- [x] **No persistence, schema, data or dependency change.** V7, every storage key, evidence JSON,
+      places data, the workbook and package manifests are untouched; the aggregate is derived on
+      every render and stored nowhere.
+- [x] **Repository-native validation gate.** Focused **335/335** across 14 files, full Vitest
+      **2357/2357** across 62 files, oxlint exit **0**, build exit **0**, and both `git diff --check`
+      forms exit **0**.
+- [x] **Mandatory browser gate.** `app/scripts/phase3f-j-browser-audit.mjs` passed **twice
+      consecutively** on final code HEAD `55d0f19208e0a02d27920daa92ee852e5cbbffad`, covering
+      chronological multi-place order, same-date ties, intra-day reordering, Ghibli, Disneyland's
+      unknown timezone, Katsura as one range row, Sumo applicable and outside its event period,
+      Phase 3D separation across both views, day moves, start-date change and clear, reload, and the
+      section-level reference-date disclosure — with 0 console errors and 0 page errors in both runs.
+      The Phase 3F-H and Phase 3F-F browser audits were re-run as regressions on the same HEAD and
+      also passed.
+- [x] **Focused hostile review.** All twenty checks were verified. Two findings were fixed during
+      implementation before any gate ran: `referenceDate` could name a date no relation ever used,
+      and the source scan did not fence provenance freshness as an input. The component was also
+      renamed to `OfficialReservationCalendarSection` so its JSX tag stops colliding with the
+      existing `<Route` guard, which was left intact rather than weakened.
+
+**Phase 3F-J passed its validation gates. PR #79 subsequently passed independent focused review,
+transitioned out of Draft, and was merged into `main`.**
+
+
+## Phase 3F-K — Official Reservation Evidence Coverage Expansion Design Gate — design/audit only
+
+Design record:
+[`docs/OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_DESIGN.md`](OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_DESIGN.md).
+
+Base audited: `f217228a4f6fb980ee4ccd89f82905ac7dee1006` (`main` after the Phase 3F merged-state documentation correction).
+
+Official sources consulted: **2026-09-13**.
+
+- [x] **Coverage debt classified rather than flattened.** The 36 `reservation.required === true`
+      places with no Phase 3F evidence are split into 20 operator/organizer admission candidates,
+      3 composite destination/accommodation records, 9 operator-dependent tours/activities and
+      4 ferry/transport/lodging composites. The latter 16 are not treated as evidence-coverage
+      failures merely because their editorial reservation flag is true.
+- [x] **Phase 3F eligibility decoupled from `reservation.required`.** Future coverage is measured
+      against scopes for which current official evidence establishes a structured civil-date
+      reservation mechanism that can be encoded without invention. Absence still means only that
+      Nihon has no structured official mechanism record for that scope.
+- [x] **Current-source evidence re-audited.** SHIBUYA SKY, PokéPark KANTO, Nintendo Museum, USJ,
+      SUPER NINTENDO WORLD and AnimeJapan 2027 were rechecked against current official sources.
+      Independent focused review narrowed the bounded successor to Nintendo Museum only. SHIBUYA SKY
+      proves a sales horizon but not an exact release cadence; PokéPark publishes two deterministic
+      same-scope acquisition mechanisms that the current identity model cannot represent honestly.
+      USJ, SUPER NINTENDO WORLD and AnimeJapan remain intentionally excluded for separate reasons.
+- [x] **SHIBUYA SKY overreach rejected.** The current official ticket page proves only that tickets
+      are sold for dates up to two weeks ahead. It does not state the exact cadence at which a newly
+      eligible date becomes sellable, so JP-002 is not encoded as a 14-day release. The workbook's
+      broader editorial `2–4 semanas` text remains a separate planning fact.
+- [x] **One new mechanism family justified by real evidence.** `monthly-application-window` is
+      approved from Nintendo Museum's deterministic monthly drawing evidence. PokéPark also exhibits
+      such a window, but its second deterministic same-scope first-come channel makes JP-050 a
+      separate identity/composition design problem rather than a Phase 3F-L data record.
+- [x] **PokéPark dual-channel evidence preserved rather than collapsed.** The official source
+      publishes both the 1st–12th monthly lottery window three months ahead and deterministic
+      first-come sales beginning at 20:00 on the same date two months before admission. Current
+      active `placeId + scope` uniqueness cannot represent both, so JP-050 is deferred to a future
+      same-scope multi-mechanism identity gate. Nintendo's later direct sales remain
+      availability-dependent and are not promoted into a deterministic generic release date.
+- [x] **USJ conflict stays unresolved by design.** Ordinary park admission remains absent while
+      current official evidence does not yield one clean contradiction-free generic rule; Express
+      Pass timing may not substitute for ordinary-admission timing.
+- [x] **SUPER NINTENDO WORLD stays outside this calendar-release expansion.** Its official access
+      mechanism includes same-day app distribution, early exhaustion and selected advance bundled
+      channels; it is not normalized into a pre-trip release date.
+- [x] **AnimeJapan historical projection remains prohibited.** The 2027 event dates are official,
+      but no 2027 public ticket-sale schedule is yet established by the consulted source. 2026 ticket
+      dates remain historical evidence only.
+- [x] **Inverted application-window debt promoted to a successor blocker.** Before JP-097 may enter
+      the catalog, Phase 3F-D must fail closed on `openDate > closeDate`, Phase 3F-F must return
+      `null` before formatting a synthetic inverted span, and the offline validator must reject
+      statically invalid monthly-window shapes. No layer may swap, sort or repair the edges.
+- [x] **Successor scope bounded to exactly one new record.** If the implementation-time source
+      recheck still supports it, Phase 3F-L may add only JP-097 Nintendo Museum. JP-002 and JP-050
+      remain absent by explicit design. The active catalog would grow from five to six records.
+- [x] **Implementation-time source recheck required.** Reservation rules are time-sensitive; each
+      approved source must be reopened immediately before the data write. A changed proposition may
+      remove a candidate or require another design gate, but may not be silently forced into the
+      approved schema.
+- [x] **Runtime boundaries preserved.** No booking state, availability, inventory, countdown,
+      deadline, urgency, ranking, reminder, notification, calendar export, runtime network request,
+      planning-draft change, new localStorage key, Phase 3D precedence or source-conflict UI is
+      approved.
+- [x] **Successor validation gate fixed.** Phase 3F-L must prove source/app parity, all six records,
+      exact Nintendo Museum derivation, real month-end/leap-month handling, lower-layer inverted-span
+      fail-closed behavior, unchanged active identity semantics and 3F-H/3F-J boundaries, explicit
+      SHIBUYA/PokéPark/USJ/SNW/AnimeJapan exclusions, full Vitest/lint/build/whitespace gates and
+      relevant browser regressions.
+- [x] **Normative contract recorded.** Sixty-four explicit contracts define eligibility, coverage,
+      current-source handling, the new family, fail-closed span behavior, identity, exclusions,
+      runtime boundaries and implementation-time verification.
+- [x] **Hostile design review corrective applied.** The new monthly window keeps open/close timezone
+      evidence independent, matching the shipped Phase 3F application-window boundary, and Phase
+      3F-F's inverted-span behavior is fixed explicitly as `null` before formatting rather than an
+      undefined "refusal" or a newly invented presentation state.
+- [x] **Independent focused review corrective applied.** Current official-source rechecks rejected
+      two overreaches in the Draft: SHIBUYA's two-week horizon is not an exact release cadence, and
+      PokéPark's first-come sale-start rule is deterministic rather than merely contingent. The
+      successor was therefore narrowed from three records to Nintendo Museum only, while preserving
+      current active `placeId + scope` uniqueness and deferring PokéPark to a dedicated
+      multi-mechanism identity/composition gate.
+
+Recommended successor: **Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation**.
+
+**Phase 3F-K changed documentation only and was merged via PR #81.**
+
+
+## Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation — implementation candidate
+
+Execution record:
+[`docs/OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_RUNTIME.md`](OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_RUNTIME.md).
+
+Base: `7fa8e82053f241358f8d613b2d866b241dee36ac` (`main` after Phase 3F-K / PR #81).
+
+Official Nintendo Museum evidence rechecked: **2026-09-13**.
+
+- [x] **Implementation-time source recheck passed.** Nintendo's current official ticket site still
+      states that tickets are first sold to drawing entrants, gives July 15 → April 1–30 as the
+      drawing example, and the current calendar independently identifies the December 2026 drawing
+      through September 30. No recurring clock time is generalized from one calendar instance.
+- [x] **Exactly one new evidence record.** `RM-JP-097-001` represents Nintendo Museum general
+      admission as a `monthly-application-window`, three months before the visit month, from day 1
+      through the real last day of that shifted month, allocation `drawing`, active, consulted
+      2026-09-13, confidence `official-derived`.
+- [x] **Catalog grows 5 → 6 without identity expansion.** Active `placeId + scope` uniqueness is
+      unchanged; no channel field exists; SHIBUYA SKY, PokéPark, USJ, SUPER NINTENDO WORLD and
+      AnimeJapan remain absent exactly as Phase 3F-K required.
+- [x] **New `monthly-application-window` family implemented.** Open edge is a fixed day; close edge
+      may be a fixed day or the calendar month's real last day; edge times and timezone evidence are
+      independent. Static fixed-day inversion is rejected by both parsers/validators.
+- [x] **Calendar arithmetic is civil and fail-closed.** Month shifting never becomes a fixed day
+      count; February 2027 resolves to day 28 and leap February 2028 to day 29. An impossible fixed
+      day in the derived month yields `not-derivable`, never a clamp.
+- [x] **Phase 3F-D inverted-span gap closed.** Existing relative application windows and the new
+      monthly family both reject `openDate > closeDate` as
+      `not-derivable / invalid-calendar-alignment`, with no swap, sort or repair.
+- [x] **Phase 3F-F fail-closed gap closed.** Presentation independently validates both edges and
+      returns `null` before formatting an invalid or inverted application span. No new
+      presentation state was introduced.
+- [x] **Canonical/app evidence parity preserved.** The two JSON artifacts were written from the same
+      serialized value and have the same content blob; a connector-grounded static gate confirmed
+      byte equality.
+- [x] **Focused tests expanded.** TypeScript evidence, derivation and presentation suites now cover
+      Nintendo, month-end/leap-month arithmetic, impossible fixed days, old-style inverted spans and
+      explicit Phase 3F-K exclusions. Python validator tests cover the new family, static inversion,
+      six-record catalog and provenance split.
+- [x] **Static artifact gate passed in the available environment.** Six unique records, six unique
+      active place/scope identities, all place IDs resolvable, exact Nintendo fields, explicit
+      exclusions, no action-state fields, no network/storage/clock/editorial-reservation dependency
+      in the three touched Phase 3F runtime modules, and both inverted-span guards were mechanically
+      checked.
+- [x] **Hostile review corrective applied.** Nintendo's generic month rule is explicitly traced
+      to two official pages: the ticket instructions remain the canonical `sourceUrl`, while the
+      official calendar URL is retained verbatim inside `provenance.evidence` and pinned by the
+      Python catalog test. Real JP-097 fixtures were also added to Phase 3F-H and Phase 3F-J focused
+      tests so the new mechanism is not covered only by generic Katsura behavior.
+- [x] **Browser-fixture impact audited statically.** Existing Phase 3F-F/H/J browser scripts use
+      Ghibli, Disney, Katsura and Sumo fixtures; none includes JP-097, so no browser assertion needs
+      semantic modification merely because Nintendo evidence was added.
+- [x] **Repository-native execution gate passed.** A temporary GitHub Actions workflow checked
+      out exact code head `b10e2bcf8abb9085d2e29576739b60cb40c9fb84` and passed Python validator
+      + unit tests, focused Phase 3F Vitest, full Vitest, lint, build, both whitespace gates and
+      Phase 3F-F/H/J browser audits. Workflow run `34865708384` concluded success.
+- [x] **Temporary validation workflow removed without tree drift.** After deleting the workflow,
+      compare `b10e2bc...167abb7` reported zero changed files, so the executable tree remained
+      byte-equivalent to the validated code head.
+- [x] **Ready transition gate satisfied.** Only documentation closure changed after executable
+      validation; no runtime, data, test, schema, storage, dependency or UI file changed afterward.
+
+**Phase 3F-L is implemented, hostile-reviewed, repository-native validated and merged via PR #82.**
+
+## Phase 3F-M — Same-Scope Multi-Mechanism Identity & Composition Design Gate
+
+Design authority:
+[`docs/SAME_SCOPE_MULTI_MECHANISM_IDENTITY_COMPOSITION_DESIGN.md`](SAME_SCOPE_MULTI_MECHANISM_IDENTITY_COMPOSITION_DESIGN.md).
+
+Base: `7bf0f385ccc6b5fdb635be4e6b3717c156aa2c6c` (`main` after Phase 3F-L / PR #82).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Domestic multi-mechanism case reconfirmed.** The Japan-resident ticket page still publishes
+      a monthly drawing path and a two-month first-come path for PokéPark admission.
+- [x] **Runtime identity audited.** Derivation, presentation, Phase 3F-H, Phase 3F-J and the per-day
+      React surface already preserve exact evidence by `recordId`; `placeId + scope` is a catalog
+      cardinality restriction rather than the fundamental runtime identity key.
+- [x] **Identity conclusion retained.** `recordId` is sufficient to distinguish evidence records,
+      so no `channel`, `pathway`, `mechanismRole` or fake scope is needed merely for identity.
+- [x] **Hostile review found an applicability boundary.** The domestic purchase route requires
+      Japan mobile/SMS, while residents outside Japan are directed to a separate official English
+      store. Record identity does not answer which purchase context applies to one traveler.
+- [x] **International official store audited.** The outside-Japan store publishes a lottery
+      application system for admission three months ahead with an application period from the 1st
+      through the 12th, selected/unsuccessful applicant states, possible redraw, and payment after
+      selection.
+- [x] **International 20:00 evidence independently confirmed.** The outside-Japan store explicitly
+      states that Application periods start at 20:00 JST. The successor may preserve that open-edge
+      time/timezone without relying on the domestic source; the close edge remains untimed.
+- [x] **Same-scope cardinality relaxation deferred.** Active `placeId + scope` uniqueness remains a
+      temporary safety invariant until purchase-context/applicability semantics are designed.
+- [x] **Domestic first-come record deferred.** Current domestic material says some tickets are sold
+      first-come, while prior official material states first-come may depend on lottery-sale
+      conditions. The current audience-agnostic `general-admission` model would overstate that
+      proposition.
+- [x] **Month-end fallback documented but not implemented.** `last-day-of-shifted-month` is the
+      correct civil rule for the domestic first-come path, but Phase 3F-N will not add unused runtime
+      complexity while that path remains deferred.
+- [x] **Corrected successor bounded to one JP-050 record.** Subject to implementation-day source
+      recheck, Phase 3F-N may add exactly one active `general-admission` record from the official
+      outside-Japan purchase flow using existing `monthly-application-window`, days 1–12,
+      open 20:00 Asia/Tokyo, close time/timezone unknown, allocation `drawing`.
+- [x] **Catalog cardinality remains unchanged.** Phase 3F-N must preserve global ID uniqueness and
+      active `placeId + scope` uniqueness; expected catalog size becomes 7, not 8.
+- [x] **Existing no-state boundaries preserved.** Availability, inventory, current sale state,
+      lottery result, urgency, personalized eligibility, reminders and recommendation between
+      mechanisms remain out of scope.
+- [x] **Successor gate corrected.** Phase 3F-N must prove 7-record parity, exact international
+      provenance context, 1st–12th three-month application derivation, exact 20:00 Asia/Tokyo open
+      edge, no invented close time/timezone, absence of domestic first-come evidence, unchanged
+      Disney behavior and the full regression suite.
+- [x] **Future same-scope work explicitly separated.** A later purchase-context design gate is
+      required before domestic/international or other applicability-distinct mechanisms coexist as
+      active same-scope records.
+- [x] **Independent focused review passed with one source correction.** The international store
+      independently confirms Application periods start at 20:00 JST and explicitly uses
+      lottery/redraw semantics, so Phase 3F-N may preserve a 20:00 Asia/Tokyo open edge and
+      `allocation: drawing`; the close edge remains untimed. No other design contradiction was
+      found.
+
+**Phase 3F-M changes documentation only, passed hostile + independent focused review and was merged via PR #83.**
+
+## Phase 3F-N — PokéPark Overseas Application Evidence Foundation
+
+Runtime authority:
+[`docs/POKEPARK_OVERSEAS_APPLICATION_EVIDENCE_RUNTIME.md`](POKEPARK_OVERSEAS_APPLICATION_EVIDENCE_RUNTIME.md).
+
+Base: `1937df90ffe6be6eb207519366df2b3e4928b407`.
+
+Official source recheck: **2026-09-14**.
+
+- [x] **Implementation-day international source recheck passed.** The operator still directs guests
+      residing outside Japan to its separate Official Web Ticket Store.
+- [x] **International mechanism still explicit.** Admission three months ahead; Applications 1st–12th;
+      Application periods start 20:00 JST; lottery/redraw semantics remain explicit.
+- [x] **Exactly one JP-050 record added.** `RM-JP-050-001`, `general-admission`,
+      `monthly-application-window`, open day 1 at 20:00 Asia/Tokyo, close day 12 with no recorded
+      close time/timezone, `allocation: drawing`.
+- [x] **Catalog grows 6 → 7 only.** No second JP-050 record is added.
+- [x] **Cardinality preserved.** Global record-ID uniqueness and active `placeId + scope`
+      uniqueness remain unchanged and still have defensive tests.
+- [x] **No new runtime family.** Existing `monthly-application-window` represents the source
+      exactly; no TypeScript production runtime module changed.
+- [x] **Domestic first-come remains deferred.** No `last-day-of-shifted-month`, no domestic
+      purchase-path record and no purchase-context schema field are introduced.
+- [x] **Focused D/F/H/J coverage added.** Tests pin date arithmetic, the 20:00 Asia/Tokyo open edge,
+      untimed close edge, provenance context, relation time/timezone non-leakage and one route-wide
+      row.
+- [x] **Hostile review corrective applied.** The Python domestic-first-come absence assertion was
+      hardened from a dictionary-key membership check to a serialized mechanism-content check. No
+      production data/runtime semantics changed.
+- [x] **Repository-native executable validation passed.** GitHub Actions run `34874539102`
+      checked out exact clean executable HEAD
+      `e1c1e6098719d14ccb0053ad5c63d6c99ec71c2c` and passed Python validator/tests,
+      focused Phase 3F Vitest, full Vitest, lint, build, whitespace gates and Phase 3F-F/H/J browser
+      audits.
+- [x] **Temporary validation workflow removed without tree drift.** Compare
+      `e1c1e609...363636ec` reports zero changed files after workflow removal, so the executable
+      tree remains byte-equivalent to the validated HEAD.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after executable
+      validation; no runtime, data, test, schema, storage, dependency or UI change is authorized
+      without revalidation.
+
+**Phase 3F-N is implemented, hostile-reviewed, repository-native validated and merged via PR #84.**
+
+## Phase 3F-O — Purchase-Residence-Context Evidence Design Gate
+
+Design authority:
+[`docs/PURCHASE_CONTEXT_EVIDENCE_DESIGN.md`](PURCHASE_CONTEXT_EVIDENCE_DESIGN.md).
+
+Base: `f1eb7214a62c14f50200d7f2a19bf2f5f7362cfe` (`main` after Phase 3F-N / PR #84).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Blocking semantic gap reconfirmed.** The operator still separates residents of Japan from
+      guests residing outside Japan into different official purchase routes.
+- [x] **Minimal model selected.** Add one required evidence-level `purchaseResidenceContext` field with
+      closed values `not-recorded`, `resides-in-japan`, `resides-outside-japan`.
+- [x] **No user profile introduced.** The field records source-defined purchase-residence context only; it
+      does not store, infer or ask for the user's residence, nationality, citizenship, location or
+      eligibility.
+- [x] **Unknown semantics fail closed.** `not-recorded` means only that structured evidence does
+      not record a purchase-residence context; it never means unrestricted or universally
+      available.
+- [x] **Record-level placement approved.** Purchase-residence context is structural evidence beside scope,
+      mechanism, allocation and status, not free-text provenance and not parsed from `sourceEntity`.
+- [x] **Atomic seven-record migration designed.** JP-050 becomes
+      `resides-outside-japan`; the other six current records become `not-recorded` without making
+      any new accessibility claim.
+- [x] **Neutral presentation contract approved.** Non-`not-recorded` context renders after
+      allocation and before provenance on both existing official-reservation surfaces.
+- [x] **Hostile-review wording corrective applied.** Context text is now explicitly anchored to the
+      cited official purchase route — “Ruta de compra oficial citada…” — rather than phrased as a
+      label that could be read as the current user's residence or eligibility.
+- [x] **Specific-context provenance hardened.** JP-050's canonical mechanism source remains the
+      Official Web Ticket Store, while the operator page that explicitly routes guests residing
+      outside Japan must be retained verbatim in provenance evidence as supporting context proof.
+      No provenance schema expansion is needed.
+- [x] **D/H/J remain context-blind.** Date derivation, temporal relation and route ordering must not
+      read purchase-residence context; Phase 3F-F owns display text.
+- [x] **Independent focused review preserved the display-order correction.** Both existing surfaces
+      currently place the Phase 3F-H temporal relation between allocation and provenance, so the
+      exact successor order remains fact/details → allocation (if any) → purchase-residence context
+      → temporal relation (if any) → provenance → source link.
+- [x] **Independent focused review narrowed the field name.** The approved vocabulary encodes only
+      residence in/outside Japan, so the structural field is now `purchaseResidenceContext`, not the
+      broader `purchaseContext`. Language, channel, membership, payment and phone/SMS requirements
+      may not be overloaded into this scalar.
+- [x] **Independent focused review rechecked the six-record migration.** Mapping the other six
+      current records to `not-recorded` adds no universal-access, no-restriction or user-eligibility
+      claim.
+- [x] **Cardinality remains deferred.** Phase 3F-P must keep active `placeId + scope` uniqueness,
+      add no second JP-050 record and add no domestic first-come mechanism.
+- [x] **No mechanism expansion.** `last-day-of-shifted-month` remains deferred.
+- [x] **Successor gate defined.** Phase 3F-P must prove exact vocabulary parsing, seven-record
+      migration, neutral context rendering, D/H/J non-interference, unchanged cardinality and full
+      repository-native regression.
+- [x] **Independent focused review added an implementation-day source gate.** Phase 3F-P must
+      re-open the official PokéPark residence-routing page immediately before the data migration.
+      If the residence distinction changes, disappears or becomes ambiguous, implementation stops
+      and returns to design instead of forcing `resides-outside-japan` from stale evidence.
+
+**Phase 3F-O changes documentation only, passed hostile + corrected independent focused review and was merged via PR #85.**
+
+## Phase 3F-P — Purchase-Residence-Context Evidence Foundation
+
+Runtime authority:
+[`docs/PURCHASE_RESIDENCE_CONTEXT_EVIDENCE_RUNTIME.md`](PURCHASE_RESIDENCE_CONTEXT_EVIDENCE_RUNTIME.md).
+
+Base: `aad244f3756b0641bd1c7831375ff56501f11dfd`.
+
+Official PokéPark residence-routing source recheck: **2026-09-14**.
+
+- [x] **Implementation-day source gate passed.** The operator still directs guests residing outside
+      Japan to the separate English ticket website and residents of Japan to the Japanese route with
+      membership registration + SMS through a Japan-usable mobile phone.
+- [x] **Required structural field added.** Every reservation-mechanism evidence record now carries
+      `purchaseResidenceContext` with the closed vocabulary `not-recorded`,
+      `resides-in-japan`, `resides-outside-japan`.
+- [x] **Atomic 7→7 migration implemented.** JP-050 is `resides-outside-japan`; the other six
+      current records are explicitly `not-recorded`.
+- [x] **Specific-context provenance remains auditable.** JP-050 keeps the international store as
+      canonical mechanism `sourceUrl` and retains the official residence-routing URL verbatim
+      inside `provenance.evidence`.
+- [x] **Parser/validator stay fail-closed.** Missing or unsupported context is rejected; no default
+      value is synthesized.
+- [x] **Neutral Phase 3F-F copy implemented.** `not-recorded` renders no line; specific contexts
+      render route-anchored copy that makes no claim about the current user's residence or eligibility.
+- [x] **Both existing surfaces use the exact approved order.** fact/details → allocation (if any) →
+      purchase-residence context → temporal relation (if any) → provenance → source link.
+- [x] **D/H/J remain context-blind.** Static source gates reject residence-context reads in date
+      derivation, temporal relation and route calendar aggregation; a behavioral test proves route
+      chronological identity/order is unchanged when only context values are mutated.
+- [x] **Cardinality remains unchanged.** Global IDs and active `placeId + scope` uniqueness stay
+      enforced; JP-050 remains exactly one active record.
+- [x] **Deferred work remains absent.** No domestic first-come record and no
+      `last-day-of-shifted-month` runtime value are added.
+- [x] **Initial repository-native validation passed, then hostile review found one validator
+      edge case.** A non-scalar `purchaseResidenceContext` could raise Python `TypeError` during
+      set membership instead of failing cleanly.
+- [x] **Hostile-review corrective applied.** Python now requires a string before closed-vocabulary
+      membership; a structured-object regression fixture proves fail-closed rejection.
+- [x] **Corrected executable tree revalidated from scratch.** Exact clean HEAD
+      `f1f937c5f4c4b04b3296bd918e5cacb59e33a2cf` passed GitHub Actions run
+      `34905444797`: Python validator/tests, focused Phase 3F-P Vitest, full Vitest, lint, build,
+      whitespace and Phase 3F-F/H/J browser audits.
+- [x] **Temporary validation workflow removed without tree drift.** Compare
+      `f1f937c5...5eaf17e8` reports zero changed files after workflow removal.
+- [x] **Independent focused review passed.** Final schema, validator, 7→7 migration, route-anchored
+      copy, exact surface order, D/H/J context blindness, comparator independence, cardinality and
+      all deferred boundaries were rechecked against the implementation. No further executable
+      corrective was required.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after executable
+      validation; any runtime/data/schema/test/dependency/storage/UI change requires revalidation.
+- [x] **Second independent focused review passed on the closure tree.** The schema, validator, both
+      JSON catalogs, presentation helper, both surfaces, CSS, Phase 3F-D/H/J modules and focused
+      tests were re-read directly rather than trusted through the suite. Byte parity, the 7-record
+      catalog, the single active JP-050 record, the exact 6× `not-recorded` + 1×
+      `resides-outside-japan` distribution, provenance routing-URL retention, surface order,
+      comparator independence and the absence of any residence/eligibility runtime field were all
+      re-confirmed, and the Python validator and unit suite were re-executed clean. No executable
+      corrective was required, so the validation seal is intact. One non-blocking robustness
+      observation is recorded in the runtime authority and deliberately deferred.
+- [x] **PR #86 marked Ready for review.** Base `aad244f3756b0641bd1c7831375ff56501f11dfd`, behind 0,
+      fifteen changed files, no temporary workflow in the tree.
+
+**Phase 3F-P is implemented, hostile-review corrected, independently reviewed twice, repository-native validated and merged via PR #86.**
+
+## Phase 3F-Q — Purchase-Residence-Context Presentation Exhaustiveness Hardening
+
+Runtime authority:
+[`docs/PURCHASE_RESIDENCE_CONTEXT_PRESENTATION_EXHAUSTIVENESS_RUNTIME.md`](PURCHASE_RESIDENCE_CONTEXT_PRESENTATION_EXHAUSTIVENESS_RUNTIME.md).
+
+Base: `4a9156c4236453c7389e6841fe5d7f25ffc08ecf`.
+
+- [x] **Deferred robustness observation accepted as the whole phase.** The Phase 3F-P helper's final
+      unguarded return was correct for the current union but could silently map a future new union
+      value to the outside-Japan sentence.
+- [x] **Compile-time exhaustiveness implemented.** Residence-context copy now lives in
+      `Record<ReservationPurchaseResidenceContext, string | null>`, matching the existing
+      presentation-layer map pattern.
+- [x] **Fallback removed.** The helper performs one typed map lookup and contains no implicit
+      outside-Japan fallback branch/string.
+- [x] **Current behavior preserved.** All three existing values retain exactly the same visible
+      output; `not-recorded` remains null.
+- [x] **Scope remains surgical.** No schema, JSON, parser, validator, React, CSS, date, relation,
+      calendar-order, cardinality, persistence or network change.
+- [x] **Same-scope work remains separate.** Active `placeId + scope` uniqueness and the single
+      JP-050 record remain untouched; domestic first-come and `last-day-of-shifted-month` remain
+      deferred.
+- [x] **Focused source-shape regression added.** The test pins the typed `Record`, map lookup and
+      absence of a fallback branch.
+- [x] **Repository-native validation passed.** Exact HEAD
+      `7575a2d9d857676a7df61af31c0e885cdb02d7c0` passed GitHub Actions run
+      `34910773136`: focused Phase 3F-Q test, full Vitest, lint, build, whitespace and Phase
+      3F-F/H/J browser audits.
+- [x] **Temporary workflow removed without tree drift.** Compare
+      `7575a2d9...3e405ba2` reports zero changed files after workflow removal.
+- [x] **Hostile + independent focused review passed.** The typed Record, exact current outputs,
+      no-fallback helper shape and strict four-file scope were re-read directly. No executable
+      corrective was required after validation.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after validation;
+      any runtime/test change requires a fresh exact-head run.
+
+**Phase 3F-Q is implemented, hostile-reviewed, independently reviewed and repository-native validated. Same-scope cardinality relaxation is NOT STARTED.**
+
+## Phase 3F-R — Same-Scope Purchase-Context Composition Design Gate
+
+Design authority:
+[`docs/SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_DESIGN.md`](SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_DESIGN.md).
+
+Base: `ec22ed065435621428ace08f3e954d73d529f8cb` (`main` after Phase 3F-Q / PR #87).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Residence routing rechecked.** The operator still separates residents of Japan from guests
+      residing outside Japan; the domestic route requires membership + SMS through a Japan-usable
+      mobile phone.
+- [x] **Domestic drawing remains explicit.** The official domestic ticket material still publishes
+      a three-month-ahead drawing with applications from the 1st through the 12th.
+- [x] **20:00 timing remains supported.** The June 16, 2026 official notice still states that ticket
+      drawing and first-come sales begin at 20:00 from July 2026.
+- [x] **Identity conclusion retained.** `recordId` remains the evidence-record identity;
+      `purchaseResidenceContext` remains applicability evidence and is not promoted into identity.
+- [x] **Simple context-key uniqueness rejected.** `placeId + scope + purchaseResidenceContext`
+      cannot be the replacement identity because multiple valid domestic mechanisms can share the
+      same `resides-in-japan` context.
+- [x] **Cardinality relaxation designed.** Phase 3F-S may remove global active
+      `placeId + scope` uniqueness.
+- [x] **Fail-closed replacement guard designed.** If two or more active records share
+      `placeId + scope`, every active member of that collision group must carry a specific context
+      (`resides-in-japan` or `resides-outside-japan`); `not-recorded` may not participate.
+- [x] **Solitary unknown-context evidence remains valid.** A single active `not-recorded` record
+      for one place/scope is still permitted; superseded records do not trigger the collision guard.
+- [x] **No second identity axis added.** No channel/pathway/mechanism-role field, fake scope,
+      allocation identity or mechanism-kind identity is introduced.
+- [x] **Composition stays record-local.** D/F/H/J continue to preserve one proposition per
+      `recordId`; no merging, date deduplication, automatic filtering, ranking or user-applicability
+      inference is authorized.
+- [x] **First real collision fixture bounded.** Subject to implementation-day source recheck,
+      Phase 3F-S may add exactly one domestic drawing record, `RM-JP-050-002`, with
+      `general-admission + resides-in-japan + monthly-application-window + drawing`.
+- [x] **Catalog successor bounded 7→8.** JP-050 becomes exactly two active general-admission records:
+      existing outside-Japan drawing plus the new Japan-resident drawing.
+- [x] **Domestic first-come remains deferred.** No `last-day-of-shifted-month` and no domestic
+      first-come record are authorized in Phase 3F-S; that calendar extension remains a later
+      independent gate.
+- [x] **Successor gate defined.** Phase 3F-S must prove parser/Python parity for the collision guard,
+      exact 8-record parity, record-local D/F/H/J composition, duplicate-date non-deduplication,
+      unchanged comparator semantics and the full repository-native regression suite.
+
+**Phase 3F-R changes documentation only. Authorized successor: Phase 3F-S — Same-Scope Purchase-Context Composition Foundation.**
+
+## Phase 3F-S — Same-Scope Purchase-Context Composition Foundation
+
+Runtime authority:
+[`docs/SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_RUNTIME.md`](SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_RUNTIME.md).
+
+Base: `d2bc655ccef4c510c032f089592c7521035ba69c`.
+
+Official PokéPark KANTO source recheck: **2026-09-15**.
+
+- [x] **Implementation-day source gate passed.** All three official sources were re-opened before
+      the catalog was written. Outside-Japan routing to the separate English store, the Japanese
+      resident route, the registration/SMS-through-a-Japan-usable-phone requirement, the
+      three-months-ahead drawing, the 1st–12th application period and the 20:00 opening were all
+      still explicit; no proposition changed materially or became ambiguous.
+- [x] **Active `placeId + scope` uniqueness removed.** The temporary global restriction that
+      rejected every second active same-scope record is gone from both validators.
+- [x] **Explicit-context collision guard implemented.** Every active member of an active same-scope
+      collision group must carry `resides-in-japan` or `resides-outside-japan`; `not-recorded` is
+      rejected inside such a group, remains valid as a solitary active record, and superseded
+      records never participate.
+- [x] **Guard evaluated over completed groups.** Both implementations group first and judge
+      afterwards, so a record accepted while solitary is still rejected once a later active
+      same-scope record makes it a collision member — proven by a read-order test in both languages.
+- [x] **No second identity axis created.** No `placeId + scope + purchaseResidenceContext`
+      uniqueness, no channel/pathway/acquisitionChannel/mechanismRole field, no fake scope.
+      `recordId` remains the only evidence-record identity, and three active same-scope records
+      sharing one specific context parse successfully.
+- [x] **Preserved invariants proven.** Global record-ID uniqueness and ID-namespace matching still
+      reject their violations under the relaxed cardinality.
+- [x] **TypeScript and Python kept in lockstep.** The Python validator mirrors the collision
+      semantics exactly, with fail-closed regression fixtures for every accepted and rejected shape.
+- [x] **RM-JP-050-002 added.** `general-admission` + `resides-in-japan` + `monthly-application-window`
+      (three months ahead, days 1–12, open 20:00 Asia/Tokyo, no invented close time or timezone) +
+      `drawing`, sourced from the official domestic ticket-information page with the timing notice
+      and residence-routing URL retained in provenance evidence.
+- [x] **Residence assignment is evidence, not inference.** The provenance records the published
+      routing statement and states explicitly that the assignment is not inferred from page
+      language, locale, domain or source entity.
+- [x] **Catalog 7 → 8 with parity intact.** JP-050 now has exactly two active general-admission
+      records — `RM-JP-050-001` (`resides-outside-japan`, unchanged) and `RM-JP-050-002`
+      (`resides-in-japan`) — and both catalogs remain byte-identical.
+- [x] **D/F/H/J remain record-local.** Two derivations with distinct `recordId` values, the existing
+      `resides-in-japan` copy reused with no new UI taxonomy, one independent relation per record,
+      and one route-wide row per record.
+- [x] **Identical dates are not deduplicated.** Both JP-050 records derive the same civil window and
+      still produce two separate rows sharing one anchor date.
+- [x] **Comparator semantics unchanged.** Anchor civil date → plan ordinal → source-record index,
+      with no residence-context key. Reversing only the catalog order reverses the pair, proving the
+      tie-break is source-record index rather than context or operator preference.
+- [x] **Browser acceptance extended to the real fixture.** The existing Phase 3F audits never routed
+      through JP-050, so `app/scripts/phase3f-s-browser-audit.mjs` was added; it proves the two-row
+      composition, per-record sources and relations, absence of new UI taxonomy, absence of
+      personalized applicability copy and absence of new persistence in a real Chromium session.
+- [x] **Domestic first-come remains deferred.** No first-come record and no
+      `last-day-of-shifted-month` value exist anywhere in the runtime; Disney's
+      `first-day-of-next-month` behaviour is unchanged and pinned by test.
+- [x] **No scope creep.** No new mechanism/scope/context value, no user-residence, nationality,
+      citizenship, visa, country or eligibility field, no filtering, ranking, recommendation,
+      availability, inventory, current-sale-state or lottery-result model, no persistence,
+      localStorage, network, account, notification, reminder or calendar-export change.
+
+- [x] **Hostile review passed with two corrections.** A differential test over 87 exhaustive
+      same-scope catalog shapes reported zero accept/reject drift between the TypeScript parser and
+      the Python validator. Two real defects were fixed: a catalog-level test still named after the
+      removed `placeId + scope` uniqueness rule (its assertion passed only incidentally), and the
+      collision grouping key held in a variable named `identity` in both validators. A third
+      candidate — the `.find()` in `OrderedSequenceBuilder.tsx` — was checked and dismissed: it keys
+      on `recordId` and was already record-local.
+- [x] **Exact-head validation passed.** Exact executable HEAD
+      `dc1158a145175950d8d7d5324021221bc1a854eb` passed GitHub Actions run `34918291572` across all
+      16 steps: Python validator and unit tests, focused Phase 3F-S Vitest, full Vitest, lint, build,
+      whitespace gates, Chromium install and the Phase 3F-F/H/J/S browser audits.
+- [x] **Temporary workflow removed without tree drift.** Removal commit
+      `8a2b5a1155f061d3109b296a8ed325ed87022d8d`; the diff from the validated HEAD to the
+      post-removal head reports zero changed files of any kind, so that tree is byte-identical to the
+      validated one.
+- [x] **Second focused review passed.** The final tree was re-read directly: guard shape in both
+      languages, byte parity, 8 records, the single active same-scope group, D/F/H/J byte-unchanged
+      from base, comparator intact, real-record test coverage, every deferred boundary absent, docs
+      consistent and no workflow file remaining. No further correction was required.
+
+**Phase 3F-S is implemented, hostile-review corrected, independently reviewed and exact-head validated. Domestic first-come and Phase 3F-T are NOT STARTED.**
+
+## Phase 3F-T — Domestic First-Come Calendar & Evidence Design Gate
+
+Design authority:
+[`docs/DOMESTIC_FIRST_COME_CALENDAR_DESIGN.md`](DOMESTIC_FIRST_COME_CALENDAR_DESIGN.md).
+
+Base: `a15837bf0816b700639a35f11d29c3bc26c9aff5`.
+
+Official PokéPark KANTO source recheck: **2026-09-15**.
+
+- [x] **Design gate only.** No runtime, data, schema, test, React, CSS, dependency, persistence or
+      network change.
+- [x] **Calendar arithmetic verified.** The current domestic page publishes the two-month
+      same-calendar-day rule, 20:00 start, daily cadence and month-end catch-up. The civil semantics
+      of `last-day-of-shifted-month` are fixed and match the worked examples.
+- [x] **Current vs superseded time separated.** 20:00 is current from July 2026; 18:00 is
+      superseded.
+- [x] **No helper needed.** `lastDayOfShiftedMonth` already exists in production runtime.
+- [x] **Hostile review found material applicability evidence omitted by the first draft.** The
+      current official ticket page says 「一部チケットを先着方式にて販売いたします」 — some tickets are
+      sold first-come.
+- [x] **Historical contingency classified instead of ignored.** The 2025-12-24 first-come launch
+      notice and the 2026-01-26 Town Pass notice state that first-come sales may not be conducted
+      depending on drawing-sales conditions.
+- [x] **Current omission is not treated as explicit revocation.** The current page no longer repeats
+      the historical lottery-result condition, but no located current source states that it was
+      revoked or that first-come occurs for every admission date.
+- [x] **Event existence separated from availability.** 売り切れ次第終了 is post-opening
+      availability; 「一部チケット」 plus the historical drawing-dependent wording create a different
+      uncertainty — whether a first-come event exists for the target at all.
+- [x] **Runtime audit remains fail-closed.** D/F/H/J can safely render a concrete release only after
+      applicability is known; a disclaimer cannot manufacture the missing event-existence
+      proposition.
+- [x] **Per-day disclaimer asymmetry remains documented.** It is real but independent and is not
+      authorized for implementation by this phase.
+- [x] **Decision corrected to Outcome C.** Domestic first-come remains deferred. Outcome A would
+      overstate current evidence; Outcome B would add a qualifier without a deterministic
+      applicability rule and drift toward a forbidden generic contingency model.
+- [x] **No executable successor authorized.** `RM-JP-050-003` remains absent, catalog cardinality
+      remains 8, `missingAlignedDayRule` is not widened, and no Phase 3F-U runtime/data phase is
+      authorized.
+- [x] **Reopening criterion fixed.** A future source gate must find explicit universal applicability
+      or a closed deterministic applicability rule before implementation can resume.
+
+**Phase 3F-T remains documentation-only. Authoritative result: Outcome C — domestic first-come stays deferred. No Phase 3F-U implementation is authorized.**
+
+## Phase 4A — Licensed Photography Pipeline & Pilot — complete
+
+Until this phase, `app/src/data/place-images.ts`'s photography registry was intentionally
+empty — every one of the 214 places ships `imageStatus: "brief-only"`, so `PlaceGallery`
+always fell back to the editorial `imageBrief`. This phase makes Visual Discovery real for
+a **24-place pilot only** — the rest of the dataset still falls back to `imageBrief`
+exactly as before.
+
+- [x] **Deterministic, code-driven pilot selection.** `scripts/select-photography-pilot.py`
+      classifies every place into one of six category buckets (landmark, temple-shrine,
+      urban-neighborhood, nature, museum-cultural, distinct-experience) from its dataset
+      `category` field, and picks the highest-graded place per hub/bucket (ties broken by
+      ascending id) — 6 places each from Tokio, Kioto, Osaka, Okinawa. Not a manually
+      cherry-picked list: re-running the script against an unchanged dataset reproduces the
+      same 24 places. See `data/visual/photography-pilot.json` and
+      `docs/PHOTOGRAPHY_PILOT.md`.
+- [x] **Wikimedia Commons only**, with an explicit license allowlist (CC0, CC BY,
+      CC BY-SA) enforced by `scripts/validate-photography.py` — no image from Google
+      Images/Maps, Instagram, Facebook, Pinterest, X, a travel blog, or a tourism/official
+      site, none of which expose a checkable reusable license.
+- [x] **No runtime hotlinking.** `scripts/acquire-photography.py` re-verifies each
+      metadata record's declared Commons file against the live API (failing loudly, never
+      silently substituting a different photograph on a mismatch), downloads a
+      Commons-generated thumbnail, and writes an optimised local WebP derivative (≤1600px
+      longest side, no upscaling, EXIF/ICC stripped) to
+      `app/public/images/places/<PLACE_ID>/<slug>.webp`. The running app reads only that
+      local asset, never a Commons/CDN URL directly.
+- [x] **One authoritative metadata source**, `data/visual/photography-metadata.json`
+      (copied to `app/src/data/photography-metadata.json` as the build input, like every
+      other root `data/*.json`), records per image: place id, local asset path, alt text,
+      source, Commons **file page** URL (not the raw CDN URL), credit, license + license
+      URL, acquisition URL/date, and the original Commons file title. The existing
+      `PlaceImage` contract (`url`, `alt`, `credit`, `source`, `sourceUrl`, `license`) is
+      reused unchanged — `place-images.ts` now derives its registry from this JSON instead
+      of a hand-authored empty object, so there is exactly one competing metadata model,
+      not two.
+- [x] **Offline validator**, `scripts/validate-photography.py` — no network access —
+      checks unknown place ids, duplicate asset paths, a source silently representing more
+      than one place, missing/malformed URLs, unsupported licenses, missing required
+      credit, empty/placeholder alt text, a missing referenced asset, an unsupported file
+      format or an asset path outside the approved directory, and a pilot place lacking its
+      expected photograph.
+- [x] **Gallery reused unchanged in shape** (`PlaceGallery`/`PlaceDetail` were not
+      redesigned). Because real photographs finally activate the lightbox in practice for
+      the first time, two concrete accessibility gaps that had simply never been
+      exercised were fixed: focus now restores to the control that opened the lightbox on
+      close (previously fell back to `<body>`), and Tab is trapped on the lightbox's single
+      focusable control while open (previously could tab to elements visually hidden
+      behind the still-open overlay). Escape-before-parent-dialog, keyboard
+      previous/next, swipe, lazy loading, and the image-error fallback were audited and
+      found already correct — untouched.
+- [x] **Non-pilot places are unaffected.** Every place outside the 24-place pilot has no
+      registry entry and continues showing its `imageBrief` in the existing gallery
+      fallback — verified in both the automated test suite and manual visual QA (a
+      non-pilot Tokyo place still renders the "Sin fotografía disponible todavía" state).
+
+This phase made zero requests to any live routing/transit provider, touched no workbook,
+`places.json`, `nearby.json`, logistics/access-point/walking artifact, planning-draft,
+ordered-sequence, comparison, day-assignment, or transit code, added no npm runtime
+dependency (Pillow is a Python-only, acquisition-time dependency, listed in
+`scripts/requirements.txt`, never imported by the app), and created zero accounts or API
+keys. **This is a 24-place pilot, not full-dataset coverage — the remaining 190 places
+still fall back to `imageBrief`.** Phase 4B was not started.
+
+## Phase 4B — Photography Attribution Compliance & Scale-Up Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_ATTRIBUTION_SCALE_DESIGN.md`](PHOTOGRAPHY_ATTRIBUTION_SCALE_DESIGN.md).
+
+Base: `7ddfd6a0e7f9a2c0743f43e2a5e122571f9d1139`.
+
+Official Wikimedia Commons / Creative Commons reuse guidance rechecked:
+**2026-09-14 (America/Mexico_City)**.
+
+- [x] **Design gate only.** No runtime, TypeScript, Python, tests, assets or image metadata changed.
+- [x] **Coverage measured.** Phase 4A covers 24/214 places (11.2%); 190 remain on the existing
+      `imageBrief` fallback. Scaling one-photo coverage to all remaining places would add roughly
+      54.6–56.1 MB if the pilot footprint persists.
+- [x] **Attribution parity defect found.** Source metadata already stores `licenseUrl` and
+      `originalTitle` for all 24 images, but `PlaceImage` / `place-images.ts` discard both
+      before presentation.
+- [x] **Visible attribution is therefore incomplete as a scale foundation.** The gallery links the
+      Commons file page and prints creator + license name, but cannot link the recorded license URI.
+      Current CC BY/CC BY-SA 4.0 guidance explicitly requires a license link/URI when sharing.
+- [x] **Processing disclosure audited.** The acquisition pipeline re-encodes every asset to WebP and
+      may resize it; 23/24 current originals exceed the 1600 px maximum and one is exactly 1600 px.
+      The corrective must disclose processing factually without making a legal derivative-work
+      classification.
+- [x] **Decision: corrective before scale.** No new photograph is authorized until the metadata →
+      registry → visible-attribution chain carries the already-recorded license/title provenance.
+- [x] **Phase 4C authorized, narrowly.** Photography Attribution Completeness Corrective may extend only
+      the attribution shape/adapter/presentation and focused validation needed for the existing 24
+      assets. It adds zero images and changes zero image blobs.
+- [x] **First-photo-first scale policy.** Second images remain deferred while 190 places have no
+      photograph.
+- [x] **Later acquisition batch bounded.** After Phase 4C closes, a later acquisition phase may
+      target at most the 16 currently uncovered S-grade places, one image each, with no silent
+      substitution if a suitable source cannot be found.
+- [x] **Runtime remains local/offline.** Relicensing/source drift belongs to explicit maintenance
+      tooling; no Commons calls are added to app rendering.
+- [x] **License policy is not widened for coverage.** No NC/ND/fair-use material and no weaker
+      provenance standard.
+
+**Phase 4B is documentation-only. Authorized next implementation: Phase 4C — Photography Attribution Completeness Corrective. No new photography acquisition is started by this gate.**
+
+## Phase 4C — Photography Attribution Completeness Corrective — complete
+
+Runtime authority:
+[`docs/PHOTOGRAPHY_ATTRIBUTION_COMPLETENESS_RUNTIME.md`](PHOTOGRAPHY_ATTRIBUTION_COMPLETENESS_RUNTIME.md).
+
+Base: `85e34fe5f4785dab675e07fa1ce6f85e3be06c1b`.
+
+Current Wikimedia Commons source-file pages rechecked:
+**2026-09-14 (America/Mexico_City)**.
+
+- [x] **Existing 24 only.** No new photograph was acquired, no image was replaced and all 24 WebP
+      blobs remain byte-unchanged.
+- [x] **Attribution parity repaired.** `licenseUrl`, Commons source-file provenance, optional
+      separately source-backed attribution title and factual processing now survive metadata →
+      `PlaceImage` → visible gallery attribution.
+- [x] **No filename-to-work-title inference.** `originalTitle` is presented only as Commons
+      source-file provenance. A distinct `attributionTitle` exists only for the three current
+      records whose source recheck independently supplies one (JP-002, JP-077, JP-179).
+- [x] **License links are visible.** The gallery renders the recorded license name as an anchor to
+      the recorded `licenseUrl`; the validator now requires a valid license URL for every
+      supported license, including CC0.
+- [x] **Processing disclosure is factual and closed.** 23 records are
+      `resized-and-webp-reencoded`; JP-077 is `webp-reencoded`. The validator rejects unknown
+      values and values inconsistent with the stored original dimensions.
+- [x] **No legal-status model.** No `compliant`, `cleared`, `safe`, derivative-work status or
+      other legal conclusion is encoded or displayed.
+- [x] **Runtime remains offline/local.** No Commons/Creative Commons request occurs during rendering.
+- [x] **Exact-head validation passed.** Executable/test HEAD
+      `cf71d0cbb59b5695f0addf8f6f7de7ccfe86a7a0` passed GitHub Actions run
+      `34924302760`: photography validator, **442 Python tests**, **2433 Vitest tests across 65
+      files**, lint with 0 warnings/errors, build, whitespace and the Phase 4C Chromium audit twice
+      consecutively.
+- [x] **Browser proof uses real data.** SHIBUYA SKY proves source link, CC BY 2.0 license link,
+      creator, source-file provenance, source-backed title, processing disclosure and lightbox focus
+      behavior; non-pilot Nezu Museum proves the existing fallback remains unchanged.
+- [x] **Temporary workflow removed without executable drift.** From the validated HEAD to
+      `a885062e1c961d37c1d476d3e02f0b818e7df18f`, the only changed path is removal of the temporary
+      workflow. Later commits are documentation only.
+- [x] **Scale-up remains bounded.** Second images remain deferred. The next acquisition phase may
+      target at most the 16 currently uncovered S-grade places, one image each, with fail-closed
+      per-place sourcing and no license-policy widening.
+
+**Authorized next phase: Phase 4D — S-Grade Licensed Photography Acquisition Batch. Phase 4D is not started by Phase 4C.**
+
+## Phase 4D — S-Grade Licensed Photography Acquisition Batch — complete
+
+Runtime authority:
+[`docs/PHOTOGRAPHY_S_GRADE_BATCH_RUNTIME.md`](PHOTOGRAPHY_S_GRADE_BATCH_RUNTIME.md).
+
+Base: `440f814439360e2c5e7423cd243546e415e1a591`.
+
+Acquisition/source review date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Bounded 16-place S-grade batch executed.** Twelve targets acquired and four failed closed; no
+      target was force-covered and no second image was added for any place.
+- [x] **Coverage increased 24 → 36 photographs.** Current first-photo coverage is **36/214 (16.8%)**;
+      the theoretical 40/214 ceiling for this batch was not forced when sourcing failed.
+- [x] **Twelve accepted local assets.** JP-044, JP-066, JP-096, JP-135, JP-142, JP-143, JP-144,
+      JP-184, JP-188, JP-192, JP-197 and JP-205 were acquired from Wikimedia Commons under the
+      existing license allowlist and stored through the unchanged local WebP pipeline.
+- [x] **Four targets failed closed.** JP-033, JP-126, JP-203 and JP-204 remain on `imageBrief`
+      because a defensible, correctly located candidate could not be established under the
+      contract's source/subject-matter rules.
+- [x] **Existing photography preserved.** All 24 pre-Phase-4D image blobs and metadata records were
+      verified unchanged; canonical and app-facing metadata remain byte-identical.
+- [x] **Attribution contract preserved.** No unsupported `attributionTitle` was invented, the
+      existing license allowlist was not widened and runtime rendering remains local/offline with
+      zero Commons photography requests.
+- [x] **No planning behavior changed.** No ranking, itinerary, recommendation, grade, routing or
+      planning file was touched.
+- [x] **Exact-head validation passed.** Executable/test HEAD
+      `52e001b1536d55f6f8ff6e1259a166e92fed582b` passed GitHub Actions run
+      `34929731693` across all 18 steps, including photography validation, Python tests,
+      focused photography tests, full Vitest, lint, build, batch invariants, two Phase 4D browser
+      audits, Phase 4C regression audit and whitespace.
+- [x] **Temporary workflow removed without tree drift.** Post-removal HEAD
+      `94de0bf6c3162170d0124ec84df23a3fa0c12785` has zero changed files relative to the validated
+      executable tree.
+- [x] **Merged and closed.** PR #98 merged into `main` as
+      `2c1a9e6d72c4be0a0182c60e658ecd1d29c021c2`; Issue #97 was closed completed.
+
+**Successor boundary:** Phase 4D authorizes no Phase 4E implementation. Any further photography
+scale-up or gallery expansion requires a separate design gate that re-establishes scope, priority,
+asset budget and sourcing constraints before executable work begins.
+
+## Phase 4E — A-Grade Photography Scale-Up Design Gate
+
+Design authority:
+[`docs/A_GRADE_PHOTOGRAPHY_SCALE_DESIGN.md`](A_GRADE_PHOTOGRAPHY_SCALE_DESIGN.md).
+
+Base: `73c359fa990c940b599a117e708be161c380258d`.
+
+Design date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Design/audit only.** No image, metadata, acquisition pipeline, runtime, gallery, ranking,
+      routing, itinerary or recommendation change.
+- [x] **Live coverage recomputed.** 36/214 places have local licensed photography; 178 remain
+      uncovered. The uncovered set is S=4, A=139, B=25, C=6, D=4.
+- [x] **S-grade failures preserved.** JP-033, JP-126, JP-203 and JP-204 remain failed closed and are
+      not retried by this A-grade design.
+- [x] **Three tranche sizes compared.** Using the actual 36-asset mean of 297,174.5 bytes:
+      16 projects 4.53 MiB, 24 projects 6.80 MiB, and 32 projects 9.07 MiB.
+- [x] **24 selected as the bounded successor size.** It reaches at most 60/214 (28.0%) coverage,
+      stays below an 8 MiB soft batch budget and yields 24 distinct categories at the current base.
+- [x] **Deterministic hub allocation defined.** One seat per nonempty hub, then proportional
+      largest-remainder allocation over residual eligible counts: Kioto 6, Nagoya 1, Okinawa 5,
+      Osaka 5, Sapporo 1, Tokio 6.
+- [x] **Deterministic category-diversity ordering defined.** Temporal-risk flag, current selected
+      category count, existing photographed-category count, then place ID; no editorial cherry-pick
+      table.
+- [x] **Sensitive/seasonal policy remains fail-closed.** Branded subjects are not silently excluded
+      or promoted, temporal-risk subjects sort later, no legal clearance is claimed and no failed
+      target is replaced by another place.
+- [x] **Batch budget bounded.** 8 MiB soft budget; 12 MiB hard review threshold. Crossing the hard
+      threshold requires stopping for review, not weakening the quality floor or sourcing rules.
+- [x] **First-photo-first preserved.** One image maximum per place; no second images while uncovered
+      places remain.
+- [x] **Narrow executable successor authorized.** Phase 4F may attempt only the deterministic
+      24-place A-grade set defined in the design, through the unchanged Commons/local-WebP pipeline,
+      with exact-head repository-native validation and Draft stop condition.
+
+**Authorized next phase: Phase 4F — A-Grade Licensed Photography Acquisition Batch I. Phase 4F is not started by Phase 4E.**
+
+
+## Phase 4F — A-Grade Licensed Photography Acquisition Batch I — complete
+
+Runtime authority:
+[`docs/A_GRADE_PHOTOGRAPHY_BATCH_I_RUNTIME.md`](A_GRADE_PHOTOGRAPHY_BATCH_I_RUNTIME.md).
+
+Base: `b8d8bf19a3985a4823b571c97795d9564b3dfa41`.
+
+Acquisition/validation date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Exact 24-target Phase 4E selector reproduced.** No manual substitution or target expansion.
+- [x] **22 targets acquired; 2 failed closed.** JP-050 PokéPark KANTO and JP-195 Yaeyama
+      stargazing experience retain the existing no-photo fallback; no replacement target was used.
+- [x] **Coverage increased 36 → 58 photographs.** Current first-photo coverage is **58/214 (27.1%)**.
+- [x] **Actual batch delta is 5,457,240 bytes / 5.20 MiB.** This remains below the 8 MiB soft
+      budget and 12 MiB hard review threshold.
+- [x] **Existing photography preserved.** All 36 pre-Phase-4F metadata records and image paths were
+      verified unchanged; canonical/app metadata remain byte-identical.
+- [x] **Attribution/source policy preserved.** Wikimedia Commons only, existing license allowlist,
+      no NC/ND/fair-use/AI substitute, no unsupported legal-clearance claim.
+- [x] **Temporal-risk presentation checked.** JP-206 Otaru Snow Light Path uses prior-edition
+      imagery without representing it as the 2027 edition or inferring a 2027 schedule.
+- [x] **Runtime remains local/offline.** Browser QA proves no Commons/Wikipedia/Creative Commons
+      photography request during rendering.
+- [x] **No planning behavior changed.** No ranking, recommendation, itinerary, grade, routing or
+      planning semantics were modified.
+- [x] **Exact-head validation passed.** Executable/test HEAD
+      `3d7bdaf115a65cc8e43ee7b98f5adcb5ab474b55` passed GitHub Actions run
+      `35024168261`: selector reproduction, photography validator, Python, focused photography
+      tests, full Vitest, lint, build, invariants/budget, two Phase 4F browser audits,
+      Phase 4C regression and whitespace.
+- [x] **Temporary workflows removed with no executable/data/test/asset drift.** Post-cleanup commit
+      `19f64e35dc4ffa687c680525f7b0f64f21b8d571` differs from the validated executable/test
+      HEAD only by removal of the two temporary Phase 4F workflows and Phase 4F documentation.
+
+**Successor boundary:** Phase 4F authorizes no automatic Phase 4G acquisition. Any further
+photography scale-up requires a separate design gate that re-establishes target scope, batch size,
+asset budget, sourcing constraints and treatment of the remaining uncovered catalog.
+
+## Phase 4G — Photography Scale-Up II Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_SCALE_UP_II_DESIGN.md`](PHOTOGRAPHY_SCALE_UP_II_DESIGN.md).
+
+Base: `e45cd44111b867a548f0f66e457b4053e6b9d7eb`.
+
+Design date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Design-only gate.** No image, metadata, runtime, gallery, ranking, routing, itinerary or recommendation change.
+- [x] **Live coverage recomputed.** 58/214 covered; 156 uncovered; uncovered grades S=4, A=117, B=25, C=6, D=4.
+- [x] **A-grade-only retained.** Excluding the six carried fail-closed IDs leaves 115 eligible A-grade places across 19 categories.
+- [x] **24/32/40 compared using observed byte evidence.** Projected deltas are 6.10–6.38 MiB, 8.14–8.50 MiB and 10.17–10.63 MiB respectively.
+- [x] **32 selected.** Max coverage 90/214 (42.1%), full 19-category breadth, bounded hub quotas Kioto 8 / Okinawa 8 / Osaka 7 / Sapporo 1 / Tokio 8.
+- [x] **Selector hardened for the depleted universe.** Category representation precedes temporal-risk, then eligible-category rarity, current photographed-category count and binary place ID.
+- [x] **Exact 32-target fixture defined.** No replacement queue; every failure remains fail-closed.
+- [x] **Asset budget re-established.** 10 MiB soft / 14 MiB hard stop-review threshold.
+- [x] **Source/license/runtime contract preserved.** Commons only, current allowlist, local WebP, one image maximum, zero runtime photography fetch.
+- [x] **Narrow successor authorized.** Phase 4H may attempt only the exact 32-place fixture and must stop Draft after exact-head validation.
+
+**Authorized next phase: Phase 4H — A-Grade Licensed Photography Acquisition Batch II. Phase 4H is not started by Phase 4G.**
+
+## Phase 4H — A-Grade Licensed Photography Acquisition Batch II — complete
+
+Runtime authority:
+[`docs/A_GRADE_PHOTOGRAPHY_BATCH_II_RUNTIME.md`](A_GRADE_PHOTOGRAPHY_BATCH_II_RUNTIME.md).
+
+Base: `589d64a87d1963622fdf64c07be31460f145f79c`.
+
+Acquisition/validation date: **2026-09-15 / 2026-09-16 (America/Mexico_City)**.
+
+- [x] **Exact Phase 4G fixture reproduced.** 32 targets, `eligibleCount` 115, 19 categories,
+      hub quotas Kioto 8 / Okinawa 8 / Osaka 7 / Sapporo 1 / Tokio 8.
+- [x] **32 attempted, 27 accepted, 5 failed closed.** No replacement queue and no substitute
+      target. Failed closed: JP-121 (freedom-of-panorama concern on Tower of the Sun),
+      JP-156 (only Public-domain files found, outside the CC0/CC BY/CC BY-SA allowlist),
+      JP-095 (no defensible candidate in two discovery passes), JP-079 (archival documents
+      rather than a subject-matching photograph), JP-202 (no representative still; only an
+      underwater WebM, which fails the first-photo requirement).
+- [x] **Coverage raised 58 → 85 / 214 = 39.7%.**
+- [x] **Asset budget respected.** Delta 7,438,738 bytes (7.09 MiB) against a 10 MiB soft
+      budget and a 14 MiB hard threshold — below even the soft budget, with no policy or
+      quality-floor relaxation.
+- [x] **Carried fail-closed IDs held out.** JP-033, JP-126, JP-203, JP-204, JP-050, JP-195
+      did not re-enter.
+- [x] **Invariants preserved.** All 58 prior records and blobs byte-identical, canonical/app
+      byte parity, exactly 85 records and 85 WebP assets, one image per place, allowlist
+      unchanged, zero runtime photography fetch, no gallery/ranking/routing/itinerary/grade
+      drift.
+- [x] **Stale historical fixture corrected.** The Phase 4E/4F selector fixture rebuilt its
+      36-record baseline by subtracting only Phase 4F targets, which broke once Phase 4H
+      appended 27 records. The baseline is now derived twice — semantically from the
+      checked-in post-4E batch manifests and positionally from the append-only registry
+      prefix — and the two must agree, so the fixture survives future batches and fails
+      loudly rather than silently replaying a different catalog. No assertion was weakened
+      and no image, metadata or asset changed.
+- [x] **Exact-head validated.** Executable/test HEAD
+      `cda32ceb61372fc7f0599b59ce28261b4b196a4e`, Actions run `35047755114` — SUCCESS across
+      Phase 4G selector reproduction, photography validator, 462 Python tests, npm ci,
+      focused photography tests, full Vitest, lint, build, invariants/budget, two Phase 4H
+      browser audits, Phase 4F and Phase 4C browser regressions, and the whitespace gate.
+- [x] **Hostile review clean.** All 27 accepted files re-verified against the live Commons
+      API — licenses, dimensions, credits, URLs, subject match, duplicate-source and
+      fail-closed checks all pass. No defect required correction.
+- [x] **Workflow cleanup proven.** The four temporary Phase 4H workflows were removed, and
+      the tree differs from the validated executable/test HEAD only by documentation and
+      those workflow removals.
+
+**Independent closure gate:** passed. The validated executable/test HEAD remains
+`cda32ceb61372fc7f0599b59ce28261b4b196a4e`; all later Phase 4H changes are documentation
+and temporary-workflow removal only, with zero executable/data/test/asset drift. PR #107 is
+authorized for merge and Issue #106 for completed closure.
+
+**Successor boundary:** Phase 4H authorizes no automatic successor acquisition. Any further
+scale-up requires a separate design gate that re-establishes target priority, batch size,
+asset budget and sourcing constraints.
+
+## Phase 4I — Photography Coverage Rebalancing Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_COVERAGE_REBALANCING_DESIGN.md`](PHOTOGRAPHY_COVERAGE_REBALANCING_DESIGN.md).
+
+Base: `485d413c77ff679a7dc8154c23ad05afe21f3c83`.
+
+Design date: **2026-09-15 / 2026-09-16 (America/Mexico_City)**.
+
+- [x] **Design/audit only.** No image, metadata, runtime, gallery, ranking, routing,
+      itinerary or recommendation change.
+- [x] **Live coverage recomputed.** 85/214 covered; 129 uncovered. Grade coverage is
+      S 28/32, A 57/147, B 0/25, C 0/6, D 0/4.
+- [x] **Coverage skew identified.** Fukuoka is 0/1 and Architecture is 0/2; both can only
+      enter through grade B at the current dataset. A-only continuation would preserve those
+      holes by construction.
+- [x] **Eleven fail-closed IDs preserved.** Four from Phase 4D, two from Phase 4F and five
+      from Phase 4H remain excluded absent materially new sourcing evidence.
+- [x] **Scope strategies compared.** A-only, A+B and all-grade balancing were evaluated.
+      A+B is selected: it repairs hub/category gaps while keeping A dominant and defers C/D.
+- [x] **24/32/40 compared using real Phase 4D/4F/4H bytes.** The combined 61 accepted assets
+      average 270,547.93 B. Weighted projections are 6.19 / 8.26 / 10.32 MiB respectively;
+      observed batch-mean envelopes are 5.68–6.88 / 7.57–9.17 / 9.46–11.47 MiB.
+- [x] **32 selected.** The deterministic A+B fixture is 23 A + 9 B, spans 19 categories,
+      and allocates Fukuoka 1 / Kioto 7 / Okinawa 7 / Osaka 8 / Tokio 9.
+- [x] **Selector is coverage-balanced, not ranking-derived.** Category tranche count,
+      existing photographed-category count, grade A-before-B, temporal risk, eligible-category
+      rarity and stable placeId tiebreak determine selection.
+- [x] **Exact 32-target fixture defined.** No replacement queue; every sourcing failure remains
+      fail-closed.
+- [x] **Asset budget retained.** 10 MiB soft / 14 MiB hard stop-review threshold. The 32-target
+      observed envelope remains below the soft budget.
+- [x] **Photography contract preserved.** Commons only, current allowlist, local WebP,
+      first-photo-first, zero runtime photography fetch and no legal-clearance claim.
+- [x] **Narrow successor authorized.** Phase 4J may attempt only the exact documented A+B
+      32-place fixture after Phase 4I is independently closure-reviewed and merged.
+
+**Independent closure gate:** passed. The exact 32-place fixture was independently reproduced
+from the Phase 4H merge base: 108 A+B eligible places, quotas Fukuoka 1 / Kioto 7 /
+Okinawa 7 / Osaka 8 / Tokio 9, 23 A + 9 B, 19 categories, zero covered/fail-closed overlap.
+The 61-asset byte evidence and 24/32/40 projections also reproduce exactly. The Phase 4I
+diff remains documentation-only and is authorized for merge; Issue #108 may close completed.
+
+**Authorized next phase: Phase 4J — A+B Licensed Photography Acquisition Batch. Phase 4J is not started by Phase 4I.**
+
+
+## Phase 4J — A+B Licensed Photography Acquisition Batch — complete
+
+Runtime authority:
+[`docs/AB_PHOTOGRAPHY_BATCH_RUNTIME.md`](AB_PHOTOGRAPHY_BATCH_RUNTIME.md).
+
+Base: `abe55efc53137ece436c99f3ccfd3f706af16c8e`.
+
+Acquisition/validation date: **2026-09-16 (America/Mexico_City)**.
+
+- [x] **Exact Phase 4I fixture reproduced.** 32 targets, `eligibleCount` 108, 19 categories,
+      23 A + 9 B, hub quotas Fukuoka 1 / Kioto 7 / Okinawa 7 / Osaka 8 / Tokio 9.
+- [x] **32 attempted, 28 accepted, 4 failed closed.** Accepted mix 20 A + 8 B. No replacement
+      queue and no substitute target. Failed closed: JP-120 (Commons holds no photograph of
+      the teamLab installation; only the host Nagai Botanical Garden), JP-211 (only branded
+      booth interiors, cosplayer portraits and a past-edition ticket; imagery is from Tokyo
+      Big Sight while the dataset places it in Osaka), JP-041 (the Unicorn Gundam character
+      statue dominates every candidate; the alternatives show the mall, and the 2012 Odaiba
+      files depict the earlier RX-78-2), JP-168 (no license-allowed photograph of Yachimun
+      no Sato; the only allowed hit is a kiln in Seto, Aichi).
+- [x] **Coverage raised 85 → 113 / 214 = 52.8%.**
+- [x] **Both Phase 4I rebalancing goals met.** Fukuoka moves 0/1 → **1/1**, so every hub now
+      has at least one photograph; the Architecture category moves 0 → **2/2** (JP-123
+      Church of the Light, JP-138 Kobe Kitano Ijinkan). Phase 4J is also the first batch to
+      cover B-grade places.
+- [x] **Asset budget respected.** Delta 9,672,140 bytes (9.22 MiB) against a 10 MiB soft
+      budget and 14 MiB hard threshold — below the soft budget, slightly above the projected
+      7.57–9.17 MiB envelope because accepted source files skewed large, with no policy or
+      quality-floor relaxation.
+- [x] **Carried fail-closed IDs held out.** All eleven — JP-033, JP-126, JP-203, JP-204,
+      JP-050, JP-195, JP-121, JP-156, JP-095, JP-079, JP-202 — were never attempted and did
+      not re-enter.
+- [x] **Invariants preserved.** All 85 prior records and blobs byte-identical, canonical/app
+      byte parity, exactly 113 records and 113 WebP assets, one image per place, allowlist
+      unchanged, zero runtime photography fetch, no gallery/ranking/routing/itinerary/grade
+      drift, `data/places.json` untouched.
+- [x] **Historical selector fixtures made batch-proof.** The Phase 4E and Phase 4G baselines
+      both broke on the Phase 4J append. Both now delegate to
+      `scripts/photography_baseline.py`, which derives each baseline semantically (from the
+      checked-in post-baseline batch manifests) and positionally (the append-only registry
+      prefix) and requires the two to agree. The manifests live in one explicit registry
+      instead of a name glob — the exact gap Phase 4J hit — and a completeness guard fails
+      loudly, naming the file, when an unregistered batch manifest appears.
+- [x] **Exact-head validated.** Executable/test HEAD
+      `2c75e009cc2063d1887daba33367ae77da46d598`, Actions run `35055595875` — SUCCESS across
+      all 22 steps: selector reproduction, photography validator, 475 Python tests, npm ci,
+      focused photography tests, full Vitest (65 files, 2439 tests), lint, build,
+      invariants/budget, two Phase 4J browser audits, Phase 4H/4F/4D/4C browser regressions,
+      and the whitespace gate.
+- [x] **Hostile review found and fixed one real defect.** All 28 acquisition URLs carried the
+      Commons `utm_*` tracking query string that every pre-existing record omits; it was
+      stripped from the records and the preparation step, re-resolved against Commons, and
+      exact-head validation was repinned to the corrected head. Everything else verified
+      clean against live Commons.
+- [x] **Workflow cleanup proven.** Both temporary Phase 4J workflows were removed, and the
+      tree differs from the validated executable/test HEAD only by documentation and those
+      workflow removals.
+
+**Successor boundary:** Phase 4J authorizes no automatic successor acquisition. Any further
+scale-up requires a separate design gate that re-establishes target priority, batch size,
+asset budget and sourcing constraints. PR #111 remains Draft and Issue #110 remains open
+pending an independent closure gate.
+
+## Phase 4K — Photography Coverage Strategy Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_COVERAGE_STRATEGY_DESIGN.md`](PHOTOGRAPHY_COVERAGE_STRATEGY_DESIGN.md).
+
+Base: `caccf2518f7f9adbf2c6c40a1a7f9ae045764221`.
+
+Design date: **2026-09-16 (America/Mexico_City)**.
+
+- [x] **Design-only gate.** No photograph acquired, no photography metadata, image blob,
+      runtime, gallery, ranking, routing, itinerary or grade change. Proven by test against
+      the exact base: canonical and app photography metadata, `data/places.json` and the
+      whole `app/public/images/places/` tree are byte-identical.
+- [x] **Live state recomputed from canonical files.** 214 places, 113 covered, 101
+      uncovered, 52.8%; S 28/32, A 77/147, B 8/25, C 0/6, D 0/4; all 15 carried fail-closed
+      IDs present and still uncovered; eligible universes A 60 / A+B 76 / all 86; only two
+      zero-photo categories remain and both members (JP-195, JP-202) are fail-closed.
+- [x] **Real asset evidence re-measured.** 4D 12/3,607,446 B · 4F 22/5,457,240 B · 4H
+      27/7,438,738 B · 4J 28/9,672,140 B; combined 89/26,175,564 B; weighted mean
+      294,107.46 B/asset; observed batch-mean range 248,056–345,434 and **rising**.
+      Photography is 31.73 MiB, 78.5% of the tracked repository.
+- [x] **Four strategies compared on composition, not percentage.** Coverage ceiling and byte
+      projection are identical across grade scopes at a given size, so raw coverage cannot
+      discriminate. The deciding measurement is the grade→coverage ordering after a
+      32-target tranche: A-only 88/74/32/0/0 (A–B gap widens to 42 pts), **A+B
+      88/69/60/0/0 (gap narrows to 9 pts)**, A+B+C+D 88/65/56/**100**/50 — which breaks
+      monotonicity by putting C above S, A and B.
+- [x] **C/D widening rejected on evidence.** It would invert the editorial signal; the
+      coverage-balanced selector over-weights C by 3.58× at n=16 (25% of the tranche from 7%
+      of the pool); and the breadth argument is false — the four categories reachable only
+      via C/D already hold photographs, so widening unlocks zero new zero-photo categories.
+      C and D stay intentionally uncovered while A/B supply remains.
+- [x] **Size 32 selected from 16/24/32/40.** Category breadth saturates at 13 for A+B at
+      every size, so breadth justifies no size; 40 is rejected because its sensitivity band
+      reaches 13.18 MiB against a 14 MiB hard stop while the per-asset trend is rising; 16
+      and 24 are rejected on fixed-cost efficiency, since 32 is the demonstrated sustainable
+      workload of Phases 4H and 4J. 32 projects 8.98 MiB (7.57–10.54) and leaves 44 eligible.
+- [x] **Asset budget re-calibrated, not inherited.** Soft budget raised **10 → 11 MiB**
+      because 32 accepted at the worst observed batch mean projects 10.54 MiB, so the old
+      soft budget would fire on an ordinary batch. Hard stop **unchanged at 14 MiB**:
+      reaching it would need 458,752 B/asset, 33% above the worst observed mean.
+- [x] **Phase 4I selector retained, with one required change.** Retention is verified, not
+      assumed: replaying the generalised policy against the Phase 4J baseline with the
+      historical 11-ID exclusion set reproduces the pinned Phase 4J fixture exactly and in
+      order. The successor must ship its **own** selector carrying all **15** fail-closed
+      IDs — reusing `scripts/select-ab-photography-batch.py` unchanged would silently
+      re-admit JP-120, JP-211, JP-041 and JP-168, and editing it would break the pinned
+      Phase 4J regression.
+- [x] **Exact successor fixture pinned.** `data/visual/phase4k-successor-fixture.json` —
+      32 targets, 25 A / 7 B, 13 categories, hub quotas Kioto 7 / Okinawa 8 / Osaka 8 /
+      Tokio 9, one temporal-risk target (JP-213), zero C/D, zero fail-closed, zero covered.
+      Deliberately named outside the `*-batch*.json` glob so it does not trip the Phase 4J
+      acquisition-manifest completeness guard.
+- [x] **Fail-closed policy preserved.** All 15 IDs excluded; none retried; no new imagery
+      researched. A possible future re-entry gate is noted for JP-195/JP-202 only because
+      they are the sole members of the two zero-photo categories, without authorising a retry.
+
+**Decision: continue with exactly one more bounded A+B coverage-balanced tranche of 32, then
+re-open the stop-versus-continue question in a fresh gate.**
+
+**Authorized next phase: Phase 4L — A+B Licensed Photography Acquisition Batch II. Phase 4L
+is not started by Phase 4K.** The Phase 4K PR remains Draft and Issue #112 remains open
+pending an independent closure gate.
+
+### Phase 4K — independent closure review
+
+Reviewed at design HEAD `ddf67e34342001946f65d22edf804c7eede7785f` against base
+`caccf2518f7f9adbf2c6c40a1a7f9ae045764221` on **2026-09-16**.
+
+- [x] **Independently reproduced, without the Phase 4K tests or module.** A separate
+      implementation re-derived 214/113/101/52.8%, every grade and hub figure, the 15
+      fail-closed IDs and their uncovered status, the 60/76/86 eligible universes, the two
+      fail-closed-only zero-photo categories, and the asset evidence — with batch boundaries
+      re-derived from the registry's git history and bytes re-measured from the real WebP
+      files (89 / 26,175,564 B, weighted mean 294,107.46, means rising 248,056 → 345,434).
+- [x] **Selector and fixture re-derived from the written rules.** The independent
+      implementation reproduces the pinned Phase 4J fixture exactly and in order, and the
+      pinned Phase 4K successor fixture exactly and in order — so the fixture is the
+      deterministic output of the documented policy, not a cherry-pick. Editing the
+      historical Phase 4J selector to 15 IDs was simulated and does break 4 of its pinned
+      regressions; the file was restored and re-verified.
+- [x] **One finding, documentation-only.** The monotonic grade→coverage claim is accurate at
+      the selected size but **size-dependent**: under A+B, B overtakes A at **n = 40**
+      (A 72.1%, B 76.0%), because B's 25-place denominator moves 4 points per photograph
+      against A's 0.68. Every size from 16 to 39 preserves the ordering. This strengthens the
+      decision by giving a second independent reason to reject 40, and it adds a requirement:
+      the post-Phase-4L re-evaluation must check the projected A/B ordering, not only the
+      asset budget.
+- [x] **Gates re-run at closure.** Phase 4K tests 20 OK · full Python suite 495 OK ·
+      validator OK · selector/manifest regressions 30 OK · Phase 4E/4G baselines reconstruct
+      at 36 and 58 · manifest registry guard complete · Vitest 2439/65 OK · lint clean ·
+      build OK · whitespace clean.
+- [x] **Scope re-proved.** Photography metadata (canonical and app), `data/places.json` and
+      all 113 image blobs byte-identical to the base; exactly five changed files; no runtime,
+      ranking, itinerary, routing, gallery or grade change; no photograph acquired; no
+      fail-closed ID retried.
+
+**Closure decision: approved and merged.** The Phase 4K design is authoritative.
+
+**Authorized next phase: Phase 4L — A+B Licensed Photography Acquisition Batch II**, based
+on the new `main` after this merge. Phase 4L executes the exact 32-target fixture pinned in
+`data/visual/phase4k-successor-fixture.json` under the 11 MiB soft / 14 MiB hard budget with
+all 15 fail-closed IDs excluded, and does not redesign the strategy unless its own preflight
+finds a real divergence. Phase 4L is **not started** by this closure.
+
+## Phase 4L — A+B Licensed Photography Acquisition Batch II
+
+Executed on **2026-09-16** from base `524531a1d9f41c84bc8ca53bfde5dc4ee5febd6d`, running the
+exact 32-target fixture pinned by Phase 4K in `data/visual/phase4k-successor-fixture.json`.
+Full detail in [`docs/AB_PHOTOGRAPHY_BATCH_II_RUNTIME.md`](AB_PHOTOGRAPHY_BATCH_II_RUNTIME.md).
+
+- [x] **Fixture reproduced before acquisition.** The pinned fixture regenerates byte-identically
+      from the documented selector — 32 targets in order, 25 A / 7 B, 13 categories, hub quotas
+      Kioto 7 / Okinawa 8 / Osaka 8 / Tokio 9, one temporal-risk target, zero C/D, zero covered.
+      No divergence from the mandated base or fixture.
+- [x] **32 attempted · 31 accepted · 1 failed closed.** Accepted 25 A / 6 B. **JP-140** (Mount
+      Rokko night view) failed closed: the only true Rokko night panorama is an unusable 6.7:1
+      strip, the best remaining night candidate has no machine-readable author *and* depicts
+      Rokko **Island** rather than the mountain viewpoint, and the other night views are from
+      Mount Maya and Kikusuiyama. No replacement was drawn — the place keeps its fallback.
+- [x] **Coverage 113/214 (52.8%) → 144/214 (67.3%).** A 52.4% → **69.4%**, B 32.0% → **56.0%**,
+      S unchanged at 87.5%, C and D still 0%. Hub spread across the four large hubs narrowed
+      from 6.0 points to 5.2; editorial ordering S > A > B > C > D preserved.
+- [x] **Asset delta 9,187,992 B = 8.76 MiB**, inside the 11 MiB soft budget, so no budget
+      investigation was triggered. Registry total 42.5 MiB across 144 files. Wikimedia Commons
+      only, CC0/CC BY/CC BY-SA only, no legal-clearance claim on any record.
+- [x] **All 15 carried fail-closed IDs excluded, not retried.** Both Phase 4L scripts refuse to
+      run if any appears, and CI re-asserts their absence from both the registry and the
+      attempted set. The historical Phase 4J selector was **not** mutated — it is byte-identical
+      and its regressions still pass; Phase 4L ships its own execution artifacts carrying all 15.
+- [x] **Historical invariants held.** All 113 pre-4L records and all 113 image blobs are
+      byte-identical to base (SHA-256 against `git show`), the registry is append-only, canonical
+      and app copies are byte-identical, and `data/places.json` is unchanged. No old record was
+      edited to make the batch pass.
+- [x] **Tests repaired generically, no assertion weakened.** Acquisition broke 18 tests + 1 error
+      in two classes. The baseline derivation now registers the Phase 4L manifest and adds a
+      Phase 4K baseline, and its completeness guard moved from glob-membership to disk-presence;
+      the Phase 4K scope test now compares the fixed pair `caccf251` → `524531a` instead of
+      `HEAD`. Every historical fixture still reproduces exactly — 4E at 36, 4G at 58, 4K at 113 —
+      with no expected value changed.
+- [x] **Validated at exact head `7036d86a`** — run
+      [35078248227](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/35078248227),
+      24/24 steps green with the checkout pinned to that SHA: validator OK · Python 495 OK ·
+      historical regressions 50 OK · Vitest 2440 OK · lint clean · build OK · invariants and
+      budget OK · Phase 4L browser audit 8/8 twice · Phase 4J/4H/4F/4D/4C browser regressions
+      all pass · whitespace clean.
+- [x] **Hostile review against live Commons: zero findings.** All 31 file pages resolve and every
+      licence, credit, dimension and URL matches. Visual inspection caught **eleven** subject
+      traps that metadata alone would have accepted — among them Ryushi Memorial for JP-007, the
+      Sumida namesake of Hōsen-in for JP-087, Tōfukuji *Station* for JP-067, and JP-047's Open
+      Air Architectural Museum for JP-053. One dataset observation recorded without correcting
+      it: JP-149 MIHO Museum is filed under the Osaka hub but sits in Kōka, Shiga.
+- [x] **Scope proved.** Eleven non-asset files plus 31 new WebP assets. No ranking, recommendation,
+      grade, itinerary, planner, routing or gallery change; no second image anywhere; no licence
+      widening; no non-Commons imagery.
+
+### Successor gate requirement — grade→coverage inversion is now a live constraint
+
+Phase 4K's closure found that A+B inverts the editorial grade→coverage ordering at **n = 40**
+measured from the 113-record base. Phase 4L at n = 32 was valid and was **not** redesigned
+because of it. Re-measured from the post-4L base, the risk has moved materially closer:
+
+- Post-batch **A coverage 102/147 = 69.4%**, post-batch **B coverage 14/25 = 56.0%** — ordering
+  preserved, by 13.4 points.
+- Remaining A+B eligible universe: **45 places, 35 A and 10 B.** B is close to exhaustion, with
+  a hard ceiling of 96.0%.
+- Each further B photograph moves B **4.0 points** against A's **0.68** — a six-to-one asymmetry.
+- Proportional-draw crossover still lands near n = 40, but the margin at n = 32 has collapsed to
+  **2.4 points**, and a B-weighted tranche inverts far sooner: **as few as 4 B-only photographs**
+  would put B above A.
+
+**The post-4L strategy gate must therefore explicitly re-evaluate post-batch A coverage,
+post-batch B coverage, and whether any further A+B acquisition would invert editorial
+grade→coverage ordering — testing the proposed A:B *mix*, not only the tranche size, because
+size alone is no longer a sufficient test.** It must also re-open stop-versus-continue rather
+than assuming continuation, and carry all **16** fail-closed IDs (the 15 inherited plus JP-140).
+
+**Phase 4L does not start the post-4L strategy gate.** Its pull request remains Draft and its
+issue remains open pending review.
+
+## Phase 4M — Post-4L Photography Stop-vs-Continue Design Gate
+
+Design/audit gate executed on **2026-09-16** from base `5707c1405febdb467d2af991eb21e731b887b6cd`
+(`main` after Phase 4L / PR #115), against Issue #116. Full detail in
+[`docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md`](PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md).
+
+**Decision: STOP. Photography is complete for Nihon v1 at 144/214 = 67.3%. No Phase 4N
+acquisition is authorized.** The next authorized project work is the **Nihon Release Candidate /
+whole-product closure audit**, which Phase 4M does not start.
+
+- [x] **Starting state reproduced independently** from canonical data, not documentation:
+      214 places · 144 covered · 70 uncovered · 67.3% · max 1 photograph per place · canonical
+      and app registries byte-identical. Grades S 28/32, A 102/147, B 14/25, C 0/6, D 0/4.
+      Hubs Fukuoka 1/1, Kioto 34/49, Nagoya 1/1, Okinawa 34/50, Osaka 34/53, Sapporo 3/3,
+      Tokio 37/57. All **16** fail-closed IDs present and uncovered. Phase 4L's 32 attempted /
+      31 accepted / JP-140 fail-closed and its 9,187,992 B (8.76 MiB) delta re-verified.
+- [x] **Divergence found and reported, not reconciled.** Issue #116 and Phase 4L carry forward a
+      remaining ordinary A+B eligible universe of **45 places (35 A / 10 B)**. Reproduced: **44
+      places (35 A / 9 B)**. The carried fail-closed set holds **two** B places — `JP-041` (4J)
+      and `JP-140` (4L) — and Phase 4L's successor note subtracted only `JP-041`, in the same
+      paragraph in which it created the sixteenth exclusion. Consequence: B's exhaustion ceiling
+      is **92.0%**, not 96.0%, and exhausting the A+B universe does **not** invert A/B
+      (A 93.2% vs B 92.0%) — so Phase 4L's projection table is superseded. Phase 4L's
+      acquisition, registry and assets are unaffected; its documents are left as historical
+      records and are not edited. Every mandated starting-state figure reproduced exactly.
+- [x] **The binding constraint, which no prior phase measured: the editorial ordering has a
+      permanent ceiling.** All four uncovered S places are carried fail-closed, so **S is frozen
+      at 87.5% forever**. Monotonic S ≥ A therefore caps A at **128/147 = 87.1%**: at most **26**
+      further A photographs may ever be accepted, and **9 of the 35 eligible A places can never
+      be photographed** under the stated invariant. Combining both boundaries, the maximum end
+      state any future sequence of tranches can reach is **177/214 = 82.7%** (26 A + 7 B) — not
+      the 87.9% A+B supply ceiling. Against the incumbent selector the largest fully monotonic
+      tranche is **n = 30**; n = 31 and above invert S ≥ A. Continuation is therefore one legal
+      move that ends the programme regardless.
+- [x] **Mix-aware A:B analysis, superseding size-only tests.** A moves 0.680 points per
+      photograph, B moves 4.000 — **5.88:1**; current gap 13.4 points; **4** B-only photographs
+      invert A/B (confirmed). Maximum safe B by size: n=8 → 4 · n=12 → 4 · n=16 → 5 · n=24 → 6 ·
+      n=32 → 7. **The selector does not over-draw B** — B is 20.5% of the eligible pool and the
+      policy draws 25.0 / 16.7 / 18.8 / 12.5 / 12.5%, so **no artificial B cap is required**. The
+      cap now required is an **A cap (≤26)**, which no prior phase has needed and the selector
+      does not enforce. At n = 8 the safe mix A4:B4 holds by **0.1 points** and **inverts on a
+      single fail-closed A** — the only candidate size that fails the one-failure test.
+- [x] **Diminishing returns are structural, not gradual.** New categories unlocked by a tranche:
+      **0 at every size and every scope**, because the only two zero-photo categories are
+      single-member and both members are fail-closed — category coverage cannot exceed 27/29.
+      Hub spread across the four large hubs is 5.2 points, the programme minimum, with nothing
+      left to repair. Raw coverage points per tranche are still rising, which is precisely why
+      percentage cannot discriminate: every strategy covers at most *n* places.
+- [x] **Product impact measured, not asserted.** Using the dataset's own read-only `tourismLevel`
+      field, coverage is **inverted against visitor prominence** — `Extremo` 52.3% against `Alto`
+      80.4%. But of the 21 uncovered `Extremo` places, **6 are fail-closed** and **9 are graded
+      C/D on purpose**; only **6 are ordinarily eligible**, and **4 of those 6 are grade B**.
+      The incumbent selector repairs **2** of them at every legal size (4 only at n = 32, which
+      breaks the ordering) and **never selects `JP-080` Kinkaku-ji at any size**. The instrument
+      cannot hit the target that motivates continuation.
+- [x] **Asset economics recomputed with Phase 4L, not inherited.** Per-batch means 4D 300,620 ·
+      4F 248,056 · 4H 275,509 · 4J 345,434 · **4L 296,387**; weighted mean **294,696 B/asset**
+      (flat, +0.2% against Phase 4K); band 248,056–345,434; pooled acceptance **120/136 = 88.2%**.
+      **Phase 4K's rising-cost trend did not continue** — Phase 4L came in below the 4J peak. No
+      candidate size breaches the 14 MiB hard stop. **STOP is explicitly not justified on asset
+      grounds.** Footprint 42,454,392 B = 40.49 MiB across 144 assets, 82.1% of the 49.33 MiB
+      tracked repository.
+- [x] **Strategy comparison.** STOP preserves monotonic ordering at S 87.5 > A 69.4 > B 56.0.
+      A-only rejected — freezes B and re-widens the A−B gap to 35.2 points, breaks S ≥ A at
+      n = 32, repairs ≤2 prominence gaps. A+B rejected on value not legality — 0 categories,
+      0 hub repair, 2 of 6 prominence gaps, never Kinkaku-ji, two simultaneous caps required,
+      one tranche of headroom. A+B+C+D re-evaluated as a counterfactual and rejected again:
+      C reaches **100%**, above S, A and B, and at n = 8 the selector takes 5 C + 1 D of 8 seats
+      (75%) against an 18.5% pool share — a **4.05×** over-representation — unlocking zero
+      categories.
+- [x] **Policy fidelity proven, not asserted.** The analysis module's selector is the Phase 4I/4K
+      coverage-balanced policy with only the exclusion set parameterized. Replaying the
+      historical 113-record Phase 4K baseline with the historical 15-ID exclusion set reproduces
+      the pinned `data/visual/phase4k-successor-fixture.json` exactly and in order.
+- [x] **Hostile review of the gate's own conclusion — eight objections, all answered in the
+      document.** The strongest (Kinkaku-ji) is **conceded**, not dismissed, and recorded as
+      post-v1 backlog item 1. The decision was re-run against the erroneous 10-B universe and is
+      **identical**, so the divergence is reported because it is real, not because it is
+      load-bearing. Two documentation findings recorded; no executable, data, asset or fixture
+      change required.
+- [x] **Gates run.** Phase 4M tests **48 OK** · full Python suite **543 OK** · photography
+      validator OK · dataset validator OK (214 places, 0 broken references) · Vitest **2440
+      tests / 65 files OK** · lint clean · build OK · whitespace clean.
+- [x] **Design-only scope proved** against base `5707c140`: `data/visual/photography-metadata.json`,
+      `app/src/data/photography-metadata.json` and `data/places.json` byte-identical;
+      canonical/app parity holds; `app/public/images/places/` identical blob-for-blob across all
+      144 assets; no fail-closed ID in the registry; **no fixture pinned**, because no
+      acquisition is authorized. Four changed files: this entry, the design document, the
+      analysis script and its tests.
+
+### Photography v1 completion
+
+Photography for Nihon v1 is **complete at 144/214 = 67.3%**: one photograph per covered place,
+144 records and 144 WebP assets (40.49 MiB), Wikimedia Commons only under CC0 / CC BY / CC BY-SA
+with no legal-clearance claim, 27 of 29 categories represented, all seven hubs represented (four
+at 64.2–69.4%, three at 100%), monotonic editorial ordering S 87.5% > A 69.4% > B 56.0% > C 0% >
+D 0%, 16 carried fail-closed IDs permanently excluded, a documented non-photographic fallback for
+all 70 uncovered places, and zero runtime photography-provider requests. **This is a completion,
+not a pause.**
+
+### Post-v1 optional backlog — recorded, not scheduled
+
+None of these is authorized work and none blocks the Release Candidate; each would need its own
+gate: (1) prominence-targeted first photographs for the six reachable high-prominence gaps —
+JP-080 Kinkaku-ji, JP-019 Tokyo Skytree, JP-072 Tenryū-ji, JP-038 teamLab Planets, JP-153
+Kokusai Street, JP-171 Blue Cave at Cape Maeda — which would need a new prominence-first selector
+*and* an explicit ordering decision, since four are grade B; (2) a fail-closed re-entry research
+gate for the 16 excluded IDs, in particular JP-195 and JP-202, the sole members of the only two
+zero-photo categories, and any S place, whose re-entry is the only thing that could lift the
+87.5% ceiling; (3) a bounded A/B completion tranche of at most 26 A and 7 B, ending at 82.7%,
+only after the ordering invariant is re-examined; (4) a grading review for the nine
+deliberately-deprioritized high-prominence C/D places — an editorial question, not a photography
+one.
+
+**Authorized next phase: Nihon Release Candidate / whole-product closure audit.** It is **not
+started** by Phase 4M and requires its own issue and design gate. The Phase 4M pull request
+remains **Draft** and Issue #116 remains **open** pending an independent closure gate.
+
+## Phase 5A — Nihon v1 Release Candidate Audit & Blocker Remediation
+
+Whole-product release-candidate audit executed on **2026-09-16** from base
+`33db8decc6fee1c0f2376246b795b6f3d2a97e6a` (`main` after Phase 4M / PR #117), against Issue #118.
+Full detail in [`docs/RELEASE_CANDIDATE_AUDIT.md`](RELEASE_CANDIDATE_AUDIT.md).
+
+**Decision: RC-READY. No open BLOCKER or MAJOR finding remains.** The next step is the
+independent Nihon v1 RC closure/release gate, which Phase 5A does **not** start. v1 is **not**
+tagged or released by this phase.
+
+- [x] **Preflight clean.** `origin/main` at the mandated base; branch descending exactly from it;
+      working tree clean; PR #117 merged; Issue #116 closed completed; Phase 4M's STOP verdict
+      confirmed in its design document; **no Phase 4N branch, issue, fixture or selector exists**.
+      Baseline captured before any edit: Python **543**, Vitest **2440**/65 files, lint clean,
+      build OK, and all seven repository validators green.
+- [x] **RC browser audit harness added**, running against the **production build** via
+      `vite preview` rather than the dev server — an RC gate must exercise the artifact that would
+      ship. `app/scripts/phase5a-rc-browser-audit.mjs` runs **50 checks** covering Issue #118's
+      five golden journeys, accessibility, responsive layout, runtime/network integrity and
+      persistence, at **desktop 1440×900** and **mobile 390×844**. Determinism uses the Phase 3F-H
+      `addInitScript` Date shim; no production test-date affordance exists.
+- [x] **RC-01 — MAJOR — fixed. The grade filter silently hid every grade-D place.** `App.tsx`
+      offered `["S", "A", "B", "C"]` while the catalogue holds four grade-**D** places (JP-056,
+      JP-104, JP-106, JP-177). Because `matchesFilters` treats a non-empty grade list as
+      exhaustive, ticking every grade on offer **removed four real places from the list and map**,
+      with no filter combination able to reach them. `PlaceMap.tsx` had no `D` marker colour and
+      `App.css` no `.tag--grade-D`/`.badge--grade-D` rule, so grade-D badges rendered unstyled.
+      Fixed in all three places, reusing C's existing neutral colour rather than inventing a
+      palette entry. **Regression:** six data-driven tests in `App.test.ts` that compare the UI's
+      grade vocabulary, marker keys and badge rules against the grades actually present in
+      `data/places.json` — so a future grade fails the build instead of vanishing. Reverting the
+      fix fails 4 of them. Browser check **A05** reproduced the defect
+      (`Osaka: … not offered as filters: D`) and now reports `Tokio:SABC Osaka:SABCD Kioto:SABCD`.
+- [x] **RC-02 — MINOR — fixed (trivial, isolated, zero-risk).** `RegionNavigator.tsx` announced
+      single-place regions and prefectures to screen readers as "1 lugar verificado**s**": the
+      visible noun was pluralised but the visually-hidden suffix was hardcoded plural.
+      `PrefecturePanel.tsx` already had the correct pattern. **Regression:** four tests in the new
+      `RegionNavigator.test.ts`, including one asserting both are driven by the same expression;
+      reverting fails 3 of 4.
+- [x] **RC-03 / RC-04 — MAJOR — fixed. Both READMEs materially contradicted the implementation.**
+      The root README announced "Phase 2C — National Explorer" with "No itinerary generation" for a
+      product that ships a full manual planner; `app/README.md` was titled "Tokyo Explorer (Phase 1
+      MVP)" and described photography as "a **24-place pilot**" when the registry holds **144**.
+      Both rewritten to the audited current state, preserving the true distinction: there is no
+      **automatic** itinerary generation, live transit, routing or booking, and the planner never
+      reorders a route for the user.
+- [x] **Canonical data integrity re-derived at HEAD** by an audit script independent of the
+      repository's validators, then cross-checked against all seven: 214 places with unique
+      well-formed IDs; S 32 / A 147 / B 25 / C 6 / D 4; seven hubs summing to 214; 403 nearby
+      relations with resolvable endpoints, no self-relations and denormalised names matching
+      `places.json` exactly; **144** photography records and **144** assets on disk with no orphan
+      and no duplicate `sourceUrl`/`acquisitionUrl`/`assetPath`/`placeId`; one photo per place;
+      **all 16 fail-closed IDs present and uncovered**; canonical/app byte parity on every shared
+      file; source workbook unchanged.
+- [x] **Two of this audit's own findings were false positives and are recorded as such.** A
+      too-narrow licence allowlist transcribed from Phase 4L's batch-local mix flagged
+      `CC BY-SA 2.5` (JP-057, JP-123) — which `scripts/validate-photography.py:42` lists
+      explicitly; the data was correct and the heuristic was wrong. A broad secret-shaped regex
+      reported 257 "hits", all the English word *token(s)* in comments and package names;
+      re-run with provider-specific patterns it reports **0**.
+- [x] **Golden journeys pass at both viewports — 50/50 desktop, 50/50 mobile.** Discover → save
+      across two hubs → ordered route → day assignment → **Day 1 anchored to 2027-02-20** →
+      manual visit start time → **manual Shinkansen inter-hub segment across the Tokio→Kioto
+      boundary** → whole-trip composition → reload reproducing every field. Weekday composition is
+      proven *derived*, not hardcoded, by re-anchoring: `sáb, 20 feb 2027 → dom, 21 feb 2027 →
+      sáb, 20 feb 2027`. Editing preserves membership exactly, keeps **stable day IDs** across an
+      added day and a cross-day move, and leaves no orphaned visit time, segment or accommodation
+      leg after a removal.
+- [x] **Two deliberate contracts verified rather than "fixed".** Removing a place from the route
+      invalidates the day assignment (`days: null`) — documented in `lib/planning-draft.ts`
+      because the module "never invents which day a newly-added place belongs to"; the audit
+      proves nothing *stale* survives that reset. And `reconcileDraft` prunes a stored route to
+      the still-saved places without auto-appending new ones. Both looked like data loss until the
+      authority was read.
+- [x] **Mobile is a deliberate map-first layout, not a broken one.** Below the 861 px breakpoint
+      `.app__sidebar` is hidden until the "Buscar y filtrar" drawer is opened, and selecting a
+      place closes it. The audit initially failed 25 mobile checks against this; the harness — not
+      the product — was wrong. It is now viewport-aware, and a dedicated check proves the drawer
+      opens, closes and reopens with the full place list intact. **No horizontal overflow** at
+      either viewport on national, hub, detail, planner or drawer-open screens; touch targets ≥ 32 px;
+      the trip-anchor control is never covered by a fixed element.
+- [x] **Accessibility sanity passes.** Every product image labelled; native button/link semantics
+      throughout (no `div[role=button]`); every planner form control labelled; visible focus
+      (`outline: solid 3px`) on the first tab stop; no keyboard trap across 60 consecutive Tab
+      presses inside the planner dialog. Reorder controls carry place-specific accessible names.
+- [x] **Runtime integrity proved.** Zero photography-provider requests; **zero transit-provider
+      requests** (the transit contract is imported by no component); no secret-bearing or
+      localhost request; the **only** external host reached is `tile.openstreetmap.org`, attributed
+      in the UI. The core UI renders 57 places with every external request stubbed. **0 page
+      errors, 0 console errors.**
+- [x] **Persistence verified as release-critical.** Clean first run empty; saved places, route,
+      day IDs, anchor, visit times and inter-hub segments all survive reload; four malformed
+      payloads (`{"not":"an array"}`, `[1,2,3]`, `not json at all`, `["JP-XXX"]`) each render the
+      app with zero page errors. **No migration system was invented** — the existing fail-safe
+      contract was documented as-is.
+- [x] **Release hygiene clean.** No committed secrets, no tracked `.env`, no `console.*` in
+      shipped source, no `TODO`/`FIXME`/`XXX`/`HACK` in `app/src`, `app/server` or `scripts`, no
+      development-only URL, no temporary workflow, no tracked build artifact or source map.
+      Licence obligations satisfied: every photograph renders its Commons source, credit and
+      licence links, and OSM tiles carry their attribution.
+- [x] **Final gates.** Python **543** OK (unchanged) · Vitest **2450**/66 files OK (+10 tests,
+      +1 file — the RC-01 and RC-02 regressions) · lint clean · build OK · all seven validators
+      OK · RC browser audit **50/50 desktop** and **50/50 mobile** · whitespace clean ·
+      `npm ci` reproducible. **No historical assertion was weakened or deleted to make RC pass.**
+
+### Deferred to post-v1 — none release-blocking
+
+`RC-05` a single JS chunk above Vite's 500 kB advisory (1,424,842 B raw / **259,730 B gzipped**);
+code-splitting is a refactor and Issue #118 §17 forbids one here. `OBS-1` Leaflet's own tile
+`<img>` elements carry no `alt` — third-party decorative DOM, while every product image is
+labelled. `OBS-2` thirteen pre-existing `validate-dataset.py` secondary-metadata warnings,
+including cluster CL-87's place-count mismatch and its listing of JP-213; the validator exits OK
+and no audited journey is affected. `OBS-3` `JP-149` MIHO Museum is filed under the Osaka hub but
+sits in Kōka, Shiga — a pre-existing `data/places.json` assignment first recorded by Phase 4L.
+
+**Authorized next step: the independent Nihon v1 RC closure/release gate.** Phase 5A does not
+start it, does not tag or release v1, and does not begin a successor phase. The Phase 5A pull
+request remains **Draft** and Issue #118 remains **open**.
+
+## Phase 5B — Nihon v1.0.0 Final Release Gate
+
+Final release-preparation gate executed on **2026-09-17** from base
+`6b484ffcb72e752bfe15779a411a3410baa8d340` (`main` after Phase 5A / PR #119), against Issue #120.
+Full detail in [`docs/FINAL_RELEASE_GATE.md`](FINAL_RELEASE_GATE.md).
+
+**Decision: RELEASE-READY.** No BLOCKER or MAJOR product defect was found and **no product code
+was changed.** The next step is the independent final closure — review → Ready → merge → close
+Issue #120 → publish `v1.0.0` — which Phase 5B does **not** start. The tag is **not** created and
+the GitHub release is **not** published by this phase.
+
+- [x] **Preflight clean.** `origin/main` at the mandated base; branch **zero commits ahead** of it,
+      so the gate ran against the exact Phase 5A release candidate; working tree clean; PR #119
+      merged; Issue #118 closed completed; Phase 5A's **RC-READY** verdict confirmed in its audit
+      document; **no Phase 4N branch, issue, fixture or selector exists**; and the repository holds
+      **zero tags and zero releases**, so nothing collides with `v1.0.0`. `app/package.json` and the
+      root entry of `app/package-lock.json` both confirmed at `0.0.0` before any edit.
+- [x] **RC invariants independently reproduced**, recomputed rather than copied: **214** places /
+      **214** unique IDs · **144** photography records and **144** local assets resolving under
+      `app/public` · canonical/app photography parity by **identical SHA-256** · **one** photograph
+      per place, no place with more · **zero** duplicate `sourceUrl`, `acquisitionUrl`, `assetPath`
+      or `placeId` · the **16** carried fail-closed IDs all still uncovered, none leaked into the
+      registry. Coverage decomposes exactly: 214 = 144 covered + 16 fail-closed + 54 not-yet-acquired.
+- [x] **Phase 5A's fixes verified still present.** The RC-01 D-grade filter holds in all three
+      layers (`App.tsx` vocabulary `["S","A","B","C","D"]`, `PlaceMap.tsx` `D` marker colour,
+      `App.css` `.tag--grade-D`/`.badge--grade-D`), and browser check `A05` still reports
+      `Tokio:SABC Osaka:SABCD Kioto:SABCD`. The RC-02 RegionNavigator singular/plural ternary is
+      intact in both occurrences.
+- [x] **One apparent divergence investigated to closure — and it was not one.** The build reported
+      `gzip: 260.77 kB` against Phase 5A's recorded **259,730 B**. Treated as presumptively
+      blocking and run to ground: the emitted JS is **1,424,842 B** and the CSS **64,458 B** —
+      byte-for-byte identical to Phase 5A — the content hash `index-pf4I7nMN.js` is unchanged, and
+      standard `gzip -6` reproduces **259,730 B** exactly. The differing number is only the Vite
+      reporter's own compression readout of the same bytes. **No artifact divergence.**
+- [x] **Version metadata `0.0.0` → `1.0.0`** in `app/package.json` and the root package entry of
+      `app/package-lock.json` (both the top-level mirror and `packages[""]`). Proven clean: the
+      lockfiles were compared entry by entry — **173** package entries on both sides, identical key
+      sets, and the **only** field-level difference anywhere is `<root>.version`. **No** changed
+      `resolved`, **no** changed `integrity`, **no** changed dependency version, `lockfileVersion`
+      3 → 3. No `npm update` was run. `rm -rf node_modules && npm ci` then exits **0** without
+      rewriting the lockfile, and the rebuilt artifact is byte-identical — the bump is inert to
+      what ships.
+- [x] **Full release-quality suite re-run on the final tree, after the bump.** Python **543** ·
+      Vitest **2450**/66 files · lint clean · production build OK · all seven repository validators
+      OK · whitespace `git diff --check` clean against both the base and the working tree ·
+      `npm ci` reproducible · RC browser audit **50/50 desktop (1440×900)** and **50/50 mobile
+      (390×844)** against the **production build** via `vite preview`. **No count moved in either
+      direction** — Phase 5B adds no test and needed none, because it changes no behaviour — and
+      **no assertion was weakened, skipped or deleted.**
+- [x] **Runtime/network integrity re-proved live at both viewports.** **Zero** photography-provider
+      requests (0 of 180 desktop, 0 of 108 mobile) · **zero** transit-provider requests · no
+      secret-bearing or localhost request · the **only** external host reached is
+      `tile.openstreetmap.org` across **240** desktop and **153** mobile recorded requests · core UI
+      renders 57 places with every external request stubbed · **0 page errors, 0 console errors**.
+      Corroborated statically: `lib/transit.ts` is imported by no component and its distinctive
+      token appears **0 times** in the production bundle.
+- [x] **Release hygiene clean.** No uncommitted or generated drift; no tracked `dist/`, build
+      artifact or source map; **no `.github/` directory is tracked at all**, so no temporary
+      workflow survives; no `.env`, secret, token or key material tracked; a provider-specific
+      scan (GitHub PAT, OpenAI, AWS, Google, Slack, JWT, PEM) over every tracked file reports
+      **0 hits**; the build reproduces from clean dependencies; licence obligations remain
+      satisfied.
+- [x] **Release documentation prepared.** [`docs/RELEASE_V1.0.0.md`](RELEASE_V1.0.0.md) states what
+      v1 ships and, just as explicitly, its non-goals — no automatic itinerary generation, no live
+      transit or routing provider, no booking execution, no claim that hours or reservation
+      evidence is live beyond its recorded provenance, and the post-v1 photography backlog left
+      deferred. [`docs/FINAL_RELEASE_GATE.md`](FINAL_RELEASE_GATE.md) is the gate authority.
+- [x] **Changed-file scope is release-only.** `app/package.json`, `app/package-lock.json`,
+      `docs/RELEASE_V1.0.0.md`, `docs/FINAL_RELEASE_GATE.md`, `docs/ROADMAP.md`, and a **single
+      status line** in the root `README.md` — which still announced a "Release-candidate audit" and
+      would have been untrue at `1.0.0`. `app/README.md` makes no version claim and was left
+      unchanged. **No app runtime source, dataset, planner/logistics/reservation/temporal library,
+      photography metadata or asset, validator, feature flag, route, filter, styling or
+      dependency was touched**, and the Phase 5A RC harness was reused rather than duplicated.
+
+### Release identity — prepared, not published
+
+Tag **`v1.0.0`** · title **Nihon v1.0.0** · **non-draft**, **non-prerelease** · target the
+eventual **Phase 5B merge commit on `main`** · notes from `docs/RELEASE_V1.0.0.md`. Collision
+re-checked at gate time: the repository has **no tags and no releases**, so `v1.0.0` will be its
+first of each. The exact post-merge tag and release commands are recorded in
+[`docs/FINAL_RELEASE_GATE.md`](FINAL_RELEASE_GATE.md) §12.
+
+### Deferred to post-v1 — unchanged, none release-blocking
+
+`RC-05` the single JS chunk above Vite's 500 kB advisory · `OBS-1` Leaflet's own unlabelled tile
+`<img>` elements · `OBS-2` the 13 pre-existing `validate-dataset.py` secondary-metadata warnings ·
+`OBS-3` the `JP-149` Osaka/Shiga hub convention. None was repaired here: Phase 5B may not change
+product code.
+
+**Authorized next step: the independent Nihon v1.0.0 final closure.** The Phase 5B pull request
+remains **Draft** and Issue #120 remains **open**.
+
+## Block 1 — UX, hierarchy and usability — complete
+
+Post-v1.0.0 product work. Base: `main` at `1a11fe8`. Authority:
+[`docs/BLOCK_1_UX_HIERARCHY_DESIGN.md`](BLOCK_1_UX_HIERARCHY_DESIGN.md).
+
+Nihon v1.0.0 presented a verified research base faithfully and asked the reader to know that
+base's vocabulary before they could use it. This block reorders what the interface says first,
+for a reader who is impatient, on a phone, and deciding whether they would like to go — without
+removing anything it already said.
+
+- [x] **The interest ladder.** `lib/interest-level.ts` translates the dataset's `grade` into
+      Imprescindible / Muy recomendable / Recomendable / Opcional / Prescindible as a pure
+      mapping — no place is re-ranked, and the letter itself stays visible in the place detail.
+      Tourism saturation stays a separate axis, so a crowded place is never silently downgraded.
+      Every level carries a label, a distinct shape glyph and an explanation: never colour alone.
+- [x] **`.badge--grade-A` `#c2701c` → `#a75d12`.** White on the old amber measured ~3.0:1,
+      under WCAG AA for the small text the badge carries. `PlaceMap`'s marker colour moved with
+      it so a pin and its card read as the same level.
+- [x] **Photo-led place cards** (`components/PlaceCard.tsx`) replacing the one-line rows. Fixed
+      aspect ratio, lazy loading, skeleton and error states, and an editorial placeholder
+      carrying the place's own category icon where no licensed photograph exists. Six questions
+      answered per card; everything deeper stays in the detail panel.
+- [x] **Photography presentation only.** No asset acquired, no metadata record written,
+      `place-images.ts` and the acquisition pipeline untouched. The gallery gained a visible
+      photo counter, real hit areas on its dots, and a category-aware fallback.
+- [x] **Phone layout: `Lista | Mapa`,** with the list as the default surface and both panes
+      kept mounted so Leaflet's existing resize observer handles the reveal. "Filtros" opens a
+      sheet over the list instead of replacing it.
+- [x] **Tablet two-column grid** between 620px and 860px, so iPad widths stop stretching phone
+      cards across 800px.
+- [x] **Desktop sidebar split into two regions** — a pinned search/filter block and a results
+      area that owns the scroll. Filter groups collapse behind a disclosure on desktop.
+- [x] **"Grado" filter reworded to "Nivel de interés"** with plain-language chips. Same field,
+      same predicate, same closed vocabulary — `App.test.ts`'s RC-01 regression still governs.
+- [x] **Saving confirmed everywhere.** One announcing wrapper in `App.tsx` for card, detail and
+      saved list; `useSavedPlaces` stays the only writer and `nihon.savedPlaceIds` is unchanged.
+      The heart is the shape the future "❤️ Quiero ir" needs; no backend was introduced.
+- [x] **Three-card first-run explainer** (`nihon.onboarding.seen.v1`), closable four ways
+      through one exit path, reopenable from the header's "?", promising nothing this block
+      does not ship.
+- [x] **Entry-screen orientation**: one line plus the seven hubs and their counts, above the
+      untouched Japan → región → prefectura → hub path.
+- [x] **Deliberate empty states** for a failed search, an over-filtered list, an empty saved
+      panel, a filtered-out map, a missing photograph and a failed image load.
+- [x] **Preservation proved, not asserted.** `src/block1-ux.test.ts` guards every
+      practical-information row, the Feb–Mar 2027 block, the nearby list, official links, all
+      six filter groups, the saved-places storage key, and attribution still rendered with the
+      image rather than behind a disclosure.
+- [x] **Verified.** Vitest **2519**/70 files (from 2450/66; no assertion weakened, skipped or
+      deleted) · oxlint clean · `tsc` clean · production build OK · all six repository
+      validators unchanged from the v1.0.0 baseline ·
+      `scripts/block1-ux-browser-audit.mjs` **142/142** at 390×844, 820×1180 and 1440×900
+      against the production build via `vite preview`, with zero horizontal overflow and zero
+      page or console errors.
+
+### Out of scope here, by instruction
+
+Shared backend, Supabase, cross-device sync, the two-person model, bulk photography
+acquisition, the accommodation module and itinerary optimisation. **No hotel or accommodation
+origin was introduced**; travel times still derive from hubs, zones and access points.
+`OrderedSequenceBuilder` and `SelectionAnalysis` were left untouched — they are planning
+surfaces and belong with the itinerary block.
+
+**Block 1 closed.** See [`docs/BLOCK_1_HANDOFF.md`](BLOCK_1_HANDOFF.md).
+
+## Block 2 — the photographic layer — complete
+
+Base: `claude/brave-wozniak-f79ie3` at `ac54969`. Authority:
+[`docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md`](BLOCK_2_PHOTOGRAPHY_DESIGN.md), which starts from Phase
+4M's ceiling rather than from Phase 4K's or 4L's superseded projections, as Phase 4M §11
+requires of any successor.
+
+Every Phase 4M starting figure was reproduced independently from canonical data before any
+change: 214 places · 144 covered (67.3%) · 70 uncovered · max 1 photograph per place · 40.49
+MiB across 144 assets · the 16 fail-closed ids · eligible universes A 35 / A+B 44 / A+B+C+D 54.
+**All reproduce exactly.**
+
+- [x] **Divergence reported, against the Block 1 handoff.** That handoff claimed uncovered
+      places are identified by `imageStatus: "brief-only"` in `places.json`. They are not:
+      `scripts/export-dataset.py` writes that literal for all 214 unconditionally, and nothing
+      in the app reads it. The registry is the sole source of truth. Corrected in the Block 2
+      design document rather than silently; no figure moves.
+- [x] **The ordering invariant is kept, and Block 1 strengthens the case for it.** Phase 4M's
+      S ≥ A ≥ B ≥ C ≥ D rule existed so photography never contradicts editorial grading. With
+      a photo-led card list, a B place with a photograph visibly outshines an A place without
+      one in the surface where choosing happens. Phase 4M §4's permanent ceiling (≤26 further
+      A, ≤7 further B, programme ceiling 82.7%) is accepted as stated.
+- [x] **Derivative tier — the largest win, and no sourcing risk.** Block 1 made the list
+      photo-led but left it loading the 1600px detail hero into a ~350-390 CSS px card, and the
+      48px saved-list thumbnail. Scrolling one hub cost **9.51 MiB**.
+      `scripts/build-photography-derivatives.py` renders one deterministic, network-free 800px
+      rendition per photograph, named by derivation rather than declared in the registry.
+      Measured in Chromium: **2.63 MiB, −72%**, at both 390×844 DPR 2 and 1440×900, with 37 of
+      37 responses being derivatives. The lightbox still loads the original.
+- [x] **The validator looks at the asset tree for the first time.** Every registered photograph
+      must ship its derivative, and no file may be an orphan. Both rules proven to fail on a
+      planted fault and recover. It stays Pillow-free and network-free.
+- [x] **Prominence-first coverage: 14 attempted, 13 accepted, 1 failed closed.** Coverage
+      **144 → 157 (67.3% → 73.4%)**. S 87.5% · A 69.4% → **76.2%** · B 56.0% → **68.0%**,
+      ordering intact at a **+8.2** point margin. Large-hub spread **5.2 → 3.8 points**, a new
+      programme minimum — the mix was chosen to beat Phase 4M's record, not spend it.
+      `Extremo` prominence **52.3% → 63.6%**, materially repairing the inversion Phase 4M
+      measured. **JP-080 Kinkaku-ji**, which Phase 4M proved no tranche up to n=32 would ever
+      select, is covered by a Commons Featured Picture at 0.01 km.
+- [x] **JP-171 Blue Cave at Cape Maeda fails closed — the 17th.** No licensable photograph of
+      the cave exists; the only allowlisted cape candidate does not show the dive site the place
+      is named for. Fails identification, not licence.
+- [x] **Depth: 10 assessed, 6 accepted, 4 rejected on the stated criterion; 4 shipped.** A second
+      photograph only where the existing one shows a facet that does not convey the experience
+      and a materially different licensable facet exists: JP-129 Tōdai-ji (hall → the Great
+      Buddha), JP-152 Naoshima (**the ferry terminal** → Benesse House), JP-089 Nijō (palace →
+      garden), JP-021 Tokyo National Museum (lobby stair → the Honkan), JP-205 Sapporo (aerial →
+      a sculpture at human scale), JP-125 USJ (entrance plaza → an attraction inside). Rejected:
+      Sanjūsangen-dō and Ghibli (interior photography prohibited, all candidates near-duplicate
+      exteriors), Nintendo Museum and Yambaru (no allowlisted candidate), Himeji and Churaumi
+      (their existing photograph already *is* the experience). **JP-205 and JP-125 are
+      deferred, not fail-closed**: both passed every gate including visual inspection, and
+      `upload.wikimedia.org` refused the download because they are the only two Block 2 files at
+      or below 1600px, where the pipeline fetches an *original* rather than a cached thumbnail.
+      The diagnosis and the proposed fix are in the design document §6.1; their verified plan
+      entries are committed.
+- [x] **The carousel is exercised by real data for the first time.** `PlaceGallery` has shipped
+      swipe, arrows, dots, an `n / total` counter, keyboard navigation and a lightbox focus trap
+      since before Block 1, and `total > 1` had never been true in production.
+- [x] **A wrong image is worse than none — gated three times.** Licence filtered at discovery;
+      Commons GPS within 0.2 km of the place's own coordinates; and every candidate looked at.
+      Sight caught what metadata could not: two candidates passing licence, title and
+      coordinates were rejected on inspection (Sanzen-in foliage with no temple; Hikone blossom
+      with no castle) and replaced, and a "Blue Cave" search returned a cave in **Montenegro**.
+      All 19 accepted assets were re-inspected as committed WebP.
+- [x] **Phase 4A's "one image per place" invariant retired deliberately and replaced**, not
+      deleted: galleries are pinned to the six chosen places, every other place must stay at
+      one, and no gallery may exceed three.
+- [x] **Verified.** Vitest **2569**/73 files · oxlint clean · `tsc` clean · production build OK ·
+      all six repository validators OK · `block1-ux-browser-audit.mjs` **142/142** at 390×844,
+      820×1180 and 1440×900 · `git diff --check` clean.
+
+### STOP criterion
+
+**Coverage stops** because the named product motive is exhausted: five of Phase 4M's six
+reachable prominence gaps are covered and the sixth is fail-closed. What remains is percentage,
+which is the trap Phase 4M §9 identified and is still a trap at 73.4%. **Depth stops** because
+criterion 2 is nearly out of candidates — two rejections were places where photography of the
+experience is legally prohibited, and two had no allowlisted image at all. Neither resumes on a
+percentage; a future block needs a *named* place whose absence is demonstrably costing a
+decision.
+
+**Block 2 closed.** See [`docs/BLOCK_2_HANDOFF.md`](BLOCK_2_HANDOFF.md).
+
+## Block 3 — technical debt, and the accommodation-zone decision layer — complete
+
+Base: `claude/brave-wozniak-f79ie3` at `6aa5c13`. Authority:
+[`docs/BLOCK_3_DESIGN.md`](BLOCK_3_DESIGN.md). Block 3 stops making Nihon prettier and starts
+making it decide things.
+
+### Phase A — debt
+
+- [x] **The Commons acquisition defect is fixed generally, not patched.** Commons renders a
+      thumbnail only when the requested width is strictly smaller than the file's own, so
+      `iiurlwidth=1600` on a file at or below 1600px resolves to the **original**, which the host
+      rate-limits. `choose_render_width()` is a pure function of the file's width; a
+      failure-triggered fallback would make the bytes depend on the host's mood and break
+      reproducibility. The record's own `processing` decides which rendition is fetched, so the
+      seven pre-existing small-file records stay exactly reproducible.
+- [x] **Quality loss can never be silent.** Acquisition recomputes what `processing` must say
+      from what it actually fetched and refuses to write an asset whose provenance would be
+      untrue; it also refuses an original served in place of a rendition, and a file whose
+      dimensions no longer match the record.
+- [x] **Throttling respected**: process-wide minimum interval, `Retry-After` honoured, capped
+      backoff, 503 treated like 429, bounded attempts. 25 new offline tests.
+- [x] **Both Block 2 deferrals resolved.** JP-205 and JP-125 acquired at 1280px through the same
+      gates, including visual inspection as committed WebP. Registry **161 → 163**, galleries
+      **4 → 6**. No other photograph pursued — Block 2's STOP criterion still holds.
+- [x] **Three Python suites were red and Block 2 reported green.** `scripts/test_*.py` is not in
+      `npm test` and was never in that block's baseline. Recorded, not quietly fixed. Block 2's
+      manifests were named `*-plan.json`, which the completeness guard's glob does not match;
+      renamed to `*-batch.json` and registered. Block 2 also introduced a **depth** batch — one
+      whose place was already covered — which the baseline module was never designed for:
+      removing it by place id would have deleted the earlier record and corrupted every
+      historical baseline. Batches now declare `appendedAssetPaths`. **All 13 suites pass.**
+- [x] **`imageStatus` removed.** It was written as the literal `"brief-only"` for all 214 rows
+      and was false for the 157 places that have a photograph — it is what misled the Block 1
+      handoff. Audited first: nothing read it. Removed rather than re-derived, because the
+      registry already answers the question and a second source of truth would drift. Proven
+      surgical: `imageStatus` is the only field that differs across all 214 places.
+      `dataset-contract.test.ts` also fails on any *other* single-valued scalar field.
+
+### Phase B — accommodation zones
+
+- [x] **16 zones — Tokio 6, Kioto 5, Osaka 5 — as distinct strategies, not a directory.** The
+      validator requires 4–7 per hub so the set cannot grow into a list.
+- [x] **A zone is not a Place and not a cluster**, per the Phase 3D-P accommodation gate. The
+      validator rejects a zone carrying place fields; `servesClusters` must resolve against
+      `clusters.json`.
+- [x] **Three kinds of statement, structurally separated and visibly labelled.** Facts carry
+      `provenance` and were researched per zone; editorial is ten axes, integers 1–5, closed
+      vocabulary; derived is straight-line distance from canonical coordinates. The validator
+      rejects facts without provenance and editorial *with* it.
+- [x] **No travel times were invented.** There is no runtime routing and no recorded transfer
+      edge starts at a zone, so distance is reported as *línea recta* in bands, never minutes.
+- [x] **Nothing is declared best.** No composite score exists; `NEUTRAL_AXES` marks the axes
+      where higher is not better; every zone must state at least two honest drawbacks. The single
+      ranking answers one named question — proximity to the places *you* saved — and says so.
+- [x] **Native integration**: entry point in the hub bar, Block 1's overlay pattern, tokens and
+      tap-target rules, selection in `localStorage` per hub, capped at four.
+- [x] **Mobile-first as built**: one block per zone rather than a column-per-zone table, so the
+      panel never scrolls horizontally.
+- [x] **Verified.** Vitest **2583** · oxlint and `tsc` clean · build OK · **all 13 Python
+      suites** · **all 7 validators** · Block 1 **142/142** · Block 2 **69/69** · new Block 3 zone
+      audit **105/105** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 · `git diff --check` clean.
+      Block 1's audit caught a real regression mid-build (the new hub-bar button shrank to 38px
+      on phones, under the 44px token) — the net working as intended.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_3_HANDOFF.md`](BLOCK_3_HANDOFF.md) for
+the recommendation and the decision it needs first.
+
+---
+
+## Block 4 — the chosen zone becomes an input to the plan — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `f8f3eb9` (Block 3 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_4_DESIGN.md`](BLOCK_4_DESIGN.md). Block 3 gave the reader
+something substantive to decide; Block 4 makes the decision do something, without Nihon inventing
+any logistics.
+
+### The loop it closes
+
+`COMPARAR → ELEGIR → PLANIFICAR → ver qué implica para los días`, with every step the reader's.
+
+- [x] **A zone can be chosen explicitly**, per hub, from the comparison — in the list and in the
+      side-by-side. The wording is "usar esta zona", never "la mejor zona" and never "te conviene".
+- [x] **The choice seeds an ordinary accommodation anchor** from the zone's own station label and
+      coordinate — the exact two fields `AccommodationAnchor` already requires, and the two the
+      reader would otherwise have retyped. Audited against the code before being built, exactly as
+      the Block 3 handoff proposed.
+- [x] **One truth, not two.** `ManualPlanningDraftV8` adds exactly one field,
+      `zoneAccommodationChoices`, under the same `nihon.manualPlanningDraft` key. The choice and
+      the anchor it created are written, reconciled and deleted together; there is deliberately no
+      `selectedZone` living beside `nihon.zoneComparison.v1`. A choice pointing at a missing anchor
+      is rejected at parse, never repaired.
+- [x] **No manual state is ever destroyed silently.** Changing or removing a zone drops its seeded
+      anchor only when that anchor carries no user work — no boundary selects it and no duration
+      was typed for it. Otherwise it survives as an ordinary anchor and the UI says so. Re-pointing
+      an old anchor at a new zone's coordinate was rejected outright: 25 minutes from Shinjuku is
+      not 25 minutes from Asakusa.
+- [x] **Nothing is derived that cannot be.** No travel time is produced, estimated or implied. The
+      only numbers the new surface renders are kilometres and day ordinals; straight-line distance
+      stays badged *calculado* and worded *línea recta*, and the copy states outright that it is
+      not travel time and does not make a day better.
+- [x] **Multi-hub is structural.** A day whose places span two hubs gets no zone at all, and the
+      reason is shown. One hub's zone never appears as another hub's accommodation — and when the
+      reader deliberately points a Kioto day at a Tokio zone's anchor, that is reported as a
+      neutral fact, not a warning.
+- [x] **Exactly one live writer of the draft.** The comparison and the planner are now mutually
+      exclusive; opening either closes the other. That is also the natural flow.
+- [x] **Two test-gate corrections, recorded not hidden.** `ORS` in the Phase 3D-Q forbidden-claim
+      scan was unanchored and matched the "ors" inside `anchors`; it is now `\bORS\b`, with a test
+      proving it still catches a real claim. And vocabulary scans now assert the disclaimers
+      positively and exclude them before scanning, because Block 4's copy denies in words the very
+      things a blunt keyword scan flags.
+- [x] **Verified.** Vitest **2720** · oxlint and `tsc` clean · build OK · **all 13 Python suites**
+      · **all 8 argument-free validators** · Block 1 **142/142** · Block 2 **69/69** · Block 3
+      **105/105** · new Block 4 zone → planner audit **261/261** at 390×844 DPR 2, 820×1180 DPR 2
+      and 1440×900, against the production build via `vite preview` · `git diff --check` clean.
+
+**Authorized next step: none decided.** Block 4 had no authorisation to choose how the two-person
+layer works, and did not. See [`docs/BLOCK_4_HANDOFF.md`](BLOCK_4_HANDOFF.md) for the
+recommendation and the product decision it needs first.
+
+---
+
+## Block 5 — two local travellers — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `9275281` (Block 4 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_5_DESIGN.md`](BLOCK_5_DESIGN.md).
+
+**The product decision Blocks 2, 3 and 4 each deferred was taken by the user: option A — two local
+profiles in one browser.** No backend, no accounts, no login, no cross-device sync; the model is
+nevertheless shaped so a later move to synchronisation would not require re-conceiving the layer.
+
+- [x] **Settled what is shared before writing any component.** The route, the days, the dates, the
+      visit times, the accommodation anchors, the manual legs, the inter-hub segments and the
+      chosen zones belong to the trip — two adults travelling together have one itinerary.
+      **Exactly one thing is personal: does this person want to go here.**
+- [x] **`ManualPlanningDraftV8` is deliberately NOT versioned.** Nothing in it is personal, so
+      bumping to V9 out of symmetry would have added a migration for no change in meaning. Asserted
+      by test: the draft module may not mention a traveller, and the travellers module may not
+      mention a route, day, date, anchor, leg, segment or zone.
+- [x] **The shared shortlist is now DERIVED**, not stored: a place is in play when at least one
+      traveller wants it. `usePlanningDraft(savedIds)` keeps receiving the same `string[]` and
+      reconciles exactly as before. `useSavedPlaces` was removed rather than left as a second
+      writer of the same concept.
+- [x] **Three states, never two.** Silence, interest and explicit refusal stay distinct — the same
+      discipline Phase 3D-P applies to `unselected` vs `no-accommodation`. One person saying no
+      never removes a place the other still wants; the disagreement is shown, not resolved.
+- [x] **Nothing is scored.** "Los dos" is reported as a coincidence of two stated preferences, in
+      those words. No function in the layer returns a number per place, and no surface sorts or
+      filters the catalogue by what people said.
+- [x] **A pre-Block-5 list is carried over without inventing anyone's opinion.** Those places
+      arrive *unclaimed*, say so, and the flag clears when somebody speaks. Attributing them to
+      Persona 1 would have fabricated an opinion about a real person; to both, two. The legacy key
+      is read only when no document exists, and is never written or deleted.
+- [x] **Fail-closed parsing**, including the relational rule only this level can see: a stance
+      referencing an unknown traveller is rejected outright, never dropped and never reattributed.
+- [x] **The UI footprint is one header row.** A marker appears only when it says something the
+      reader does not already know, so most cards look exactly as they did. Saving is still one tap
+      with no person picker; the heart shows YOUR interest, not shared membership; the explicit
+      refusal and the full picture live in the detail; one modal, opened only by the reader, states
+      what a destructive step will cost before it happens.
+- [x] **Regression found and fixed.** Block 3's audit emptied the shortlist by removing
+      `nihon.savedPlaceIds`, which Block 5 made the legacy key, so it never reached the empty state
+      it exists to prove — 6 of 105 checks failed. The audit now clears the current owner too.
+- [x] **Block 4's `useZonePlanChoice` assumption was re-examined and left alone**, as instructed:
+      Block 5 adds a writer of a different key and never touches the planning draft, so the
+      mutual-exclusion assumption still holds and the refactor stays unmade.
+- [x] **Verified.** Vitest **2842** · oxlint and `tsc` clean · build OK · **all 13 Python suites** ·
+      **all 8 argument-free validators** · Block 1 **142/142** · Block 2 **69/69** · Block 3
+      **105/105** · Block 4 **261/261** · new Block 5 audit **225/225** at 390×844 DPR 2,
+      820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_5_HANDOFF.md`](BLOCK_5_HANDOFF.md).
+
+---
+
+## Block 6 — dónde no coincidimos — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `c260c75` (Block 5 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_6_DESIGN.md`](BLOCK_6_DESIGN.md).
+
+**Authority.** Block 5 closed with *"Authorized next step: none decided"* and no document in the
+repository assigned Block 6 to anything. The only forward-looking authority was the Block 5
+handoff's first recommendation, which is what this block implements, deliberately small.
+
+- [x] **A derived view, not a new document.** No storage key, no version, no migration, no stance
+      and no planning decision. Every value is a function of the Block 5 document plus, for one
+      informational flag, the ids the planner has put in a day. Asserted by test across every
+      Block 6 module and by the audit, which compares the full `nihon.*` key set before and after.
+- [x] **Silence is never reported as a disagreement.** *"Sólo tú lo guardaste. <otra> aún no ha
+      opinado"* and *"Opiniones distintas: una persona quiere ir y la otra ha dicho que no le
+      interesa"* are different kinds in the domain, different copy on screen and different tests.
+      `hasDifferingOpinions()` is about explicit refusal alone.
+- [x] **It lives inside the saved list**, as one row of filter chips — not a second main surface.
+      The row appears only when it could actually partition the list, so a trip where the two of
+      them agree on everything sees no change at all.
+- [x] **One indicator per row, never two.** "Todo" is Block 5's list exactly, markers and all.
+      Inside a filtered view the derived line states the fact in full from the reader's own side
+      and the short marker stands down rather than joining it.
+- [x] **Preference is still not a planning decision.** A place the planner already holds says *"Ya
+      está en un día del recorrido. Esto no lo cambia."* and nothing else happens. The audit
+      asserts the draft is byte-for-byte what the planner left after the view has been opened,
+      filtered and read. `ManualPlanningDraftV8` is untouched and still V8.
+- [x] **The planner is read, never written.** `usePlannedPlaceIds` hands `loadReconciledDraft` a
+      `DraftStorage` whose setter is a no-op, so there is no path from Block 6 to
+      `localStorage.setItem`. "In the planner" means assigned to a day, because `routeIds` is
+      seeded from the saved list and is therefore nobody's decision.
+- [x] **Nothing is scored.** No function returns a number per place; every count is a tally; no
+      surface sorts, ranks, weights, votes or proposes that either person give way.
+- [x] **The filter is view state and is not persisted.** It is what the reader is looking at, not a
+      decision about the trip, and no new key exists for it.
+- [x] **One defect caught by the block's own audit.** With every saved place in one bucket the chip
+      row offered "Todo" and one other chip that selected the same rows — two controls doing the
+      same thing, in a view that is supposed to stay light. `shouldOfferFilters` now requires two
+      populated buckets, keeping a filter the reader has already pressed.
+- [x] **No historical audit was modified.** One false positive came from Block 6's own new audit,
+      which applied a stricter tap floor than the project's: `.icon-button--small` at 36px has been
+      an explicit allowance in Block 1's audit since Block 1. The new audit adopts that allowance
+      rather than re-deciding it, and holds Block 6's own controls to the full 44px.
+- [x] **Verified.** Vitest **2930** (81 → 84 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225**, all unmodified ·
+      new Block 6 audit **216/216** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the
+      production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_6_HANDOFF.md`](BLOCK_6_HANDOFF.md).
+
+---
+
+## Block 7 — provenance and authority of zone facts — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `86ef3c8` (Block 6 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_7_DESIGN.md`](BLOCK_7_DESIGN.md).
+
+**Authority.** The first recommendation left in [`docs/BLOCK_6_HANDOFF.md`](BLOCK_6_HANDOFF.md),
+unclaimed since Block 4. The roadmap assigned Block 7 to nothing else.
+
+- [x] **The audit came first.** All 16 zones carried exactly one `facts.provenance` record, and
+      all 16 were Wikipedia station articles — one source standing silently behind three different
+      kinds of claim, with no way to say which it supported.
+- [x] **Scope was decided by what could be verified, not by what would look tidiest.** JR East,
+      JR Central, JR West, Tokyo Metro, Toei, Kansai Airport and the Kyoto and Osaka municipal
+      operators all refuse automated requests from this environment, so `railLines` and
+      `shinkansen` were deliberately **not** re-sourced: citing pages nobody had read would have
+      faked the authority this block exists to raise.
+- [x] **Five airport links now rest on an operator's own page.** Narita Airport's rail-access page
+      names the stations each service serves, and Nankai's Rapi:t page names the stations it
+      connects — the exact claims the zones make. Shinjuku, Marunouchi, Shibuya and Ueno for
+      Narita; Namba for Kansai.
+- [x] **Additive schema, nothing removed or retyped.** `ZoneProvenance` gains `tier` and `covers`;
+      `ZoneFacts` gains an optional `sources[]`. A zone without extras is exactly the Block 3
+      record it always was. `tier` is stored rather than inferred from the hostname, because "is
+      this the operator" is a judgement about the claim, not a fact about a domain name.
+- [x] **A claim is never kept alive by a source that does not make it.** Namba's service text drops
+      "(andén 9)": the operator page states the route and no platform. Airport, service and
+      `directFromZone` are unchanged.
+- [x] **The encyclopedia is kept wherever it still carries a claim**, and relieved of the airport
+      links only for Namba, whose single link the operator page fully covers.
+- [x] **The validator now makes an unsourced fact unrepresentable.** It refuses a source covering
+      nothing, a fact area covered by nothing, an encyclopedia claiming to be an operator, a
+      repeated page within one zone, and the new fields leaking into an `editorial` block. Thirteen
+      negative cases were checked by hand; it rejects all thirteen.
+- [x] **Fact / derived / editorial is untouched.** `tier` attaches to a source, never to a zone and
+      never to an axis. A higher tier never turns a judgement into a fact.
+- [x] **One visible change.** The panel rendered a link whose whole text was "Fuente"; it now names
+      each source and says how close it is, in words. No card was redesigned, no rating or ranking
+      touched, no planning decision altered.
+- [x] **Three false positives, all in Block 7's own new audit**, found and fixed before the commit:
+      a focus-trap check comparing class names where two sibling links share a class; a history
+      check that stepped onto `about:blank` because Chromium *replaces* a same-URL navigation; and
+      the audit's own unguarded init script throwing a `SecurityError` on that blank document and
+      reporting it as a product error. No historical audit was modified.
+- [x] **Verified.** Vitest **2969** (84 → 86 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216**, all unmodified · new Block 7 audit **129/129** at 390×844 DPR 2, 820×1180 DPR 2
+      and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_7_HANDOFF.md`](BLOCK_7_HANDOFF.md).
+
+---
+
+## Block 8 — the meaning of `directFromZone` — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `f09047a` (Block 7 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_8_DESIGN.md`](BLOCK_8_DESIGN.md).
+
+**Authority.** The recommendation left in [`docs/BLOCK_7_HANDOFF.md`](BLOCK_7_HANDOFF.md). The
+roadmap assigned Block 8 to nothing else.
+
+- [x] **The obvious diagnosis was the wrong one.** Block 7 flagged Haneda's direct coaches to
+      Shinjuku and Ikebukuro against `directFromZone: false` and suspected the booleans. Testing
+      every candidate meaning against all 23 records gave one hypothesis that fits **23 of 23**:
+      the field is true exactly when the service named in *that record* needs no change.
+- [x] **It was never about rail, and one record proves it.** `ZN-OSA-UMEDA → Itami` is a limousine
+      **coach**, marked direct since Block 3. That single record rules out the "direct rail"
+      reading on its own.
+- [x] **Three records were the defect, not the booleans.** `"Autobús limusina / vía Shinagawa"`
+      packed a direct coach *and* a rail route with a change into one string; one boolean cannot be
+      true of the first and false of the second. `false` was right for half of what it described.
+- [x] **The contract is now written down and tested.** `directFromZone` is a claim about one
+      service, not about the airport, and it is mode-agnostic. One record holds one service, so
+      Shinjuku and Ikebukuro now carry two Haneda records each — a direct coach and a rail route
+      via Shinagawa — which is how a zone tells both answers.
+- [x] **`mode` added, and made to earn it.** Two real cases the old model could not represent: a
+      direct coach and a direct train rendered the identical word, and splitting a bundled record
+      requires saying which half is which. It is a fact about the service and ranks nothing.
+- [x] **One claim dropped rather than invented.** Ikebukuro's Narita coach was not split out: every
+      Narita bus page refuses this environment and the operator's own site carries no destinations
+      in its HTML. Block 7's rule holds — nothing is claimed on a page nobody read.
+- [x] **The copy no longer admits two readings.** `directo` / `con enlace` became `tren directo`,
+      `autobús directo`, `tren con transbordo`, with the full sentence spelled out for assistive
+      technology. The green emphasis still marks *directness*, never a mode: a direct coach is
+      emphasised exactly like a direct train, and nothing says a train is better.
+- [x] **The validator can reject the defect.** Unknown or missing mode, a coach recorded as rail, a
+      service routed *via* somewhere while claiming to be direct, and the same airport-and-service
+      twice in one zone. Ten negative cases run by hand — including reintroducing the old compound
+      record — all ten rejected.
+- [x] **Two Block 7 tests updated, not weakened.** Adding Haneda's page as an operator source
+      legitimately widens the set of zones with an operator behind their airport links; both tests
+      still pin that set exactly, and a new test requires every extra source to be an operator
+      covering `airportLinks`. Investigated as a regression first, as the brief requires.
+- [x] **Verified.** Vitest **3000** (86 → 87 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216** · Block 7 **129/129**, all unmodified · new Block 8 audit **114/114** at
+      390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the production build · `git diff --check`
+      clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_8_HANDOFF.md`](BLOCK_8_HANDOFF.md).
+
+---
+
+## Block 9 — governance of zone editorial ratings — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `143d912` (Block 8 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_9_DESIGN.md`](BLOCK_9_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_8_HANDOFF.md`](BLOCK_8_HANDOFF.md), traced back to
+the debt Block 3 recorded. The roadmap assigned Block 9 to nothing else.
+
+- [x] **The recommendation could not be taken literally, and the repository said why.** "Let the two
+      travellers review the ratings", read as a per-traveller rating, contradicts Block 5 — which
+      settled that exactly one thing is personal, *does this person want to go here*, and which
+      names the chosen zones among the decisions that must **not** be duplicated per person.
+      Nothing in Blocks 6–8 supersedes it, so **no editor and no personal rating were built.**
+- [x] **Block 3's own words were the resolution.** "Sixteen zones × ten axes were authored in one
+      pass … but they have had **no second reader**." That is an authoring-process debt — a request
+      for human peer review — not a product feature. The humans can only do it if the ratings are
+      legible.
+- [x] **The audit found editorial architecturally clean and presentationally broken.** It affects no
+      ranking, filter or planning — ordering is derived distance alone — there is no composite score
+      and no function returning one, and the zone and traveller layers know nothing of each other.
+      But four real defects made a rating hard to scrutinise:
+      the ordinal's accessible reading was the bare string **"3 de 5"**, which to a screen reader
+      has the exact shape of a measurement; the disclosure showing all ten axes showed **no
+      direction at all**, although the contrasts section above it had that hint from the same field;
+      the two axes with no good direction were marked by a **muted colour and nothing else**; and
+      that disclosure was the one editorial heading carrying **no `criterio` tag**.
+- [x] **The contract is now explicit and test-protected.** A rating is Nihon's judgement on a closed
+      1–5 scale; only Nihon can change it, by shipping different data; it is not a fact and carries
+      no provenance; and it is not either traveller's preference — it says what a neighbourhood is
+      like, not whether anyone wants to go. Both halves are asserted, including the negative: no
+      write transition, no control, no storage key.
+- [x] **The rationale that already existed was surfaced**, not invented. Ordinals now read
+      "3 de 5 · criterio de Nihon"; the full list gained the direction hint, the *ni bueno ni malo*
+      note in words, the `criterio` tag, and one sentence saying what a rating is and is not. Both
+      surfaces read those strings from one module, so they cannot drift again.
+- [x] **No data changed.** The 160 values are internally sound — integers 1–5, exactly the ten
+      declared axes, no composite, no provenance leak, three written drawbacks per zone — and with
+      no second reader available, editing them here would be a **third unreviewed pass**. The debt
+      stays open, correctly: it can only be closed by the two travellers reading them.
+- [x] **No persistence added.** Reading a rating writes nothing; there is no key for one.
+- [x] **The composite ban is now enforced rather than merely documented.** The validator refuses a
+      score at zone or axis level, and per-traveller data anywhere in a zone. Twelve negative cases
+      run by hand; all twelve rejected.
+- [x] **One false positive, in Block 9's own new audit** — a `:focus-visible` check using
+      programmatic focus, which Chromium matches only for keyboard focus. Fixed by tabbing to the
+      summary, which also proves it is genuinely reachable. No historical audit was modified.
+- [x] **Verified.** Vitest **3036** (87 → 88 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216** · Block 7 **129/129** · Block 8 **114/114**, all unmodified · new Block 9 audit
+      **153/153** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the production build ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_9_HANDOFF.md`](BLOCK_9_HANDOFF.md).
+
+---
+
+## Block 10 — freshness and governance of `consultedAt` — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `ff69e70` (Block 9 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_10_DESIGN.md`](BLOCK_10_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_9_HANDOFF.md`](BLOCK_9_HANDOFF.md). The roadmap
+assigned Block 10 to nothing else.
+
+- [x] **The inventory came before the policy.** 35 provenance records across three systems — 23
+      zone facts, 8 reservation mechanisms, 4 access points — with no missing date, no duplicate
+      URL carrying two dates, no future date, and an oldest check of **13 days**. **Nothing in the
+      repository is stale**, so this block writes a policy that does not fire today and says so
+      rather than inventing a problem.
+- [x] **`consultedAt` means the date Nihon checked the source against the claim** — not the
+      source's publication date, not a page's last-modified date (operators rarely publish one and
+      inferring it would be inventing a fact), not the day the row landed in the repository. Blocks
+      7 and 8 wrote each date on the day they read the page, and each `evidence` string quotes what
+      it said: the date and the evidence are one act.
+- [x] **Age is not falsehood.** Three derived states, and **`unsupported` is deliberately not one
+      of them** — a source stops supporting a claim when somebody reads it and finds it no longer
+      does, which is evidence, not arithmetic. Nothing deletes a fact, weakens a claim or
+      downgrades a tier because a date got old.
+- [x] **Model B, forced by the domain.** `airportLinks` track services and Japanese operators
+      revise timetables annually — this dataset already carries the scar of one, Umeda's Haruka
+      platforms *"desde 2023"* — so the horizon is **365 days = one revision cycle**, derived
+      rather than chosen. `railLines` and `shinkansen` are infrastructure, changed by announced
+      events rather than schedules, and get **no periodic horizon at all**.
+- [x] **That branch is real, not hypothetical.** After Block 8 moved Namba's airport link to
+      Nankai's own page, `ZN-OSA-NAMBA`'s station article backs `railLines` and `shinkansen` alone —
+      one genuine record with no clock on it, which is why the model is per-area.
+- [x] **Deterministic by construction.** `freshnessFor(source, today)` is pure and takes the date;
+      the module contains no `new Date()`. The boundary is inclusive and tested on the day before,
+      the day of, and the day after, across leap days, month ends and year ends.
+- [x] **The clock lives alone in `lib/today.ts`** — the first attempt put it in `civil-date.ts` and
+      that module's own source scan rejected it, correctly: it is contractually clock-free, while
+      "today" needs local getters. The gate caught the mistake and the fix was to move the function,
+      not to relax the gate.
+- [x] **The trip's dates are deliberately not involved.** Freshness is a property of the dataset and
+      is identical for every reader; "check again before you fly" is a property of one trip.
+- [x] **The validator was the weak outlier and now matches the others.** It checked only the shape
+      until this block, so `2026-02-30`, `2026-13-01` and `2099-01-01` all passed. It now refuses an
+      impossible date and a future one, on the primary record and the extras alike — and **age is
+      never an error**. Eleven negative cases run by hand, plus four that must pass.
+- [x] **Nothing is stored.** The state and the re-check queue are both derived; no storage key was
+      added.
+- [x] **The visible consequence today is none.** A muted, never-red note renders beside a source
+      past its horizon, and no source is. The accessible name now says what the date means, threaded
+      **through** `sourceLinkLabel` so the date stays last and Block 7's anchored audit keeps
+      passing untouched.
+- [x] **One real regression, caught and fixed without weakening anything.** Appending the freshness
+      to the accessible name broke Block 7's `$`-anchored audit. Rather than relax a historical
+      gate, the copy was reordered so the date stays last — all nine historical audits remain
+      byte-identical.
+- [x] **Verified.** Vitest **3081** (88 → 89 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142** · Block 2 **69** ·
+      Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6 **216** · Block 7 **129** ·
+      Block 8 **114** · Block 9 **153**, all unmodified · new Block 10 audit **81/81** at 390×844
+      DPR 2, 820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_10_HANDOFF.md`](BLOCK_10_HANDOFF.md).
+
+---
+
+## Block 11 — semantic coverage of provenance in `access-points` and `reservation-mechanisms` — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `109917e8` (Block 10 closed, on
+`claude/brave-wozniak-f79ie3`). Not merged, no pull request. Full record in
+[`docs/BLOCK_11_DESIGN.md`](BLOCK_11_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_10_HANDOFF.md`](BLOCK_10_HANDOFF.md). The roadmap
+assigned Block 11 to nothing else.
+
+- [x] **The audit came before the schema.** All twelve records — 8 reservation mechanisms, 4 access
+      points — mapped to the claim each backs, its source, entity, `confidence`, date and age (3–13
+      days). Both systems carry **one provenance per record**, no URL with two dates, and **no
+      authority tier at all**, because both `confidence` enums are `official-*`: every source is the
+      operator or the responsible public body, so Block 7's lower rungs have no members here.
+- [x] **`covers` was the wrong answer, and the block says so.** `covers` exists because one zone
+      record makes three *separable* claims and one source may back any subset. Neither of these
+      systems has that shape: one access point is one arrival point, one mechanism is one sales
+      rule. A `covers` field would ask each record to restate, in a field that can drift, what the
+      record already **is** — the exact failure `covers` was invented to prevent, as ceremony.
+      **Neither schema gained a field, and no data file was touched.**
+- [x] **What was actually missing is the *kind* of claim, and both schemas already stored it.**
+      Access points: `role` separates built fabric from a *served* stop. Reservation mechanisms:
+      `mechanism.kind` separates a standing rule from one dated sale. The class is therefore
+      **derived** from them, never stored beside them — a stored class can be wrong, a derived one
+      cannot disagree with the fact it describes.
+- [x] **The finding that forced the design: `RM-JP-212-001` is not like its seven siblings.** Seven
+      record a standing rule relative to the visit date. The sumo record stores an **absolute**
+      `saleDate` for an **absolute** tournament window: it describes one sale, not how sales work,
+      and expires by its own terms. On 2027-04-01 its check is 201 days old — "fine" under any age
+      model — while the tournament finished four days earlier. **Age is the wrong instrument for
+      it.**
+- [x] **A fourth state, because `null` could not carry the third answer.** `no-periodic-recheck`
+      says *relax*; a ticketing policy is the most volatile claim in the dataset. So
+      `recheck-interval-unknown` was added: *this does want re-reading and we cannot say how often.*
+      A test asserts the two never produce the same wording.
+- [x] **Thresholds only where the domain supplies one.** `served-transit-stop` → **365 days**, the
+      timetable cycle re-derived in this domain rather than borrowed (**0 shipped records; decided
+      in advance so the first cannot inherit a branch by accident**). `built-arrival-point` and
+      `dated-sale-instance` → **none**. `standing-sales-rule` → **no number, deliberately**: Block 10
+      derived 365 from an event you can point at, and ticketing policy supplies no such event.
+      **Recorded as debt rather than invented.**
+- [x] **The engine was extended, not duplicated.** `freshnessForHorizon` is now the one place a
+      `consultedAt` becomes a verdict for all three systems; `freshnessFor` keeps its exact Block 10
+      signature on top of it. **Block 10's own 38 tests were not modified and pass unchanged** — the
+      evidence the refactor preserves behaviour. Pure, `today` explicit, no clock, no storage,
+      inclusive boundary, and a broken date still outranks every horizon, `unknown` included.
+- [x] **`confidence` stays independent**, and it means *how directly the source states the claim* —
+      not authority, not coverage, not age. Proven in both directions: recent-but-derived and
+      eleven-years-old-but-explicit classify identically, and a source scan asserts the module never
+      reads `confidence`, `tier` or `editorial`.
+- [x] **`consultedAt` keeps Block 10's definition exactly**, and nothing looks freshly verified: the
+      class is derived, so there was nothing to migrate. All twelve dates are pinned by test to the
+      values Block 10 recorded.
+- [x] **The two lagging validators caught up.** Block 10 taught the zone validator to refuse
+      impossible and future dates; these two still accepted `2099-01-01`. Both now match, with
+      injectable `today`. Age is never an error — here load-bearing, since a sales rule has no
+      derivable interval. **32 of 32 negative cases behaved correctly** against the real datasets,
+      including the sumo record's future `saleDate`, which must keep passing.
+- [x] **No visible change, and both halves argued.** Access-point provenance has **no UI surface at
+      all** — one non-test importer, type-only. Reservation provenance already shows its check date,
+      and Nihon's own process does not belong in front of the reader. With `unknown`/`none` the only
+      reservation horizons, **no reservation record can ever reach `needs-recheck`** — a real
+      property of the model, stated rather than discovered later. No browser audit added, per §18.
+- [x] **The contract guards were broken on purpose to prove they fire:** a new `role` with no class
+      and a dropped `mechanism.kind` are caught by `tsc` (TS2741); a sales rule quietly given the
+      stable horizon fails 5 tests; an invented 180-day threshold fails 4.
+- [x] **Verified.** Vitest **3117** (89 → 90 files, +36) · oxlint and `tsc` clean · build OK · **all
+      13 Python suites** · **all 8 argument-free validators** · Block 1 **142** · Block 2 **69** ·
+      Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6 **216** · Block 7 **129** ·
+      Block 8 **114** · Block 9 **153** · Block 10 **81**, all unmodified and byte-identical ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_11_HANDOFF.md`](BLOCK_11_HANDOFF.md).
+
+---
+
+## Block 12 — RC-05: performance / bundle architecture audit — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `ae2b30a` (Block 11 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_12_DESIGN.md`](BLOCK_12_DESIGN.md).
+
+**Authority.** `RC-05`, carried in the debt table since
+[`docs/RELEASE_CANDIDATE_AUDIT.md`](RELEASE_CANDIDATE_AUDIT.md) and correctly left untouched through
+Blocks 1–11 because it must not be mixed with functional work.
+
+- [x] **The audit came before the design, and it inverted the original diagnosis.** RC-05 was
+      recorded as *"an ordinary size for React + Leaflet plus the full 214-place dataset"*. Measured
+      by rolldown's own accounting, **the dataset is 43.3% of the bundle and React plus Leaflet
+      together are 32.5%** — the data is larger than either runtime and larger than all of Nihon's
+      own code. The proportions were backwards.
+- [x] **The unit was wrong, which is most of the finding.** Vite's advisory counts raw minified
+      bytes. `walking-scale-results.json` is 253 kB raw and **10 kB gzipped — 4%**, because it is
+      thousands of near-identical records. All the JSON together is **898,690 B raw → 105,116 B
+      gzipped**. Roughly 900 kB of the 1.53 MB "problem" ships as 105 kB, and an audit that stopped
+      at the raw column would have sent the next reader after the wrong 253 kB.
+- [x] **Boundaries were found in the product, not the byte count.** Exclusive weight from the real
+      module graph: planner **246 kB / 27 modules**, zone comparison **38 kB / 8**, `PlaceDetail`
+      25 kB, `SelectionAnalysis` 14 kB, `TravellerManager` 9 kB. Only the first two clear the bar.
+- [x] **Leaflet was measured and kept.** `INITIAL_VIEW.mode` is `"national"`, so the first thing
+      Nihon renders is the national map. Deferring 256 kB of it would trade a real first paint for a
+      cosmetic number — refused, and now test-protected in both directions.
+- [x] **The big JSON stays, with the reason recorded.** The walking datasets (298 kB raw / ~12 kB
+      gzip) are reached from `usePlannedPlaceIds` → the planning-draft migration chain →
+      `transfer.ts`, which indexes at module scope. That is the **draft-restoration path**, running
+      on mount. Moving it needs a functional refactor forbidden by this block's scope, and is worth
+      ~12 kB — so it should be done for architectural reasons if ever, not for size.
+- [x] **Decision A, at exactly two boundaries.** `React.lazy` for the planner and the zone
+      comparison. No `manualChunks`, no vendor splitting, no tiny chunks, no change to
+      `chunkSizeWarningLimit`.
+- [x] **Before / after, reproducible.** Initial JS **1,530,614 → 1,377,479 B raw (−10.0%)**,
+      **284,387 → 250,628 B gzip (−11.9%)**, **227,624 → 201,105 B brotli (−11.7%)**. Two new
+      chunks, 31,917 B and 5,872 B gzipped. **Zero duplication** (104 + 27 + 8 modules, disjoint),
+      initial request count unchanged, no `modulepreload` for either — so no waterfall was added.
+      Re-derive with `node scripts/bundle-report.mjs`.
+- [x] **The split does not move the wait onto the user.** Both chunks are warmed on
+      `requestIdleCallback` after first paint, with a timeout fallback, rejection swallowed so a
+      failed prefetch can never surface as an error, and cancellable.
+- [x] **The warning still fires, and was deliberately not silenced.** The entry is still 1.38 MB raw
+      because it still holds the data a first render needs. Raising the threshold would have made
+      the advisory vanish without changing one byte a user downloads — the cosmetic surgery this
+      block exists to refuse. **RC-05 closes as diagnosed and materially improved, not as
+      "warning gone".**
+- [x] **One historical gate tripped, and the code moved rather than the gate.** Putting `Suspense`
+      inside the condition broke `ZonePlanSection.test.ts`, whose regex pins the condition sitting
+      directly against the component — protecting the invariant that the planner unmounts on close
+      so reopening re-reads the draft. The invariant was never broken, only the adjacency assumed.
+      As in Block 10, the boundary was moved outside instead; the test passes byte-identical, and
+      the result is better React.
+- [x] **Guards assert architecture, never output.** No chunk hash, no byte count, no `dist/`
+      filename. Nine tests pin the shape that causes the split — including the quiet failure where
+      one stray static import undoes it while the build stays green. All four were broken on purpose
+      to prove they fire.
+- [x] **No real-device numbers are claimed.** This environment has no throttled network and no CPU
+      profile, so no parse-time or TTI figure appears anywhere. Every number is a build or network
+      measurement that can be re-derived.
+- [x] **Verified.** Vitest **3126** (90 → 91 files, +9) · oxlint and `tsc` clean · build OK, RC-05
+      advisory intentionally unchanged · **all 13 Python suites** · **all 8 argument-free
+      validators** · Block 1 **142** · Block 2 **69** · Block 3 **105** · Block 4 **261** · Block 5
+      **225** · Block 6 **216** · Block 7 **129** · Block 8 **114** · Block 9 **153** · Block 10
+      **81**, all unmodified and byte-identical · new Block 12 audit **81/81** at three viewports ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_12_HANDOFF.md`](BLOCK_12_HANDOFF.md).
+
+---
+
+## Block 13 — portable backup and restoration of the trip — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `30c553c` (Block 12 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_13_DESIGN.md`](BLOCK_13_DESIGN.md).
+
+**Authority.** The capability gap: a trip prepared in one browser cannot be moved to another. No
+prior document assigned Block 13 and no conflict was found.
+
+- [x] **The inventory came first, and corrected this block's own premise.** **Five** storage keys
+      exist, not two, and **`nihon.savedPlaceIds` has been legacy since Block 5** — saved places live
+      inside `nihon.travellers.v1` as per-person stances, and "Quiero ir" is *derived* from them by
+      `shortlistPlaceIds()`. No IndexedDB or `sessionStorage` use exists anywhere.
+- [x] **The backup is decisions, not a photograph of storage.** In: the travellers document and the
+      planning draft. Out: the legacy key (a stale second copy of state the file already carries),
+      the derived shortlist, `nihon.zoneComparison.v1` (the *act* of comparing — its *conclusion*
+      lives in the draft as `zoneAccommodationChoices` and **is** in the file) and
+      `nihon.onboarding.seen.v1` (a fact about a browser, not a trip). Copying every `nihon.*` key
+      would have welded the format to today's storage layout.
+- [x] **Two contracts, never one.** The envelope is `version: 1`; the documents carry their own `1`
+      and `8`. Merging the numbers would invalidate every file on disk each time an internal schema
+      moved.
+- [x] **An arbitrary file stays `unknown` until its own parsers accept it.** No `as` cast anywhere,
+      asserted by a test. The envelope is strict — four keys, two under `data` — and `Object.keys`
+      is used so a `"__proto__"` key, which `JSON.parse` makes an ordinary own property, is **seen
+      and refused** rather than ignored.
+- [x] **Envelope before migration.** Validated first, so an internal migrator can never rescue a
+      file that was never valid — tested with a perfectly migratable V3 draft inside a wrong-format
+      envelope. The draft's own `parseStoredDraft` (V1→V8) is delegated to and never duplicated.
+- [x] **Nothing is written before a human confirms**, structurally: `prepareImport` has no access to
+      a writer. Every one of eight blocking errors leaves storage untouched, and losses that *can* be
+      reconciled are **counted and stated**, never swallowed.
+- [x] **Replace, never merge — including by omission.** A `null` draft in the file removes the stored
+      plan rather than leaving the previous itinerary behind. No union of saved places, no
+      newest-draft-wins, no stance reconciliation by timestamp: merging needs semantics nobody has
+      specified.
+- [x] **Best-effort rollback, and called that.** `localStorage` has no transaction. It rolls back
+      only the writes that actually **landed** — the first version undid writes that never happened,
+      usually by asking the same failing storage to accept the same key again; a test caught it — and
+      reports `rolledBack: false` honestly when the rollback itself fails.
+- [x] **The restore ends in a reload, as correctness rather than polish.** `useTravellers` and
+      `usePlanningDraft` hold their documents in React state; a restore replaces those keys
+      underneath them, so the next heart pressed would have written the **previous** trip over the
+      import, silently. The confirmation screen has no other exit.
+- [x] **The two travellers stay two.** Separate identities and stances preserved; a dangling stance
+      rejects the file rather than being reattributed; the itinerary stays **one shared document**.
+- [x] **Nothing leaves the device.** No `fetch`, `XMLHttpRequest`, `sendBeacon`, WebSocket,
+      telemetry or service worker. Proven by a source scan and by three request counters in the
+      audit. The copy never says sincronizado, conectado, nube, cuenta or compartido — enforced by a
+      test.
+- [x] **One real regression, fixed in the product.** `.app__backup` was written at 36px, copying
+      `.app__help`; Block 1's tap-target audit fell to **141/142**. `.app__help` sits on a *named
+      historical allowance*, and a control added today does not join an exemption list — the button
+      was raised to 44px and Block 1 is back at **142**, byte-identical.
+- [x] **`TripBackup` is deliberately not lazy.** Built lazy first and measured at 7.4 kB raw /
+      2.4 kB gzipped — smaller than two surfaces Block 12 examined and left in the entry. The whole
+      feature costs **+3,108 B gzipped** on the critical path; Block 12's two boundaries are
+      untouched.
+- [x] **Recorded rather than claimed:** everything is verified in Chromium. This environment has no
+      iOS, so **no statement is made about Safari's download behaviour** — a gap in evidence, not a
+      known failure.
+- [x] **Verified.** Vitest **3178** (91 → 92 files, +52) · oxlint and `tsc` clean · build OK, RC-05
+      advisory unchanged · **all 13 Python suites** · **all 8 argument-free validators** · Block 1
+      **142** · Block 2 **69** · Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6
+      **216** · Block 7 **129** · Block 8 **114** · Block 9 **153** · Block 10 **81** · Block 12
+      **81**, all unmodified and byte-identical · new Block 13 audit **156/156** at three viewports ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_13_HANDOFF.md`](BLOCK_13_HANDOFF.md).
+
+---
+
+## Block 14 — post-redesign release readiness / whole-product audit — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `894fdc6` (Block 13 closed). Not merged, no pull
+request, no tag, no release, no deployment. Full record in
+[`docs/BLOCK_14_RELEASE_READINESS.md`](BLOCK_14_RELEASE_READINESS.md).
+
+**Authority.** A gate, not a backlog: does Nihon, after Blocks 1–13, actually work as a product on a
+phone, a tablet and a desktop? No feature was added.
+
+### VERDICT: **RELEASE-READY WITH KNOWN LIMITATIONS**
+
+- [x] **Baseline reproduced exactly before any edit.** Vitest 3178/92, all twelve audits at their
+      stated values, 13/13 Python, 8/8 validators. Every figure matched.
+- [x] **The inventory was derived from code**, not memory: 214 places across 7 hubs, **157 places /
+      163 photographs**, 16 zones, 4 access points, 8 reservation mechanisms, and **five** storage
+      keys of which one (`nihon.savedPlaceIds`) is legacy and read-only.
+- [x] **One journey, not thirteen demos.** A single continuous story across **Tokio + Kioto +
+      Osaka** — discovery, search including a zero-result query, filters, detail, both travellers,
+      planner with three days anchored in March 2027, a manual visit time, an inter-hub segment,
+      zone comparison, reload, export, mutate, import, confirm, reload, keep using it — at three
+      viewports against the production build: **226 checks, 0 failed**.
+- [x] **The restore trap is closed and proven.** Restore → forced reload → **then interact** → the
+      replaced trip does not come back. This was Block 13's biggest risk and no isolated audit can
+      see it.
+- [x] **No BLOCKER. No MAJOR.** Four MINOR findings, all fixed; three observations and two debts,
+      all recorded.
+- [x] **F-1 fixed:** the backup revoked its object URL synchronously after the anchor click — no
+      Chromium-only API, but a pattern Safari has historically cancelled downloads for, in the one
+      feature whose purpose is moving a trip to another device. Deferred to a macrotask; regression
+      test proven to fail against the previous code. **A measured risk, not a measured failure**,
+      and recorded as such.
+- [x] **F-2/F-3/F-4 fixed — documentation that had stopped being true.** `app/README.md` claimed
+      "144 of 214" photographs (it is 157); `docs/DATA_MODEL.md` claimed `nihon.savedPlaceIds`
+      "remains" the only persisted state (false since Block 5); both READMEs described a single-user
+      app with no two-traveller model and no portable backup. **Only current-state docs were
+      touched** — the roadmap's per-block entries are a historical record and stay as written.
+- [x] **The code was already clean on the legacy key**: read in exactly one place, only when no
+      travellers document exists, and never written anywhere.
+- [x] **Network verified over the whole journey.** Only `a|b|c.tile.openstreetmap.org`. No
+      photograph fetched at runtime, no secret, no dev endpoint, no dormant provider, no chunk 404.
+      Export and import make **zero** requests. Zero page errors and zero relevant console errors,
+      with **one exact exclusion**: the sandbox has no route to the tile servers.
+- [x] **Static-hosting readiness confirmed.** No Node server, no API, no runtime environment
+      variable, **no client-side router — so no SPA rewrite rule is needed**. One caveat: absolute
+      asset paths, so a subpath deployment needs Vite's `base` (F-7). No PWA was added (§17).
+- [x] **Block 12 intact** (+6 B gzip, the `setTimeout` from F-1; same two lazy chunks, no
+      duplication). **The Vite advisory still fires and is still not silenced.**
+- [x] **The 160 editorial ratings were not touched and the debt was not closed.** Claude is not the
+      second reader. Block 9's fact/editorial boundary holds, so it is editorial debt rather than a
+      technical release blocker.
+- [x] **Five false positives, all in this block's own instrumentation**, recorded separately from
+      the real findings — including a 304 counted as a failure and a "secret" that was React DOM's
+      input-type table.
+- [x] **Verified.** Vitest **3179** (92 files) · lint and `tsc` clean · build OK · **13/13** Python ·
+      **8/8** validators · Blocks 1–13 audits **all at exact baseline and byte-identical** · new
+      Block 14 audit **226/226** at three viewports · `git diff --check` clean.
+
+**Known limitations to state before publishing:** a real Safari/iOS device test of the backup is
+outstanding; a subpath deployment needs `base`; the editorial ratings have one reader; an expanded
+saved-places sheet can overlay the national start screen on a phone.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_14_HANDOFF.md`](BLOCK_14_HANDOFF.md).
+
+---
+
+## Block 15 — Nihon v1.1.0 release candidate / integration gate — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `de653b2` (Block 14 closed). **No merge, no Ready, no
+tag, no GitHub Release, no deployment.** Full record in
+[`docs/BLOCK_15_RELEASE_CANDIDATE.md`](BLOCK_15_RELEASE_CANDIDATE.md).
+
+### VERDICT: **RC-READY — PENDING IPHONE ACCEPTANCE**
+
+- [x] **Ancestry verified before anything was edited.** HEAD `de653b2` on both sides, `origin/main`
+      `1a11fe8`, merge-base **exactly** `origin/main`, **42 ahead / 0 behind**. `main` did not
+      diverge during the block; nothing was rebased or forced.
+- [x] **The previous release was identified correctly, and left alone.** `v1.0.0` → `1a11fe8`, the
+      repository's only tag, GitHub Release published **2026-09-17**. Its tag was not moved, its
+      Release not edited, and `RELEASE_V1.0.0.md` / `FINAL_RELEASE_GATE.md` were **not rewritten** —
+      they remain the record of that release, including its then-correct 144-photograph figure.
+- [x] **No collision.** `v1.1.0` existed as neither tag nor Release, locally or remotely, and neither
+      was created. The only open PR (#122, `codex/…` → `experiment/astra-redesign`) is unrelated.
+- [x] **The delta was derived from the diff, not from handoffs.** `v1.0.0..de653b2` is **42 commits,
+      327 files, +37,506 / −2,133**: photography **144 → 163 images / 144 → 157 places**, 16 new
+      accommodation zones, 182 new image assets, 34 new source modules — and **the catalogue
+      unchanged at 214 places**, because v1.1.0 adds no new research.
+- [x] **1.1.0, and the reasoning is recorded.** A backward-compatible feature release: substantial
+      new capability, nothing broken, a v1.0.0 saved list migrates automatically. MINOR, not a patch
+      and not a major.
+- [x] **Three lines of metadata changed**, and **zero dependency drift** — proven, not asserted:
+      package-entry sets identical, no non-root entry changed in any field, root differs only in
+      `version`, and across **172 packages** no `resolved`, no `integrity` and no `version` moved.
+      `npm ci` leaves the lockfile byte-identical.
+- [x] **Build neutrality proven.** The version is not consumed at runtime, and a clean rebuild after
+      the bump produced **all 333 `dist/` files byte-identical** to the pre-bump build.
+- [x] **No product code touched.** `git diff de653b2` over `app/src/**`, `data/**`, `app/public/**`,
+      `scripts/**` and `app/scripts/**` is empty.
+- [x] **Release notes describe the real product** ([`RELEASE_V1.1.0.md`](RELEASE_V1.1.0.md)), from
+      figures derived at this commit — including freshness stated explicitly as **not live data** and
+      Vite's advisory explained as a raw-byte threshold rather than a user-facing problem.
+- [x] **Full gate green at exact figures.** Vitest **3179 / 92** · lint · `tsc` · build clean ·
+      Python **13/13** · validators **8/8** · Blocks 1–14 audits **all exact, 13/13 suites at
+      `exit=0`, 1,958 checks total** · bundle unchanged, so Block 12's architecture is intact ·
+      `git diff --check` clean.
+- [x] **One recording note, not a regression.** A first batch run dropped Block 4's summary line from
+      its captured output; re-run alone it reports **261 passed, exit 0**, and a second batch
+      capturing per-audit exit codes confirmed all thirteen. Recorded rather than quietly re-run.
+- [x] **A draft pull request into `main`** carries the evidence and states that no merge, tag or
+      Release may happen until the physical iPhone acceptance check is recorded.
+
+**The single outstanding item is a physical iPhone Safari acceptance check of export/import.** It
+cannot be performed from this environment and is not assumed. Until it is recorded as PASS: no merge,
+no Ready, no tag, no Release, no deployment.
+
+**Authorized next step: the iPhone acceptance check.** See
+[`docs/BLOCK_15_HANDOFF.md`](BLOCK_15_HANDOFF.md).
+
+---
+
+## Block 16 — Nihon v1.1.0 release closure — complete
+
+Closes the v1.1.0 release candidate opened in Block 15 after a physical iPhone Safari acceptance
+check of the portable backup was recorded on PR #123. Full record in
+[`docs/BLOCK_16_V1_1_RELEASE_CLOSURE.md`](BLOCK_16_V1_1_RELEASE_CLOSURE.md) and
+[`docs/BLOCK_16_HANDOFF.md`](BLOCK_16_HANDOFF.md).
+
+### VERDICT: **RELEASE-READY**
+
+- [x] **Preflight matched exactly.** `origin/main` `1a11fe8`, branch `claude/sleepy-heisenberg-hn7340`
+      at `a6f8058`, PR #123 open/draft/`mergeable_state: clean`, ahead 45 / behind 0, working tree
+      clean, `v1.1.0` tag and Release both absent.
+- [x] **iPhone Safari acceptance recorded as PASS** on PR #123, from a real device against a Vercel
+      preview of the exact candidate SHA. Replace-not-merge on cross-device import confirmed as
+      designed behaviour (Block 13), not a defect.
+- [x] **Final gate reproduced exactly, no regression.** Vitest 3179/92, lint, `tsc`, build, Python
+      13/13, validators 8/8, `bundle-report.mjs`, `git diff --check` — all clean; all 13 browser-audit
+      suites at their exact expected counts, **1,958 / 1,958 checks total**.
+- [x] **PR #123 marked Ready**, auto-merge not enabled, re-verified mergeable before merging.
+- [x] **Merged via merge commit** — not squash, not rebase — preserving the Blocks 1–16 history.
+- [x] **`v1.1.0` tagged** (annotated, on the exact merge commit) and **released** (non-draft,
+      non-prerelease, notes from `docs/RELEASE_V1.1.0.md`). `v1.0.0` untouched.
+- [x] **No production deployment.** The Vercel preview used for acceptance was not promoted; hosting
+      remains a separate, later decision.
+- [x] **Shared-trip synchronization recorded as v1.2.0 discovery input**, not designed or implemented
+      here; no backend provider selected.
+
+**Authorized next step: architecture and threat/data-model design for shared-trip synchronization
+(v1.2.0), not implementation.** See [`docs/BLOCK_16_HANDOFF.md`](BLOCK_16_HANDOFF.md).

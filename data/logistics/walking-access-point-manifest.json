@@ -1,0 +1,834 @@
+{
+  "revalidationVersion": 1,
+  "phase": "3B2H",
+  "targetPlaceIds": [
+    "JP-029",
+    "JP-181"
+  ],
+  "selectionMethod": {
+    "description": "Set intersection, not a sample: every historical directed 'A pie' edge (pilot or scale manifest) with a Phase 3B2G access-point place at either end. Direction is preserved. Each edge is then expanded into one candidate per ACTIVE external-walk access point of its target place — all of them, in catalog order, which carries no priority. No candidate is pre-selected by ID, array position or haversine, and no winner is promoted to a default.",
+    "nonTargetEndpointRule": "The non-target end of every edge keeps the exact place coordinate the historical result used, so the only variable that changes is the target endpoint."
+  },
+  "sourceContext": {
+    "targetEdgeCount": 6,
+    "candidateCount": 14,
+    "historicalOriginCounts": {
+      "pilot": 0,
+      "scale": 6
+    },
+    "datasetDigest": {
+      "algorithm": "sha256",
+      "places": "4184a0fe0f326ebdcd9c8e8003d335265ba3ec0aa926ddd6b977be11e916955c",
+      "nearby": "8179246c7eecea8ca960182eaa679ba00026a729d00f56d1a24cd8792d113de9"
+    },
+    "accessPointsDigest": {
+      "algorithm": "sha256",
+      "value": "cfea6b5548aa77fdbbcf0e90df4684065b832541a9b7ecdec3620d3d7426cbf1"
+    },
+    "historicalResultsDigest": {
+      "algorithm": "sha256",
+      "pilot": "40f1e05d10ed5502db50af664514c174219aaa0ec4d46370eb219155042f8ec7",
+      "scale": "42315b8fe5921decaeefc9d80e77b847276b8681483cb5066af4c76511cdf4fb"
+    }
+  },
+  "candidates": [
+    {
+      "candidateKey": "JP-028->JP-029@AP-JP-029-001",
+      "fromId": "JP-028",
+      "toId": "JP-029",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:02Z",
+        "query": {
+          "fromCoordinates": [
+            139.7576,
+            35.6956
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-028->JP-029@AP-JP-029-002",
+      "fromId": "JP-028",
+      "toId": "JP-029",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:02Z",
+        "query": {
+          "fromCoordinates": [
+            139.7576,
+            35.6956
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-028->JP-029@AP-JP-029-003",
+      "fromId": "JP-028",
+      "toId": "JP-029",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:02Z",
+        "query": {
+          "fromCoordinates": [
+            139.7576,
+            35.6956
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-029@AP-JP-029-001->JP-028",
+      "fromId": "JP-029",
+      "toId": "JP-028",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7576,
+            35.6956
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-029@AP-JP-029-002->JP-028",
+      "fromId": "JP-029",
+      "toId": "JP-028",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7576,
+            35.6956
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-029@AP-JP-029-003->JP-028",
+      "fromId": "JP-029",
+      "toId": "JP-028",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7576,
+            35.6956
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-029@AP-JP-029-001->JP-030",
+      "fromId": "JP-029",
+      "toId": "JP-030",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7671,
+            35.6812
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-029@AP-JP-029-002->JP-030",
+      "fromId": "JP-029",
+      "toId": "JP-030",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7671,
+            35.6812
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-029@AP-JP-029-003->JP-030",
+      "fromId": "JP-029",
+      "toId": "JP-030",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7671,
+            35.6812
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-030->JP-029@AP-JP-029-001",
+      "fromId": "JP-030",
+      "toId": "JP-029",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:04Z",
+        "query": {
+          "fromCoordinates": [
+            139.7671,
+            35.6812
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-030->JP-029@AP-JP-029-002",
+      "fromId": "JP-030",
+      "toId": "JP-029",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:04Z",
+        "query": {
+          "fromCoordinates": [
+            139.7671,
+            35.6812
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-030->JP-029@AP-JP-029-003",
+      "fromId": "JP-030",
+      "toId": "JP-029",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:04Z",
+        "query": {
+          "fromCoordinates": [
+            139.7671,
+            35.6812
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-181@AP-JP-181-001->JP-182",
+      "fromId": "JP-181",
+      "toId": "JP-182",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-181",
+        "accessPointId": "AP-JP-181-001"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-182"
+      },
+      "accessPointIds": [
+        "AP-JP-181-001"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T16:27:42Z",
+        "query": {
+          "fromCoordinates": [
+            128.2632,
+            26.871
+          ],
+          "toCoordinates": [
+            128.264,
+            26.872
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-181"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 211.4
+        },
+        "minutes": {
+          "minMinutes": 3,
+          "maxMinutes": 3
+        },
+        "durationSecondsRaw": 152.2,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 80.69,
+          "toSnapMeters": 13.74,
+          "radiusMeters": 350
+        }
+      }
+    },
+    {
+      "candidateKey": "JP-182->JP-181@AP-JP-181-001",
+      "fromId": "JP-182",
+      "toId": "JP-181",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-182"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-181",
+        "accessPointId": "AP-JP-181-001"
+      },
+      "accessPointIds": [
+        "AP-JP-181-001"
+      ],
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T16:27:43Z",
+        "query": {
+          "fromCoordinates": [
+            128.264,
+            26.872
+          ],
+          "toCoordinates": [
+            128.2632,
+            26.871
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-181"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 211.4
+        },
+        "minutes": {
+          "minMinutes": 3,
+          "maxMinutes": 3
+        },
+        "durationSecondsRaw": 152.2,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 13.74,
+          "toSnapMeters": 80.69,
+          "radiusMeters": 350
+        }
+      }
+    }
+  ]
+}

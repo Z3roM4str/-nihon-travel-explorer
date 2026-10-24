@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "baseSha": "88b9592c4351c8a48ccd216d372797d535d63968",
+  "imageCount": 167,
+  "coveredPlaceCount": 161,
+  "gradeATotal": 147,
+  "gradeAMissingCount": 35,
+  "gradeSCovered": 32,
+  "gradeAMissing": [
+    {
+      "placeId": "JP-023",
+      "name": "Yanaka Ginza and cemetery lanes",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-024",
+      "name": "Nezu Shrine",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-027",
+      "name": "Kanda Myojin",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-029",
+      "name": "Imperial Palace East Gardens",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-031",
+      "name": "Hama-rikyu Gardens",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-035",
+      "name": "The National Art Center, Tokyo",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-036",
+      "name": "21_21 DESIGN SIGHT",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-045",
+      "name": "Kichijoji + Inokashira Park",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-048",
+      "name": "Shimokitazawa",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-050",
+      "name": "PokéPark KANTO",
+      "hub": "Tokio",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-069",
+      "name": "Bishamon-dō",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-074",
+      "name": "Giō-ji",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-075",
+      "name": "Otagi Nenbutsu-ji",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-076",
+      "name": "Adashino Nenbutsu-ji",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-079",
+      "name": "Kyoto Rakusai Bamboo Park",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-082",
+      "name": "Daitoku-ji subtemples",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-083",
+      "name": "Genkō-an",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-088",
+      "name": "Jingo-ji",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-095",
+      "name": "teamLab Biovortex Kyoto",
+      "hub": "Kioto",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-120",
+      "name": "teamLab Botanical Garden Osaka",
+      "hub": "Osaka",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-121",
+      "name": "Expo ’70 Park + Tower of the Sun",
+      "hub": "Osaka",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-133",
+      "name": "Naramachi",
+      "hub": "Osaka",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-136",
+      "name": "Kōko-en",
+      "hub": "Osaka",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-137",
+      "name": "Engyō-ji on Mount Shosha",
+      "hub": "Osaka",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-147",
+      "name": "Enryaku-ji",
+      "hub": "Osaka",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-156",
+      "name": "Sakaemachi Arcade nightlife",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-168",
+      "name": "Yachimun no Sato",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-170",
+      "name": "Katsuren Castle Ruins",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-175",
+      "name": "Nakijin Castle Ruins",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-191",
+      "name": "Yabiji coral reef",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-193",
+      "name": "Yonehara Beach and coral",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-195",
+      "name": "Yaeyama stargazing experience",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-201",
+      "name": "Hatenohama",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-202",
+      "name": "Whale watching in the Kerama waters",
+      "hub": "Okinawa",
+      "grade": "A"
+    },
+    {
+      "placeId": "JP-211",
+      "name": "AnimeJapan 2027",
+      "hub": "Osaka",
+      "grade": "A"
+    }
+  ],
+  "placeImagesTsSha256": "6e6904113aa02f56795257302d05cc1c528e8935d01a810cb208157d4a17af9d"
+}

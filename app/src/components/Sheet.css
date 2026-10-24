@@ -1,0 +1,91 @@
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--scrim-page);
+}
+
+.sheet__grabber {
+  width: var(--sheet-grabber-width);
+  height: var(--sheet-grabber-height);
+  margin: var(--space-2) auto;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--line-strong);
+}
+
+.sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 0 var(--space-4) var(--space-2);
+  flex-shrink: 0;
+}
+
+.sheet__title {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  font-weight: 500;
+  color: var(--ink-900);
+}
+
+/* B24 (DD-022): contador vivo de resultados, pegado al botón de cierre. */
+
+.sheet__count {
+  margin: 0;
+  margin-inline-start: auto;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+
+.sheet__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--space-4) var(--space-6);
+}
+
+@media (min-width: 840px) {
+  .sheet-scrim {
+    align-items: center;
+  }
+}
+
+.sheet {
+  width: 100%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--elev-2);
+  animation: sheet-rise var(--dur-sheet) var(--ease-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    animation-duration: 0.001ms;
+  }
+}
+
+@media (min-width: 840px) {
+
+  .sheet {
+    /* --sheet-panel-width: el ancho que `04 §8` nombra para Sheet en md+ ("panel lateral
+       derecho de 420px"); reutilizado aquí para el diálogo centrado en vez de inventar un
+       ancho nuevo para esta variante (03 §10). Corrección final: token propio, separado del
+       de la ficha de lugar (--place-detail-panel-width, 480px) — ver tokens.css §8. */
+    width: min(var(--sheet-panel-width), 92vw);
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+  }
+}

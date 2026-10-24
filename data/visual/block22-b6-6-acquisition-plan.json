@@ -1,0 +1,152 @@
+{
+  "acquisitionDate": "2026-09-24",
+  "sourcePolicy": "Wikimedia Commons original file page verified; accepted licenses only: CC0, CC BY, CC BY-SA, Public Domain.",
+  "entries": [
+    {
+      "placeId": "JP-004",
+      "title": "File:Takeshita Street, Tokyo, West view 20190418 1.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Takeshita_Street,_Tokyo,_West_view_20190418_1.jpg",
+      "slug": "takeshita-street-west-view",
+      "alt": "Vista hacia el oeste de Takeshita Street desde el acceso de la estación Harajuku; se ve el letrero de la calle sobre los comercios.",
+      "role": "identity",
+      "whyIdentity": "El rótulo del acceso y la calle comercial aparecen juntos. La cámara está geolocalizada en la propia entrada (35.671560, 139.703245), junto al punto del dataset; el encuadre vertical distingue Takeshita de una calle genérica de Harajuku.",
+      "visualReview": "Revisada a resolución de página y miniatura. Muestra el letrero reconocible Takeshita Street y fachadas comerciales; unas pocas personas no ocultan el lugar.",
+      "subjectRightsReview": "La identidad es la vía pública y su letrero de acceso. Marcas de tiendas y transeúntes son incidentales, no el sujeto central.",
+      "candidatesRejected": [
+        { "title": "File:Takeshita Street in Harajuku.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Takeshita_Street_in_Harajuku.jpg", "reason": "La multitud ocupa gran parte del encuadre y oculta la calle, en contra de su brief visual; además la toma es de 2011." },
+        { "title": "File:Takeshita Street.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Takeshita_Street.jpg", "reason": "Su punto documentado es el arco de Meiji Street (35.669794, 139.706294), al este del punto de Takeshita Street del dataset; preferí una toma geolocalizada sobre la calle objetivo." }
+      ]
+    },
+    {
+      "placeId": "JP-032",
+      "title": "File:Tsukiji Outer Market.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Tsukiji_Outer_Market.jpg",
+      "slug": "tsukiji-outer-market-street",
+      "alt": "Calle comercial de Tsukiji Outer Market con pequeños puestos, toldos y letreros japoneses.",
+      "role": "identity",
+      "whyIdentity": "La página original describe Tsukiji Outer Market in Tokyo y la toma está geolocalizada en Tsukiji Naka-dōri, a unos 20 m del punto del dataset. El corredor de comercios y toldos hace reconocible el mercado actual, no el antiguo mercado mayorista trasladado.",
+      "visualReview": "La vista amplia muestra ambos frentes de locales, sus letreros y el pasaje comercial; identifica un mercado de Tsukiji sin depender de un plato aislado.",
+      "subjectRightsReview": "El sujeto es la vía del mercado y sus puestos; letreros de negocios son contexto incidental.",
+      "candidatesRejected": [
+        { "title": "File:Tsukiji Outer Market -09.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tsukiji_Outer_Market_-09.jpg", "reason": "También es una toma válida del mercado, pero es de 2011 y el encuadre interior del pasillo aporta menos lectura de la calle que la vista de 2018 elegida." },
+        { "title": "File:Tsukiji Outer Market - where retail shops are Historical photo of Tsukiji fish market 2005.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tsukiji_Outer_Market_-_where_retail_shops_are_Historical_photo_of_Tsukiji_fish_market_2005.jpg", "reason": "La imagen de 2005 precede cambios comerciales sustanciales y fue descartada frente a la toma más reciente de la calle." }
+      ]
+    },
+    {
+      "placeId": "JP-056",
+      "title": "File:Yasaka Koshin-do on Yumemizaka of Kyoto.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Yasaka_Koshin-do_on_Yumemizaka_of_Kyoto.jpg",
+      "slug": "yasaka-koshindo-yumemizaka",
+      "alt": "Acceso del templo Yasaka Kōshin-dō con su pabellón y amuletos kukurizaru de colores.",
+      "role": "identity",
+      "whyIdentity": "La página y la categoría de Commons identifican Kongō-ji/Yasaka Kōshin-dō. La vista muestra el acceso y el pabellón junto con los característicos amuletos, los dos elementos necesarios para reconocer este templo concreto.",
+      "visualReview": "Revisada visualmente. El conjunto de entrada y amuletos es legible y representativo; no depende sólo de un detalle abstracto.",
+      "subjectRightsReview": "Templo histórico y amuletos tradicionales; no se identifica una instalación contemporánea ni una obra protegida como sujeto principal.",
+      "candidatesRejected": [
+        { "title": "File:Multi-coloured kukuri-zaru talismans at Kongoji Yasaka Koshin-do temple, Kyoto, Japan (2).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Multi-coloured_kukuri-zaru_talismans_at_Kongoji_Yasaka_Koshin-do_temple,_Kyoto,_Japan_(2).jpg", "reason": "El primer plano de talismanes funciona como detail, pero aislado no explica inequívocamente cuál es el lugar; se eligió la vista que incluye el templo." }
+      ]
+    },
+    {
+      "placeId": "JP-071",
+      "title": "File:2021 Sagano Bamboo forest in Arashiyama, Kyoto, Japan.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:2021_Sagano_Bamboo_forest_in_Arashiyama,_Kyoto,_Japan.jpg",
+      "slug": "arashiyama-bamboo-grove-path",
+      "alt": "Camino del bosque de bambú de Sagano en Arashiyama, Kioto, con el sendero enmarcado por los tallos.",
+      "role": "identity",
+      "whyIdentity": "La página original identifica el bosque de bambú de Sagano en Arashiyama y aporta coordenadas dentro del sendero objetivo (35.017009, 135.671808). La perspectiva despejada del camino entre tallos altos muestra la vista distintiva del lugar y su recorrido.",
+      "visualReview": "Revisada en la página original y visualmente a tamaño grande. El corredor horizontal, la luz y el camino centrado identifican el bosque con más claridad que la opción vertical oscura; no hay personas que tapen el sitio.",
+      "subjectRightsReview": "Bambú y camino natural; no hay una obra moderna ni un sujeto de terceros reconocible.",
+      "candidatesRejected": [
+        { "title": "File:Bamboo Grove, Arashiyama, Kyoto, Japan.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Bamboo_Grove,_Arashiyama,_Kyoto,_Japan.jpg", "reason": "La imagen es válida, pero la versión de portada es oscura y vertical y ocupa 172.672 B a calidad 48; la candidata elegida es más clara, horizontal y reduce bytes para mantener el presupuesto de Kioto sin salir del piso de calidad." },
+        { "title": "File:Sagano Bamboo forest, Arashiyama, Kyoto.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Sagano_Bamboo_forest,_Arashiyama,_Kyoto.jpg", "reason": "El original mide 1.500×1.000 px y el encuadre ofrece menos resolución y lectura del camino que la candidata elegida, que además confirma la ubicación con GPS exacto." }
+      ]
+    },
+    {
+      "placeId": "JP-091",
+      "title": "File:Nishiki ichiba kyoto.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Nishiki_ichiba_kyoto.jpg",
+      "slug": "nishiki-market-arcade",
+      "alt": "Pasillo cubierto de Nishiki Market con tiendas de alimentos y utensilios a ambos lados.",
+      "role": "identity",
+      "whyIdentity": "La página original identifica Nishiki Market y la categoría Nishiki Ichiba. La vista longitudinal muestra el pasillo cubierto y la continuidad de los puestos que distinguen esta galería comercial del centro de Kioto.",
+      "visualReview": "Revisada visualmente. El pasillo cubierto y los comercios se leen como un mercado completo, no como un producto o negocio aislado.",
+      "subjectRightsReview": "El sujeto es la galería comercial pública; productos y rótulos de los puestos son incidentales.",
+      "candidatesRejected": [
+        { "title": "File:Nishiki Market, Kyoto (53887898904).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Nishiki_Market,_Kyoto_(53887898904).jpg", "reason": "El encuadre se concentra en un único puesto/producto y no permite reconocer tan bien la galería completa." }
+      ]
+    },
+    {
+      "placeId": "JP-106",
+      "title": "File:黒門市場 2024(2).jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:黒門市場_2024(2).jpg",
+      "slug": "kuromon-market-arcade-2024",
+      "alt": "Interior del pasaje de Kuromon Ichiba Market con puestos de comida y el techo alto del mercado.",
+      "role": "identity",
+      "whyIdentity": "La página de Commons está categorizada como Kuromon Market y geolocaliza la fotografía dentro del sitio, a unos 75 m del punto del dataset. Se ve el pasaje cubierto con puestos a ambos lados, una vista representativa del mercado.",
+      "visualReview": "Revisada visualmente. El techo simétrico, la señalización del mercado y los puestos forman una toma vertical reconocible; su fecha 2024 ofrece estado reciente.",
+      "subjectRightsReview": "Comercios y pasaje público son el sujeto. Personas visibles son parte incidental del ambiente, no retratos aislados.",
+      "candidatesRejected": [
+        { "title": "File:Osaka market.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Osaka_market.jpg", "reason": "Candidata de 2018 del mismo mercado, pero se eligió la foto reciente de 2024 identificada con categoría y ubicación del mercado; no se duplicó el asset." }
+      ]
+    },
+    {
+      "placeId": "JP-110",
+      "title": "File:Tsutenkaku 108m.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Tsutenkaku_108m.jpg",
+      "slug": "tsutenkaku-from-shinsekai-street",
+      "alt": "Torre Tsūtenkaku visible sobre la calle comercial de Shinsekai, en Osaka.",
+      "role": "identity",
+      "whyIdentity": "La página original identifica Tsutenkaku y sitúa la cámara a nivel de calle en Shinsekai (34.653317, 135.505931), con la torre completa como sujeto dominante. La perspectiva comunica el monumento y su relación con el barrio inmediato.",
+      "visualReview": "Revisada visualmente. La estructura completa destaca sobre las fachadas a nivel peatonal y se reconoce como Tsūtenkaku.",
+      "subjectRightsReview": "Se muestra la torre como edificio; el archivo actual documenta la retirada del elemento protegido que había causado una revisión anterior. El encuadre no contiene personajes ni instalación ajena como sujeto.",
+      "candidatesRejected": [
+        { "title": "File:Tsutenkaku Tower (13382330005).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tsutenkaku_Tower_(13382330005).jpg", "reason": "La vista es desde Tsūtenkaku hacia el skyline; la torre no funciona como identidad de portada." },
+        { "title": "File:Tsutenkaku Tower.JPG", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tsutenkaku_Tower.JPG", "reason": "La página del archivo lo marca para revisión; se prefirió un original CC0 actual con ubicación y licencia verificables." }
+      ]
+    },
+    {
+      "placeId": "JP-177",
+      "title": "File:Heart-shaped rocks at Kouri Island 202006.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Heart-shaped_rocks_at_Kouri_Island_202006.jpg",
+      "slug": "heart-rocks-kouri-island",
+      "alt": "Las dos rocas naturales con forma de corazón en la playa Tīnu Hama de Kouri Island.",
+      "role": "identity",
+      "whyIdentity": "La página original identifica las rocas con forma de corazón de Tīnu Hama en Kouri Island y la categoría corresponde a la playa. Las dos formas se ven claramente contra el mar, haciendo reconocible el punto fotográfico concreto.",
+      "visualReview": "Revisada visualmente. Ambas rocas distintivas aparecen completas, con el mar y la playa como referencias de ubicación.",
+      "subjectRightsReview": "Formación rocosa natural en costa pública; sin obras modernas de terceros como sujeto.",
+      "candidatesRejected": [
+        { "title": "File:Tinu-hama 202006 01.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tinu-hama_202006_01.jpg", "reason": "La vista de playa deja las rocas más pequeñas y rodeadas de mucho mar/primer plano; la elegida centra claramente los dos perfiles que dan nombre al lugar." }
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "placeId": "JP-104",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "El sujeto que define el punto es el cartel publicitario del corredor Glico, que incluye marca y figura gráfica protegida. Una licencia CC del fotógrafo sólo cubre la fotografía; no se encontró autorización explícita de Glico para reutilizar ese diseño en la imagen identity.",
+      "searchSources": [
+        { "name": "Wikimedia Commons — Glico Man (Dotonbori)", "url": "https://commons.wikimedia.org/wiki/Category:Glico_Man_(Dotonbori)", "result": "Se revisaron fotografías con licencias libres y páginas originales; una licencia CC0/CC BY-SA no concede por sí sola derechos sobre el cartel Glico." },
+        { "name": "Metrotrekker — candidata CC BY-SA", "url": "https://www.metrotrekker.com/photos/japan/osaka/dotonbori-osaka-023", "result": "La foto candidata muestra claramente el cartel; aunque la fotografía del autor declara CC BY-SA 4.0, no acredita permiso del titular del diseño/marca." },
+        { "name": "Sitio oficial Glico — letrero", "url": "https://www.glico.com/jp/health/contents/glicosign/", "result": "La página identifica el Glico Sign como anuncio de la marca; no se encontró una licencia abierta de reutilización del diseño." }
+      ],
+      "candidatesRejected": [
+        { "title": "Glico sign in Dōtonbori, Osaka (Metrotrekker)", "reason": "La licencia del fotógrafo es compatible, pero falta permiso del sujeto protegido que es precisamente la identidad del lugar." },
+        { "title": "Fotografías libres de la señal en Ebisubashi encontradas por Commons", "reason": "El cambio de encuadre o licencia del fotógrafo no resuelve derechos de reproducción del letrero principal." }
+      ]
+    },
+    {
+      "placeId": "JP-178",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "Las únicas fotografías abiertas actuales encontradas muestran atracciones diseñadas, globo y estructuras temáticas de JUNGLIA como sujeto principal. La licencia CC BY-SA del fotógrafo no documenta derechos de Japan Entertainment ni autorizaciones de diseño para esas atracciones; no apareció una toma abierta y legal de una identidad neutral del parque.",
+      "searchSources": [
+        { "name": "Wikimedia Commons — categoría JUNGLIA OKINAWA", "url": "https://commons.wikimedia.org/wiki/Category:JUNGLIA_OKINAWA", "result": "Se revisaron las cinco imágenes listadas; las vistas actuales abiertas se centran en instalaciones y atracciones del parque." },
+        { "name": "JUNGLIA — web oficial", "url": "https://junglia.jp/", "result": "El material visual oficial identifica las atracciones, pero no declara licencia reutilizable para fotografías." },
+        { "name": "JNTO — Okinawa's Wild North", "url": "https://www.japan.travel/en/sg/story/okinawa-island-activities/", "result": "La sección JUNGLIA acredita su material visual a ©JUNGLIA2025-1244, sin una licencia abierta compatible." }
+      ],
+      "candidatesRejected": [
+        { "title": "File:Junglia Okinawa seen from Mount Yae 202512.jpg", "reason": "CC BY-SA 4.0 y ubicación verificables, pero el globo y las atracciones temáticas modernas son el sujeto; no hay evidencia de clearance de los derechos de diseño." },
+        { "title": "Imágenes de prensa y apertura de JUNGLIA", "reason": "Muestran el parque mejor, pero son material promocional con derechos reservados o sin permiso abierto explícito." }
+      ]
+    }
+  ]
+}

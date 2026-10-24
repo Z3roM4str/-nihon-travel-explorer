@@ -1,0 +1,30 @@
+.hub-selector__track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.hub-selector__tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-height: var(--tap-min);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 600;
+  padding: 0 var(--space-4);
+  cursor: pointer;
+}
+
+.hub-selector__tab:hover {
+  background: var(--surface-sunken);
+}
+
+.hub-selector__tab--active {
+  background: var(--shu-600);
+  border-color: var(--shu-600);
+  color: var(--surface);
+}

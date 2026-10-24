@@ -1,0 +1,62 @@
+{
+ "app": "<app>/claude/release-hardening-post-b10",
+ "entry": {
+  "file": "index-YgInNbpK.js",
+  "raw": 1470575,
+  "gzip": 277912,
+  "css": "index-D-D_VuJB.css",
+  "cssGzip": 21012
+ },
+ "inlineLqipInEntry": 0,
+ "acquisitionUrlsInEntry": 0,
+ "profiles": {
+  "sin estrangular": {
+   "runs": 7,
+   "fcpMedian": 436,
+   "fcpAll": [
+    500,
+    468,
+    436,
+    396,
+    360,
+    408,
+    440
+   ],
+   "dclMedian": 149,
+   "jsCssBeforeFcp": 2,
+   "imagesBeforeFcpMedian": 11,
+   "firstImageStartMedian": 346,
+   "totalRequestsMedian": 26,
+   "waterfall": [
+    "assets/index-YgInNbpK.js 8→54 ms (280116 B)",
+    "assets/index-D-D_VuJB.css 8→20 ms (21112 B)",
+    "assets/OrderedSequenceBuilder-BURJHyiy.js 570→586 ms (36516 B)",
+    "assets/OrderedSequenceBuilder-DFAfXOv1.css 571→583 ms (4819 B)",
+    "assets/ZoneComparison-B-C3Kogc.js 572→585 ms (6183 B)",
+    "assets/ZoneComparison-BKYgQRqM.css 572→584 ms (2468 B)"
+   ]
+  },
+  "4G rápida + CPU×4": {
+   "runs": 7,
+   "fcpMedian": 1924,
+   "fcpAll": [
+    1832,
+    2032,
+    1924,
+    1924,
+    1992,
+    1668,
+    1636
+   ],
+   "dclMedian": 765,
+   "jsCssBeforeFcp": 2,
+   "imagesBeforeFcpMedian": 11,
+   "firstImageStartMedian": 1754,
+   "totalRequestsMedian": 26,
+   "waterfall": [
+    "assets/index-YgInNbpK.js 60→376 ms (280116 B)",
+    "assets/index-D-D_VuJB.css 61→140 ms (21112 B)"
+   ]
+  }
+ }
+}

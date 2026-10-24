@@ -1,0 +1,733 @@
+.zone-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--color-bg);
+}
+
+/*
+ * Bloque 18 (`02 §D2`, gate 11): la comparación de zonas ya no es un modal global — es el
+ * contenido de «Viaje › Dónde dormir». Deja de ocupar la pantalla entera y de imponer su
+ * propio scroll interno: la pestaña completa scrollea como una página.
+ */
+
+.zone-panel--embedded {
+  position: static;
+  inset: auto;
+  height: auto;
+  background: none;
+}
+
+.zone-panel--embedded .zone-panel__scroll {
+  overflow-y: visible;
+}
+
+.zone-panel__bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.zone-panel__bar h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.zone-panel__sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.zone-panel__scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.85rem 1rem 1.25rem;
+}
+
+.zone-panel__note {
+  margin: 0 0 0.85rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  border: 1px solid #eec7c5;
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
+.zone-panel__note--muted {
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.zone-panel__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.zone-panel__count {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.zone-panel__foot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* ---- Zone list ---- */
+
+.zone-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.zone-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 0.85rem;
+  box-shadow: var(--shadow-card);
+  height: 100%;
+}
+
+.zone-card--selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-soft), var(--shadow-card);
+}
+
+.zone-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.zone-card__photo {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-width: 0;
+  margin: 0.75rem 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.zone-card__evidence {
+  min-width: 0;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.zone-card__evidence-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-caption-size);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.zone-card__evidence--calculated {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.zone-card__opinion,
+.zone-column__summary {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-voice);
+  font-size: var(--type-quote-size);
+  line-height: var(--type-quote-line);
+  color: var(--ink-700);
+}
+
+.zone-card__index,
+.zone-column__index {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--color-text);
+  color: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.zone-card__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.zone-card__title h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.zone-card__ja {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.zone-card__compare {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.zone-card__compare:has(input:checked) {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent-dark);
+}
+
+.zone-card__compare--full {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.zone-card__compare input {
+  accent-color: var(--color-accent);
+  margin: 0;
+}
+
+.zone-card__summary {
+  margin: 0.5rem 0 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.zone-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.zone-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.zone-fact__detail {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.zone-card__fit {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.zone-nearest button > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Comparison ---- */
+
+.zone-compare__map {
+  height: 210px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  margin-bottom: 0.9rem;
+}
+
+.zone-map {
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface-alt);
+}
+
+.zone-marker {
+  background: none;
+  border: none;
+}
+
+.zone-marker__pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-text);
+  color: var(--surface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-style: normal;
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.zone-marker__pin--on {
+  background: var(--color-accent);
+}
+
+.zone-marker__saved {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-info);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.zone-compare__columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.zone-column {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 0.85rem;
+}
+
+.zone-column__photo {
+  margin: var(--space-3) 0;
+}
+
+.zone-column__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.zone-column__head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.zone-column__anchor {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.zone-column__heading {
+  margin: 0.9rem 0 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/*
+ * The provenance badges. A reader must be able to tell, at a glance, whether a line is a
+ * checkable fact, something Nihon computed, or Nihon's opinion — that separation is the whole
+ * point of this layer, so it is visual and not only structural.
+ */
+
+.zone-column__tag {
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+}
+
+.zone-column__lines,
+.zone-column__fit {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.zone-column__provenance {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  /* Long operator names wrap rather than widening the column or being clipped mid-word. */
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.zone-column__provenance-label {
+  font-weight: 600;
+}
+
+.zone-source__link {
+  /* The whole column is clickable; an underlined link is what says this one goes elsewhere. */
+  text-decoration: underline;
+}
+
+/* The tier is a word, never a colour or an icon on its own. */
+
+.zone-source__tier {
+  color: var(--color-text-muted);
+}
+
+/*
+  Block 10 — a note about our checking, not an error about the claim.
+
+  Deliberately muted and deliberately NOT red: an unrepeated check has not been contradicted, and
+  colouring it as a fault would say something the data does not support. It inherits the wrapping
+  of the provenance line, so a long note reflows instead of widening the column.
+*/
+
+.zone-source__recheck {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.zone-nearest {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.zone-nearest button {
+  width: 100%;
+  min-height: var(--tap-target);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.zone-nearest button:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.zone-nearest__km {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.zone-tradeoffs {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.zone-tradeoffs li {
+  margin-bottom: 0.25rem;
+}
+
+/* ---- Contrasts ---- */
+
+.zone-contrasts {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.zone-contrasts h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.zone-contrasts__empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.zone-contrast-list,
+.zone-axes__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.zone-contrast__label {
+  margin: 0 0 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.zone-contrast__neutral {
+  font-weight: 500;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.zone-contrast__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.zone-contrast__rows li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.zone-contrast__zone {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.zone-contrast__hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.zone-ordinal {
+  display: inline-flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.zone-ordinal__step {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-strong);
+}
+
+.zone-ordinal__step--on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.zone-ordinal--neutral .zone-ordinal__step--on {
+  background: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+}
+
+.zone-axes {
+  margin-top: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.zone-axes > summary {
+  min-height: var(--tap-target);
+  display: flex;
+  align-items: center;
+  /* The criterio tag rides along on a narrow phone rather than pushing the row wider. */
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Block 9 — what a rating is, said once, on the surface that shows all ten of them. */
+
+.zone-axes__disclosure {
+  margin: 0;
+  padding: 0 0.75rem 0.55rem;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.zone-axes__list {
+  padding: 0 0.85rem 0.85rem;
+}
+
+@media (min-width: 861px) {
+  .zone-panel__scroll {
+    padding: 1.1rem 1.5rem 1.5rem;
+  }
+
+  .zone-list {
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  }
+
+  /* Side by side only where there is genuinely room; a phone gets stacked blocks. */
+  .zone-compare__columns {
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  }
+
+  .zone-compare__map {
+    height: 280px;
+  }
+}
+
+@media (min-width: 620px) and (max-width: 860px) {
+  .zone-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .zone-compare__columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.zone-choice-banner {
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.zone-choice-banner__line {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.zone-choice-banner__line--empty {
+  color: var(--color-text-muted);
+}
+
+.zone-choice-banner__caveat {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.zone-choice-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.zone-choice-action {
+  margin: 0.6rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zone-choice-action__button {
+  flex: 1 1 auto;
+  /* Never narrower than a thumb, and never wider than its column — the comparison panel's
+     no-horizontal-scroll rule is absolute. */
+  min-width: 0;
+}
+
+.zone-choice-action--chosen {
+  justify-content: space-between;
+}
+
+.zone-choice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+@media (min-width: 620px) {
+  .zone-choice-action__button {
+    flex: 0 0 auto;
+  }
+}
+
+.zone-panel__foot .link-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+
+.zone-panel__foot .button--primary[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* The clear control is a link in appearance only; it still has to be thumb-sized. */
+
+.zone-choice-banner__actions .link-button {
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}

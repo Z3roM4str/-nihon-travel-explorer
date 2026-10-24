@@ -1,0 +1,58 @@
+.credits-sheet__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.credits-sheet__item + .credits-sheet__item {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-5);
+}
+
+.credits-sheet__image-label {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-record);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--ink-500);
+}
+
+.credits-sheet__fields {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.credits-sheet__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.credits-sheet__field dt {
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--ink-500);
+}
+
+.credits-sheet__field dd {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+
+.credits-sheet__foot {
+  margin: var(--space-5) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}

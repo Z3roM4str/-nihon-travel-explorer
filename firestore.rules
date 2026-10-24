@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function sharedTrip(tripId) {
+      return request.auth != null && tripId == '1rRj2hxBN5aWg5jhF86s9kn9FRU6TsZqONx1nhnu';
+    }
+    function boundedString(value, limit) {
+      return value is string && value.size() > 0 && value.size() <= limit;
+    }
+    function exactKeys(value, keys) {
+      return value is map && value.keys().hasAll(keys) && value.keys().hasOnly(keys);
+    }
+    function validPlace(p, id) {
+      return p is map && boundedString(p.placeId, 96)
+        && p.placeId.matches('^[A-Za-z0-9-]+$')
+        && (id == p.placeId + '~carried'
+          ? exactKeys(p, ['placeId', 'carriedOver']) && p.carriedOver == true
+          : exactKeys(p, ['placeId', 'slot', 'stance']) && p.slot is int
+            && p.slot in [0, 1] && id == p.placeId + '~' + string(p.slot)
+            && p.stance in ['interested', 'not-interested']);
+    }
+    function validPlanner(p) {
+      return exactKeys(p, ['routeIds', 'data']) && p.routeIds is list
+        && p.routeIds.size() > 0 && p.routeIds.size() <= 600
+        && p.routeIds.toSet().size() == p.routeIds.size()
+        && p.routeIds.join('|').size() <= 12000
+        && p.routeIds.join('|').matches('^[A-Za-z0-9-]{1,96}(\\|[A-Za-z0-9-]{1,96})*$')
+        && boundedString(p.data, 200000) && p.data.matches('^\\{.*\\}$');
+    }
+    function validTraveller(t) {
+      return exactKeys(t, ['id', 'label']) && boundedString(t.id, 128) && boundedString(t.label, 80);
+    }
+    function validRoster(p) {
+      return p is list && p.size() >= 1 && p.size() <= 2 && validTraveller(p[0])
+        && (p.size() < 2 || (validTraveller(p[1]) && p[0].id != p[1].id));
+    }
+    function validEnvelope(id, kind) {
+      let d = request.resource.data;
+      return exactKeys(d, ['id', 'kind', 'payload', 'deleted', 'updatedAt', 'writer'])
+        && boundedString(d.id, 128) && d.id == id && d.kind == kind
+        && d.deleted is bool && d.updatedAt is int && d.updatedAt >= 0
+        && d.updatedAt <= request.time.toMillis() + 300000
+        && boundedString(d.writer, 128) && d.writer == request.auth.uid;
+    }
+    function validItem(id) {
+      let d = request.resource.data;
+      return id.matches('^[A-Za-z0-9-]{1,96}~(0|1|carried)$') && validEnvelope(id, 'place')
+        && (d.deleted ? d.payload == null : validPlace(d.payload, id));
+    }
+    function validState(id) {
+      let d = request.resource.data;
+      return id in ['roster', 'planner'] && validEnvelope(id, id) && d.deleted == false
+        && (id == 'roster' ? validRoster(d.payload)
+          : validPlanner(d.payload));
+    }
+    match /trips/{tripId}/items/{id} {
+      allow read: if sharedTrip(tripId);
+      // A tombstone only marks an existing document; creating one removes nothing and is denied.
+      allow create: if sharedTrip(tripId) && validItem(id) && request.resource.data.deleted == false;
+      allow update: if sharedTrip(tripId) && validItem(id)
+        && request.resource.data.updatedAt >= resource.data.updatedAt;
+    }
+    match /trips/{tripId}/state/{id} {
+      allow read: if sharedTrip(tripId) && id in ['roster', 'planner'];
+      allow create: if sharedTrip(tripId) && validState(id);
+      allow update: if sharedTrip(tripId) && validState(id)
+        && request.resource.data.updatedAt >= resource.data.updatedAt;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

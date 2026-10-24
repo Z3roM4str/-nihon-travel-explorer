@@ -1,0 +1,214 @@
+{
+  "version": 1,
+  "placeCount": 24,
+  "hubs": [
+    "Tokio",
+    "Kioto",
+    "Osaka",
+    "Okinawa"
+  ],
+  "placesPerHub": 6,
+  "selectionMethod": "Deterministic, code-driven selection over the current data/places.json. For each of the 4 target hubs (Tokio, Kioto, Osaka, Okinawa), each place is classified into exactly one of 6 category buckets (landmark, temple-shrine, urban-neighborhood, nature, museum-cultural, distinct-experience) by its dataset `category` field. Within a hub and bucket, the highest-graded place wins (S > A > B > C > D, unclassified grades last), ties broken by ascending place id. No manual cherry-picking: re-running this script against the same dataset yields the same 24 places, and the rule is documented rather than the picks.",
+  "buckets": {
+    "landmark": "Category 🏯 Historia y patrimonio or 🌅 Miradores — a widely recognised monument, castle/palace, or skyline viewpoint.",
+    "temple-shrine": "Category ⛩️ Templos y santuarios.",
+    "urban-neighborhood": "Category 🏙️ Ciudad y barrios.",
+    "nature": "Category 🌸 Jardines y paisajes, 🌸/🌿 Naturaleza, 🥾 Senderismo/aventura, or 🌊 Playa/mar/islas — a garden, forest, trail, waterfall, or coastal/marine scene.",
+    "museum-cultural": "Category 🏛️ Museos, 🎨 Arte, or 🏛️ Arquitectura.",
+    "distinct-experience": "Every other category — the dataset's nightlife/anime/gastronomy/pop-culture/entertainment/onsen/etc. tail, none numerous enough for its own bucket."
+  },
+  "places": [
+    {
+      "placeId": "JP-002",
+      "hub": "Tokio",
+      "name": "SHIBUYA SKY",
+      "selectionCategory": "landmark",
+      "selectionReason": "Category 🏯 Historia y patrimonio or 🌅 Miradores — a widely recognised monument, castle/palace, or skyline viewpoint.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-003",
+      "hub": "Tokio",
+      "name": "Meiji Jingu",
+      "selectionCategory": "temple-shrine",
+      "selectionReason": "Category ⛩️ Templos y santuarios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-001",
+      "hub": "Tokio",
+      "name": "Shibuya Crossing",
+      "selectionCategory": "urban-neighborhood",
+      "selectionReason": "Category 🏙️ Ciudad y barrios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-010",
+      "hub": "Tokio",
+      "name": "Shinjuku Gyoen National Garden",
+      "selectionCategory": "nature",
+      "selectionReason": "Category 🌸 Jardines y paisajes, 🌸/🌿 Naturaleza, 🥾 Senderismo/aventura, or 🌊 Playa/mar/islas — a garden, forest, trail, waterfall, or coastal/marine scene.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-021",
+      "hub": "Tokio",
+      "name": "Tokyo National Museum",
+      "selectionCategory": "museum-cultural",
+      "selectionReason": "Category 🏛️ Museos, 🎨 Arte, or 🏛️ Arquitectura.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-025",
+      "hub": "Tokio",
+      "name": "Akihabara Electric Town",
+      "selectionCategory": "distinct-experience",
+      "selectionReason": "Every other category — the dataset's nightlife/anime/gastronomy/pop-culture/entertainment/onsen/etc. tail, none numerous enough for its own bucket.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-089",
+      "hub": "Kioto",
+      "name": "Nijō Castle",
+      "selectionCategory": "landmark",
+      "selectionReason": "Category 🏯 Historia y patrimonio or 🌅 Miradores — a widely recognised monument, castle/palace, or skyline viewpoint.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-054",
+      "hub": "Kioto",
+      "name": "Kiyomizu-dera",
+      "selectionCategory": "temple-shrine",
+      "selectionReason": "Category ⛩️ Templos y santuarios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-057",
+      "hub": "Kioto",
+      "name": "Gion Shirakawa",
+      "selectionCategory": "urban-neighborhood",
+      "selectionReason": "Category 🏙️ Ciudad y barrios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-077",
+      "hub": "Kioto",
+      "name": "Katsura Imperial Villa",
+      "selectionCategory": "nature",
+      "selectionReason": "Category 🌸 Jardines y paisajes, 🌸/🌿 Naturaleza, 🥾 Senderismo/aventura, or 🌊 Playa/mar/islas — a garden, forest, trail, waterfall, or coastal/marine scene.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-094",
+      "hub": "Kioto",
+      "name": "Kyoto National Museum",
+      "selectionCategory": "museum-cultural",
+      "selectionReason": "Category 🏛️ Museos, 🎨 Arte, or 🏛️ Arquitectura.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-097",
+      "hub": "Kioto",
+      "name": "Nintendo Museum",
+      "selectionCategory": "distinct-experience",
+      "selectionReason": "Every other category — the dataset's nightlife/anime/gastronomy/pop-culture/entertainment/onsen/etc. tail, none numerous enough for its own bucket.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-134",
+      "hub": "Osaka",
+      "name": "Hōryū-ji",
+      "selectionCategory": "landmark",
+      "selectionReason": "Category 🏯 Historia y patrimonio or 🌅 Miradores — a widely recognised monument, castle/palace, or skyline viewpoint.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-129",
+      "hub": "Osaka",
+      "name": "Tōdai-ji",
+      "selectionCategory": "temple-shrine",
+      "selectionReason": "Category ⛩️ Templos y santuarios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-109",
+      "hub": "Osaka",
+      "name": "Shinsekai",
+      "selectionCategory": "urban-neighborhood",
+      "selectionReason": "Category 🏙️ Ciudad y barrios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-145",
+      "hub": "Osaka",
+      "name": "Kumano Nachi Taisha + Nachi Falls",
+      "selectionCategory": "nature",
+      "selectionReason": "Category 🌸 Jardines y paisajes, 🌸/🌿 Naturaleza, 🥾 Senderismo/aventura, or 🌊 Playa/mar/islas — a garden, forest, trail, waterfall, or coastal/marine scene.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-152",
+      "hub": "Osaka",
+      "name": "Naoshima art island",
+      "selectionCategory": "museum-cultural",
+      "selectionReason": "Category 🏛️ Museos, 🎨 Arte, or 🏛️ Arquitectura.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-125",
+      "hub": "Osaka",
+      "name": "Universal Studios Japan",
+      "selectionCategory": "distinct-experience",
+      "selectionReason": "Every other category — the dataset's nightlife/anime/gastronomy/pop-culture/entertainment/onsen/etc. tail, none numerous enough for its own bucket.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-157",
+      "hub": "Okinawa",
+      "name": "Shurijo Castle Park",
+      "selectionCategory": "landmark",
+      "selectionReason": "Category 🏯 Historia y patrimonio or 🌅 Miradores — a widely recognised monument, castle/palace, or skyline viewpoint.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-162",
+      "hub": "Okinawa",
+      "name": "Sefa Utaki",
+      "selectionCategory": "temple-shrine",
+      "selectionReason": "Category ⛩️ Templos y santuarios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-196",
+      "hub": "Okinawa",
+      "name": "Taketomi Island village",
+      "selectionCategory": "urban-neighborhood",
+      "selectionReason": "Category 🏙️ Ciudad y barrios.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-179",
+      "hub": "Okinawa",
+      "name": "Yambaru National Park",
+      "selectionCategory": "nature",
+      "selectionReason": "Category 🌸 Jardines y paisajes, 🌸/🌿 Naturaleza, 🥾 Senderismo/aventura, or 🌊 Playa/mar/islas — a garden, forest, trail, waterfall, or coastal/marine scene.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-173",
+      "hub": "Okinawa",
+      "name": "Okinawa Churaumi Aquarium",
+      "selectionCategory": "museum-cultural",
+      "selectionReason": "Category 🏛️ Museos, 🎨 Arte, or 🏛️ Arquitectura.",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-154",
+      "hub": "Okinawa",
+      "name": "First Makishi Public Market",
+      "selectionCategory": "distinct-experience",
+      "selectionReason": "Every other category — the dataset's nightlife/anime/gastronomy/pop-culture/entertainment/onsen/etc. tail, none numerous enough for its own bucket.",
+      "intendedImageCount": 1
+    }
+  ]
+}

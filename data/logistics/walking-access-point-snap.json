@@ -1,0 +1,61 @@
+{
+  "snapVersion": 1,
+  "accessPoints": {
+    "AP-JP-029-001": {
+      "accessPointId": "AP-JP-029-001",
+      "placeId": "JP-029",
+      "coordinates": {
+        "lat": 35.68596,
+        "lng": 139.760215
+      },
+      "snappedDistanceMeters": 4.58,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-05T02:40:03Z",
+      "status": "resolved"
+    },
+    "AP-JP-029-002": {
+      "accessPointId": "AP-JP-029-002",
+      "placeId": "JP-029",
+      "coordinates": {
+        "lat": 35.689623,
+        "lng": 139.757877
+      },
+      "snappedDistanceMeters": 6.2,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-05T02:40:03Z",
+      "status": "resolved"
+    },
+    "AP-JP-029-003": {
+      "accessPointId": "AP-JP-029-003",
+      "placeId": "JP-029",
+      "coordinates": {
+        "lat": 35.688868,
+        "lng": 139.754043
+      },
+      "snappedDistanceMeters": 0.66,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-05T02:40:03Z",
+      "status": "resolved"
+    },
+    "AP-JP-181-001": {
+      "accessPointId": "AP-JP-181-001",
+      "placeId": "JP-181",
+      "coordinates": {
+        "lat": 26.8619707,
+        "lng": 128.2550917
+      },
+      "snappedDistanceMeters": 6.37,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-05T02:40:03Z",
+      "status": "resolved"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+.person-token--xs {
+  width: var(--person-token-xs);
+  height: var(--person-token-xs);
+  /* Sin tamaño de tipo propio para 18px en la escala; --type-caption-size (12px) es el token
+     compatible más próximo (03 §10, "usa un token existente compatible"). */
+  font-size: var(--type-caption-size);
+}
+
+.person-token--sm {
+  width: var(--person-token-sm);
+  height: var(--person-token-sm);
+  font-size: var(--type-caption-size);
+}
+
+.person-token--md {
+  width: var(--person-token-md);
+  height: var(--person-token-md);
+  font-size: var(--type-body-size);
+}
+
+.person-token--a {
+  background: var(--person-a);
+}
+
+.person-token--b {
+  background: var(--person-b);
+}
+
+.person-token--both {
+  background: var(--person-both);
+}

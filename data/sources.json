@@ -1,0 +1,314 @@
+[
+  {
+    "Fuente ID": "S-001",
+    "Nombre": "GO TOKYO",
+    "Tipo": "Oficial",
+    "Cobertura": "Tokio: barrios, atracciones, tendencias y eventos",
+    "URL": "https://www.gotokyo.org/en/index.html",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-002",
+    "Nombre": "Kyoto City Official Guide",
+    "Tipo": "Oficial",
+    "Cobertura": "Kioto: destinos, hidden gems, congestión y actividades",
+    "URL": "https://kyoto.travel/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-003",
+    "Nombre": "OSAKA-INFO",
+    "Tipo": "Oficial",
+    "Cobertura": "Osaka y acceso a Kansai",
+    "URL": "https://osaka-info.jp/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-004",
+    "Nombre": "Visit Okinawa Japan",
+    "Tipo": "Oficial",
+    "Cobertura": "Okinawa: islas, cultura, naturaleza y alertas",
+    "URL": "https://visitokinawajapan.com/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-005",
+    "Nombre": "JNTO Travel Japan",
+    "Tipo": "Oficial",
+    "Cobertura": "Contexto regional y excursiones",
+    "URL": "https://www.japan.travel/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-006",
+    "Nombre": "Banco de México",
+    "Tipo": "Oficial",
+    "Cobertura": "JPY/MXN 2026-09-01: 0.1060 MXN por JPY",
+    "URL": "https://www.banxico.org.mx/tipcamb/main.do?idioma=en&page=tip",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-007",
+    "Nombre": "PokéPark KANTO",
+    "Tipo": "Oficial",
+    "Cobertura": "Operación y tickets 2026",
+    "URL": "https://www.pokepark-kanto.co.jp/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-008",
+    "Nombre": "Nintendo Museum",
+    "Tipo": "Oficial",
+    "Cobertura": "Reserva, lotería y museo",
+    "URL": "https://museum.nintendo.com/en/index.html",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-009",
+    "Nombre": "Universal Studios Japan",
+    "Tipo": "Oficial",
+    "Cobertura": "Eventos, tickets y timed entry",
+    "URL": "https://www.usj.co.jp/web/en/us",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-010",
+    "Nombre": "teamLab",
+    "Tipo": "Oficial",
+    "Cobertura": "Borderless, Planets, Biovortex y Botanical Garden",
+    "URL": "https://www.teamlab.art/e/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-011",
+    "Nombre": "Ghibli Museum",
+    "Tipo": "Oficial",
+    "Cobertura": "Tickets, horario y acceso",
+    "URL": "https://www.ghibli-museum.jp/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-012",
+    "Nombre": "Edo-Tokyo Museum",
+    "Tipo": "Oficial",
+    "Cobertura": "Reapertura 2026, exposiciones y tickets",
+    "URL": "https://www.edo-tokyo-museum.or.jp/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-013",
+    "Nombre": "Shurijo Castle Park",
+    "Tipo": "Oficial",
+    "Cobertura": "Reconstrucción y apertura 2026",
+    "URL": "https://oki-park.jp/shurijo/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-014",
+    "Nombre": "JUNGLIA OKINAWA",
+    "Tipo": "Oficial",
+    "Cobertura": "Tickets, horarios, acceso y cierres",
+    "URL": "https://junglia.jp/en",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-015",
+    "Nombre": "Okinawa Churaumi Aquarium",
+    "Tipo": "Oficial",
+    "Cobertura": "Horario, tarifas y alertas",
+    "URL": "https://churaumi.okinawa/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-016",
+    "Nombre": "Kyoto congestion forecast",
+    "Tipo": "Oficial",
+    "Cobertura": "Pronóstico y cámaras de saturación",
+    "URL": "https://global.kyoto.travel/en/comfort/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-017",
+    "Nombre": "Visit Nara",
+    "Tipo": "Oficial",
+    "Cobertura": "Nara y patrimonio",
+    "URL": "https://www.visitnara.jp/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-018",
+    "Nombre": "Hyogo Tourism",
+    "Tipo": "Oficial",
+    "Cobertura": "Himeji, Kobe y Kinosaki",
+    "URL": "https://www.hyogo-tourism.jp/world/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-019",
+    "Nombre": "Visit Wakayama",
+    "Tipo": "Oficial",
+    "Cobertura": "Koyasan, Kumano y costa",
+    "URL": "https://en.visitwakayama.jp/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-020",
+    "Nombre": "Shiga Biwako Tourism",
+    "Tipo": "Oficial",
+    "Cobertura": "Lago Biwa, Hikone y Shiga",
+    "URL": "https://en.biwako-visitors.jp/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-021",
+    "Nombre": "Visit Chiba",
+    "Tipo": "Oficial",
+    "Cobertura": "Nokogiriyama, Sawara y Boso",
+    "URL": "https://www.visitchiba.jp/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-022",
+    "Nombre": "Kanagawa Tourism",
+    "Tipo": "Oficial",
+    "Cobertura": "Kamakura, Hakone y Yokohama",
+    "URL": "https://trip.pref.kanagawa.jp/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-023",
+    "Nombre": "Expo 2025 official archive",
+    "Tipo": "Oficial",
+    "Cobertura": "Confirmación de cierre 13 oct 2025",
+    "URL": "https://www.expo2025.or.jp/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-024",
+    "Nombre": "Comunidades de viajeros",
+    "Tipo": "Secundaria",
+    "Cobertura": "Contraste de saturación, filas y valor percibido",
+    "URL": "https://www.reddit.com/r/JapanTravel/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-025",
+    "Nombre": "teamLab Borderless",
+    "Tipo": "Oficial",
+    "Cobertura": "Sede Azabudai Hills, permanencia, horarios y entradas",
+    "URL": "https://www.teamlab.art/e/tokyo/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-026",
+    "Nombre": "teamLab Planets",
+    "Tipo": "Oficial",
+    "Cobertura": "Sede Toyosu y operación hasta finales de 2027",
+    "URL": "https://www.teamlab.art/e/planets/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-027",
+    "Nombre": "Shurijo Castle Park",
+    "Tipo": "Oficial",
+    "Cobertura": "Apertura pública del Seiden",
+    "URL": "https://oki-park.jp.e.ms.hp.transer.com/shurijo/information/detail/10959",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-028",
+    "Nombre": "Tokyo Disney Resort",
+    "Tipo": "Oficial",
+    "Cobertura": "Parques, cambios y calendario",
+    "URL": "https://www.tokyodisneyresort.jp/en/index.html",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-029",
+    "Nombre": "Sapporo Snow Festival",
+    "Tipo": "Oficial",
+    "Cobertura": "Ediciones y anuncios del festival",
+    "URL": "https://www.snowfes.com/en/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-030",
+    "Nombre": "Otaru Snow Light Path",
+    "Tipo": "Oficial",
+    "Cobertura": "Anuncios del evento",
+    "URL": "https://otaru-yukiakarinomichi.org/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-031",
+    "Nombre": "Lake Shikotsu Ice Festival",
+    "Tipo": "Oficial",
+    "Cobertura": "Ediciones, precios y operación",
+    "URL": "https://hyoutou-special.asia/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-032",
+    "Nombre": "Kawazu Cherry Blossom Festival",
+    "Tipo": "Oficial",
+    "Cobertura": "Calendario y estado de floración",
+    "URL": "https://kawazuzakura.net/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-033",
+    "Nombre": "Tōdai-ji Shuni-e",
+    "Tipo": "Oficial",
+    "Cobertura": "Ceremonia anual Shuni-e/Omizutori",
+    "URL": "https://www.todaiji.or.jp/en/annual/event/shunie/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-034",
+    "Nombre": "AnimeJapan",
+    "Tipo": "Oficial",
+    "Cobertura": "AnimeJapan 2027, sede y fechas",
+    "URL": "https://anime-japan.jp/en/about/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-035",
+    "Nombre": "Japan Sumo Association",
+    "Tipo": "Oficial",
+    "Cobertura": "Calendario de torneos 2027",
+    "URL": "https://www.sumo.or.jp/EnTicket/year_schedule/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-036",
+    "Nombre": "Tokyo Marathon",
+    "Tipo": "Oficial",
+    "Cobertura": "Fecha de Tokyo Marathon 2027",
+    "URL": "https://www.marathon.tokyo/en/news/detail/news_20260415111128.html",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-037",
+    "Nombre": "JNTO Okunoshima",
+    "Tipo": "Oficial",
+    "Cobertura": "Acceso, naturaleza e historia de Okunoshima",
+    "URL": "https://www.japan.travel/en/spot/871/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-038",
+    "Nombre": "JNTO Takayama",
+    "Tipo": "Oficial",
+    "Cobertura": "Sanmachi y contexto turístico",
+    "URL": "https://www.japan.travel/en/spot/152/",
+    "Consultada": "2026-09-01"
+  },
+  {
+    "Fuente ID": "S-039",
+    "Nombre": "Visit Fukuoka Yanagawa",
+    "Tipo": "Oficial",
+    "Cobertura": "Crucero de canales y acceso",
+    "URL": "https://www.crossroadfukuoka.jp/en/articles/yanagawa-kawakudari",
+    "Consultada": "2026-09-01"
+  }
+]

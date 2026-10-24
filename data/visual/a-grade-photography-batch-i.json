@@ -1,0 +1,216 @@
+{
+  "version": 1,
+  "trancheSize": 24,
+  "eligibleCount": 139,
+  "hubEligibleCounts": {
+    "Kioto": 34,
+    "Nagoya": 1,
+    "Okinawa": 33,
+    "Osaka": 32,
+    "Sapporo": 2,
+    "Tokio": 37
+  },
+  "hubQuotas": {
+    "Kioto": 6,
+    "Nagoya": 1,
+    "Okinawa": 5,
+    "Osaka": 5,
+    "Sapporo": 1,
+    "Tokio": 6
+  },
+  "distinctCategoryCount": 24,
+  "places": [
+    {
+      "placeId": "JP-068",
+      "hub": "Kioto",
+      "name": "Fushimi Sake District",
+      "category": "🍶 Gastronomía",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-210",
+      "hub": "Nagoya",
+      "name": "Takayama Sanmachi Historic District",
+      "category": "🏯 Historia y patrimonio",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-155",
+      "hub": "Okinawa",
+      "name": "Tsuboya Yachimun Street",
+      "category": "🎭 Cultura tradicional",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-103",
+      "hub": "Osaka",
+      "name": "Dotonbori",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-206",
+      "hub": "Sapporo",
+      "name": "Otaru Snow Light Path",
+      "category": "🎆 Eventos",
+      "temporalRisk": true,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-009",
+      "hub": "Tokio",
+      "name": "Daikanyama T-SITE",
+      "category": "🧩 Extraño/peculiar/único",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-099",
+      "hub": "Kioto",
+      "name": "Uji tea experience",
+      "category": "🍵 Cultura tradicional",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-195",
+      "hub": "Okinawa",
+      "name": "Yaeyama stargazing experience",
+      "category": "🌌 Cielo nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-108",
+      "hub": "Osaka",
+      "name": "Den Den Town",
+      "category": "🎮 Videojuegos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-018",
+      "hub": "Tokio",
+      "name": "Kappabashi Kitchen Town",
+      "category": "🛍️ Compras",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-085",
+      "hub": "Kioto",
+      "name": "Kurama-dera to Kibune hike",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-164",
+      "hub": "Okinawa",
+      "name": "Cape Chinen Park",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-115",
+      "hub": "Osaka",
+      "name": "Nakanoshima Museum of Art",
+      "category": "🎨 Arte",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-037",
+      "hub": "Tokio",
+      "name": "Zōjō-ji + Tokyo Tower view",
+      "category": "📷 Fotografía",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-093",
+      "hub": "Kioto",
+      "name": "Kyoto Railway Museum",
+      "category": "🚂 Experiencias especiales",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-160",
+      "hub": "Okinawa",
+      "name": "Shikina-en Royal Garden",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-141",
+      "hub": "Osaka",
+      "name": "Arima Onsen",
+      "category": "🧖 Onsen/bienestar",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-040",
+      "hub": "Tokio",
+      "name": "Miraikan",
+      "category": "🤖 Tecnología",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-102",
+      "hub": "Kioto",
+      "name": "Demachi Masugata Shopping Arcade",
+      "category": "🍜 Gastronomía",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-174",
+      "hub": "Okinawa",
+      "name": "Bise Fukugi Tree Road",
+      "category": "🌿 Naturaleza",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-116",
+      "hub": "Osaka",
+      "name": "Osaka Museum of Housing and Living",
+      "category": "🏛️ Museos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-050",
+      "hub": "Tokio",
+      "name": "PokéPark KANTO",
+      "category": "🎢 Entretenimiento",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-092",
+      "hub": "Kioto",
+      "name": "Kyoto International Manga Museum",
+      "category": "👾 Anime/manga",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-005",
+      "hub": "Tokio",
+      "name": "Cat Street",
+      "category": "🏙️ Ciudad y barrios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    }
+  ]
+}

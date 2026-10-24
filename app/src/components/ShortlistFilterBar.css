@@ -1,0 +1,59 @@
+/* One scrollable row, so a narrow phone never grows a horizontal page scrollbar and never has to
+   wrap five chips into three lines above the list they filter. */
+
+.shortlist-filters {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  padding-bottom: 0.2rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.shortlist-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Pressed is marked by weight, background AND border, never by hue alone — the same rule the
+   traveller bar follows, so the two segmented surfaces read identically in greyscale. */
+
+.shortlist-filters__chip--active {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+}
+
+.shortlist-filters__count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.shortlist-filters__chip--active .shortlist-filters__count {
+  background: var(--color-border-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shortlist-filters__chip {
+    transition: none;
+  }
+}

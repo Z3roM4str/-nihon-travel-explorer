@@ -1,0 +1,177 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
+import { createServer } from "vite";
+import {
+  closePlace as shellClosePlace,
+  dismissOnboarding,
+  enterHub as shellEnterHub,
+  openPlace as shellOpenPlace,
+} from "./lib/shell-navigation.mjs";
+
+
+const appRoot = fileURLToPath(new URL("..", import.meta.url));
+const cacheDir = await mkdtemp(join(tmpdir(), "nihon-phase4f-vite-"));
+const server = await createServer({
+  root: appRoot,
+  cacheDir,
+  logLevel: "error",
+  server: { host: "127.0.0.1", port: 0 },
+});
+
+const BLANK_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=",
+  "base64"
+);
+
+let browser;
+const results = [];
+try {
+  await server.listen();
+  const url = server.resolvedUrls?.local[0];
+  assert.ok(url, "Vite did not expose a local URL");
+
+  browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const consoleErrors = [];
+  const pageErrors = [];
+  page.on("console", (m) => {
+    if (m.type() === "error") consoleErrors.push(m.text());
+  });
+  page.on("pageerror", (e) => pageErrors.push(String(e)));
+
+  const interceptedExternal = [];
+  await page.route("**/*", (route) => {
+    const target = route.request().url();
+    if (target.startsWith(url) || target.startsWith("data:") || target.startsWith("blob:")) {
+      return route.continue();
+    }
+    interceptedExternal.push(target);
+    return route.fulfill({ status: 200, contentType: "image/png", body: BLANK_PNG });
+  });
+
+  const record = (name, detail) =>
+    results.push(`  ${name.padEnd(44)}: pass${detail ? ` (${detail})` : ""}`);
+
+  /*
+   * Navegación al shell vigente (B18/B19/B20). El camino «prefectura → Explorar desde X» y la
+   * lista `.place-list__item` que esta fase usaba dejaron de existir: `05 §2` puso los atajos de
+   * ciudad en la portada y `04 §12` llevó la búsqueda a su propia hoja. Lo que esta auditoría
+   * MIDE no cambia ni una coma; sólo cambia cómo se llega. Camino compartido por las seis
+   * auditorías de fotografía en `scripts/lib/shell-navigation.mjs`, para que la próxima vez que
+   * el shell se mueva haya un solo sitio que tocar.
+   */
+  let currentHub = null;
+
+  async function enterHub(hub) {
+    currentHub = hub;
+    await shellEnterHub(page, hub);
+  }
+
+  async function openPlace(name) {
+    await shellOpenPlace(page, name, currentHub);
+  }
+
+  async function closePlace() {
+    await shellClosePlace(page);
+  }
+
+  async function assertAttribution({ label, credit, license, licenseHref, sourceHref, assetPath }) {
+    // Bloque 20 (B4, `04 §7`): la atribución sale del flujo de lectura —defecto D2— y vive en
+    // `CreditsSheet`, tras el botón `ⓘ` de la galería. El requisito de esta fase no cambia (los
+    // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
+    // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
+    await page.locator(".gallery__credits").click();
+    const creditNode = page.locator(".credits-sheet__list");
+    await creditNode.waitFor();
+
+    const image = page.locator(".gallery__image");
+    const src = await image.getAttribute("src");
+    assert.equal(src, assetPath, `${label}: local asset path`);
+
+    const sourceLink = creditNode.getByRole("link", { name: "Wikimedia Commons" });
+    assert.equal(await sourceLink.getAttribute("href"), sourceHref, `${label}: source link`);
+
+    const licenseLink = creditNode.getByRole("link", { name: license });
+    assert.equal(await licenseLink.getAttribute("href"), licenseHref, `${label}: license link`);
+
+    const visibleText = await creditNode.innerText();
+    if (credit) assert.ok(visibleText.includes(credit), `${label}: missing credit ${credit}`);
+    assert.match(visibleText, /Archivo de Commons\s*File:/);
+    assert.match(visibleText, /Archivo optimizado por Nihon:/);
+    assert.doesNotMatch(visibleText, /Título de atribución/);
+    await page.keyboard.press("Escape");
+    return visibleText;
+  }
+
+  async function assertFallback(hub, name) {
+    await dismissOnboarding(page, url);
+    await enterHub(hub);
+    await openPlace(name);
+    await page.getByText("Sin fotografía disponible todavía").waitFor();
+    assert.equal(await page.locator(".gallery__credits").count(), 0, `${name}: no credit`);
+    assert.equal(await page.locator(".gallery__image").count(), 0, `${name}: no image`);
+    await closePlace();
+  }
+
+  // A. Ordinary Phase 4F subject.
+  await dismissOnboarding(page, url);
+  await enterHub("Osaka");
+  await openPlace("Dotonbori");
+  await assertAttribution({
+    label: "JP-103",
+    credit: "Sakai Yayoi",
+    license: "CC0",
+    licenseHref: "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceHref: "https://commons.wikimedia.org/wiki/File:Osaka_Dotonbori_yoru.jpg",
+    assetPath: "/images/places/JP-103/dotonbori-night.webp",
+  });
+  record("A. ordinary target renders", "JP-103 Dotonbori");
+  await closePlace();
+
+  // B. Temporal-risk subject: prior-edition image must not masquerade as 2027.
+  await dismissOnboarding(page, url);
+  await enterHub("Sapporo");
+  await openPlace("Otaru Snow Light Path");
+  const otaruText = await assertAttribution({
+    label: "JP-206",
+    credit: "t-konno",
+    license: "CC BY-SA 3.0",
+    licenseHref: "https://creativecommons.org/licenses/by-sa/3.0",
+    sourceHref:
+      "https://commons.wikimedia.org/wiki/File:%E5%B0%8F%E6%A8%BD%E9%9B%AA%E3%81%82%E3%81%8B%E3%82%8A%E3%81%AE%E8%B7%AF%EF%BC%88Otaru_Snow_Light_Path_Festival%EF%BC%89_-_panoramio_(2).jpg",
+    assetPath: "/images/places/JP-206/otaru-snow-light-path.webp",
+  });
+  assert.doesNotMatch(otaruText, /2027/);
+  record("B. temporal target stays factual", "JP-206 prior-edition image");
+  await closePlace();
+
+  // C. Both failed targets retain the existing fallback; no substitute image.
+  await assertFallback("Tokio", "PokéPark KANTO");
+  await assertFallback("Okinawa", "Yaeyama stargazing experience");
+  record("C. failed targets keep fallback", "JP-050, JP-195");
+
+  // D. No photographic provider is contacted at runtime.
+  const photographyHosts = /wikimedia\.org|wikipedia\.org|creativecommons\.org/i;
+  assert.deepEqual(
+    interceptedExternal.filter((target) => photographyHosts.test(target)),
+    [],
+    "photography must never be fetched at runtime"
+  );
+  record("D. no runtime photography fetch", `${interceptedExternal.length} external non-photo requests`);
+
+  assert.deepEqual(consoleErrors, []);
+  assert.deepEqual(pageErrors, []);
+
+  console.log("PASS Phase 4F photography batch audit");
+  for (const line of results) console.log(line);
+  console.log("  console errors                              :", consoleErrors.length);
+  console.log("  page errors                                 :", pageErrors.length);
+} finally {
+  await browser?.close();
+  await server.close();
+  await rm(cacheDir, { recursive: true, force: true });
+}

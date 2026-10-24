@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "phase": "Block 22 — B6.1 grade-S identity photography",
+  "acquisitionDate": "2026-09-21",
+  "entries": [
+    {
+      "placeId": "JP-033",
+      "slug": "teamlab-borderless-azabudai-light-sculpture",
+      "title": "File:TeamLab Borderless Azabudai Hills.jpg",
+      "alt": "Visitantes rodeados por haces de luz blanca en la instalación Light Sculpture de teamLab Borderless, Azabudai Hills.",
+      "role": "identity",
+      "whyIdentity": "La fuente sitúa la instalación en la sede vigente de Azabudai Hills, con GPS a 0,19 km del lugar; el punto luminoso central y los visitantes se conservan en 4:3, 16:9 y 4:5."
+    },
+    {
+      "placeId": "JP-126",
+      "slug": "super-nintendo-world-fifth-anniversary-entrance",
+      "title": "File:Super Nintendo World Entrance 5th Anniversary decoration at Universal Studios Japan.jpg",
+      "alt": "Entrada nocturna de SUPER NINTENDO WORLD en Universal Studios Japan, decorada por su quinto aniversario y rodeada de tuberías verdes.",
+      "role": "identity",
+      "whyIdentity": "El rótulo completo y la tubería de acceso identifican el lugar sin depender de una atracción secundaria; la composición 4:3 admite los tres recortes requeridos."
+    },
+    {
+      "placeId": "JP-203",
+      "slug": "tokyo-disneyland-main-entrance-2025",
+      "title": "File:Tokyo Disneyland Main Entrance (June 2025).jpg",
+      "alt": "Entrada principal de Tokyo Disneyland con el rótulo del parque centrado sobre los arcos de acceso.",
+      "role": "identity",
+      "whyIdentity": "La entrada y su rótulo nombran inequívocamente el parque; el encuadre frontal y simétrico conserva el sujeto en todos los formatos."
+    },
+    {
+      "placeId": "JP-204",
+      "slug": "tokyo-disneysea-mount-prometheus-fortress",
+      "title": "File:Tokyo DisneySea-Volcania.jpg",
+      "alt": "Mount Prometheus elevándose tras Fortress Expeditions y los canales de Tokyo DisneySea.",
+      "role": "identity",
+      "whyIdentity": "Mount Prometheus y Fortress Expeditions forman la vista central característica del parque y permanecen completos en los tres recortes requeridos."
+    }
+  ],
+  "rejected": [
+    {
+      "placeId": "JP-033",
+      "title": "File:Azabudai Hills 3.jpg",
+      "reason": "El rótulo identifica la sede, pero el original vertical pierde información esencial en 16:9 y funciona peor como portada que la toma interior vigente."
+    },
+    {
+      "placeId": "JP-033",
+      "title": "Commons files of teamLab Borderless (Odaiba)",
+      "reason": "Sede cerrada en 2024; usarlos para la ubicación vigente de Azabudai Hills sería factualmente incorrecto."
+    },
+    {
+      "placeId": "JP-126",
+      "title": "File:Super Nintendo World Entrance.jpg",
+      "reason": "Una persona desenfocada domina el primer plano y perjudica la portada y sus recortes."
+    },
+    {
+      "placeId": "JP-126",
+      "title": "File:Super Nintendo World Entrance 20220814.jpg",
+      "reason": "El formato vertical corta el rótulo o la entrada al adaptar la imagen a 16:9."
+    },
+    {
+      "placeId": "JP-203",
+      "title": "Tokyo Disneyland Hotel / Resort Line candidates",
+      "reason": "Muestran el hotel o el monorraíl, no el parque; no se puede atribuir el sujeto a Tokyo Disneyland."
+    },
+    {
+      "placeId": "JP-204",
+      "title": "File:Disneysea entrance.jpg",
+      "reason": "La propia descripción indica que muestra la entrada a Ikspiari, no Tokyo DisneySea."
+    },
+    {
+      "placeId": "JP-204",
+      "title": "File:Tokyo Disney Sea.jpg",
+      "reason": "Muestra sólo la entrada de Temple of the Crystal Skull; no identifica el parque completo como portada."
+    },
+    {
+      "placeId": "JP-204",
+      "title": "Tower of Terror / Nemo SeaRider / Toy Story Mania candidates",
+      "reason": "Son atracciones individuales y no una toma de identidad del parque."
+    }
+  ]
+}
