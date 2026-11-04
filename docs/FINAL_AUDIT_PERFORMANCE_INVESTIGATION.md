@@ -12,6 +12,9 @@ independiente, atribuyendo cada respuesta al instante en que empezó su petició
 **No se aumentó ningún presupuesto, no se tocó ningún asset ni dato, y los resultados originales se conservan**
 ([`docs/final-audit-evidence/base/performance-original.{log,json}`](https://github.com/Z3roM4str/-nihon-travel-explorer/tree/2fd30dba0bed550afb5b742238da41537c2e34b7/docs/final-audit-evidence/base/), retirados del árbol, y el log del informe de auditoría).
 
+> **Nota histórica (2026-11-03):** el tope vigente es ahora **5,5 MB** por ciudad (`06 §6.3`,
+> `docs/DATA_MODEL.md`). Las cifras de 3,5 MB de este documento son las de su fecha.
+
 ## 1. Contrato de la medición (definido, porque no estaba escrito en el código)
 
 Fuente: `docs/design/06_ESTRATEGIA_FOTOGRAFICA.md` §6.3 («recorrer una ciudad completa no debe superar 3,5 MB de

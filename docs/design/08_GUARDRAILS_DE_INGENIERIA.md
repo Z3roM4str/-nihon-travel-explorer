@@ -227,7 +227,7 @@ Todo bloque de implementación se cierra sólo si pasa las siete:
 | G3 | Cromo en teléfono | Medición automática a 390×844: cromo superior ≤112 px, total ≤168 px. |
 | G4 | Sin tokens fuera de sistema | Lint de CSS: cero hex literales, cero `max-width` media queries nuevas, cero emoji en fuentes de componentes, cero `text-shadow` (`03 §5`). |
 | G5 | Accesibilidad | Áreas ≥44 px, contraste 4.5:1 / 3:1, foco visible, recorrido de teclado completo en la superficie tocada. |
-| G6 | Rendimiento | Presupuesto de imágenes por ciudad ≤3,5 MB; sin regresión del chunk de entrada frente a la medición de v1.1.0. |
+| G6 | Rendimiento | Presupuesto de imágenes por ciudad ≤5,5 MB (`06 §6.3`; 3,5 MB hasta el 2026-11-03); sin regresión del chunk de entrada frente al techo vigente (`docs/B10_P1_PERFORMANCE_CLOSURE.md`). |
 | G7 | Revisión visual | Capturas a 390×844 y 1440×900 de cada superficie tocada, comparadas contra la especificación. |
 
 ## Cómo tratar el CSS actual

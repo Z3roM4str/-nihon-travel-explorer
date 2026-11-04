@@ -12,7 +12,7 @@ import re
 import sys
 from pathlib import Path
 
-EXPECTED_PLACE_COUNT = 214
+EXPECTED_PLACE_COUNT = 264
 JAPAN_BBOX = {"lat_min": 20, "lat_max": 46, "lng_min": 122, "lng_max": 154}
 
 # `nearby.json`'s relation count is reported dynamically (see the OK summary) rather than

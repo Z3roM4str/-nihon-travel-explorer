@@ -122,18 +122,18 @@ describe("buildReservationPreparationSummary — fixtures", () => {
 });
 
 describe("buildReservationPreparationSummary — full real dataset", () => {
-  it("re-derives the current whole-dataset totals: 21 coarse-magnitude + 65 specific-mechanism = 86 items", () => {
+  it("re-derives the current whole-dataset totals: 22 coarse-magnitude + 74 specific-mechanism = 96 items", () => {
     const summary = buildReservationPreparationSummary(places);
-    expect(summary.coarseMagnitudeCount).toBe(21);
-    expect(summary.specificMechanismCount).toBe(65);
-    expect(summary.items).toHaveLength(86);
+    expect(summary.coarseMagnitudeCount).toBe(22);
+    expect(summary.specificMechanismCount).toBe(74);
+    expect(summary.items).toHaveLength(96);
   });
 
-  it("omits only the 128 not-applicable places", () => {
+  it("omits only the 168 not-applicable places", () => {
     const summary = buildReservationPreparationSummary(places);
     const includedIds = new Set(summary.items.map((item) => item.placeId));
     const omitted = places.filter((p) => !includedIds.has(p.id));
-    expect(omitted).toHaveLength(128);
+    expect(omitted).toHaveLength(168);
     for (const place of omitted) {
       expect(place.reservation.leadTime.trim() === "" || place.reservation.leadTime === "—").toBe(true);
     }

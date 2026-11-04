@@ -88,7 +88,8 @@ export type IconName =
   | "categoria-tecnologia"
   | "categoria-senderismo"
   | "categoria-onsen"
-  | "categoria-extrano";
+  | "categoria-extrano"
+  | "categoria-deporte";
 
 /**
  * `03 §8` fija 16/20/24 para el cromo/interfaz general. Bloque 19 (B3) añade 32 — el tamaño que
@@ -641,6 +642,15 @@ function paths(name: IconName) {
           <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
           <path d="M9.5 9.3a2.5 2.5 0 1 1 3.7 2.2c-.8.5-1.2 1-1.2 2" />
           <circle cx="12" cy="16.8" r="0.9" fill="currentColor" stroke="none" />
+        </>
+      );
+    // Lugares nuevos — «Deporte» (estadios): balón de línea, pentágono central y sus costuras.
+    case "categoria-deporte":
+      return (
+        <>
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M12 8.6 15.2 10.9 14 14.7H10L8.8 10.9Z" />
+          <path d="M12 8.6V3.5M15.2 10.9 20 9.4M14 14.7 16.9 18.9M10 14.7 7.1 18.9M8.8 10.9 4 9.4" />
         </>
       );
   }

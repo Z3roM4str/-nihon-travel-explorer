@@ -305,7 +305,7 @@ describe("real dataset coverage/invariants (data/places.json via app/src/data/pl
     }).not.toThrow();
   });
 
-  it("re-derives the current whole-dataset tier totals: SAFE 80, PARTIAL 50, OPAQUE 19, UNKNOWN 65 of 214", () => {
+  it("re-derives the current whole-dataset tier totals: SAFE 85, PARTIAL 54, OPAQUE 19, UNKNOWN 106 of 264", () => {
     let safe = 0;
     let partial = 0;
     let opaque = 0;
@@ -318,11 +318,11 @@ describe("real dataset coverage/invariants (data/places.json via app/src/data/pl
       else unknown += 1;
     }
     expect({ safe, partial, opaque, unknown, total: safe + partial + opaque + unknown }).toEqual({
-      safe: 80,
-      partial: 50,
+      safe: 85,
+      partial: 54,
       opaque: 19,
-      unknown: 65,
-      total: 214,
+      unknown: 106,
+      total: 264,
     });
   });
 

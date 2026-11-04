@@ -8,7 +8,7 @@ import { preview } from "vite";
  * Gate B10.3 — rendimiento y bytes de imagen por ciudad (`08` G6, `06 §6`, DDR-MERGE-1).
  *
  * Mide sobre la build de producción, por ciudad (hub) y por viewport (390×844 @2 y 1440×900 @1):
- *   · bytes de imagen al recorrer la ciudad completa (desde el clic en la ciudad hasta el final de la lista) ≤ 3,5 MB (`06 §6.3`);
+ *   · bytes de imagen al recorrer la ciudad completa (desde el clic en la ciudad hasta el final de la lista) ≤ 5,5 MB (`docs/DATA_MODEL.md`, Photo budget; antes 3,5 MB de `06 §6.3`);
  *   · 0 originales (todo derivado `-400w`/`-800w`), 0 duplicados (misma URL dos veces), 0 fallos;
  *   · carga diferida: justo tras abrir la ciudad, ninguna imagen de tarjetas a más de 2 pantallas de distancia se ha descargado;
  *   · dimensiones: ninguna imagen se descarga a más de 2,5× su caja pintada (× DPR);
@@ -20,6 +20,7 @@ import { preview } from "vite";
  * lee `buildRegistry` (`src/data/photography-runtime-projection.ts`; el JSON canónico no cambia y un test prueba que `placeImages` es idéntico).
  * Entrada: 277 912 B gzip (+9,5 % vs v1.1.0; el resto es código y `places.json` de B25–B31). Este gate protege la invariante, no sólo el número:
  * J01 techo ratcheteado, J01b ningún LQIP inline ni URL de adquisición en el entry (los chunks diferidos siguen protegidos por J03 y block12).
+ * Las cifras de este párrafo son las del cierre de B10-P1; el techo vigente y su razón están junto a `ENTRY_GZIP_CEILING`.
  *
  * Auditoría final (6 oct 2026) — contrato de la medición, explícito (la investigación y sus mediciones, en
  * `docs/FINAL_AUDIT_PERFORMANCE_INVESTIGATION.md`):
@@ -43,8 +44,10 @@ const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
 // auditoría final lo usó para demostrar que la atribución por inicio de petición no depende de la velocidad).
 const CPU_THROTTLE = Number(process.env.NIHON_CPU_THROTTLE ?? 1);
 const APP = fileURLToPath(new URL("..", import.meta.url));
-const HUB_BUDGET_BYTES = 3_500_000; // 06 §6.3
-const ENTRY_GZIP_CEILING = 285_000; // medido 277 912 B (+9,5 % vs v1.1.0); B10-P1 cerrado
+const HUB_BUDGET_BYTES = 5_500_000; // docs/DATA_MODEL.md, Photo budget (CITY_IMAGE_TOTAL_BUDGET_BYTES)
+// 285 000 B hasta el 2026-11-03. Base 27dc63a: 322 556 B (ya por encima); ahora 354 363 B. Los +31 807 B son datos de
+// los 50 lugares nuevos, no código: `docs/B10_P1_PERFORMANCE_CLOSURE.md`, «Techo de entrada del 2026-11-03».
+const ENTRY_GZIP_CEILING = 360_000;
 const CSS_GZIP_CEILING = 28_500; // medido 27 453 B
 const ENTRY_GZIP_V110 = 253_742; // BLOCK_14_HANDOFF: referencia v1.1.0
 // Margen máximo de `loading="lazy"` en Chromium con una conexión efectiva lenta (3G o peor): 2500 px más allá del
@@ -234,7 +237,7 @@ async function measureHub(hub, viewport, dpr) {
 
 for (const [label, viewport, dpr] of [["móvil 390×844@2", { width: 390, height: 844 }, 2], ["escritorio 1440×900@1", { width: 1440, height: 900 }, 1]]) {
   for (const hub of HUBS) {
-    await ck(`I-${label.split(" ")[0]}-${hub}`, `${label} · ${hub}: imágenes ≤ 3,5 MB, sin originales/duplicados/fallos, diferidas y sin sobredimensión`, async () => {
+    await ck(`I-${label.split(" ")[0]}-${hub}`, `${label} · ${hub}: imágenes ≤ 5,5 MB, sin originales/duplicados/fallos, diferidas y sin sobredimensión`, async () => {
       const r = await measureHub(hub, viewport, dpr);
       console.log(`# ${label} · ${hub}: ${r.count} img · ${r.bytes} B (portada previa: ${r.homeCount} img · ${(r.homeBytes / 1e6).toFixed(2)} MB) · ${r.lazy.farLoaded}/${r.lazy.total} lejanas ya cargadas · sobredimensionadas ${r.oversize.length}`);
       if (r.legacyExtra.count > 0) console.log(`#   de la portada, no sumadas (empezaron antes del clic real; el procedimiento anterior las contaba): ${r.legacyExtra.count} img · ${r.legacyExtra.bytes} B · ${r.legacyExtra.files.join(", ")}`);

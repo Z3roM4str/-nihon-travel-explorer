@@ -24,7 +24,7 @@ const VIEWPORTS = {
 const SAMPLE_IDS = ["JP-025", "JP-054", "JP-129", "JP-173", "JP-196", "JP-205"];
 const FALLBACK_ID = "JP-173";
 const PORT = 4323;
-const MAX_HUB_BYTES = 3_500_000;
+const MAX_HUB_BYTES = 5_500_000; // docs/DATA_MODEL.md, Photo budget
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));

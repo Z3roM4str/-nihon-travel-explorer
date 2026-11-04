@@ -12,8 +12,11 @@ is rate-limited far more aggressively than cached /thumb/ renditions. Retrying t
 never succeed, so the fix has to be in width selection, not in the retry loop.
 """
 import importlib.util
+import random
 import unittest
+from io import BytesIO
 from pathlib import Path
+from unittest import mock
 
 SCRIPT_DIR = Path(__file__).parent
 SPEC = importlib.util.spec_from_file_location("acquire_photography", SCRIPT_DIR / "acquire-photography.py")
@@ -291,6 +294,57 @@ class IdentityHubBudgetTests(unittest.TestCase):
         image.save(stream, format="WEBP", quality=92, method=6)
         return stream.getvalue()
 
+    def _noise_bytes(self, width=900, height=1200):
+        """Incompressible frame: stays far above any byte target at every quality."""
+        from PIL import Image
+
+        rng = random.Random(242)
+        image = Image.frombytes("RGB", (width, height), rng.randbytes(width * height * 3))
+        stream = BytesIO()
+        image.save(stream, format="WEBP", lossless=True)
+        return stream.getvalue()
+
+    def test_byte_cap_steps_width_only_after_the_quality_floor_and_is_deterministic(self):
+        from PIL import Image
+
+        source = self._noise_bytes()
+        floor = derivatives.DERIVATIVE_MIN_QUALITY
+        start = derivatives.encode_derivative_at_quality(source, 800, floor + 8)
+        self.assertGreater(len(derivatives.encode_derivative_at_quality(source, 800, floor)), derivatives.DERIVATIVE_MAX_BYTES)
+        quality, render_width, encoded = derivatives.fit_byte_cap(source, 800, floor + 8, start)
+        self.assertEqual(quality, floor)
+        self.assertLessEqual(len(encoded), derivatives.DERIVATIVE_MAX_BYTES)
+        self.assertEqual(Image.open(BytesIO(encoded)).width, render_width)
+        self.assertLess(render_width, 800)
+        self.assertGreaterEqual(render_width, derivatives.DERIVATIVE_MIN_RENDER_WIDTH)
+        self.assertEqual((800 - render_width) % derivatives.DERIVATIVE_WIDTH_STEP, 0)
+        one_step_wider = derivatives.encode_derivative_at_quality(
+            source, 800, floor, render_width + derivatives.DERIVATIVE_WIDTH_STEP
+        )
+        self.assertGreater(len(one_step_wider), derivatives.DERIVATIVE_MAX_BYTES)
+        self.assertEqual(derivatives.fit_byte_cap(source, 800, floor + 8, start), (quality, render_width, encoded))
+        self.assertEqual(derivatives.encode_derivative(source, 800), encoded)
+
+    def test_byte_cap_leaves_a_rendition_under_it_untouched(self):
+        source = self._source_bytes()
+        quality, encoded = derivatives.choose_derivative_encoding(source, 800)
+        self.assertEqual(derivatives.fit_byte_cap(source, 800, quality, encoded), (quality, 800, encoded))
+        self.assertEqual(derivatives.encode_derivative(source, 800), encoded)
+
+    def test_byte_cap_fails_closed_when_no_allowed_width_fits(self):
+        source = self._noise_bytes()
+        floor = derivatives.DERIVATIVE_MIN_QUALITY
+        encoded = derivatives.encode_derivative_at_quality(source, 800, floor)
+        with mock.patch.object(derivatives, "DERIVATIVE_MAX_BYTES", 1000):
+            with self.assertRaisesRegex(ValueError, "over the 1000 B cap"):
+                derivatives.fit_byte_cap(source, 800, floor, encoded)
+
+    def test_render_width_cannot_leave_its_range(self):
+        source = self._source_bytes()
+        for render_width in (derivatives.DERIVATIVE_MIN_RENDER_WIDTH - 1, 801):
+            with self.assertRaisesRegex(ValueError, "render width"):
+                derivatives.encode_derivative_at_quality(source, 800, 60, render_width)
+
     def test_identity_800_renditions_are_deterministically_rebalanced_to_the_hub_cap(self):
         source = self._source_bytes()
         record = {"placeId": "JP-004", "assetPath": "images/places/JP-004/example.webp", "role": "identity"}
@@ -319,6 +373,64 @@ class IdentityHubBudgetTests(unittest.TestCase):
         self.assertEqual(derivatives.rebalance_identity_800([detail], {detail["assetPath"]: source}, {"JP-004": "Tokio"}, 0), ({}, {}, {}))
         with self.assertRaisesRegex(ValueError, "quality floor"):
             derivatives.rebalance_identity_800([identity], {identity["assetPath"]: source}, {"JP-004": "Tokio"}, len(floor) - 1)
+
+    def test_new_places_count_in_the_city_cap_and_only_they_are_lowered(self):
+        source = self._source_bytes()
+        old = {"placeId": "JP-004", "assetPath": "images/places/JP-004/old.webp", "role": "identity", "originalTitle": "File:Old.jpg"}
+        new = {"placeId": "JP-215", "assetPath": "images/places/JP-215/new.webp", "role": "identity", "originalTitle": "File:New.jpg"}
+        originals = {old["assetPath"]: source, new["assetPath"]: source}
+        hubs = {"JP-004": "Tokio", "JP-215": "Tokio"}
+        old_quality, old_bytes = derivatives.choose_derivative_encoding(source, 800)
+        new_quality = max(derivatives.DERIVATIVE_MIN_QUALITY, old_quality - derivatives.DERIVATIVE_QUALITY_STEP)
+        lowered = derivatives.encode_derivative_at_quality(source, 800, new_quality)
+        city_budget = len(old_bytes) + len(lowered)
+        renditions, qualities, totals = derivatives.rebalance_identity_800(
+            [old, new], originals, hubs, len(old_bytes), new_place_titles=frozenset({"File:New.jpg"}), city_budget=city_budget
+        )
+        self.assertEqual(renditions[old["assetPath"]], old_bytes)
+        self.assertEqual(qualities[old["assetPath"]], old_quality)
+        self.assertEqual(renditions[new["assetPath"]], lowered)
+        self.assertEqual(totals, {"Tokio": city_budget})
+        with self.assertRaisesRegex(ValueError, "quality floor"):
+            derivatives.rebalance_identity_800(
+                [old, new], originals, hubs, len(old_bytes), new_place_titles=frozenset({"File:New.jpg"}), city_budget=len(old_bytes)
+            )
+
+    def test_new_places_share_the_general_quality_floor(self):
+        import random
+        from io import BytesIO
+
+        from PIL import Image
+
+        # Noise, so every quality step saves bytes and the rebalance really reaches the floor.
+        stream = BytesIO()
+        Image.frombytes("RGB", (800, 600), random.Random(215).randbytes(800 * 600 * 3)).save(
+            stream, format="WEBP", quality=92, method=6
+        )
+        source = stream.getvalue()
+        old ={"placeId": "JP-004", "assetPath": "images/places/JP-004/old.webp", "role": "identity", "originalTitle": "File:Old.jpg"}
+        new = {"placeId": "JP-215", "assetPath": "images/places/JP-215/new.webp", "role": "identity", "originalTitle": "File:New.jpg"}
+        originals = {old["assetPath"]: source, new["assetPath"]: source}
+        hubs = {"JP-004": "Tokio", "JP-215": "Tokio"}
+        floor = derivatives.DERIVATIVE_MIN_QUALITY
+        old_quality, old_bytes = derivatives.choose_derivative_encoding(source, 800)
+        lowest = derivatives.encode_derivative_at_quality(source, 800, floor)
+        renditions, qualities, _ = derivatives.rebalance_identity_800(
+            [old, new], originals, hubs, len(old_bytes), new_place_titles=frozenset({"File:New.jpg"}),
+            city_budget=len(old_bytes) + len(lowest),
+        )
+        self.assertEqual(floor, 48)
+        self.assertEqual(qualities[new["assetPath"]], floor)
+        self.assertEqual(renditions[new["assetPath"]], lowest)
+        self.assertEqual(qualities[old["assetPath"]], old_quality)
+        self.assertEqual(renditions[old["assetPath"]], old_bytes)
+        with self.assertRaises(ValueError):
+            derivatives.encode_derivative_at_quality(source, 800, floor - 1)
+        with self.assertRaisesRegex(ValueError, "quality floor 48"):
+            derivatives.rebalance_identity_800(
+                [old, new], originals, hubs, len(old_bytes), new_place_titles=frozenset({"File:New.jpg"}),
+                city_budget=len(old_bytes) + len(lowest) - 1,
+            )
 
 
 if __name__ == "__main__":

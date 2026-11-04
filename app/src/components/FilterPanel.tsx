@@ -2,7 +2,8 @@ import type { Filters } from "../types";
 import type { PlanningBlock } from "../lib/planning-block";
 import { planningBlockHint, planningBlockLabel } from "../lib/planning-block";
 import { interestLevelForGrade } from "../lib/interest-level";
-import { categoryPresentation } from "../lib/category-presentation";
+import { categoryFilterIcon } from "../lib/category-presentation";
+import { hiddenGemLabel } from "../lib/place";
 import { ChipToggle } from "./ChipToggle";
 import { Icon } from "../icons/Icon";
 
@@ -125,7 +126,7 @@ export function FilterPanel({
         >
           {categoryGroups.map((group) => {
             const pressed = group.values.every((value) => filters.categories.includes(value));
-            const { icon } = categoryPresentation(group.values[0]);
+            const icon = categoryFilterIcon(group.label);
             return (
               <ChipToggle
                 key={group.label}
@@ -222,7 +223,7 @@ export function FilterPanel({
                 })
               }
             >
-              {status}
+              {hiddenGemLabel(status)}
             </ChipToggle>
           ))}
         </FilterGroup>

@@ -238,7 +238,7 @@ describe("presentable day-card selection", () => {
 });
 
 describe("real dataset regression", () => {
-  it("re-derives the approved 4×4 cross-tab and composition totals from all 214 real places", () => {
+  it("re-derives the approved 4×4 cross-tab and composition totals from all 264 real places", () => {
     const crossTab = Object.fromEntries(tiers.map((hoursTier) => [hoursTier, Object.fromEntries(tiers.map((closureTier) => [closureTier, 0]))])) as Record<HoursTier, Record<TemporalTier, number>>;
     const classes: Record<CompositionClass, number> = {
       "jointly-presentable": 0,
@@ -254,18 +254,18 @@ describe("real dataset regression", () => {
       classes[classifyHoursClosureComposition(hours.tier, closure.tier)] += 1;
     }
 
-    expect(places).toHaveLength(214);
+    expect(places).toHaveLength(264);
     expect(crossTab).toEqual({
-      safe: { safe: 31, partial: 18, opaque: 19, unknown: 12 },
-      partial: { safe: 15, partial: 10, opaque: 20, unknown: 5 },
+      safe: { safe: 32, partial: 19, opaque: 19, unknown: 15 },
+      partial: { safe: 15, partial: 11, opaque: 20, unknown: 8 },
       opaque: { safe: 0, partial: 0, opaque: 17, unknown: 2 },
-      unknown: { safe: 15, partial: 3, opaque: 27, unknown: 20 },
+      unknown: { safe: 15, partial: 3, opaque: 27, unknown: 61 },
     });
     expect(classes).toEqual({
-      "jointly-presentable": 31,
-      "present-with-caveat": 43,
+      "jointly-presentable": 32,
+      "present-with-caveat": 45,
       "keep-separate": 56,
-      "not-composable": 84,
+      "not-composable": 131,
     });
   });
 
@@ -276,8 +276,8 @@ describe("real dataset regression", () => {
       hoursCounts[interpretPlaceHours(place).tier] += 1;
       closureCounts[interpretClosureText(place.schedule.closures).tier] += 1;
     }
-    expect(hoursCounts).toEqual({ safe: 80, partial: 50, opaque: 19, unknown: 65 });
-    expect(closureCounts).toEqual({ safe: 61, partial: 31, opaque: 83, unknown: 39 });
+    expect(hoursCounts).toEqual({ safe: 85, partial: 54, opaque: 19, unknown: 106 });
+    expect(closureCounts).toEqual({ safe: 62, partial: 33, opaque: 83, unknown: 86 });
   });
 });
 

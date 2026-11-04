@@ -587,23 +587,23 @@ describe("real-dataset regression (re-derived, never hardcoded into production b
   const intervalPlaces = places.filter((_, index) => facts[index].kind === "recorded-interval");
   const h24Places = places.filter((_, index) => facts[index].kind === "recorded-24h");
 
-  it("covers 214 places", () => {
-    expect(places).toHaveLength(214);
+  it("covers 264 places", () => {
+    expect(places).toHaveLength(264);
   });
 
-  it("finds 65 SAFE recorded-interval places and 15 SAFE recorded-24h places", () => {
-    expect(intervalPlaces).toHaveLength(65);
-    expect(h24Places).toHaveLength(15);
+  it("finds 69 SAFE recorded-interval places and 16 SAFE recorded-24h places", () => {
+    expect(intervalPlaces).toHaveLength(69);
+    expect(h24Places).toHaveLength(16);
   });
 
-  it("finds 62 interval places with a numeric duration and 3 without", () => {
+  it("finds 66 interval places with a numeric duration and 3 without", () => {
     const numeric = intervalPlaces.filter((place) => resolveDuration(place.duration) !== null);
-    expect(numeric).toHaveLength(62);
+    expect(numeric).toHaveLength(66);
     const nonNumeric = intervalPlaces.filter((place) => resolveDuration(place.duration) === null);
     expect(nonNumeric.map((place) => place.id).sort()).toEqual(["JP-121", "JP-147", "JP-211"]);
   });
 
-  it("parses all 65 real tokens with zero failures, zero overnight, and zero degenerate", () => {
+  it("parses all 69 real tokens with zero failures, zero overnight, and zero degenerate", () => {
     const parsed = intervalPlaces.map((place) => {
       const fact = interpretPlaceHours(place);
       if (fact.kind !== "recorded-interval") throw new Error("unreachable");
@@ -613,7 +613,7 @@ describe("real-dataset regression (re-derived, never hardcoded into production b
     expect(parsed.filter((result) => result.kind === "parsed" && result.crossesMidnight)).toHaveLength(0);
   });
 
-  it("finds 29 distinct eligible interval tokens", () => {
+  it("finds 31 distinct eligible interval tokens", () => {
     const tokens = new Set(
       intervalPlaces.map((place) => {
         const fact = interpretPlaceHours(place);
@@ -621,7 +621,7 @@ describe("real-dataset regression (re-derived, never hardcoded into production b
         return fact.intervalRaw;
       })
     );
-    expect(tokens.size).toBe(29);
+    expect(tokens.size).toBe(31);
   });
 
   it("keeps every real clock value inside 00:00–23:59", () => {

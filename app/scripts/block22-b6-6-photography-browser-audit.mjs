@@ -11,7 +11,7 @@ const VIEWPORTS = {
   desktop: { width: 1440, height: 900, dpr: 1 },
 };
 const PORT = 4326;
-const MAX_HUB_BYTES = 3_500_000;
+const MAX_HUB_BYTES = 5_500_000; // docs/DATA_MODEL.md, Photo budget
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const places = JSON.parse(readFileSync(path.join(repoRoot, "data/places.json"), "utf8"));

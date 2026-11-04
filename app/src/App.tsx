@@ -39,9 +39,9 @@ import { NosotrosScreen } from "./components/NosotrosScreen";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
 import { otherPersonMarker } from "./lib/traveller-presentation";
 import { getZonesForHub } from "./lib/accommodation-zone";
-import { categoryPresentation } from "./lib/category-presentation";
+import { categoryFilterLabel } from "./lib/category-presentation";
 import { SearchSheet } from "./components/SearchSheet";
-import { matchesQuery } from "./lib/place";
+import { hiddenGemOrder, matchesQuery } from "./lib/place";
 import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
 import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
@@ -415,7 +415,9 @@ export default function App() {
   const categoryGroups = useMemo(() => {
     const byLabel = new Map<string, string[]>();
     for (const raw of categories) {
-      const { label } = categoryPresentation(raw);
+      // Lugares nuevos: además de los tres pares duplicados, las categorías de un solo lugar se
+      // agrupan en su vecina natural sólo para el filtro (ver `categoryFilterLabel`).
+      const label = categoryFilterLabel(raw);
       const values = byLabel.get(label);
       if (values) values.push(raw);
       else byLabel.set(label, [raw]);
@@ -430,7 +432,10 @@ export default function App() {
     [hubPlaces]
   );
   const hiddenGemStatuses = useMemo(
-    () => [...new Set(hubPlaces.map((p) => p.hiddenGemStatus).filter(Boolean))] as string[],
+    () =>
+      ([...new Set(hubPlaces.map((p) => p.hiddenGemStatus).filter(Boolean))] as string[]).sort(
+        (a, b) => hiddenGemOrder(a) - hiddenGemOrder(b)
+      ),
     [hubPlaces]
   );
   const tourismLevels = useMemo(

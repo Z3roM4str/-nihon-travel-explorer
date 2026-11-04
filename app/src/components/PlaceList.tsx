@@ -191,6 +191,7 @@ export function PlaceList({
               onToggleSaved={onToggleSaved}
               otherPersonMarker={otherPersonMarkerFor ? otherPersonMarkerFor(place.id) : null}
               priority={index === 0}
+              deferImage
             />
           </li>
           {showDondeDormir && index === DONDE_DORMIR_AFTER - 1 && (

@@ -13541,5 +13541,3221 @@
       "warning": "Operadores, horarios y abrigo invernal varían.",
       "action": "Revisar operador y nivel del canal cerca del viaje."
     }
+  },
+  {
+    "id": "JP-215",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Setagaya",
+    "neighborhood": "Setagaya",
+    "cluster": "Setagaya",
+    "name": "Gōtoku-ji",
+    "japaneseName": "豪徳寺",
+    "mapTitle": "Gōtoku-ji, el templo de los gatos",
+    "category": "⛩️ Templos y santuarios",
+    "type": "templo zen",
+    "grade": "A",
+    "description": "Templo donde nació el maneki-neko: miles de gatitos blancos de la suerte apilados junto al pabellón.",
+    "differentiator": "Una imagen única de Tokio, sin multitudes de Asakusa.",
+    "experience": "Templo donde nació el maneki-neko: miles de gatitos blancos de la suerte apilados junto al pabellón.",
+    "duration": {
+      "raw": "45–75 min",
+      "minMinutes": 45,
+      "maxMinutes": 75
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Odakyu Gotokuji o Tokyu Setagaya Line Miyanosaka",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.64878,
+      "lng": 139.64742
+    },
+    "officialUrl": "https://www.gotokuji.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=G%C5%8Dtoku-ji%2C%20Setagaya%2C%20Japan",
+    "imageBrief": "Imagen ideal: una imagen única de Tokio, sin multitudes de Asakusa.",
+    "nearbyIds": [
+      "JP-048",
+      "JP-216",
+      "JP-221"
+    ],
+    "hiddenGemStatus": "Hidden Gem real",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Compra tu propio gatito en la oficina y déjalo en el altar; la tienda cierra hacia las 16:00.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-216",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Setagaya",
+    "neighborhood": "Setagaya",
+    "cluster": "Setagaya",
+    "name": "Todoroki Valley",
+    "japaneseName": "等々力渓谷",
+    "mapTitle": "Valle de Todoroki",
+    "category": "🌿 Naturaleza",
+    "type": "barranco urbano",
+    "grade": "B",
+    "description": "Único barranco natural de los 23 barrios: sendero de 1 km junto al río con cascada y templo.",
+    "differentiator": "Bosque fresco a 5 min de una estación de metro.",
+    "experience": "Único barranco natural de los 23 barrios: sendero de 1 km junto al río con cascada y templo.",
+    "duration": {
+      "raw": "45–90 min",
+      "minMinutes": 45,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Tokyu Oimachi Line Todoroki",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.6075,
+      "lng": 139.6481
+    },
+    "officialUrl": "https://www.gotokyo.org/en/index.html",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Todoroki%20Valley%2C%20Setagaya%2C%20Japan",
+    "imageBrief": "Imagen ideal: bosque fresco a 5 min de una estación de metro.",
+    "nearbyIds": [
+      "JP-215",
+      "JP-221",
+      "JP-048"
+    ],
+    "hiddenGemStatus": "Hidden Gem real",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "OBRAS ACTIVAS",
+      "warning": "El sendero del valle ha tenido cierres totales o parciales por obras y riesgo de caída de árboles.",
+      "action": "Confirmar en la web del distrito de Setagaya si el sendero está abierto antes de ir."
+    }
+  },
+  {
+    "id": "JP-217",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Katsushika",
+    "neighborhood": "Katsushika",
+    "cluster": "Shibamata",
+    "name": "Shibamata Taishakuten",
+    "japaneseName": "柴又帝釈天",
+    "mapTitle": "Shibamata Taishakuten y calle Showa",
+    "category": "🏯 Historia y patrimonio",
+    "type": "templo y barrio retro",
+    "grade": "A",
+    "description": "Templo con tallas de madera espectaculares y calle de tiendas de dulces que parece detenida en los años 50.",
+    "differentiator": "El Tokio 'shitamachi' de la película Tora-san, casi sin extranjeros.",
+    "experience": "Templo con tallas de madera espectaculares y calle de tiendas de dulces que parece detenida en los años 50.",
+    "duration": {
+      "raw": "120–180 min",
+      "minMinutes": 120,
+      "maxMinutes": 180
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 500,
+      "mxnMin": 0,
+      "mxnMax": 53
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Keisei Shibamata",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.75833,
+      "lng": 139.87833
+    },
+    "officialUrl": "https://www.gotokyo.org/en/spot/48/index.html",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Shibamata%20Taishakuten%2C%20Katsushika%2C%20Japan",
+    "imageBrief": "Imagen ideal: el Tokio 'shitamachi' de la película Tora-san, casi sin extranjeros.",
+    "nearbyIds": [],
+    "hiddenGemStatus": "Hidden Gem real",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Paga los ¥500 de la galería de tallas; prueba los kusa-dango (dango de artemisa) en la calle Sando.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-218",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Bunkyo",
+    "neighborhood": "Bunkyo",
+    "cluster": "Komagome",
+    "name": "Rikugi-en Gardens",
+    "japaneseName": "六義園",
+    "mapTitle": "Jardín Rikugien",
+    "category": "🌸 Jardines y paisajes",
+    "type": "jardín Edo",
+    "grade": "A",
+    "description": "Jardín de paseo del periodo Edo, uno de los más bellos de Tokio, con un cerezo llorón gigante.",
+    "differentiator": "En primavera y otoño abren de noche con iluminación.",
+    "experience": "Jardín de paseo del periodo Edo, uno de los más bellos de Tokio, con un cerezo llorón gigante.",
+    "duration": {
+      "raw": "60–90 min",
+      "minMinutes": 60,
+      "maxMinutes": 90
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Primavera / otoño",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 300,
+      "max": 300,
+      "mxnMin": 31.8,
+      "mxnMax": 31.8
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "JR/Metro Komagome",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.73306,
+      "lng": 139.74667
+    },
+    "officialUrl": "https://www.tokyo-park.or.jp/teien/en/rikugien/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Rikugi-en%20Gardens%2C%20Bunkyo%2C%20Japan",
+    "imageBrief": "Imagen ideal: en primavera y otoño abren de noche con iluminación.",
+    "nearbyIds": [
+      "JP-023",
+      "JP-024",
+      "JP-049"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "ABIERTO; FLORACIÓN NO GARANTIZADA",
+      "warning": "El cerezo llorón suele florecer a finales de marzo; antes de eso es jardín de invierno.",
+      "action": "No basar la visita en sakura hasta el pronóstico 2027."
+    }
+  },
+  {
+    "id": "JP-219",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Koto",
+    "neighborhood": "Koto",
+    "cluster": "Ryogoku",
+    "name": "Kiyosumi Garden",
+    "japaneseName": "清澄庭園",
+    "mapTitle": "Jardín Kiyosumi",
+    "category": "🌸 Jardines y paisajes",
+    "type": "jardín de piedras",
+    "grade": "B",
+    "description": "Jardín con estanque y piedras de paso, garzas y tortugas, en el barrio cafetero de Kiyosumi-Shirakawa.",
+    "differentiator": "Combina jardín clásico con la zona de cafés de especialidad (Blue Bottle nació aquí en Japón).",
+    "experience": "Jardín con estanque y piedras de paso, garzas y tortugas, en el barrio cafetero de Kiyosumi-Shirakawa.",
+    "duration": {
+      "raw": "45–75 min",
+      "minMinutes": 45,
+      "maxMinutes": 75
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 150,
+      "max": 150,
+      "mxnMin": 15.9,
+      "mxnMax": 15.9
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Metro Kiyosumi-shirakawa",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.68,
+      "lng": 139.79778
+    },
+    "officialUrl": "https://www.tokyo-park.or.jp/teien/en/kiyosumi/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Kiyosumi%20Garden%2C%20Koto%2C%20Japan",
+    "imageBrief": "Imagen ideal: combina jardín clásico con la zona de cafés de especialidad (Blue Bottle nació aquí en Japón).",
+    "nearbyIds": [
+      "JP-020",
+      "JP-053",
+      "JP-260"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Después camina al Museo de Arte Contemporáneo (MOT) y a los cafés de la zona.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-220",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Akiruno",
+    "neighborhood": "Akiruno",
+    "cluster": "Okutama–Mitake",
+    "name": "Akigawa Valley",
+    "japaneseName": "秋川渓谷",
+    "mapTitle": "Valle de Akigawa + onsen Seoto no Yu",
+    "category": "🧖 Onsen/bienestar",
+    "type": "valle y onsen",
+    "grade": "B",
+    "description": "Río de agua verde en el oeste de Tokio con caminata fácil y un onsen junto al valle.",
+    "differentiator": "Recomendado en X como 'joya oculta de Tokio'; naturaleza y baño termal sin salir de la prefectura.",
+    "experience": "Río de agua verde en el oeste de Tokio con caminata fácil y un onsen junto al valle.",
+    "duration": {
+      "raw": "240–360 min",
+      "minMinutes": 240,
+      "maxMinutes": 360
+    },
+    "bestTime": "Día completo",
+    "bestSeason": "Primavera / otoño",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 1000,
+      "max": 1500,
+      "mxnMin": 106,
+      "mxnMax": 159
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "JR Itsukaichi Line Musashi-Itsukaichi + bus",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.729,
+      "lng": 139.238
+    },
+    "officialUrl": "https://www.seotonoyu.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Akigawa%20Valley%2C%20Akiruno%2C%20Japan",
+    "imageBrief": "Imagen ideal: recomendado en X como 'joya oculta de Tokio'; naturaleza y baño termal sin salir de la prefectura.",
+    "nearbyIds": [],
+    "hiddenGemStatus": "Hidden Gem real",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Lleva toalla; el onsen cierra algún día al mes por mantenimiento, confírmalo en su web.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-221",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Meguro",
+    "neighborhood": "Meguro",
+    "cluster": "Daikanyama–Ebisu",
+    "name": "Meguro River",
+    "japaneseName": "目黒川",
+    "mapTitle": "Río Meguro en Nakameguro",
+    "category": "🌸 Jardines y paisajes",
+    "type": "paseo de cerezos",
+    "grade": "A",
+    "description": "Kilómetros de cerezos sobre el canal, con faroles y puestos de comida en temporada.",
+    "differentiator": "El hanami más fotogénico de Tokio, de noche con iluminación.",
+    "experience": "Kilómetros de cerezos sobre el canal, con faroles y puestos de comida en temporada.",
+    "duration": {
+      "raw": "60–120 min",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Noche",
+    "bestSeason": "Primavera",
+    "crowdLevel": "Extremo",
+    "tourismLevel": "Extremo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Tokyu/Metro Naka-Meguro",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.64593,
+      "lng": 139.69861
+    },
+    "officialUrl": "https://www.gotokyo.org/en/spot/31/index.html",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Meguro%20River%2C%20Meguro%2C%20Japan",
+    "imageBrief": "Imagen ideal: el hanami más fotogénico de Tokio, de noche con iluminación.",
+    "nearbyIds": [
+      "JP-009",
+      "JP-002",
+      "JP-001"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "ABIERTO; FLORACIÓN NO GARANTIZADA",
+      "warning": "La floración del río Meguro suele ser a finales de marzo o inicios de abril; fuera de ella es barrio de cafés.",
+      "action": "No basar la visita en sakura hasta el pronóstico 2027; ir entre semana si coincide."
+    }
+  },
+  {
+    "id": "JP-222",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Chiyoda",
+    "neighborhood": "Chiyoda",
+    "cluster": "Marunouchi–Ginza",
+    "name": "Yurakucho Gado-shita",
+    "japaneseName": "有楽町",
+    "mapTitle": "Yurakucho Gado-shita (bares bajo las vías)",
+    "category": "🍜 Gastronomía",
+    "type": "izakayas bajo las vías",
+    "grade": "A",
+    "description": "Izakayas y puestos de yakitori metidos bajo los arcos de ladrillo del tren, con trenes pasando encima.",
+    "differentiator": "Comida barata y ambiente obrero junto a Ginza.",
+    "experience": "Izakayas y puestos de yakitori metidos bajo los arcos de ladrillo del tren, con trenes pasando encima.",
+    "duration": {
+      "raw": "60–120 min",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Noche",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 1500,
+      "max": 4000,
+      "mxnMin": 159,
+      "mxnMax": 424
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "JR Yurakucho",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.67316,
+      "lng": 139.76055
+    },
+    "officialUrl": "https://www.gotokyo.org/en/index.html",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Yurakucho%20Gado-shita%2C%20Chiyoda%2C%20Japan",
+    "imageBrief": "Imagen ideal: comida barata y ambiente obrero junto a Ginza.",
+    "nearbyIds": [
+      "JP-261",
+      "JP-030",
+      "JP-032"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Ve después de las 18:00; muchos sitios solo aceptan efectivo.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-223",
+    "hub": "Tokio",
+    "region": "Chubu",
+    "prefecture": "Yamanashi",
+    "municipality": "Fujiyoshida",
+    "neighborhood": "Fujiyoshida",
+    "cluster": "Fuji Five Lakes",
+    "name": "Chureito Pagoda (Arakurayama Sengen Park)",
+    "japaneseName": "新倉山浅間公園",
+    "mapTitle": "Pagoda Chureito y monte Fuji",
+    "category": "🌅 Miradores",
+    "type": "mirador",
+    "grade": "S",
+    "description": "La foto clásica de Japón: pagoda roja, cerezos y el Fuji detrás, tras subir ~400 escalones.",
+    "differentiator": "La mejor vista del Fuji en un viaje de un día desde Tokio.",
+    "experience": "La foto clásica de Japón: pagoda roja, cerezos y el Fuji detrás, tras subir ~400 escalones.",
+    "duration": {
+      "raw": "60–120 min",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Invierno / primavera",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Fujikyu Railway Shimoyoshida (bus/tren desde Shinjuku)",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.50119,
+      "lng": 138.80139
+    },
+    "officialUrl": "https://www.fujiyoshida.net/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Chureito%20Pagoda%20%28Arakurayama%20Sengen%20Park%29%2C%20Fujiyoshida%2C%20Japan",
+    "imageBrief": "Imagen ideal: la mejor vista del Fuji en un viaje de un día desde Tokio.",
+    "nearbyIds": [],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "En febrero-marzo el Fuji se ve más claro temprano; las nubes lo tapan después del mediodía.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-224",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Kamakura",
+    "neighborhood": "Kamakura",
+    "cluster": "Kamakura",
+    "name": "Kōtoku-in",
+    "japaneseName": "高徳院",
+    "mapTitle": "Gran Buda de Kamakura (Kōtoku-in)",
+    "category": "⛩️ Templos y santuarios",
+    "type": "buda de bronce",
+    "grade": "S",
+    "description": "Buda de bronce de 11 m al aire libre desde 1252; puedes entrar dentro de la estatua.",
+    "differentiator": "Ícono de Kamakura, a 1 h de Tokio.",
+    "experience": "Buda de bronce de 11 m al aire libre desde 1252; puedes entrar dentro de la estatua.",
+    "duration": {
+      "raw": "30–60 min",
+      "minMinutes": 30,
+      "maxMinutes": 60
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 300,
+      "max": 300,
+      "mxnMin": 31.8,
+      "mxnMax": 31.8
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Enoden Hase",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.31686,
+      "lng": 139.53572
+    },
+    "officialUrl": "https://www.kotoku-in.jp/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=K%C5%8Dtoku-in%2C%20Kamakura%2C%20Japan",
+    "imageBrief": "Imagen ideal: ícono de Kamakura, a 1 h de Tokio.",
+    "nearbyIds": [
+      "JP-226",
+      "JP-225",
+      "JP-227"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Combínalo con Hase-dera (5 min a pie) y Enoshima en la misma línea Enoden.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-225",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Kamakura",
+    "neighborhood": "Kamakura",
+    "cluster": "Kamakura",
+    "name": "Hōkoku-ji (Kamakura)",
+    "japaneseName": "報国寺",
+    "mapTitle": "Hōkoku-ji, bosque de bambú de Kamakura",
+    "category": "⛩️ Templos y santuarios",
+    "type": "templo con bambú",
+    "grade": "A",
+    "description": "Pequeño templo zen con un bosque de 2 000 bambúes y casa de té con matcha entre ellos.",
+    "differentiator": "Un Arashiyama en miniatura y tranquilo.",
+    "experience": "Pequeño templo zen con un bosque de 2 000 bambúes y casa de té con matcha entre ellos.",
+    "duration": {
+      "raw": "45–60 min",
+      "minMinutes": 45,
+      "maxMinutes": 60
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 400,
+      "max": 1000,
+      "mxnMin": 42.4,
+      "mxnMax": 106
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Bus desde Kamakura a Jomyoji",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.3196,
+      "lng": 139.565
+    },
+    "officialUrl": "https://houkokuji.or.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=H%C5%8Dkoku-ji%20%28Kamakura%29%2C%20Kamakura%2C%20Japan",
+    "imageBrief": "Imagen ideal: un Arashiyama en miniatura y tranquilo.",
+    "nearbyIds": [
+      "JP-224",
+      "JP-226",
+      "JP-227"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "El matcha con dulce dentro del bambú cuesta aparte (~¥600); llega al abrir (9:00).",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-226",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Kamakura",
+    "neighborhood": "Kamakura",
+    "cluster": "Kamakura",
+    "name": "Hase-dera (Kamakura)",
+    "japaneseName": "長谷寺",
+    "mapTitle": "Hase-dera de Kamakura",
+    "category": "⛩️ Templos y santuarios",
+    "type": "templo en ladera",
+    "grade": "A",
+    "description": "Templo en la ladera con jardines, cueva de Benten y terraza con vista al mar de Kamakura.",
+    "differentiator": "Mezcla de jardín, cueva y vista al océano.",
+    "experience": "Templo en la ladera con jardines, cueva de Benten y terraza con vista al mar de Kamakura.",
+    "duration": {
+      "raw": "60–90 min",
+      "minMinutes": 60,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 400,
+      "max": 400,
+      "mxnMin": 42.4,
+      "mxnMax": 42.4
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Enoden Hase",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.3125,
+      "lng": 139.53306
+    },
+    "officialUrl": "https://www.hasedera.jp/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Hase-dera%20%28Kamakura%29%2C%20Kamakura%2C%20Japan",
+    "imageBrief": "Imagen ideal: mezcla de jardín, cueva y vista al océano.",
+    "nearbyIds": [
+      "JP-224",
+      "JP-225",
+      "JP-227"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Entra a la cueva Benkutsu con velas; famoso por hortensias en junio.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-227",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Fujisawa",
+    "neighborhood": "Fujisawa",
+    "cluster": "Kamakura",
+    "name": "Enoshima",
+    "japaneseName": "江の島",
+    "mapTitle": "Isla de Enoshima",
+    "category": "🌊 Playa/mar/islas",
+    "type": "isla",
+    "grade": "A",
+    "description": "Isla con santuarios, cuevas marinas, faro-mirador y comida de mar; en días claros se ve el Fuji.",
+    "differentiator": "Playa, templo y atardecer en un mismo lugar.",
+    "experience": "Isla con santuarios, cuevas marinas, faro-mirador y comida de mar; en días claros se ve el Fuji.",
+    "duration": {
+      "raw": "180–300 min",
+      "minMinutes": 180,
+      "maxMinutes": 300
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Invierno (cielo claro)",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 1000,
+      "mxnMin": 0,
+      "mxnMax": 106
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Enoden Enoshima / Odakyu Katase-Enoshima",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.29972,
+      "lng": 139.48028
+    },
+    "officialUrl": "https://enoshima-navi.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Enoshima%2C%20Fujisawa%2C%20Japan",
+    "imageBrief": "Imagen ideal: playa, templo y atardecer en un mismo lugar.",
+    "nearbyIds": [
+      "JP-226",
+      "JP-224",
+      "JP-225"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Prueba el shirasu-don (pescaditos sobre arroz); quédate al atardecer para el Fuji.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-228",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Hakone",
+    "neighborhood": "Hakone",
+    "cluster": "Hakone",
+    "name": "Hakone Open-Air Museum",
+    "japaneseName": "箱根 彫刻の森美術館",
+    "mapTitle": "Museo al Aire Libre de Hakone",
+    "category": "🎨 Arte",
+    "type": "museo de esculturas",
+    "grade": "A",
+    "description": "Esculturas gigantes entre montañas, pabellón Picasso y un baño de pies termal gratis.",
+    "differentiator": "Arte y naturaleza en el mismo recorrido.",
+    "experience": "Esculturas gigantes entre montañas, pabellón Picasso y un baño de pies termal gratis.",
+    "duration": {
+      "raw": "120–180 min",
+      "minMinutes": 120,
+      "maxMinutes": 180
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 2000,
+      "max": 2000,
+      "mxnMin": 212,
+      "mxnMax": 212
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Hakone Tozan Chokoku-no-Mori",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.24472,
+      "lng": 139.05139
+    },
+    "officialUrl": "https://www.hakone-oam.or.jp/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Hakone%20Open-Air%20Museum%2C%20Hakone%2C%20Japan",
+    "imageBrief": "Imagen ideal: arte y naturaleza en el mismo recorrido.",
+    "nearbyIds": [
+      "JP-229",
+      "JP-230"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Compra la Hakone Free Pass: cubre tren, teleférico y barco del lago.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-229",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Hakone",
+    "neighborhood": "Hakone",
+    "cluster": "Hakone",
+    "name": "Ōwakudani",
+    "japaneseName": "大涌谷",
+    "mapTitle": "Ōwakudani, valle volcánico",
+    "category": "🌿 Naturaleza",
+    "type": "zona volcánica",
+    "grade": "A",
+    "description": "Valle humeante de azufre al que llegas en teleférico; huevos negros cocidos en el agua termal.",
+    "differentiator": "Volcán activo con vista al Fuji desde el teleférico.",
+    "experience": "Valle humeante de azufre al que llegas en teleférico; huevos negros cocidos en el agua termal.",
+    "duration": {
+      "raw": "45–90 min",
+      "minMinutes": 45,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 500,
+      "mxnMin": 0,
+      "mxnMax": 53
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Hakone Ropeway Owakudani",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.24192,
+      "lng": 139.02067
+    },
+    "officialUrl": "https://www.hakonenavi.jp/international/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=%C5%8Cwakudani%2C%20Hakone%2C%20Japan",
+    "imageBrief": "Imagen ideal: volcán activo con vista al Fuji desde el teleférico.",
+    "nearbyIds": [
+      "JP-228",
+      "JP-230"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "ALTO RIESGO DE CIERRE",
+      "warning": "Por gases volcánicos el teleférico o el acceso a Ōwakudani pueden cerrarse sin aviso.",
+      "action": "Revisar el estado del Hakone Ropeway el mismo día y tener plan alterno."
+    }
+  },
+  {
+    "id": "JP-230",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Hakone",
+    "neighborhood": "Hakone",
+    "cluster": "Hakone",
+    "name": "Hakone Shrine",
+    "japaneseName": "箱根神社",
+    "mapTitle": "Santuario de Hakone y torii del lago",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario",
+    "grade": "A",
+    "description": "Santuario en el bosque de cedros con un torii rojo dentro del lago Ashi.",
+    "differentiator": "La foto del torii flotante con el Fuji detrás.",
+    "experience": "Santuario en el bosque de cedros con un torii rojo dentro del lago Ashi.",
+    "duration": {
+      "raw": "45–90 min",
+      "minMinutes": 45,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Barco del lago a Moto-Hakone",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.20389,
+      "lng": 139.02556
+    },
+    "officialUrl": "https://hakonejinja.or.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Hakone%20Shrine%2C%20Hakone%2C%20Japan",
+    "imageBrief": "Imagen ideal: la foto del torii flotante con el Fuji detrás.",
+    "nearbyIds": [
+      "JP-229",
+      "JP-228"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "La fila para la foto del torii es larga desde las 10:00; ve temprano.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-231",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tochigi",
+    "municipality": "Nikko",
+    "neighborhood": "Nikko",
+    "cluster": "Nikko",
+    "name": "Nikkō Tōshō-gū",
+    "japaneseName": "日光東照宮",
+    "mapTitle": "Santuario Tōshō-gū de Nikko",
+    "category": "🏯 Historia y patrimonio",
+    "type": "santuario UNESCO",
+    "grade": "S",
+    "description": "Mausoleo del shogun Tokugawa cubierto de oro y tallas, como los tres monos sabios y el gato dormido.",
+    "differentiator": "El santuario más decorado de Japón; Patrimonio UNESCO.",
+    "experience": "Mausoleo del shogun Tokugawa cubierto de oro y tallas, como los tres monos sabios y el gato dormido.",
+    "duration": {
+      "raw": "120–180 min",
+      "minMinutes": 120,
+      "maxMinutes": 180
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 1600,
+      "max": 1600,
+      "mxnMin": 169.6,
+      "mxnMax": 169.6
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Tobu Nikko o JR Nikko + bus",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 36.75806,
+      "lng": 139.59896
+    },
+    "officialUrl": "https://www.toshogu.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Nikk%C5%8D%20T%C5%8Dsh%C5%8D-g%C5%AB%2C%20Nikko%2C%20Japan",
+    "imageBrief": "Imagen ideal: el santuario más decorado de Japón; Patrimonio UNESCO.",
+    "nearbyIds": [
+      "JP-232"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CLIMA / HORARIOS PENDIENTES",
+      "warning": "En febrero hace mucho frío y puede haber nieve; el horario de invierno cierra más temprano.",
+      "action": "Revisar clima y horario de invierno; salir temprano desde Tokio."
+    }
+  },
+  {
+    "id": "JP-232",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tochigi",
+    "municipality": "Nikko",
+    "neighborhood": "Nikko",
+    "cluster": "Nikko",
+    "name": "Kanmangafuchi Abyss",
+    "japaneseName": "憾満ヶ淵",
+    "mapTitle": "Kanmangafuchi y la fila de Jizōs",
+    "category": "🌿 Naturaleza",
+    "type": "garganta y estatuas",
+    "grade": "B",
+    "description": "Sendero junto a un río volcánico con unas 70 estatuas Jizō con gorritos rojos.",
+    "differentiator": "A 20 min a pie de Tōshō-gū y casi vacío.",
+    "experience": "Sendero junto a un río volcánico con unas 70 estatuas Jizō con gorritos rojos.",
+    "duration": {
+      "raw": "40–60 min",
+      "minMinutes": 40,
+      "maxMinutes": 60
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "A pie desde el puente Shinkyo",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 36.7476,
+      "lng": 139.5856
+    },
+    "officialUrl": "https://www.nikko-kankou.org/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Kanmangafuchi%20Abyss%2C%20Nikko%2C%20Japan",
+    "imageBrief": "Imagen ideal: a 20 min a pie de Tōshō-gū y casi vacío.",
+    "nearbyIds": [
+      "JP-231"
+    ],
+    "hiddenGemStatus": "Hidden Gem real",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CLIMA / HORARIOS PENDIENTES",
+      "warning": "Sendero junto al río que puede tener hielo o nieve en febrero.",
+      "action": "Llevar calzado con agarre y revisar clima el mismo día."
+    }
+  },
+  {
+    "id": "JP-233",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Saitama",
+    "municipality": "Kawagoe",
+    "neighborhood": "Ichibangai (Kurazukuri)",
+    "cluster": "Kawagoe",
+    "name": "Kawagoe Kurazukuri Street",
+    "japaneseName": "川越 蔵造りの町並み",
+    "mapTitle": "Kawagoe, el 'pequeño Edo'",
+    "category": "🏯 Historia y patrimonio",
+    "type": "barrio histórico",
+    "grade": "A",
+    "description": "Calle de almacenes kurazukuri, torre de la campana y callejón de dulces retro a 30 min de Tokio.",
+    "differentiator": "Ambiente de época Edo sin ir hasta Kioto.",
+    "experience": "Calle de almacenes kurazukuri, torre de la campana y callejón de dulces retro a 30 min de Tokio.",
+    "duration": {
+      "raw": "180–300 min",
+      "minMinutes": 180,
+      "maxMinutes": 300
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 1000,
+      "mxnMin": 0,
+      "mxnMax": 106
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Tobu Tojo Kawagoe / Seibu Hon-Kawagoe",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.9227,
+      "lng": 139.4822
+    },
+    "officialUrl": "https://www.koedo.or.jp/foreign/english/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Kawagoe%20Kurazukuri%20Street%2C%20Kawagoe%2C%20Japan",
+    "imageBrief": "Imagen ideal: ambiente de época Edo sin ir hasta Kioto.",
+    "nearbyIds": [],
+    "hiddenGemStatus": "Alternativa menos saturada",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Prueba los dulces de camote (imo); la campana Toki no Kane suena 4 veces al día.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-234",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Kiyomizu–Gion",
+    "name": "Yasaka Shrine",
+    "japaneseName": "八坂神社",
+    "mapTitle": "Santuario Yasaka",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario",
+    "grade": "A",
+    "description": "Santuario de Gion con cientos de faroles que se encienden de noche; abierto 24 h.",
+    "differentiator": "Puente natural entre Gion y el parque Maruyama.",
+    "experience": "Santuario de Gion con cientos de faroles que se encienden de noche; abierto 24 h.",
+    "duration": {
+      "raw": "30–45 min",
+      "minMinutes": 30,
+      "maxMinutes": 45
+    },
+    "bestTime": "Noche",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Keihan Gion-Shijo",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.00361,
+      "lng": 135.77861
+    },
+    "officialUrl": "https://www.yasaka-jinja.or.jp/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Yasaka%20Shrine%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: puente natural entre Gion y el parque Maruyama.",
+    "nearbyIds": [
+      "JP-059",
+      "JP-101",
+      "JP-056"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Ve de noche, gratis y sin multitud; luego camina al parque Maruyama.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-235",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "North Kyoto",
+    "name": "Kitano Tenmangū",
+    "japaneseName": "北野天満宮",
+    "mapTitle": "Kitano Tenmangū, santuario de los ciruelos",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario",
+    "grade": "A",
+    "description": "Santuario del dios de los estudios con 1 500 ciruelos que florecen de febrero a marzo.",
+    "differentiator": "Mercado de pulgas cada día 25 del mes.",
+    "experience": "Santuario del dios de los estudios con 1 500 ciruelos que florecen de febrero a marzo.",
+    "duration": {
+      "raw": "45–90 min",
+      "minMinutes": 45,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Invierno / primavera",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 1200,
+      "mxnMin": 0,
+      "mxnMax": 127.2
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Bus 50/101 Kitano Tenmangu-mae",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.03111,
+      "lng": 135.73528
+    },
+    "officialUrl": "https://kitanotenmangu.or.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Kitano%20Tenmang%C5%AB%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: mercado de pulgas cada día 25 del mes.",
+    "nearbyIds": [
+      "JP-263",
+      "JP-080",
+      "JP-081"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "OPORTUNIDAD ESTACIONAL",
+      "warning": "Temporada de ciruelos (feb–mar); el 25 de febrero es el Baikasai con ceremonia de té al aire libre.",
+      "action": "Confirmar fecha y acceso del jardín de ciruelos 2027."
+    }
+  },
+  {
+    "id": "JP-236",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Demachiyanagi",
+    "name": "Shimogamo Shrine",
+    "japaneseName": "賀茂御祖神社",
+    "mapTitle": "Santuario Shimogamo y bosque Tadasu",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario UNESCO",
+    "grade": "A",
+    "description": "Uno de los santuarios más antiguos de Kioto, rodeado por un bosque primitivo.",
+    "differentiator": "UNESCO y tranquilo, cerca de Demachiyanagi.",
+    "experience": "Uno de los santuarios más antiguos de Kioto, rodeado por un bosque primitivo.",
+    "duration": {
+      "raw": "45–75 min",
+      "minMinutes": 45,
+      "maxMinutes": 75
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Keihan Demachiyanagi",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.03889,
+      "lng": 135.7725
+    },
+    "officialUrl": "https://www.shimogamo-jinja.or.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Shimogamo%20Shrine%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: uNESCO y tranquilo, cerca de Demachiyanagi.",
+    "nearbyIds": [
+      "JP-102",
+      "JP-090",
+      "JP-082"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Camina luego al delta del río Kamo y cruza las piedras-tortuga.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-237",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Yamashina",
+    "name": "Daigo-ji",
+    "japaneseName": "醍醐寺",
+    "mapTitle": "Daigo-ji",
+    "category": "⛩️ Templos y santuarios",
+    "type": "templo UNESCO",
+    "grade": "A",
+    "description": "Gran complejo UNESCO con la pagoda más antigua de Kioto (951) y jardín Sanbō-in.",
+    "differentiator": "Famoso por cerezos; mucho menos lleno que el centro.",
+    "experience": "Gran complejo UNESCO con la pagoda más antigua de Kioto (951) y jardín Sanbō-in.",
+    "duration": {
+      "raw": "120–180 min",
+      "minMinutes": 120,
+      "maxMinutes": 180
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Primavera",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 1000,
+      "max": 1500,
+      "mxnMin": 106,
+      "mxnMax": 159
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Metro Tozai Daigo",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.9515,
+      "lng": 135.82178
+    },
+    "officialUrl": "https://www.daigoji.or.jp/index_e.html",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Daigo-ji%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: famoso por cerezos; mucho menos lleno que el centro.",
+    "nearbyIds": [
+      "JP-066",
+      "JP-067",
+      "JP-095"
+    ],
+    "hiddenGemStatus": "Alternativa menos saturada",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "ABIERTO; FLORACIÓN NO GARANTIZADA",
+      "warning": "Los cerezos llorones suelen florecer a finales de marzo; antes el recinto está tranquilo.",
+      "action": "No basar la visita en sakura hasta el pronóstico 2027."
+    }
+  },
+  {
+    "id": "JP-238",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Okazaki–Philosopher",
+    "name": "Heian Shrine",
+    "japaneseName": "平安神宮",
+    "mapTitle": "Santuario Heian",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario",
+    "grade": "A",
+    "description": "Torii gigante y edificios naranja; detrás, un jardín con estanques y puente cubierto.",
+    "differentiator": "El jardín Shin-en es de los más bellos de Kioto en primavera.",
+    "experience": "Torii gigante y edificios naranja; detrás, un jardín con estanques y puente cubierto.",
+    "duration": {
+      "raw": "45–90 min",
+      "minMinutes": 45,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Primavera",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 600,
+      "mxnMin": 0,
+      "mxnMax": 63.6
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Metro Tozai Higashiyama",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.01667,
+      "lng": 135.78222
+    },
+    "officialUrl": "https://www.heianjingu.or.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Heian%20Shrine%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: el jardín Shin-en es de los más bellos de Kioto en primavera.",
+    "nearbyIds": [
+      "JP-061",
+      "JP-062",
+      "JP-060"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "El patio es gratis; el jardín cuesta ¥600 y vale la pena.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-239",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Station–South",
+    "name": "Tō-ji",
+    "japaneseName": "東寺",
+    "mapTitle": "Tō-ji",
+    "category": "⛩️ Templos y santuarios",
+    "type": "templo UNESCO",
+    "grade": "A",
+    "description": "La pagoda de madera más alta de Japón (55 m) y salas con estatuas budistas del siglo IX.",
+    "differentiator": "A 15 min a pie de la estación de Kioto.",
+    "experience": "La pagoda de madera más alta de Japón (55 m) y salas con estatuas budistas del siglo IX.",
+    "duration": {
+      "raw": "60–90 min",
+      "minMinutes": 60,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 500,
+      "max": 1000,
+      "mxnMin": 53,
+      "mxnMax": 106
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Kintetsu Toji",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.98056,
+      "lng": 135.74778
+    },
+    "officialUrl": "https://toji.or.jp/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=T%C5%8D-ji%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: a 15 min a pie de la estación de Kioto.",
+    "nearbyIds": [
+      "JP-093",
+      "JP-241",
+      "JP-095"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "El día 21 de cada mes hay gran mercado (Kōbō-san); en marzo, ciruelos y luego cerezos.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-240",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Central Kyoto",
+    "name": "Ponto-chō",
+    "japaneseName": "先斗町",
+    "mapTitle": "Callejón de Pontochō",
+    "category": "🌃 Nocturno",
+    "type": "callejón de restaurantes",
+    "grade": "A",
+    "description": "Callejón estrecho de faroles junto al río Kamo, lleno de restaurantes y casas de té.",
+    "differentiator": "La cena de Kioto con más ambiente.",
+    "experience": "Callejón estrecho de faroles junto al río Kamo, lleno de restaurantes y casas de té.",
+    "duration": {
+      "raw": "60–120 min",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Noche",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 2000,
+      "max": 10000,
+      "mxnMin": 212,
+      "mxnMax": 1060
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Hankyu Kyoto-Kawaramachi",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.00797,
+      "lng": 135.77111
+    },
+    "officialUrl": "https://www.ponto-chou.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Ponto-ch%C5%8D%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: la cena de Kioto con más ambiente.",
+    "nearbyIds": [
+      "JP-057",
+      "JP-265",
+      "JP-091"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "No tomes fotos de geikos/maikos; reserva cena con vista al río.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-241",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Station–South",
+    "name": "Nishi Hongan-ji",
+    "japaneseName": "西本願寺",
+    "mapTitle": "Nishi Hongan-ji",
+    "category": "⛩️ Templos y santuarios",
+    "type": "templo UNESCO",
+    "grade": "A",
+    "description": "Enormes salas de madera UNESCO, gratis y casi vacías, a 10 min de la estación.",
+    "differentiator": "Uno de los templos más grandes de Japón, sin pagar ni hacer fila.",
+    "experience": "Enormes salas de madera UNESCO, gratis y casi vacías, a 10 min de la estación.",
+    "duration": {
+      "raw": "30–60 min",
+      "minMinutes": 30,
+      "maxMinutes": 60
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "A pie desde Kyoto Station",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.99205,
+      "lng": 135.75161
+    },
+    "officialUrl": "https://www.hongwanji.or.jp/english/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Nishi%20Hongan-ji%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: uno de los templos más grandes de Japón, sin pagar ni hacer fila.",
+    "nearbyIds": [
+      "JP-093",
+      "JP-239",
+      "JP-091"
+    ],
+    "hiddenGemStatus": "Alternativa menos saturada",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Llega temprano para el servicio matutino (6:00) si quieres oír cantos.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-242",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kyoto",
+    "cluster": "Arashiyama",
+    "name": "Sagano Scenic Railway",
+    "japaneseName": "嵯峨野トロッコ列車",
+    "mapTitle": "Tren romántico de Sagano",
+    "category": "🚂 Experiencias especiales",
+    "type": "tren panorámico",
+    "grade": "A",
+    "description": "Tren de madera de 25 min por el desfiladero del río Hozu entre Arashiyama y Kameoka.",
+    "differentiator": "Se puede combinar con la bajada en barca por el río Hozu.",
+    "experience": "Tren de madera de 25 min por el desfiladero del río Hozu entre Arashiyama y Kameoka.",
+    "duration": {
+      "raw": "60–180 min",
+      "minMinutes": 60,
+      "maxMinutes": 180
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Primavera / otoño",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 880,
+      "max": 880,
+      "mxnMin": 93.28,
+      "mxnMax": 93.28
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "1–4 semanas",
+      "raw": "Recomendable"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "JR Saga-Arashiyama → Torokko Saga",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 35.0174,
+      "lng": 135.68
+    },
+    "officialUrl": "https://www.sagano-kanko.co.jp/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Sagano%20Scenic%20Railway%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: se puede combinar con la bajada en barca por el río Hozu.",
+    "nearbyIds": [
+      "JP-072",
+      "JP-071",
+      "JP-073"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "RIESGO ESTACIONAL",
+      "warning": "No opera en invierno: sin servicio aprox. del 30 de diciembre a fin de febrero; reabre en marzo.",
+      "action": "Planearlo solo a partir de marzo y comprar boleto en línea."
+    }
+  },
+  {
+    "id": "JP-243",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Osaka",
+    "municipality": "Osaka",
+    "neighborhood": "Osaka",
+    "cluster": "Shinsekai–Tennoji",
+    "name": "Sumiyoshi-taisha",
+    "japaneseName": "住吉大社",
+    "mapTitle": "Sumiyoshi Taisha",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario",
+    "grade": "A",
+    "description": "Uno de los santuarios más antiguos de Japón, con arquitectura propia y un puente rojo muy curvo.",
+    "differentiator": "Lo más tradicional de Osaka, fuera de la ruta turística.",
+    "experience": "Uno de los santuarios más antiguos de Japón, con arquitectura propia y un puente rojo muy curvo.",
+    "duration": {
+      "raw": "45–75 min",
+      "minMinutes": 45,
+      "maxMinutes": 75
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Nankai Sumiyoshitaisha / tranvía Hankai",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.6128,
+      "lng": 135.49294
+    },
+    "officialUrl": "https://www.sumiyoshitaisha.net/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Sumiyoshi-taisha%2C%20Osaka%2C%20Japan",
+    "imageBrief": "Imagen ideal: lo más tradicional de Osaka, fuera de la ruta turística.",
+    "nearbyIds": [
+      "JP-120",
+      "JP-111",
+      "JP-127"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Llega en el tranvía retro Hankai, uno de los últimos de Osaka.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-244",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Osaka",
+    "municipality": "Osaka",
+    "neighborhood": "Osaka",
+    "cluster": "Tenma",
+    "name": "Tenjinbashisuji Shopping Street",
+    "japaneseName": "天神橋筋商店街",
+    "mapTitle": "Tenjinbashisuji, la calle comercial más larga",
+    "category": "🍜 Gastronomía",
+    "type": "arcada comercial",
+    "grade": "A",
+    "description": "Arcada techada de 2,6 km con croquetas, takoyaki, tiendas viejas y comida local barata.",
+    "differentiator": "El Osaka de los locales, no de los turistas.",
+    "experience": "Arcada techada de 2,6 km con croquetas, takoyaki, tiendas viejas y comida local barata.",
+    "duration": {
+      "raw": "60–150 min",
+      "minMinutes": 60,
+      "maxMinutes": 150
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 500,
+      "max": 2000,
+      "mxnMin": 53,
+      "mxnMax": 212
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Metro Tenjimbashisuji 6-chome / Ogimachi",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.7,
+      "lng": 135.5113
+    },
+    "officialUrl": "https://www.tenjin123.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Tenjinbashisuji%20Shopping%20Street%2C%20Osaka%2C%20Japan",
+    "imageBrief": "Imagen ideal: el Osaka de los locales, no de los turistas.",
+    "nearbyIds": [
+      "JP-245",
+      "JP-114",
+      "JP-246"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Empieza en el sur junto a Osaka Tenmangū y camina al norte.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-245",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Osaka",
+    "municipality": "Osaka",
+    "neighborhood": "Osaka",
+    "cluster": "Tenma",
+    "name": "Osaka Tenmangū",
+    "japaneseName": "大阪天満宮",
+    "mapTitle": "Osaka Tenmangū",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario",
+    "grade": "B",
+    "description": "Santuario del dios de los estudios con jardín de ciruelos en febrero-marzo.",
+    "differentiator": "Sede del Tenjin Matsuri; está al inicio de Tenjinbashisuji.",
+    "experience": "Santuario del dios de los estudios con jardín de ciruelos en febrero-marzo.",
+    "duration": {
+      "raw": "30–45 min",
+      "minMinutes": 30,
+      "maxMinutes": 45
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Invierno / primavera",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "JR Osaka Tenmangu / Metro Minami-morimachi",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.69602,
+      "lng": 135.51262
+    },
+    "officialUrl": "https://osakatemmangu.or.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Osaka%20Tenmang%C5%AB%2C%20Osaka%2C%20Japan",
+    "imageBrief": "Imagen ideal: sede del Tenjin Matsuri; está al inicio de Tenjinbashisuji.",
+    "nearbyIds": [
+      "JP-244",
+      "JP-114",
+      "JP-246"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "OPORTUNIDAD ESTACIONAL",
+      "warning": "Ciruelos en flor en febrero, justo en la ventana del viaje.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-246",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Osaka",
+    "municipality": "Osaka",
+    "neighborhood": "Osaka",
+    "cluster": "Umeda",
+    "name": "Nakazakichō",
+    "japaneseName": "中崎町",
+    "mapTitle": "Nakazakichō, barrio retro de cafés",
+    "category": "🏙️ Ciudad y barrios",
+    "type": "barrio bohemio",
+    "grade": "B",
+    "description": "Casas de madera que sobrevivieron la guerra, convertidas en cafés, tiendas vintage y galerías.",
+    "differentiator": "A 10 min a pie de Umeda y totalmente distinto.",
+    "experience": "Casas de madera que sobrevivieron la guerra, convertidas en cafés, tiendas vintage y galerías.",
+    "duration": {
+      "raw": "60–120 min",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 1500,
+      "mxnMin": 0,
+      "mxnMax": 159
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Metro Tanimachi Nakazakicho",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.707,
+      "lng": 135.5045
+    },
+    "officialUrl": "https://osaka-info.jp/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Nakazakich%C5%8D%2C%20Osaka%2C%20Japan",
+    "imageBrief": "Imagen ideal: a 10 min a pie de Umeda y totalmente distinto.",
+    "nearbyIds": [
+      "JP-116",
+      "JP-244",
+      "JP-113"
+    ],
+    "hiddenGemStatus": "Hidden Gem real",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Muchos cafés abren a mediodía y cierran algún día entre semana.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-247",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Nara",
+    "municipality": "Nara",
+    "neighborhood": "Nara",
+    "cluster": "Nara",
+    "name": "Kōfuku-ji",
+    "japaneseName": "興福寺",
+    "mapTitle": "Kōfuku-ji de Nara",
+    "category": "⛩️ Templos y santuarios",
+    "type": "templo UNESCO",
+    "grade": "A",
+    "description": "Templo UNESCO con pagoda de cinco pisos y museo con la famosa estatua Ashura.",
+    "differentiator": "Dentro del parque de Nara, junto a los ciervos.",
+    "experience": "Templo UNESCO con pagoda de cinco pisos y museo con la famosa estatua Ashura.",
+    "duration": {
+      "raw": "45–90 min",
+      "minMinutes": 45,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 900,
+      "mxnMin": 0,
+      "mxnMax": 95.39999999999999
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Kintetsu Nara",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.68325,
+      "lng": 135.83117
+    },
+    "officialUrl": "https://www.kohfukuji.com/en/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=K%C5%8Dfuku-ji%2C%20Nara%2C%20Japan",
+    "imageBrief": "Imagen ideal: dentro del parque de Nara, junto a los ciervos.",
+    "nearbyIds": [
+      "JP-132",
+      "JP-133",
+      "JP-129"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "OBRAS ACTIVAS",
+      "warning": "La pagoda de cinco pisos está en restauración hasta ~2031 y se ve con andamios.",
+      "action": "Priorizar el Museo del Tesoro Nacional; reconfirmar accesos al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-248",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Nara",
+    "municipality": "Nara",
+    "neighborhood": "Nara",
+    "cluster": "Nara",
+    "name": "Mount Wakakusa",
+    "japaneseName": "若草山",
+    "mapTitle": "Monte Wakakusa",
+    "category": "🌅 Miradores",
+    "type": "colina-mirador",
+    "grade": "B",
+    "description": "Colina cubierta de pasto con vista de todo Nara y ciervos en la cima.",
+    "differentiator": "Atardecer sobre Nara; el 4º sábado de enero la queman (Yamayaki).",
+    "experience": "Colina cubierta de pasto con vista de todo Nara y ciervos en la cima.",
+    "duration": {
+      "raw": "60–120 min",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 150,
+      "max": 150,
+      "mxnMin": 15.9,
+      "mxnMax": 15.9
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "A pie desde Tōdai-ji",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.69103,
+      "lng": 135.85419
+    },
+    "officialUrl": "https://www.visitnara.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Mount%20Wakakusa%2C%20Nara%2C%20Japan",
+    "imageBrief": "Imagen ideal: atardecer sobre Nara; el 4º sábado de enero la queman (Yamayaki).",
+    "nearbyIds": [
+      "JP-131",
+      "JP-130",
+      "JP-129"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "RIESGO ESTACIONAL",
+      "warning": "La colina abre de mediados de marzo a principios de diciembre: en febrero está cerrada.",
+      "action": "Planearlo solo a partir de mediados de marzo."
+    }
+  },
+  {
+    "id": "JP-249",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Hyogo",
+    "municipality": "Kobe",
+    "neighborhood": "Kobe",
+    "cluster": "Kobe",
+    "name": "Nankin-machi",
+    "japaneseName": "南京町",
+    "mapTitle": "Nankinmachi, barrio chino de Kobe",
+    "category": "🍜 Gastronomía",
+    "type": "barrio chino",
+    "grade": "B",
+    "description": "Barrio chino compacto con puestos de baozi, dim sum y carne de Kobe en brocheta.",
+    "differentiator": "El lugar barato para probar Kobe beef callejero.",
+    "experience": "Barrio chino compacto con puestos de baozi, dim sum y carne de Kobe en brocheta.",
+    "duration": {
+      "raw": "60–90 min",
+      "minMinutes": 60,
+      "maxMinutes": 90
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 500,
+      "max": 3000,
+      "mxnMin": 53,
+      "mxnMax": 318
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "JR/Hanshin Motomachi",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.68806,
+      "lng": 135.18806
+    },
+    "officialUrl": "https://www.feel-kobe.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Nankin-machi%2C%20Kobe%2C%20Japan",
+    "imageBrief": "Imagen ideal: el lugar barato para probar Kobe beef callejero.",
+    "nearbyIds": [
+      "JP-250",
+      "JP-138",
+      "JP-139"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "OPORTUNIDAD ESTACIONAL",
+      "warning": "Año Nuevo Chino en febrero de 2027: festival Shunsetsu con danzas de león.",
+      "action": "Confirmar fechas del Shunsetsu-sai 2027."
+    }
+  },
+  {
+    "id": "JP-250",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Hyogo",
+    "municipality": "Kobe",
+    "neighborhood": "Kobe",
+    "cluster": "Kobe",
+    "name": "Ikuta Shrine",
+    "japaneseName": "生田神社",
+    "mapTitle": "Santuario Ikuta",
+    "category": "⛩️ Templos y santuarios",
+    "type": "santuario",
+    "grade": "B",
+    "description": "Santuario de más de 1 800 años en pleno centro de Kobe, con un bosque pequeño detrás.",
+    "differentiator": "Pausa tranquila entre Sannomiya y Kitano.",
+    "experience": "Santuario de más de 1 800 años en pleno centro de Kobe, con un bosque pequeño detrás.",
+    "duration": {
+      "raw": "20–40 min",
+      "minMinutes": 20,
+      "maxMinutes": 40
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Confirmar en web oficial",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "JR/Hankyu Sannomiya",
+    "accessibility": "Confirmar detalles con el recinto",
+    "coordinates": {
+      "lat": 34.695,
+      "lng": 135.19056
+    },
+    "officialUrl": "https://ikutajinja.or.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Ikuta%20Shrine%2C%20Kobe%2C%20Japan",
+    "imageBrief": "Imagen ideal: pausa tranquila entre Sannomiya y Kitano.",
+    "nearbyIds": [
+      "JP-138",
+      "JP-249",
+      "JP-139"
+    ],
+    "hiddenGemStatus": "Semi-hidden",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Combínalo con Kitano Ijinkan (ya en la app) a 10 min a pie.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-251",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Shinjuku",
+    "neighborhood": "Kasumigaoka (Sendagaya)",
+    "cluster": "Harajuku–Meiji",
+    "name": "Japan National Stadium (MUFG Stadium)",
+    "japaneseName": "国立競技場（MUFGスタジアム）",
+    "mapTitle": "Estadio Nacional (MUFG Stadium)",
+    "category": "⚽ Deporte",
+    "type": "estadio + tour",
+    "grade": "A",
+    "description": "Estadio de Tokio 2020 diseñado por Kengo Kuma, en madera y verde. Tour de ~90 min: mirador, sala VIP, vestidores, túnel de jugadores y pista.",
+    "differentiator": "Estadio olímpico de Kengo Kuma en madera y vegetación; el tour entra a vestidores, túnel y pista.",
+    "experience": "Tour guiado de ~90 min: mirador, sala VIP, vestidores, túnel de jugadores y pista.",
+    "duration": {
+      "raw": "60–90 min",
+      "minMinutes": 60,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 3200,
+      "max": 3500,
+      "mxnMin": 339.2,
+      "mxnMax": 371
+    },
+    "reservation": {
+      "required": true,
+      "leadTime": "1 mes; venta en línea",
+      "raw": "Sí"
+    },
+    "schedule": {
+      "hours": "Tours en fechas del calendario mensual",
+      "closures": "Días de evento y fechas sin tour"
+    },
+    "transport": "Toei Ōedo Kokuritsu-Kyōgijō o JR Sendagaya (~5 min a pie)",
+    "accessibility": "Buena; recinto moderno con elevadores",
+    "coordinates": {
+      "lat": 35.67833333,
+      "lng": 139.71472222
+    },
+    "officialUrl": "https://jns-e.com/kokuritu-tours/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Japan%20National%20Stadium%20%28MUFG%20Stadium%29%2C%20Shinjuku%2C%20Japan",
+    "imageBrief": "Imagen ideal: aleros de madera del estadio con vegetación, de día.",
+    "nearbyIds": [
+      "JP-010",
+      "JP-007",
+      "JP-004"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO 2027 PENDIENTE",
+      "warning": "Tours según calendario mensual; la J1 se reanuda el 13 de febrero de 2027 y aquí solo hay partidos eventuales.",
+      "action": "Comprar el tour cuando salga (1 mes antes) y revisar el calendario J1 2027 en diciembre."
+    }
+  },
+  {
+    "id": "JP-252",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Saitama",
+    "municipality": "Saitama",
+    "neighborhood": "Midori-ku (Urawa Misono)",
+    "cluster": "Saitama",
+    "name": "Saitama Stadium 2002",
+    "japaneseName": "埼玉スタジアム2002",
+    "mapTitle": "Estadio Saitama 2002",
+    "category": "⚽ Deporte",
+    "type": "estadio de fútbol",
+    "grade": "A",
+    "description": "El estadio de fútbol más grande de Japón (~63,700), casa del Urawa Red Diamonds, la afición más ruidosa de la J.League. Sede del Mundial 2002.",
+    "differentiator": "Ambiente de grada del Urawa Red Diamonds, la afición más ruidosa de la J.League.",
+    "experience": "Ver un partido del Urawa con la curva norte roja; estadio del Mundial 2002.",
+    "duration": {
+      "raw": "3–4 h",
+      "minMinutes": 180,
+      "maxMinutes": 240
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 2000,
+      "max": 6000,
+      "mxnMin": 212,
+      "mxnMax": 636
+    },
+    "reservation": {
+      "required": true,
+      "leadTime": "Semanas; J.LEAGUE Tickets",
+      "raw": "Sí"
+    },
+    "schedule": {
+      "hours": "Según calendario de partidos",
+      "closures": "Sin partido no hay actividad regular"
+    },
+    "transport": "Saitama Rapid Railway Urawa-Misono + ~15 min a pie",
+    "accessibility": "Buena en accesos principales; mucha caminata en día de partido",
+    "coordinates": {
+      "lat": 35.9031,
+      "lng": 139.7175
+    },
+    "officialUrl": "https://www.stadium2002.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Saitama%20Stadium%202002%2C%20Saitama%2C%20Japan",
+    "imageBrief": "Imagen ideal: la grada roja del Urawa en día de partido.",
+    "nearbyIds": [],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO 2027 PENDIENTE",
+      "warning": "La J1 se reanuda el 13 de febrero de 2027; el Urawa juega aquí más o menos cada 2 semanas.",
+      "action": "Revisar el calendario 2027 (sale a inicios de diciembre de 2026) y comprar en J.LEAGUE Tickets."
+    }
+  },
+  {
+    "id": "JP-253",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Osaka",
+    "municipality": "Suita",
+    "neighborhood": "Expo ’70 Commemorative Park",
+    "cluster": "Expo ’70 Park",
+    "name": "Panasonic Stadium Suita",
+    "japaneseName": "市立吹田サッカースタジアム",
+    "mapTitle": "Estadio Panasonic Suita",
+    "category": "⚽ Deporte",
+    "type": "estadio + tour",
+    "grade": "A",
+    "description": "Estadio de fútbol puro (39,694) del Gamba Osaka, junto al Expo ’70 Commemorative Park. Tour de 60 min guiado por el equipo de porristas: VIP, vestidores, cancha y foto en sala de prensa.",
+    "differentiator": "Estadio de fútbol puro con tour guiado por las porristas del Gamba.",
+    "experience": "Tour de 60 min: sala VIP, vestidores, banca, cancha y foto en sala de prensa.",
+    "duration": {
+      "raw": "60–90 min",
+      "minMinutes": 60,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 2000,
+      "max": 2000,
+      "mxnMin": 212,
+      "mxnMax": 212
+    },
+    "reservation": {
+      "required": true,
+      "leadTime": "Semanas; cupo de 30 en J.LEAGUE Tickets",
+      "raw": "Sí"
+    },
+    "schedule": {
+      "hours": "Tours sáb/dom en fechas sueltas (11:00 y 14:00)",
+      "closures": "Días de partido y fechas sin tour"
+    },
+    "transport": "Monorraíl de Osaka Bampaku-kinen-kōen + ~15 min a pie",
+    "accessibility": "Buena; recinto moderno",
+    "coordinates": {
+      "lat": 34.8028075,
+      "lng": 135.5382282
+    },
+    "officialUrl": "https://suitacityfootballstadium.jp/tour/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Panasonic%20Stadium%20Suita%2C%20Suita%2C%20Japan",
+    "imageBrief": "Imagen ideal: interior del estadio con la grada azul del Gamba.",
+    "nearbyIds": [
+      "JP-121",
+      "JP-123"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": "Expo ’70 Park + Tower of the Sun (JP-121), en el mismo parque",
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO 2027 PENDIENTE",
+      "warning": "Tours en fechas sueltas; el Gamba juega de local en J1 desde el 13 de febrero de 2027.",
+      "action": "Revisar el anuncio de tours de febrero/marzo 2027 y reservar en J.LEAGUE Tickets."
+    }
+  },
+  {
+    "id": "JP-254",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Toshima",
+    "neighborhood": "Ikebukuro (Sunshine City)",
+    "cluster": "Ikebukuro",
+    "name": "Pokémon Center Mega Tokyo",
+    "japaneseName": "ポケモンセンターメガトウキョー",
+    "mapTitle": "Pokémon Center Mega Tokyo",
+    "category": "🎮 Videojuegos",
+    "type": "tienda temática",
+    "grade": "S",
+    "description": "La tienda Pokémon más grande de Tokio, con Mega Charizard y Mega Lucario; mercancía exclusiva de Japón.",
+    "differentiator": "Tienda Pokémon más grande de Tokio, dentro de Sunshine City; complementa el distrito anime de Ikebukuro (JP-049).",
+    "experience": "Mercancía exclusiva de Japón, estatuas de Mega Charizard y Mega Lucario.",
+    "duration": {
+      "raw": "45–90 min",
+      "minMinutes": 45,
+      "maxMinutes": 90
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Extremo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Horario de Sunshine City (aprox. 10:00–20:00)",
+      "closures": "Cierres puntuales de Sunshine City"
+    },
+    "transport": "JR/Metro Ikebukuro + ~10 min a pie a Sunshine City",
+    "accessibility": "Buena; centro comercial con elevadores",
+    "coordinates": {
+      "lat": 35.729,
+      "lng": 139.7195
+    },
+    "officialUrl": "https://www.pokemoncenter-online.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Pok%C3%A9mon%20Center%20Mega%20Tokyo%2C%20Toshima%2C%20Japan",
+    "imageBrief": "Imagen ideal: entrada de la tienda con las estatuas de Pokémon.",
+    "nearbyIds": [
+      "JP-049",
+      "JP-218",
+      "JP-015"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "No hay cierre específico conocido para la ventana; fines de semana muy llenos.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-255",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Tama",
+    "neighborhood": "Tama Center",
+    "cluster": "West Tokyo",
+    "name": "Sanrio Puroland",
+    "japaneseName": "サンリオピューロランド",
+    "mapTitle": "Sanrio Puroland (Hello Kitty)",
+    "category": "🎢 Entretenimiento",
+    "type": "parque temático techado",
+    "grade": "A",
+    "description": "Parque cubierto de Hello Kitty y personajes Sanrio con desfile, shows y atracciones; ideal en día lluvioso.",
+    "differentiator": "Parque temático techado de Hello Kitty y Sanrio, independiente del clima.",
+    "experience": "Desfile, shows y atracciones con personajes Sanrio.",
+    "duration": {
+      "raw": "4–5 h",
+      "minMinutes": 240,
+      "maxMinutes": 300
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 3600,
+      "max": 5900,
+      "mxnMin": 381.59999999999997,
+      "mxnMax": 625.4
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "Días/semanas; boleto con fecha más barato en línea",
+      "raw": "Recomendable"
+    },
+    "schedule": {
+      "hours": "Variable por día (aprox. 10:00–17:00)",
+      "closures": "Días de cierre irregulares; revisar calendario"
+    },
+    "transport": "Keio/Odakyu Tama Center + ~5 min a pie (≈30 min desde Shinjuku)",
+    "accessibility": "Buena; recinto interior con elevadores",
+    "coordinates": {
+      "lat": 35.62444444,
+      "lng": 139.42916667
+    },
+    "officialUrl": "https://en.puroland.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Sanrio%20Puroland%2C%20Tama%2C%20Japan",
+    "imageBrief": "Imagen ideal: interior del parque con el árbol de la sabiduría iluminado.",
+    "nearbyIds": [
+      "JP-050"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": "PokéPark KANTO (JP-050), otro parque de personajes en el oeste de Tokio",
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Parque techado: buena opción para días fríos o lluviosos; tiene días de cierre irregulares.",
+      "action": "Revisar el calendario de apertura y comprar boleto con fecha en línea."
+    }
+  },
+  {
+    "id": "JP-256",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Nerima",
+    "neighborhood": "Toshimaen",
+    "cluster": "Toshimaen",
+    "name": "Warner Bros. Studio Tour Tokyo – The Making of Harry Potter",
+    "japaneseName": "ワーナー ブラザース スタジオツアー東京 ‐ メイキング・オブ・ハリー・ポッター",
+    "mapTitle": "Warner Bros. Studio Tour Tokio – Harry Potter",
+    "category": "🎢 Entretenimiento",
+    "type": "tour de estudio de cine",
+    "grade": "S",
+    "description": "Sets reales, vestuario y utilería de las películas: Gran Comedor, Callejón Diagon, Andén 9¾ y el Expreso de Hogwarts.",
+    "differentiator": "Sets, vestuario y utilería originales de las películas, en el estudio más nuevo del mundo.",
+    "experience": "Gran Comedor, Callejón Diagon, andén 9¾ y el Expreso de Hogwarts.",
+    "duration": {
+      "raw": "3.5–4.5 h",
+      "minMinutes": 210,
+      "maxMinutes": 270
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Extremo",
+    "price": {
+      "currency": "JPY",
+      "min": 6500,
+      "max": 6500,
+      "mxnMin": 689,
+      "mxnMax": 689
+    },
+    "reservation": {
+      "required": true,
+      "leadTime": "1–2 meses; boleto con fecha y hora",
+      "raw": "Sí"
+    },
+    "schedule": {
+      "hours": "Turnos con horario de entrada (aprox. 8:30–22:00)",
+      "closures": "Cierres puntuales; revisar calendario"
+    },
+    "transport": "Seibu Toshimaen (~2 min a pie), ≈15 min desde Ikebukuro",
+    "accessibility": "Buena; recinto moderno",
+    "coordinates": {
+      "lat": 35.74562,
+      "lng": 139.64575
+    },
+    "officialUrl": "https://www.wbstudiotour.jp/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Warner%20Bros.%20Studio%20Tour%20Tokyo%20%E2%80%93%20The%20Making%20of%20Harry%20Potter%2C%20Nerima%2C%20Japan",
+    "imageBrief": "Imagen ideal: entrada del estudio o el Gran Comedor.",
+    "nearbyIds": [
+      "JP-046",
+      "JP-254",
+      "JP-049"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Solo con boleto con fecha y hora comprado antes; no venden en taquilla.",
+      "action": "Reservar con 1–2 meses de anticipación."
+    }
+  },
+  {
+    "id": "JP-257",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Kanagawa",
+    "municipality": "Kawasaki",
+    "neighborhood": "Tama-ku (Noborito)",
+    "cluster": "West Tokyo",
+    "name": "Fujiko F. Fujio Museum",
+    "japaneseName": "藤子・F・不二雄ミュージアム",
+    "mapTitle": "Museo Fujiko F. Fujio (Doraemon)",
+    "category": "👾 Anime/manga",
+    "type": "museo de manga y anime",
+    "grade": "A",
+    "description": "Museo del creador de Doraemon: dibujos originales, cortos exclusivos, café temático y la azotea con Doraemon a tamaño real.",
+    "differentiator": "Museo íntimo del creador de Doraemon, con originales y cortos exclusivos.",
+    "experience": "Dibujos originales, cortos exclusivos, café temático y azotea con Doraemon a tamaño real.",
+    "duration": {
+      "raw": "2–3 h",
+      "minMinutes": 120,
+      "maxMinutes": 180
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 1000,
+      "max": 1000,
+      "mxnMin": 106,
+      "mxnMax": 106
+    },
+    "reservation": {
+      "required": true,
+      "leadTime": "Semanas; boleto con horario (10:00, 12:00, 14:00, 16:00)",
+      "raw": "Sí"
+    },
+    "schedule": {
+      "hours": "Entradas 10:00, 12:00, 14:00 y 16:00",
+      "closures": "Martes y cambios de exposición"
+    },
+    "transport": "Autobús directo desde la estación Noborito (Odakyu/JR Nambu)",
+    "accessibility": "Buena; recinto con elevador",
+    "coordinates": {
+      "lat": 35.60984,
+      "lng": 139.57363
+    },
+    "officialUrl": "https://fujiko-museum.com/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Fujiko%20F.%20Fujio%20Museum%2C%20Kawasaki%2C%20Japan",
+    "imageBrief": "Imagen ideal: fachada del museo con personajes de Doraemon.",
+    "nearbyIds": [
+      "JP-050",
+      "JP-216",
+      "JP-215"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": "Ghibli Museum, Mitaka (JP-044)",
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Cierra los martes y tiene cierres temporales por cambio de exposición.",
+      "action": "Comprar boleto con horario por adelantado y revisar cierres."
+    }
+  },
+  {
+    "id": "JP-258",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Hyogo",
+    "municipality": "Takarazuka",
+    "neighborhood": "Takarazuka",
+    "cluster": "Takarazuka",
+    "name": "Osamu Tezuka Manga Museum",
+    "japaneseName": "宝塚市立手塚治虫記念館",
+    "mapTitle": "Museo del Manga Osamu Tezuka",
+    "category": "👾 Anime/manga",
+    "type": "museo de manga",
+    "grade": "B",
+    "description": "Museo del \"dios del manga\" (Astro Boy, Black Jack) en su ciudad natal; taller para hacer tu propia animación.",
+    "differentiator": "Museo del 'dios del manga' (Astro Boy, Black Jack) en su ciudad natal.",
+    "experience": "Originales, historia del anime y taller para hacer tu propia animación.",
+    "duration": {
+      "raw": "1–2 h",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 700,
+      "max": 700,
+      "mxnMin": 74.2,
+      "mxnMax": 74.2
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "9:30–17:00 (última entrada 16:30)",
+      "closures": "Miércoles y cambios de exposición"
+    },
+    "transport": "Hankyu Takarazuka o JR Takarazuka + ~10 min a pie (≈35 min desde Umeda)",
+    "accessibility": "Buena; recinto con elevador",
+    "coordinates": {
+      "lat": 34.80714,
+      "lng": 135.34837
+    },
+    "officialUrl": "https://www.city.takarazuka.hyogo.jp/tezuka/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Osamu%20Tezuka%20Manga%20Museum%2C%20Takarazuka%2C%20Japan",
+    "imageBrief": "Imagen ideal: fachada del museo con la estatua del fénix.",
+    "nearbyIds": [],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": "Kyoto International Manga Museum (JP-092)",
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Cierra los miércoles y en cambios de exposición.",
+      "action": "Reconfirmar en la web oficial al fijar fechas."
+    }
+  },
+  {
+    "id": "JP-259",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Shinjuku",
+    "neighborhood": "Kabukicho",
+    "cluster": "Shinjuku",
+    "name": "Godzilla Head – Shinjuku Toho Building",
+    "japaneseName": "ゴジラヘッド（新宿東宝ビル）",
+    "mapTitle": "Cabeza de Godzilla (Shinjuku)",
+    "category": "🧩 Extraño/peculiar/único",
+    "type": "ícono de cine (Godzilla)",
+    "grade": "B",
+    "description": "Cabeza de Godzilla a escala real sobre el Shinjuku Toho Building; ruge con humo y luces en horarios fijos.",
+    "differentiator": "Cabeza de Godzilla a escala real que asoma sobre Kabukicho.",
+    "experience": "Foto desde la calle; en horarios fijos ruge con humo y luces.",
+    "duration": {
+      "raw": "15–30 min",
+      "minMinutes": 15,
+      "maxMinutes": 30
+    },
+    "bestTime": "Noche",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Alto",
+    "tourismLevel": "Extremo",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Visible 24 h desde la calle",
+      "closures": "Sin cierre (la terraza es sólo para huéspedes)"
+    },
+    "transport": "JR/Metro Shinjuku salida este + ~5 min a pie",
+    "accessibility": "Buena desde la calle",
+    "coordinates": {
+      "lat": 35.69526,
+      "lng": 139.70199
+    },
+    "officialUrl": "https://gracery.com/shinjuku/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Godzilla%20Head%20%E2%80%93%20Shinjuku%20Toho%20Building%2C%20Shinjuku%2C%20Japan",
+    "imageBrief": "Imagen ideal: la cabeza de Godzilla iluminada de noche.",
+    "nearbyIds": [
+      "JP-012",
+      "JP-013",
+      "JP-014"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Siempre visible desde la calle; el rugido con luces es en horarios fijos.",
+      "action": "Revisar horarios del show si se quiere verlo animado."
+    }
+  },
+  {
+    "id": "JP-260",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Sumida",
+    "neighborhood": "Ryogoku",
+    "cluster": "Ryogoku",
+    "name": "Ryōgoku Kokugikan & Sumo Museum",
+    "japaneseName": "両国国技館・相撲博物館",
+    "mapTitle": "Ryōgoku Kokugikan (Sumo Tokio)",
+    "category": "🎭 Cultura tradicional",
+    "type": "arena de sumo + museo",
+    "grade": "A",
+    "description": "Templo del sumo en Tokio con museo gratuito; barrio lleno de chanko-nabe (el guiso de los luchadores) y establos de sumo.",
+    "differentiator": "El estadio nacional del sumo, con museo gratuito y barrio de luchadores.",
+    "experience": "Museo del sumo, fachada del Kokugikan y chanko-nabe en el barrio.",
+    "duration": {
+      "raw": "1–2 h",
+      "minMinutes": 60,
+      "maxMinutes": 120
+    },
+    "bestTime": "Mañana",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 0,
+      "max": 0,
+      "mxnMin": 0,
+      "mxnMax": 0
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Museo 10:00–16:30 entre semana",
+      "closures": "Fines de semana, festivos y días de evento"
+    },
+    "transport": "JR Ryōgoku salida oeste (~2 min a pie)",
+    "accessibility": "Buena en el museo",
+    "coordinates": {
+      "lat": 35.6969,
+      "lng": 139.7932
+    },
+    "officialUrl": "https://www.sumo.or.jp/En/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Ry%C5%8Dgoku%20Kokugikan%20%26%20Sumo%20Museum%2C%20Sumida%2C%20Japan",
+    "imageBrief": "Imagen ideal: fachada del Kokugikan con banderas de sumo.",
+    "nearbyIds": [
+      "JP-053",
+      "JP-020",
+      "JP-017"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "En feb–mar no hay torneo en Tokio (marzo es en Osaka, JP-212); el museo abre entre semana.",
+      "action": "Confirmar que el museo esté abierto (cierra en eventos especiales)."
+    }
+  },
+  {
+    "id": "JP-261",
+    "hub": "Tokio",
+    "region": "Kanto",
+    "prefecture": "Tokio",
+    "municipality": "Chuo",
+    "neighborhood": "Ginza / Higashi-Ginza",
+    "cluster": "Marunouchi–Ginza",
+    "name": "Kabuki-za",
+    "japaneseName": "歌舞伎座",
+    "mapTitle": "Teatro Kabuki-za",
+    "category": "🎭 Cultura tradicional",
+    "type": "teatro kabuki",
+    "grade": "S",
+    "description": "El gran teatro de kabuki de Japón; obras diarias con vestuario y maquillaje espectaculares.",
+    "differentiator": "El gran teatro de kabuki de Japón, con boletos de un solo acto.",
+    "experience": "Función de kabuki con vestuario y maquillaje espectaculares; audioguía en inglés.",
+    "duration": {
+      "raw": "1–4 h",
+      "minMinutes": 60,
+      "maxMinutes": 240
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 1000,
+      "max": 20000,
+      "mxnMin": 106,
+      "mxnMax": 2120
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "Semanas; acto suelto el mismo día",
+      "raw": "Recomendable"
+    },
+    "schedule": {
+      "hours": "Funciones de día y de tarde según programa",
+      "closures": "Días entre programas"
+    },
+    "transport": "Metro Higashi-Ginza (conexión directa)",
+    "accessibility": "Buena; elevadores y asientos accesibles con aviso",
+    "coordinates": {
+      "lat": 35.6697,
+      "lng": 139.7681
+    },
+    "officialUrl": "https://www.kabukiweb.net/theatres/kabukiza/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Kabuki-za%2C%20Chuo%2C%20Japan",
+    "imageBrief": "Imagen ideal: fachada del Kabuki-za con faroles y estandartes.",
+    "nearbyIds": [
+      "JP-032",
+      "JP-222",
+      "JP-031"
+    ],
+    "hiddenGemStatus": "Popular / turístico",
+    "alternativeTo": "Minami-za (JP-265) en Kioto",
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO 2027 PENDIENTE",
+      "warning": "Funciones casi todo el mes, con días libres entre programas.",
+      "action": "Revisar el programa de feb–mar 2027 en Kabuki Web."
+    }
+  },
+  {
+    "id": "JP-263",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Kita-ku (Murasakino)",
+    "cluster": "North Kyoto",
+    "name": "Funaoka Onsen",
+    "japaneseName": "船岡温泉",
+    "mapTitle": "Funaoka Onsen (sento de Kioto)",
+    "category": "🧖 Onsen/bienestar",
+    "type": "sento histórico",
+    "grade": "A",
+    "description": "Sento de 1923 en antigua posada, con paneles tallados en madera y azulejos majólica; registrado como bien cultural.",
+    "differentiator": "Sento de 1923 en antigua posada, con tallas de madera y azulejos majólica.",
+    "experience": "Baño público histórico con varias bañeras, exterior y sauna.",
+    "duration": {
+      "raw": "60–90 min",
+      "minMinutes": 60,
+      "maxMinutes": 90
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Bajo",
+    "price": {
+      "currency": "JPY",
+      "min": 550,
+      "max": 550,
+      "mxnMin": 58.3,
+      "mxnMax": 58.3
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "—",
+      "raw": "No"
+    },
+    "schedule": {
+      "hours": "Tarde–noche (confirmar en web oficial)",
+      "closures": "Confirmar en web oficial"
+    },
+    "transport": "Autobús municipal a Senbon-Kuramaguchi + ~5 min a pie",
+    "accessibility": "Limitada; edificio antiguo con escalones",
+    "coordinates": {
+      "lat": 35.0369,
+      "lng": 135.7446
+    },
+    "officialUrl": "https://www.funaokaonsen.net/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Funaoka%20Onsen%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: fachada de madera del sento al atardecer.",
+    "nearbyIds": [
+      "JP-082",
+      "JP-235",
+      "JP-080"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": null,
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO / CONDICIÓN PENDIENTE",
+      "warning": "Sento de barrio; la web oficial no respondió desde fuera de Japón.",
+      "action": "Verificar horario y días de cierre antes de ir."
+    }
+  },
+  {
+    "id": "JP-264",
+    "hub": "Osaka",
+    "region": "Kansai",
+    "prefecture": "Osaka",
+    "municipality": "Osaka",
+    "neighborhood": "Nipponbashi",
+    "cluster": "Namba–Dotonbori",
+    "name": "National Bunraku Theatre",
+    "japaneseName": "国立文楽劇場",
+    "mapTitle": "Teatro Nacional de Bunraku",
+    "category": "🎭 Cultura tradicional",
+    "type": "teatro de marionetas bunraku",
+    "grade": "A",
+    "description": "Osaka es la cuna del bunraku: marionetas manejadas por tres titiriteros, con narrador y shamisen. Patrimonio UNESCO.",
+    "differentiator": "Bunraku en su cuna: marionetas manejadas por tres titiriteros, con narrador y shamisen.",
+    "experience": "Función de bunraku con subtítulos o audioguía; hay programa para principiantes.",
+    "duration": {
+      "raw": "2–4 h",
+      "minMinutes": 120,
+      "maxMinutes": 240
+    },
+    "bestTime": "Tarde",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Bajo",
+    "tourismLevel": "Medio",
+    "price": {
+      "currency": "JPY",
+      "min": 2000,
+      "max": 7000,
+      "mxnMin": 212,
+      "mxnMax": 742
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "Semanas; temporadas cortas",
+      "raw": "Recomendable"
+    },
+    "schedule": {
+      "hours": "Según temporada de funciones",
+      "closures": "Fuera de temporada no hay funciones"
+    },
+    "transport": "Metro Nippombashi salida 7 (~1 min a pie)",
+    "accessibility": "Buena; teatro moderno",
+    "coordinates": {
+      "lat": 34.6675,
+      "lng": 135.50861111
+    },
+    "officialUrl": "https://www.ntj.jac.go.jp/bunraku.html",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=National%20Bunraku%20Theatre%2C%20Osaka%2C%20Japan",
+    "imageBrief": "Imagen ideal: fachada del teatro con estandartes de función.",
+    "nearbyIds": [
+      "JP-106",
+      "JP-105",
+      "JP-103"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": "Gion Corner (JP-101), muestra corta de artes tradicionales",
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO 2027 PENDIENTE",
+      "warning": "Programación por temporadas cortas; puede no haber función en la ventana.",
+      "action": "Revisar si en feb–mar 2027 hay función o programa para principiantes."
+    }
+  },
+  {
+    "id": "JP-265",
+    "hub": "Kioto",
+    "region": "Kansai",
+    "prefecture": "Kioto",
+    "municipality": "Kyoto",
+    "neighborhood": "Gion (Shijō-Ōhashi)",
+    "cluster": "Kiyomizu–Gion",
+    "name": "Minami-za",
+    "japaneseName": "南座",
+    "mapTitle": "Teatro Minami-za (Kioto)",
+    "category": "🎭 Cultura tradicional",
+    "type": "teatro kabuki",
+    "grade": "B",
+    "description": "Teatro kabuki más antiguo de Japón (origen del kabuki, s. XVII), junto al puente de Shijō en Gion.",
+    "differentiator": "El teatro kabuki más antiguo de Japón, origen del género.",
+    "experience": "Función de kabuki o la fachada iluminada junto al puente de Shijō.",
+    "duration": {
+      "raw": "2–4 h",
+      "minMinutes": 120,
+      "maxMinutes": 240
+    },
+    "bestTime": "Noche",
+    "bestSeason": "Todo el año",
+    "crowdLevel": "Medio",
+    "tourismLevel": "Alto",
+    "price": {
+      "currency": "JPY",
+      "min": 4000,
+      "max": 18000,
+      "mxnMin": 424,
+      "mxnMax": 1908
+    },
+    "reservation": {
+      "required": false,
+      "leadTime": "Semanas; según programa",
+      "raw": "Recomendable"
+    },
+    "schedule": {
+      "hours": "Según programa de Shochiku",
+      "closures": "Días sin programa"
+    },
+    "transport": "Keihan Gion-Shijō (~1 min a pie)",
+    "accessibility": "Media; teatro histórico renovado",
+    "coordinates": {
+      "lat": 35.0037,
+      "lng": 135.7726
+    },
+    "officialUrl": "https://www.shochiku.co.jp/play/theater/minamiza/",
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=Minami-za%2C%20Kyoto%2C%20Japan",
+    "imageBrief": "Imagen ideal: fachada del Minami-za iluminada de noche.",
+    "nearbyIds": [
+      "JP-057",
+      "JP-058",
+      "JP-101"
+    ],
+    "hiddenGemStatus": "Lugar conocido pero excelente",
+    "alternativeTo": "Kabuki-za (JP-261) en Tokio",
+    "updatedAt": "2026-11-03",
+    "febMar2027": {
+      "status": "CALENDARIO 2027 PENDIENTE",
+      "warning": "Programación variable; la fachada se puede ver siempre.",
+      "action": "Revisar el programa de Shochiku para feb–mar 2027."
+    }
   }
 ]

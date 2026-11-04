@@ -215,6 +215,24 @@ describe("PlaceCard — photography rules", () => {
     expect(list).toContain("priority={index === 0}");
   });
 
+  it("defers far photos until the card nears its scroller, and never the priority card", async () => {
+    const source = await readSource();
+    expect(source).toContain("useNearScrollport(mediaRef, deferImage && !priority)");
+    expect(source).toContain("{imageNear && (");
+    expect(source).toContain("deferImage = false");
+    const list = await readFile(new URL("./PlaceList.tsx", import.meta.url), "utf8");
+    expect(list).toMatch(/priority=\{index === 0\}\s+deferImage/);
+    const home = await readFile(new URL("./ExplorerHome.tsx", import.meta.url), "utf8");
+    expect(home).toContain("deferImage");
+    expect(home).not.toContain('loading="eager"');
+  });
+
+  it("observes the real scroller, because `rootMargin` does not reach a nested one", async () => {
+    const hook = await readFile(new URL("../lib/useNearScrollport.ts", import.meta.url), "utf8");
+    expect(hook).toContain("root: closestScroller(node)");
+    expect(hook).toContain('typeof IntersectionObserver === "undefined"');
+  });
+
   it("handles the loading and error states instead of leaving a blank frame", async () => {
     const source = await readSource();
     expect(source).toContain('setMediaState("loaded")');

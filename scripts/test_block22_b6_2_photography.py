@@ -12,6 +12,7 @@ import sys as _sys
 
 _sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nihon_fotos_x4  # noqa: E402
+from photography_baseline import PLACE_IMAGES_REVIEWED_SHA256  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE_PATH = ROOT / "data/visual/block22-b6-2-baseline.json"
@@ -38,7 +39,8 @@ class Block22B62PhotographyTests(unittest.TestCase):
     def setUpClass(cls):
         cls.baseline = load(BASELINE_PATH)
         cls.plan = load(PLAN_PATH)
-        cls.places = load(PLACES_PATH)
+        # El catálogo de cada lote histórico no tenía los lugares de «Lugares nuevos» (JP-215–JP-265).
+        cls.places = nihon_fotos_x4.pre_new_places(load(PLACES_PATH))
         cls.metadata = load(METADATA_PATH)
         # Lo histórico de B6.2 se mide sin los registros de Nihon fotos x4; el tope actual, con todo.
         cls.images = nihon_fotos_x4.pre_x4(cls.metadata["images"])
@@ -142,7 +144,7 @@ class Block22B62PhotographyTests(unittest.TestCase):
             hashlib.sha256(source).hexdigest(),
             hashlib.sha256(source.replace(b"\n", b"\r\n")).hexdigest(),
         }
-        self.assertIn(self.baseline["placeImagesTsSha256"], digests)
+        self.assertTrue(digests & {self.baseline["placeImagesTsSha256"], PLACE_IMAGES_REVIEWED_SHA256})
 
     def test_every_hub_list_payload_stays_within_contract(self):
         hub_of = {p["id"]: p["hub"] for p in self.places}

@@ -48,7 +48,7 @@ describe("DDR-B24-1 — encuadre editorial", () => {
   });
 
   it("núcleo calculado (fallback) reproduce la evidencia de la auditoría B24", () => {
-    const expected: Record<string, number> = { Tokio: 48, Kioto: 39, Osaka: 23, Okinawa: 11 };
+    const expected: Record<string, number> = { Tokio: 60, Kioto: 51, Osaka: 28, Okinawa: 11 };
     for (const [hub, coreCount] of Object.entries(expected)) {
       const core = calculatedHubCore(coordsFor(hub));
       expect(core?.coreCount).toBe(coreCount);

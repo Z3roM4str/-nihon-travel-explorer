@@ -179,13 +179,19 @@ percibido más barata disponible. **Sustituye a `place-card__skeleton` y a
 
 - `loading="lazy"` en todo salvo: la primera tarjeta visible de una lista y el héroe
   de una ficha abierta, que llevan `fetchpriority="high"`.
+- En la lista de una ciudad y en los carruseles de la portada, además, la foto no se pide hasta
+  que la tarjeta está a menos de 1,5 veces la altura de su scroller (`useNearScrollport`):
+  `loading="lazy"` solo no basta, porque una foto ya descargada por la portada se pinta al
+  instante por lejos que esté.
 - `width`/`height` declarados siempre (ya se hace; se conserva).
 - `sizes` describiendo la geometría real por breakpoint (ya se hace; se actualiza a los
   breakpoints nuevos).
 - `decoding="async"` siempre.
-- Presupuesto: **recorrer una ciudad completa no debe superar 3,5 MB de imágenes**.
-  Con derivadas de 400/800 y LQIP el valor actual mejora respecto a la medición de
-  v1.1.0.
+- Presupuesto: **recorrer una ciudad completa no debe superar 5,5 MB de imágenes**
+  (`docs/DATA_MODEL.md`, «Photo budget»).
+  *Nota histórica:* hasta el 2026-11-03 este tope era 3,5 MB. Se dimensionó para ~50 lugares
+  por ciudad y no cabe con 60–85 ni a calidad 48. Las fotos que ya existían conservan su tope
+  de 3,5 MB; el de 5,5 MB cuenta todas las de la ciudad, incluidas las de «Lugares nuevos».
 
 ### 6.4 Fallo de carga
 

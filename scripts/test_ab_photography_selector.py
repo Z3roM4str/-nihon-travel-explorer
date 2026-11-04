@@ -87,7 +87,8 @@ def load_phase4i_base_inputs():
             "Phase 4J target inserted into Phase 4I baseline prefix: "
             + ", ".join(sorted(overlap))
         )
-    return places, baseline
+    # Phase 4I no conocía los lugares de «Lugares nuevos» (JP-215–JP-265).
+    return photography_baseline.nihon_fotos_x4.pre_new_places(places), baseline
 
 
 class RealSelectorFixtureTests(unittest.TestCase):

@@ -45,11 +45,36 @@ const CATEGORY_ICON: Record<string, IconName> = {
   "Senderismo/aventura": "categoria-senderismo",
   "Onsen/bienestar": "categoria-onsen",
   "Extraño/peculiar/único": "categoria-extrano",
+  // Lugares nuevos (JP-251–JP-253): estadios. Categoría propia en el workbook.
+  Deporte: "categoria-deporte",
 };
 
-/** Las 26 etiquetas de presentación, para pruebas y para poblar un filtro por etiqueta colapsada
- * en vez de por las 29 cadenas fuente. */
+/** Las etiquetas de presentación (26 de `03 §8` + «Deporte»), para pruebas y para poblar un
+ * filtro por etiqueta colapsada en vez de por las cadenas fuente. */
 export const CATEGORY_PRESENTATION_LABELS: readonly string[] = Object.keys(CATEGORY_ICON);
+
+/**
+ * Lugares nuevos — agrupación SÓLO del filtro «Categoría». Cuatro etiquetas tienen un único lugar
+ * en todo el catálogo (Okinawa sobre todo) y en 390px cada una costaba un chip propio: se ofrecen
+ * dentro de su vecina natural. La tarjeta y la ficha siguen diciendo la etiqueta exacta; el dato
+ * (`place.category`) no cambia.
+ */
+const CATEGORY_FILTER_GROUP: Record<string, string> = {
+  "Cielo nocturno": "Nocturno",
+  "Fauna y experiencias estacionales": "Naturaleza",
+  Tecnología: "Museos",
+};
+
+/** Etiqueta del chip del filtro «Categoría» para una categoría fuente. */
+export function categoryFilterLabel(rawCategory: string): string {
+  const { label } = categoryPresentation(rawCategory);
+  return CATEGORY_FILTER_GROUP[label] ?? label;
+}
+
+/** Icono del chip de un grupo del filtro: el de la etiqueta del grupo, no el de su primer miembro. */
+export function categoryFilterIcon(groupLabel: string): IconName {
+  return CATEGORY_ICON[groupLabel] ?? "categoria-extrano";
+}
 
 export type CategoryPresentation = {
   /** Etiqueta ya colapsada (26 valores), sin el emoji del dataset. */

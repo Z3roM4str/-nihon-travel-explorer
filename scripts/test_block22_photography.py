@@ -12,6 +12,7 @@ import sys as _sys
 
 _sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nihon_fotos_x4  # noqa: E402
+from photography_baseline import PLACE_IMAGES_REVIEWED_SHA256  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE_PATH = ROOT / "data/visual/block22-b6-1-baseline.json"
@@ -37,7 +38,9 @@ class Block22PhotographyTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.baseline = load(BASELINE_PATH)
-        cls.places = load(PLACES_PATH)
+        # El catálogo de cada lote histórico no tenía los lugares de «Lugares nuevos» (JP-215–JP-265).
+        cls.places = nihon_fotos_x4.pre_new_places(load(PLACES_PATH))
+        cls.current_places = load(PLACES_PATH)
         cls.metadata = load(METADATA_PATH)
         # Lo histórico de este lote se mide sin los registros de Nihon fotos x4; el tope actual, con todo.
         cls.current_images = cls.metadata["images"]
@@ -59,6 +62,13 @@ class Block22PhotographyTests(unittest.TestCase):
         covered = set(self.by_place)
         missing = {place["id"] for place in self.places if place["grade"] == "S" and place["id"] not in covered}
         self.assertEqual(missing, EXPECTED_TARGETS - covered)
+        # Estado actual, con el catálogo y el registro completos (incluidos «Lugares nuevos»):
+        # todo lugar S tiene al menos una foto.
+        current_missing = {
+            place["id"] for place in self.current_places
+            if place["grade"] == "S" and place["id"] not in self.current_by_place
+        }
+        self.assertEqual(current_missing, set())
 
     def test_each_target_has_at_most_one_b6_1_image(self):
         for place_id in EXPECTED_TARGETS:
@@ -109,7 +119,7 @@ class Block22PhotographyTests(unittest.TestCase):
             hashlib.sha256(source).hexdigest(),
             hashlib.sha256(source.replace(b"\n", b"\r\n")).hexdigest(),
         }
-        self.assertIn(self.baseline["placeImagesTsSha256"], digests)
+        self.assertTrue(digests & {self.baseline["placeImagesTsSha256"], PLACE_IMAGES_REVIEWED_SHA256})
 
     def test_city_list_payloads_stay_within_contract(self):
         first_by_place = {place_id: records[0] for place_id, records in self.by_place.items()}

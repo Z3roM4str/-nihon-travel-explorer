@@ -194,8 +194,8 @@ describe("interpretPlaceReservationDeadlineSignal — real Class A places", () =
   });
 });
 
-describe("real dataset invariant: whole-dataset partition (5 / 5 / 10 / 1 / 65 / 128 = 214)", () => {
-  it("does not throw across all 214 current places", () => {
+describe("real dataset invariant: whole-dataset partition (6 / 5 / 10 / 1 / 74 / 168 = 264)", () => {
+  it("does not throw across all 264 current places", () => {
     expect(() => {
       for (const place of places) interpretPlaceReservationDeadlineSignal(place);
     }).not.toThrow();
@@ -218,16 +218,16 @@ describe("real dataset invariant: whole-dataset partition (5 / 5 / 10 / 1 / 65 /
       else counts[signal.reason] += 1;
     }
     expect(counts).toEqual({
-      "explicit-lead-window": 5, // Class A
+      "explicit-lead-window": 6, // Class A
       "unit-without-quantity": 5, // Class B
       "unusable-numeric-range": 0, // no malformed/unsafe numeric range exists in the real dataset
       "mixed-unit-without-quantity": 10, // Class C
       "month-range-not-supported": 1, // Class D
-      "specific-mechanism": 65, // Class E
-      "not-applicable": 128,
+      "specific-mechanism": 74, // Class E
+      "not-applicable": 168,
     });
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(214);
+    expect(total).toBe(264);
   });
 
   it("explicit-lead-window places always have minLeadDays <= maxLeadDays and both positive", () => {

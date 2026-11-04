@@ -1,0 +1,966 @@
+{
+  "description": "Lugares nuevos JP-215–JP-265 (tandas 1 y 2): fotos de Wikimedia Commons agregadas al final del registro, agrupadas por lugar. scripts/photography_baseline.py y scripts/nihon_fotos_x4.py las apartan de las líneas base históricas igual que Nihon fotos x4.",
+  "base": "27dc63a",
+  "entries": [
+    {
+      "placeId": "JP-215",
+      "title": "File:Gōtoku-ji Maneki-neko cats.jpg",
+      "assetPath": "images/places/JP-215/gotoku-ji-maneki-neko-cats.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-215",
+      "title": "File:2015-10-20 Maneki neko in Gotokuji 02.jpg",
+      "assetPath": "images/places/JP-215/2015-10-20-maneki-neko-in-gotokuji-02.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-215",
+      "title": "File:2015-10-20 Maneki neko in Gotokuji 03.jpg",
+      "assetPath": "images/places/JP-215/2015-10-20-maneki-neko-in-gotokuji-03.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-216",
+      "title": "File:Fudo no Taki - Todoroki Valley - Tokyo, Japan - DSC09502.jpg",
+      "assetPath": "images/places/JP-216/fudo-no-taki-todoroki-valley-tokyo-japan-dsc09502.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-216",
+      "title": "File:Fudo no Taki (Todoroki Valley) 201908.jpg",
+      "assetPath": "images/places/JP-216/fudo-no-taki-todoroki-valley-201908.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-216",
+      "title": "File:Fudo no Taki - Todoroki Valley - Tokyo, Japan - DSC09490.jpg",
+      "assetPath": "images/places/JP-216/fudo-no-taki-todoroki-valley-tokyo-japan-dsc09490.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-216",
+      "title": "File:Fudo no Taki - Todoroki Valley - Tokyo, Japan - DSC09488.jpg",
+      "assetPath": "images/places/JP-216/fudo-no-taki-todoroki-valley-tokyo-japan-dsc09488.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-217",
+      "title": "File:Shibamata Taishakuten March 11 2021 various 20 44 40 638000.jpeg",
+      "assetPath": "images/places/JP-217/shibamata-taishakuten-march-11-2021-various-20-44-40-638000.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-217",
+      "title": "File:Shibamata Taishakuten -03.jpg",
+      "assetPath": "images/places/JP-217/shibamata-taishakuten-03.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-217",
+      "title": "File:Shibamata Taishakuten -02.jpg",
+      "assetPath": "images/places/JP-217/shibamata-taishakuten-02.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-218",
+      "title": "File:Rikugien Garden Entrance.jpg",
+      "assetPath": "images/places/JP-218/rikugien-garden-entrance.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-218",
+      "title": "File:Paper Lantern \"Rikugien\" Nov 22, 2014.jpg",
+      "assetPath": "images/places/JP-218/paper-lantern-rikugien-nov-22-2014.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-219",
+      "title": "File:Kiyosumi-1.JPG",
+      "assetPath": "images/places/JP-219/kiyosumi-1.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-219",
+      "title": "File:Kiyosumi Garden (11302018475).jpg",
+      "assetPath": "images/places/JP-219/kiyosumi-garden-11302018475.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-219",
+      "title": "File:Kiyosumi Garden (11301989825).jpg",
+      "assetPath": "images/places/JP-219/kiyosumi-garden-11301989825.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-219",
+      "title": "File:Kiyosumi Garden (9227362656).jpg",
+      "assetPath": "images/places/JP-219/kiyosumi-garden-9227362656.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-220",
+      "title": "File:Akigawa River in the autumn.jpg",
+      "assetPath": "images/places/JP-220/akigawa-river-in-the-autumn.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-221",
+      "title": "File:Sakura at Meguro River, Tokyo; April 2012 (05).jpg",
+      "assetPath": "images/places/JP-221/sakura-at-meguro-river-tokyo-april-2012-05.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-221",
+      "title": "File:Sakura at Meguro River, Tokyo; April 2012 (03).jpg",
+      "assetPath": "images/places/JP-221/sakura-at-meguro-river-tokyo-april-2012-03.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-221",
+      "title": "File:Sakura at Meguro River, Tokyo; April 2012 (01).jpg",
+      "assetPath": "images/places/JP-221/sakura-at-meguro-river-tokyo-april-2012-01.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-223",
+      "title": "File:Chureito Pagoda and Mount Fuji 2023-03-07.jpg",
+      "assetPath": "images/places/JP-223/chureito-pagoda-and-mount-fuji-2023-03-07.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-223",
+      "title": "File:Chureito Pagoda and Mount Fuji 20241022.jpg",
+      "assetPath": "images/places/JP-223/chureito-pagoda-and-mount-fuji-20241022.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-223",
+      "title": "File:Chureito Pagoda and Mount Fuji (44951842365).jpg",
+      "assetPath": "images/places/JP-223/chureito-pagoda-and-mount-fuji-44951842365.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-224",
+      "title": "File:The Great Buddha of Kōtoku-in (Kamakura Daibutsu).jpg",
+      "assetPath": "images/places/JP-224/the-great-buddha-of-kotoku-in-kamakura-daibutsu.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-224",
+      "title": "File:Kamakura Daibutsu 20170210.jpg",
+      "assetPath": "images/places/JP-224/kamakura-daibutsu-20170210.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-224",
+      "title": "File:Kamakura Daibutsu 2.jpg",
+      "assetPath": "images/places/JP-224/kamakura-daibutsu-2.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-225",
+      "title": "File:Hokokuji bamboo forest (5712271526).jpg",
+      "assetPath": "images/places/JP-225/hokokuji-bamboo-forest-5712271526.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-225",
+      "title": "File:Hokokuji - Kamakura - Aug 20 2020.jpeg",
+      "assetPath": "images/places/JP-225/hokokuji-kamakura-aug-20-2020.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-225",
+      "title": "File:Hokokuji in Kamakura (2582072655).jpg",
+      "assetPath": "images/places/JP-225/hokokuji-in-kamakura-2582072655.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-226",
+      "title": "File:230128 Hasedera Kamakura Kanagawa pref Japan04s3.jpg",
+      "assetPath": "images/places/JP-226/230128-hasedera-kamakura-kanagawa-pref-japan04s3.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-226",
+      "title": "File:Hasedera temple in Kamakura (2576775274).jpg",
+      "assetPath": "images/places/JP-226/hasedera-temple-in-kamakura-2576775274.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-226",
+      "title": "File:Entrance to Hydrangea Path at Hasedera (Kamakura).jpg",
+      "assetPath": "images/places/JP-226/entrance-to-hydrangea-path-at-hasedera-kamakura.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-226",
+      "title": "File:1993-11-23 View from Hasedera (Kamakura).jpg",
+      "assetPath": "images/places/JP-226/1993-11-23-view-from-hasedera-kamakura.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-227",
+      "title": "File:Enoshima Island Spa - Enoshima, Japan - DSC07609.jpg",
+      "assetPath": "images/places/JP-227/enoshima-island-spa-enoshima-japan-dsc07609.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-228",
+      "title": "File:Hakone Open-air Museum 20211202-5.jpg",
+      "assetPath": "images/places/JP-228/hakone-open-air-museum-20211202-5.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-228",
+      "title": "File:Hakone Open-air Museum 20211202-9.jpg",
+      "assetPath": "images/places/JP-228/hakone-open-air-museum-20211202-9.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-228",
+      "title": "File:Hakone Open-air Museum 20211202-7.jpg",
+      "assetPath": "images/places/JP-228/hakone-open-air-museum-20211202-7.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-228",
+      "title": "File:Hakone Open-air Museum 20211202-8.jpg",
+      "assetPath": "images/places/JP-228/hakone-open-air-museum-20211202-8.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-229",
+      "title": "File:Mount Myojingatake and Owakudani Station from Owakudani Valley.JPG",
+      "assetPath": "images/places/JP-229/mount-myojingatake-and-owakudani-station-from-owakudani-vall.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-229",
+      "title": "File:Owakudani Valley near Owakudani Station.JPG",
+      "assetPath": "images/places/JP-229/owakudani-valley-near-owakudani-station.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-229",
+      "title": "File:Owakudani Valley near Owakudani Station 2.JPG",
+      "assetPath": "images/places/JP-229/owakudani-valley-near-owakudani-station-2.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-229",
+      "title": "File:Sign in front of Owakudani Station.jpg",
+      "assetPath": "images/places/JP-229/sign-in-front-of-owakudani-station.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-230",
+      "title": "File:Lake torii @ Hakone Shrine (13776519615).jpg",
+      "assetPath": "images/places/JP-230/lake-torii-hakone-shrine-13776519615.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-230",
+      "title": "File:Torii on Lake Ashi @ Hakone Shrine (13776878594).jpg",
+      "assetPath": "images/places/JP-230/torii-on-lake-ashi-hakone-shrine-13776878594.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-230",
+      "title": "File:Torii on Lake Ashi @ Hakone Shrine (13776879364).jpg",
+      "assetPath": "images/places/JP-230/torii-on-lake-ashi-hakone-shrine-13776879364.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-230",
+      "title": "File:View of the Mt.Fuji and the Hakone shrine from the lake Ashinoko during spring, Hakone, Japan.jpg",
+      "assetPath": "images/places/JP-230/view-of-the-mt-fuji-and-the-hakone-shrine-from-the-lake-ashi.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-231",
+      "title": "File:Nikko Toshogu Yomeimon Gate 2024.jpg",
+      "assetPath": "images/places/JP-231/nikko-toshogu-yomeimon-gate-2024.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-231",
+      "title": "File:Nikko toshogu yomeimon gate ver1.jpg",
+      "assetPath": "images/places/JP-231/nikko-toshogu-yomeimon-gate-ver1.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-232",
+      "title": "File:Kanmangafuchi abyss, July 2022.jpg",
+      "assetPath": "images/places/JP-232/kanmangafuchi-abyss-july-2022.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-232",
+      "title": "File:Reihikaku, Kanmangafuchi abyss.jpg",
+      "assetPath": "images/places/JP-232/reihikaku-kanmangafuchi-abyss.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-232",
+      "title": "File:Jiun-ji temple, Kanmangafuchi abyss.jpg",
+      "assetPath": "images/places/JP-232/jiun-ji-temple-kanmangafuchi-abyss.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-232",
+      "title": "File:憾満ヶ淵.jpg",
+      "assetPath": "images/places/JP-232/foto.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-233",
+      "title": "File:Kawagoe Toki no Kane 1.jpg",
+      "assetPath": "images/places/JP-233/kawagoe-toki-no-kane-1.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-233",
+      "title": "File:Kawagoe Toki no Kane 4.jpg",
+      "assetPath": "images/places/JP-233/kawagoe-toki-no-kane-4.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-233",
+      "title": "File:Kawagoe Toki no Kane 6.jpg",
+      "assetPath": "images/places/JP-233/kawagoe-toki-no-kane-6.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-233",
+      "title": "File:Kawagoe Toki no Kane 2.jpg",
+      "assetPath": "images/places/JP-233/kawagoe-toki-no-kane-2.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-234",
+      "title": "File:Nishiromon Gate, Yasaka Shrine, Kyoto, West view 20190416 1.jpg",
+      "assetPath": "images/places/JP-234/nishiromon-gate-yasaka-shrine-kyoto-west-view-20190416-1.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-234",
+      "title": "File:South Tower Gate of Yasaka Shrine in Kyoto, 20240820 1706 5167.jpg",
+      "assetPath": "images/places/JP-234/south-tower-gate-of-yasaka-shrine-in-kyoto-20240820-1706-516.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-234",
+      "title": "File:White paper lanterns hanging in Buden Yasaka Shrine in Kyoto Japan.jpg",
+      "assetPath": "images/places/JP-234/white-paper-lanterns-hanging-in-buden-yasaka-shrine-in-kyoto.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-235",
+      "title": "File:Plum in Kitano Tenman-gū 20140302-2.jpg",
+      "assetPath": "images/places/JP-235/plum-in-kitano-tenman-gu-20140302-2.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-235",
+      "title": "File:Plum trees Kitano Tenmangu.jpg",
+      "assetPath": "images/places/JP-235/plum-trees-kitano-tenmangu.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-235",
+      "title": "File:Maiko serving tea at Kitano Tenmangū 2011-02-25.jpg",
+      "assetPath": "images/places/JP-235/maiko-serving-tea-at-kitano-tenmangu-2011-02-25.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-236",
+      "title": "File:Bridge and stream at Shimogamo Shrine.jpg",
+      "assetPath": "images/places/JP-236/bridge-and-stream-at-shimogamo-shrine.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-236",
+      "title": "File:Shimogamo Shrine-83.jpg",
+      "assetPath": "images/places/JP-236/shimogamo-shrine-83.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-236",
+      "title": "File:Shimogamo Shrine-52.jpg",
+      "assetPath": "images/places/JP-236/shimogamo-shrine-52.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-236",
+      "title": "File:Shimogamo Shrine-58.jpg",
+      "assetPath": "images/places/JP-236/shimogamo-shrine-58.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-237",
+      "title": "File:Five-storied Pagoda, Daigoji 20161116.jpg",
+      "assetPath": "images/places/JP-237/five-storied-pagoda-daigoji-20161116.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-237",
+      "title": "File:Daigoji Kyoto02bs4200.jpg",
+      "assetPath": "images/places/JP-237/daigoji-kyoto02bs4200.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-237",
+      "title": "File:Daigoji Five-storied Pagoda.JPG",
+      "assetPath": "images/places/JP-237/daigoji-five-storied-pagoda.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-238",
+      "title": "File:Heian Shrine Garden, Kyoto, Japan, 20240820 0946 4928.jpg",
+      "assetPath": "images/places/JP-238/heian-shrine-garden-kyoto-japan-20240820-0946-4928.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-238",
+      "title": "File:Heian Shrine Garden, Kyoto, Japan, 20240820 0954 4946.jpg",
+      "assetPath": "images/places/JP-238/heian-shrine-garden-kyoto-japan-20240820-0954-4946.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-238",
+      "title": "File:Heian Shrine Garden, Kyoto, Japan, 20240820 0951 4939.jpg",
+      "assetPath": "images/places/JP-238/heian-shrine-garden-kyoto-japan-20240820-0951-4939.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-238",
+      "title": "File:Heian Shrine Garden, Kyoto, Japan, 20240820 0953 4944.jpg",
+      "assetPath": "images/places/JP-238/heian-shrine-garden-kyoto-japan-20240820-0953-4944.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-239",
+      "title": "File:View of the Five-storied Pagoda from the Lotus Pond, Tō-ji Temple, Kyoto, 20240821 1015 5226.jpg",
+      "assetPath": "images/places/JP-239/view-of-the-five-storied-pagoda-from-the-lotus-pond-to-ji-te.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-239",
+      "title": "File:View of Five-storied Pagoda from Lotus Pond, Toji, Kyoto - May 21, 2014.jpg",
+      "assetPath": "images/places/JP-239/view-of-five-storied-pagoda-from-lotus-pond-toji-kyoto-may-2.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-240",
+      "title": "File:Pontocho by Wolfiewolf in Nabeyacho, Kyoto.jpg",
+      "assetPath": "images/places/JP-240/pontocho-by-wolfiewolf-in-nabeyacho-kyoto.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-240",
+      "title": "File:Pontocho Alley, Kyoto - Flickr - Sergiy Galyonkin.jpg",
+      "assetPath": "images/places/JP-240/pontocho-alley-kyoto-flickr-sergiy-galyonkin.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-240",
+      "title": "File:Pontocho Kaburenjo Theater - Kyoto, Japan - DSC07312.jpg",
+      "assetPath": "images/places/JP-240/pontocho-kaburenjo-theater-kyoto-japan-dsc07312.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-240",
+      "title": "File:Pontocho Kaburenjo Theater - Kyoto, Japan - DSC07304.jpg",
+      "assetPath": "images/places/JP-240/pontocho-kaburenjo-theater-kyoto-japan-dsc07304.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-241",
+      "title": "File:170216 Nishi Honganji Kyoto Japan05n.jpg",
+      "assetPath": "images/places/JP-241/170216-nishi-honganji-kyoto-japan05n.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-242",
+      "title": "File:Sagano Romantic Train.jpg",
+      "assetPath": "images/places/JP-242/sagano-romantic-train.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-242",
+      "title": "File:Sagano Scenic Railway Hozu River 2016-08-26.jpg",
+      "assetPath": "images/places/JP-242/sagano-scenic-railway-hozu-river-2016-08-26.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-242",
+      "title": "File:Hozukyo Station seen from Sagano Scenic Railway train 2016-08-26.jpg",
+      "assetPath": "images/places/JP-242/hozukyo-station-seen-from-sagano-scenic-railway-train-2016-0.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-242",
+      "title": "File:Sagano scenic railway hotsukyo.jpg",
+      "assetPath": "images/places/JP-242/sagano-scenic-railway-hotsukyo.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-243",
+      "title": "File:Sorihashi Bridge, Sumiyoshi-taisha Shrine - Oct 15, 2015.jpg",
+      "assetPath": "images/places/JP-243/sorihashi-bridge-sumiyoshi-taisha-shrine-oct-15-2015.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-243",
+      "title": "File:Sumiyoshi Taisha Taikobashi (drum bridge) 2.jpg",
+      "assetPath": "images/places/JP-243/sumiyoshi-taisha-taikobashi-drum-bridge-2.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-243",
+      "title": "File:Sumiyoshi-taisha, Sorihashi.jpg",
+      "assetPath": "images/places/JP-243/sumiyoshi-taisha-sorihashi.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-243",
+      "title": "File:Sumiyoshi Taisha Taikobashi (drum bridge) 1.jpg",
+      "assetPath": "images/places/JP-243/sumiyoshi-taisha-taikobashi-drum-bridge-1.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-244",
+      "title": "File:Tenjinbashi-suji Syotengai1.jpg",
+      "assetPath": "images/places/JP-244/tenjinbashi-suji-syotengai1.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-244",
+      "title": "File:Tenjinbashisuji shopping street - panoramio.jpg",
+      "assetPath": "images/places/JP-244/tenjinbashisuji-shopping-street-panoramio.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-244",
+      "title": "File:Statues on the Tenjinbashisuji Shopping Street.jpg",
+      "assetPath": "images/places/JP-244/statues-on-the-tenjinbashisuji-shopping-street.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-245",
+      "title": "File:Osaka Tenmangu Hatsumoude 2025-2.jpg",
+      "assetPath": "images/places/JP-245/osaka-tenmangu-hatsumoude-2025-2.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-245",
+      "title": "File:Osaka Tenmangu Hatsumoude 2025-1.jpg",
+      "assetPath": "images/places/JP-245/osaka-tenmangu-hatsumoude-2025-1.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-245",
+      "title": "File:Osaka Tenmangu Hatsumoude 2025-3.jpg",
+      "assetPath": "images/places/JP-245/osaka-tenmangu-hatsumoude-2025-3.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-247",
+      "title": "File:Five-storied Pagoda - Kofukuji - Nara, Japan - DSC07535.jpg",
+      "assetPath": "images/places/JP-247/five-storied-pagoda-kofukuji-nara-japan-dsc07535.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-247",
+      "title": "File:Kofukuji Pagoda.jpg",
+      "assetPath": "images/places/JP-247/kofukuji-pagoda.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-247",
+      "title": "File:Five-storied Pagoda - Kofukuji - Nara, Japan - DSC07533.jpg",
+      "assetPath": "images/places/JP-247/five-storied-pagoda-kofukuji-nara-japan-dsc07533.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-247",
+      "title": "File:Five-storied Pagoda - Kofukuji - Nara, Japan - DSC07523.jpg",
+      "assetPath": "images/places/JP-247/five-storied-pagoda-kofukuji-nara-japan-dsc07523.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-248",
+      "title": "File:Mount Wakakusa @ Nara (13324538133).jpg",
+      "assetPath": "images/places/JP-248/mount-wakakusa-nara-13324538133.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-248",
+      "title": "File:WakakusaYama.jpg",
+      "assetPath": "images/places/JP-248/wakakusayama.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-248",
+      "title": "File:090124 wakakusa yamayaki.jpg",
+      "assetPath": "images/places/JP-248/090124-wakakusa-yamayaki.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-249",
+      "title": "File:Kobe Nankinmachi (chinatown) entrance.jpg",
+      "assetPath": "images/places/JP-249/kobe-nankinmachi-chinatown-entrance.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-249",
+      "title": "File:View of Nankinmachi, Kobe 20150920.JPG",
+      "assetPath": "images/places/JP-249/view-of-nankinmachi-kobe-20150920.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-249",
+      "title": "File:Kobe Nankinmachi at night.jpg",
+      "assetPath": "images/places/JP-249/kobe-nankinmachi-at-night.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-249",
+      "title": "File:Kobe-Nankinmachi.JPG",
+      "assetPath": "images/places/JP-249/kobe-nankinmachi.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-250",
+      "title": "File:Ikuta Shrine Mar 2025 03.jpg",
+      "assetPath": "images/places/JP-250/ikuta-shrine-mar-2025-03.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-250",
+      "title": "File:Ikuta Shrine Mar 2025 01.jpg",
+      "assetPath": "images/places/JP-250/ikuta-shrine-mar-2025-01.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-250",
+      "title": "File:Ikuta Shrine Mar 2025 08.jpg",
+      "assetPath": "images/places/JP-250/ikuta-shrine-mar-2025-08.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-250",
+      "title": "File:Ikuta Shrine Mar 2025 12.jpg",
+      "assetPath": "images/places/JP-250/ikuta-shrine-mar-2025-12.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-251",
+      "title": "File:Japan National Stadium Tokyo 2020 Olympics (51481561365).jpg",
+      "assetPath": "images/places/JP-251/japan-national-stadium-tokyo-2020-olympics-51481561365.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-251",
+      "title": "File:2024 April 7, FC Tokyo wins over Kashima Antlers, at the Japan National Stadium 18.jpg",
+      "assetPath": "images/places/JP-251/2024-april-7-fc-tokyo-wins-over-kashima-antlers-at-the-japan.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-251",
+      "title": "File:Japan National Stadium Electronic Bulletin Board 1964.jpg",
+      "assetPath": "images/places/JP-251/japan-national-stadium-electronic-bulletin-board-1964.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-252",
+      "title": "File:Saitama stadium2002-1.jpg",
+      "assetPath": "images/places/JP-252/saitama-stadium2002-1.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-252",
+      "title": "File:Saitama stadium2002-2.jpg",
+      "assetPath": "images/places/JP-252/saitama-stadium2002-2.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-252",
+      "title": "File:Saitama Stadium 200113b23.jpg",
+      "assetPath": "images/places/JP-252/saitama-stadium-200113b23.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-253",
+      "title": "File:Municipal Suita Stadium.JPG",
+      "assetPath": "images/places/JP-253/municipal-suita-stadium.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-253",
+      "title": "File:パナソニックスタジアム吹田 2023年5月3日セレッソ大阪戦.jpg",
+      "assetPath": "images/places/JP-253/202353.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-253",
+      "title": "File:Suita City Football Stadium.jpg",
+      "assetPath": "images/places/JP-253/suita-city-football-stadium.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-253",
+      "title": "File:Panasonic Stadium Suita.jpg",
+      "assetPath": "images/places/JP-253/panasonic-stadium-suita.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-254",
+      "title": "File:Mega Tokyo Pokémon Center 1.jpg",
+      "assetPath": "images/places/JP-254/mega-tokyo-pokemon-center-1.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-254",
+      "title": "File:Mega Tokyo Pokémon Center 3.jpg",
+      "assetPath": "images/places/JP-254/mega-tokyo-pokemon-center-3.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-254",
+      "title": "File:Mega Tokyo Pokémon Center 2.jpg",
+      "assetPath": "images/places/JP-254/mega-tokyo-pokemon-center-2.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-254",
+      "title": "File:Mega Tokyo Pokémon Center 4.jpg",
+      "assetPath": "images/places/JP-254/mega-tokyo-pokemon-center-4.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-255",
+      "title": "File:Sanrio Puroland.jpg",
+      "assetPath": "images/places/JP-255/sanrio-puroland.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-255",
+      "title": "File:2024 Sanrio Puroland (1).jpg",
+      "assetPath": "images/places/JP-255/2024-sanrio-puroland-1.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-255",
+      "title": "File:2024 Sanrio Puroland (2).jpg",
+      "assetPath": "images/places/JP-255/2024-sanrio-puroland-2.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-255",
+      "title": "File:Sanrio Puroland (24272570623).jpg",
+      "assetPath": "images/places/JP-255/sanrio-puroland-24272570623.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-256",
+      "title": "File:Warner Bros. Studio Tour Tokyo - The Making of Harry Potter - 53408131300.jpg",
+      "assetPath": "images/places/JP-256/warner-bros-studio-tour-tokyo-the-making-of-harry-potter-534.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-256",
+      "title": "File:Warner Bros. Studio Tour Tokyo - The Making of Harry Potter - 53406765447.jpg",
+      "assetPath": "images/places/JP-256/warner-bros-studio-tour-tokyo-the-making-of-harry-potter-534-b.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-256",
+      "title": "File:Warner Bros. Studio Tour Tokyo - The Making of Harry Potter - 53406766632.jpg",
+      "assetPath": "images/places/JP-256/warner-bros-studio-tour-tokyo-the-making-of-harry-potter-534-b-b.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-256",
+      "title": "File:Warner Bros. Studio Tour Tokyo - The Making of Harry Potter Toshimaen Station.jpg",
+      "assetPath": "images/places/JP-256/warner-bros-studio-tour-tokyo-the-making-of-harry-potter-tos.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-257",
+      "title": "File:Fujiko･F･Fujio Museum -01.jpg",
+      "assetPath": "images/places/JP-257/fujikoffujio-museum-01.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-257",
+      "title": "File:藤子 F 不二雄博物館 (49292081636).jpg",
+      "assetPath": "images/places/JP-257/f-49292081636.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-257",
+      "title": "File:藤子 F 不二雄博物館 (49292298672).jpg",
+      "assetPath": "images/places/JP-257/f-49292298672.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-257",
+      "title": "File:藤子・F・不二雄ミュージアム - panoramio.jpg",
+      "assetPath": "images/places/JP-257/f-panoramio.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-258",
+      "title": "File:Osamu Tezuka Manga Museum - panoramio.jpg",
+      "assetPath": "images/places/JP-258/osamu-tezuka-manga-museum-panoramio.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-258",
+      "title": "File:Osamu Tezuka Manga Museum - panoramio (1).jpg",
+      "assetPath": "images/places/JP-258/osamu-tezuka-manga-museum-panoramio-1.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-258",
+      "title": "File:Osamu Tezuka Manga Museum ac (2).jpg",
+      "assetPath": "images/places/JP-258/osamu-tezuka-manga-museum-ac-2.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-258",
+      "title": "File:Tezuka osamu01 2048.jpg",
+      "assetPath": "images/places/JP-258/tezuka-osamu01-2048.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-259",
+      "title": "File:Shinjuku Toho Building from Godzilla Street.jpg",
+      "assetPath": "images/places/JP-259/shinjuku-toho-building-from-godzilla-street.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-259",
+      "title": "File:Shinjuku Toho Building on Godzilla Street in Shinjuku, Tokyo, 2019 - 018.jpg",
+      "assetPath": "images/places/JP-259/shinjuku-toho-building-on-godzilla-street-in-shinjuku-tokyo.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-259",
+      "title": "File:The iconic Godzilla in Shinjuku area, Tokyo, Japan.jpg",
+      "assetPath": "images/places/JP-259/the-iconic-godzilla-in-shinjuku-area-tokyo-japan.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-259",
+      "title": "File:Shinjuku toho building kabukicho 2015.jpg",
+      "assetPath": "images/places/JP-259/shinjuku-toho-building-kabukicho-2015.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-260",
+      "title": "File:Ryogoku Great Sumo Hall.jpg",
+      "assetPath": "images/places/JP-260/ryogoku-great-sumo-hall.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-260",
+      "title": "File:Ryogoku Kokugikan wall.JPG",
+      "assetPath": "images/places/JP-260/ryogoku-kokugikan-wall.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-260",
+      "title": "File:Ryogoku Kokugikan - 9633800303.jpg",
+      "assetPath": "images/places/JP-260/ryogoku-kokugikan-9633800303.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-260",
+      "title": "File:Ryogoku Kokugikan - 9633800625.jpg",
+      "assetPath": "images/places/JP-260/ryogoku-kokugikan-9633800625.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-261",
+      "title": "File:Tokyo Kabukiza (8700938351).jpg",
+      "assetPath": "images/places/JP-261/tokyo-kabukiza-8700938351.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-261",
+      "title": "File:Kabukiza Tower 2019-04.jpg",
+      "assetPath": "images/places/JP-261/kabukiza-tower-2019-04.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-261",
+      "title": "File:Toei Higashi-Ginza-STA Kabukiza-District-Gate.jpg",
+      "assetPath": "images/places/JP-261/toei-higashi-ginza-sta-kabukiza-district-gate.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-263",
+      "title": "File:Funaoka-Onsen201307.JPG",
+      "assetPath": "images/places/JP-263/funaoka-onsen201307.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-263",
+      "title": "File:Funaoka Onsen 20180410 07.jpg",
+      "assetPath": "images/places/JP-263/funaoka-onsen-20180410-07.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-263",
+      "title": "File:Funaoka Onsen 20180410 06.jpg",
+      "assetPath": "images/places/JP-263/funaoka-onsen-20180410-06.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-263",
+      "title": "File:船岡温泉 Funaoka hot springs - panoramio.jpg",
+      "assetPath": "images/places/JP-263/funaoka-hot-springs-panoramio.webp",
+      "role": "detail"
+    },
+    {
+      "placeId": "JP-264",
+      "title": "File:National Bunraku Theatre in 201408.JPG",
+      "assetPath": "images/places/JP-264/national-bunraku-theatre-in-201408.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-264",
+      "title": "File:Chochin at National Bunraku Theatre in Osaka.jpg",
+      "assetPath": "images/places/JP-264/chochin-at-national-bunraku-theatre-in-osaka.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-264",
+      "title": "File:National Bunraku Puppet Theatre 2004.jpg",
+      "assetPath": "images/places/JP-264/national-bunraku-puppet-theatre-2004.webp",
+      "role": "context"
+    },
+    {
+      "placeId": "JP-265",
+      "title": "File:Minamiza theatre, Kyoto, evening.jpg",
+      "assetPath": "images/places/JP-265/minamiza-theatre-kyoto-evening.webp",
+      "role": "identity"
+    },
+    {
+      "placeId": "JP-265",
+      "title": "File:Minami-za Theatre, Kyoto (Jan 2020).jpg",
+      "assetPath": "images/places/JP-265/minami-za-theatre-kyoto-jan-2020.webp",
+      "role": "experience"
+    },
+    {
+      "placeId": "JP-265",
+      "title": "File:Minamiza Kyoto.JPG",
+      "assetPath": "images/places/JP-265/minamiza-kyoto.webp",
+      "role": "context"
+    }
+  ]
+}

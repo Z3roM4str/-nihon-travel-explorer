@@ -232,7 +232,7 @@ describe("real dataset coverage/invariants (data/places.json via app/src/data/pl
     }).not.toThrow();
   });
 
-  it("re-derives the current whole-dataset tier totals: SAFE 6, PARTIAL 15, OPAQUE 41, UNKNOWN 152 of 214", () => {
+  it("re-derives the current whole-dataset tier totals: SAFE 6, PARTIAL 18, OPAQUE 49, UNKNOWN 191 of 264", () => {
     let safe = 0;
     let partial = 0;
     let opaque = 0;
@@ -246,14 +246,14 @@ describe("real dataset coverage/invariants (data/places.json via app/src/data/pl
     }
     expect({ safe, partial, opaque, unknown, total: safe + partial + opaque + unknown }).toEqual({
       safe: 6,
-      partial: 15,
-      opaque: 41,
-      unknown: 152,
-      total: 214,
+      partial: 18,
+      opaque: 49,
+      unknown: 191,
+      total: 264,
     });
   });
 
-  it("no place has a missing febMar2027.status in the current dataset (all 214 are non-empty)", () => {
+  it("no place has a missing febMar2027.status in the current dataset (all 264 are non-empty)", () => {
     const missing = places.filter((p) => interpretPlaceFebMarStatus(p).category === "missing");
     expect(missing).toHaveLength(0);
   });

@@ -50,7 +50,7 @@ Las imágenes, sus bytes y su orden de petición no cambian (mismos 26 requests)
 ## Equivalencia funcional (qué la demuestra)
 * `src/data/photography-runtime-projection.test.ts`: `placeImages` (lo que la UI ve) **es `toEqual`** al registro construido desde el JSON completo; mismas 244 imágenes y orden; ningún campo fuera de la lista;
   y `buildRegistry` produce el mismo resultado con todos los campos no proyectados puestos a `undefined` (si alguien empieza a leer `lqip`, el test obliga a ampliar la proyección).
-* Gate `b10-performance-check` (13/13): J01 techo ratcheteado a 285 000 B (antes 392 000), **J01b** (ni LQIP ni URLs de adquisición en el entry: la invariante real), J03/J04 y los 8 presupuestos por hub.
+* (Techo vigente: 360 000 B, ver «Techo de entrada del 2026-11-03» al final.) Gate `b10-performance-check` (13/13): J01 techo ratcheteado a 285 000 B (antes 392 000), **J01b** (ni LQIP ni URLs de adquisición en el entry: la invariante real), J03/J04 y los 8 presupuestos por hub.
 * Vitest 117 archivos / 3 505 pruebas.
 
 ## Certificación de la rama (Chromium 141)
@@ -59,3 +59,28 @@ block12 78/78 · block20 · b6-5 416/416 · block23 28/28 · B25 123/123 · B26 
 integración B24+B23 58/58 (el guard `10-ASSETS` ya no compara `place-images.ts` byte a byte —cambió a propósito—; sigue fijando imágenes, `places.json` y el registro canónico idénticos a B24, y la equivalencia del registro la prueba el test).
 **B28**: pasa 64/64 (5 de 8 ejecuciones en este entorno; la comprobación J «auto-scroll continued after cancellation» es temporización y falla igual en main: 1 de 2).
 Heredado: block2-photography (obsoleto, `.selection-list__thumb`). Visual main vs rama (390/1200 × home/Tokio/ficha): home y ficha byte-idénticas; la lista de Tokio difiere por ruido de carga de imágenes (main contra main difiere igual).
+
+## Techo de entrada del 2026-11-03
+
+`ENTRY_GZIP_CEILING` en `app/scripts/b10-performance-check.mjs` (gate J01) pasa de 285 000 B a **360 000 B**.
+El techo anterior ya no se cumplía en la base de esta rama: no lo rompió «Lugares nuevos».
+
+| Medición (gzip nivel 9, como J01) | Chunk de entrada | Frente a 285 000 B |
+|---|---:|---:|
+| Base `27dc63a` (merge-base con `codex/nihon-firestore-sync`) | 322 556 B | +37 556 B |
+| Rama `claude/nihon-spots-visual` | 354 363 B | +69 363 B |
+
+De los +31 807 B de la rama, casi todo son datos de los 50 lugares nuevos y sus fotos, por módulo:
+`places.json` +16 329 B, proyección de `photography-metadata.json` +12 263 B, `nearby.json` +2 750 B. El peso
+por lugar y por foto es del mismo orden que el de los datos anteriores, así que no hay un defecto que corregir:
+sólo se reduciría quitando datos o difiriéndolos.
+
+No se difieren porque no es seguro. La app lee los lugares de forma síncrona y `reconcileTravellers()` descarta
+los intereses cuyo lugar no conoce: con los lugares nuevos aún sin cargar, los «me gusta» de JP-215–JP-265 podrían
+perderse. Un chunk estático sí sería seguro, pero no ahorra nada: el navegador lo descarga igual al arrancar, y
+J01 mejoraría sin que la primera carga pese menos.
+
+El techo deja 5 637 B de holgura (1,6 %) y sigue siendo un trinquete. J01b, que prohíbe LQIP inline y URLs de
+adquisición en el entry, no cambia. El candidato seguro para bajar la entrada es Leaflet (53 759 B gzip), que sólo
+hace falta en el mapa; no se tocó aquí.
+

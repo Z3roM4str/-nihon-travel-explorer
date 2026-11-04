@@ -543,15 +543,43 @@ button.search-field:focus-visible {
   );
 }
 
-.place-card__badge {
+/*
+ * Etiquetas sobre la foto: «★ Imprescindible» (grado S) y la de joya (lugares poco conocidos).
+ * Se distinguen por forma y por color, no sólo por color: la de nivel es tinta sobre papel con su
+ * `★` (`03 §1`, DD-005); la de joya es jade con su icono de gema. Van en una sola fila que se
+ * parte si no cabe, para no robarle a la foto una segunda franja en 390px.
+ */
+.place-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.place-card__badge,
+.place-card__tag-gem {
   display: inline-flex;
   align-self: flex-start;
   align-items: center;
   gap: var(--space-1);
+  min-height: 24px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
   font-family: var(--font-record);
   font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
   font-weight: 700;
   letter-spacing: var(--type-label-tracking);
+  white-space: nowrap;
+}
+
+.place-card__badge {
+  background: var(--overlay-paper);
+  color: var(--ink-900);
+}
+
+.place-card__tag-gem {
+  background: var(--gem-600);
   color: var(--surface);
 }
 
@@ -747,6 +775,19 @@ button.search-field:focus-visible {
   padding: var(--space-3);
 }
 
+/* Nombre en español (`mapTitle`) cuando dice algo que el nombre oficial no dice; una línea. */
+.place-card__alias {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  font-weight: 500;
+  color: var(--ink-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .place-card__reason {
   margin: 0;
   font-family: var(--font-record);
@@ -784,6 +825,10 @@ button.search-field:focus-visible {
   font-size: var(--type-label-size);
   line-height: var(--type-label-line);
   white-space: nowrap;
+  /* En una tarjeta de carrusel (264px) un aviso largo no debe desbordar: se recorta con «…». */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .place-card__chip--attention {
@@ -1384,9 +1429,13 @@ button.search-field:focus-visible {
   scroll-snap-type: x mandatory;
 }
 
+/* En celular la tarjeta del carrusel crece hasta ~78% del ancho (304px a 390px): la foto y las
+   etiquetas «★ Imprescindible»/joya respiran y se sigue asomando la siguiente tarjeta. Nunca
+   baja de los 264px de cabida mínima de `PlaceCard` ni pasa de 320px en pantallas grandes. */
 .explorer-home__collection-item {
-  flex: 0 0 264px;
-  width: 264px;
+  --collection-item-width: max(264px, min(78vw, 320px));
+  flex: 0 0 var(--collection-item-width);
+  width: var(--collection-item-width);
   scroll-snap-align: start;
 }
 

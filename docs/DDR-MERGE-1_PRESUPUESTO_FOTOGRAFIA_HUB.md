@@ -9,6 +9,9 @@ No existe DD-027 sobre este problema. La constante `< 5 MiB` no cambió. Ningún
 fotográfico se relajó, y no se optimizó ninguna imagen — el pipeline ya cumplía (§4). La corrección
 fue exclusivamente de instrumentación: dónde empieza a contar el gate.
 
+> **Nota histórica (2026-11-03):** el tope vigente de `06 §6.3` es ahora **5,5 MB** por ciudad
+> (`docs/DATA_MODEL.md`, «Photo budget»). Este documento conserva las cifras de su fecha.
+
 ## 1. Presupuestos vigentes
 
 | Fuente | Contrato | Unidad |

@@ -33,9 +33,9 @@ from pathlib import Path
 import openpyxl
 
 SHEET_RANGES = {
-    "places": ("Lugares", 215),
-    "clusters": ("Clusters", 89),
-    "nearby": ("Cercanos", 404),
+    "places": ("Lugares", 265),
+    "clusters": ("Clusters", 100),
+    "nearby": ("Cercanos", 526),
     "seasonal-alerts": ("Feb-Mar 2027", 34),
     "sources": ("Fuentes", 40),
 }

@@ -27,6 +27,10 @@ These are test fixture boundaries, not runtime selection behavior.
 """
 import json
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import nihon_fotos_x4  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 VISUAL_DIR = ROOT / "data" / "visual"
@@ -36,6 +40,12 @@ CANONICAL_PATH = VISUAL_DIR / "photography-metadata.json"
 # Discovers every selector batch manifest. The Phase 4A pilot manifest deliberately does
 # not match this pattern: it predates every baseline below and must stay in the baselines.
 BATCH_MANIFEST_GLOB = "*-batch*.json"
+
+# `app/src/data/place-images.ts` evolved after the B6.x baselines froze its hash: fc5e7d9 (B10-P1,
+# runtime projection) and 27dc63a (PR #6, assetWidth). The baselines stay as the evidence they
+# are; this is the one reviewed revision the batch tests also accept. Any other edit still fails
+# them, and changing this value on purpose is what records the new review.
+PLACE_IMAGES_REVIEWED_SHA256 = "c6f9d4a4575a1cfb8df79d0d5b19c29d0b5422dbcc4b9e8899fd21acd5a7d010"
 
 # Every acquisition batch manifest, in the order its tranche was appended to the registry.
 ACQUISITION_BATCH_MANIFESTS = (
@@ -62,11 +72,17 @@ B22_ACQUISITION_PLANS = tuple(f"block22-b6-{n}-acquisition-plan.json" for n in r
 # agrupada por lugar que Block 22, y después de todas las líneas base. Sus registros se apartan
 # igual, por `originalTitle`.
 X4_ACQUISITION_PLAN = "nihon-fotos-x4-acquisition-plan.json"
+# «Lugares nuevos» (JP-215–JP-265) agregó después las fotos de lugares que no existían en ninguna
+# línea base; se apartan junto con las de x4, también por `originalTitle`.
+NEW_PLACES_ACQUISITION_PLAN = "nihon-lugares-nuevos-acquisition-plan.json"
 
 
 def x4_acquired_titles():
-    """`originalTitle` de cada registro que añadió Nihon fotos x4."""
-    return {entry["title"] for entry in _load_manifest(X4_ACQUISITION_PLAN)["entries"]}
+    """`originalTitle` de cada registro que añadieron Nihon fotos x4 y «Lugares nuevos»."""
+    titles = {entry["title"] for entry in _load_manifest(X4_ACQUISITION_PLAN)["entries"]}
+    if (VISUAL_DIR / NEW_PLACES_ACQUISITION_PLAN).is_file():
+        titles |= {entry["title"] for entry in _load_manifest(NEW_PLACES_ACQUISITION_PLAN)["entries"]}
+    return titles
 
 # Historical catalog sizes, and the batches selected strictly after each one.
 HISTORICAL_BASELINES = {
@@ -230,4 +246,5 @@ def load_historical_baseline(name):
     )
     if leaked:
         raise AssertionError(f"post-{name} targets leaked into the baseline: {leaked}")
-    return places, baseline
+    # Los lugares de «Lugares nuevos» no existían en ninguna línea base histórica.
+    return nihon_fotos_x4.pre_new_places(places), baseline

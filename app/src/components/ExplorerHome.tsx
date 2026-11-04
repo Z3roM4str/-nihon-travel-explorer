@@ -165,7 +165,8 @@ export function ExplorerHome({
                     alt=""
                     aria-hidden="true"
                     className="explorer-home__city-image"
-                    loading="eager"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="explorer-home__city-placeholder" />
@@ -230,6 +231,7 @@ export function ExplorerHome({
                     otherPersonMarker={
                       otherPersonMarkerFor ? otherPersonMarkerFor(place.id) : null
                     }
+                    deferImage
                   />
                 </div>
               ))}

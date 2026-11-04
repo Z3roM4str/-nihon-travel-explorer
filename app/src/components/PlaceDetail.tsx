@@ -15,7 +15,14 @@ import {
 } from "../lib/transfer-display";
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
-import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
+import {
+  formatPrice,
+  hiddenGemLabel,
+  imageBriefText,
+  isHiddenGem,
+  spanishAlias,
+  splitCategory,
+} from "../lib/place";
 import { categoryPresentation } from "../lib/category-presentation";
 import { interestLevelForPlace } from "../lib/interest-level";
 import { stanceLines, travellerVariant } from "../lib/traveller-presentation";
@@ -333,6 +340,7 @@ export function PlaceDetail({
               </p>
             )}
             <h2 id="place-detail-title">{place.name}</h2>
+            {spanishAlias(place) && <p className="place-detail__alias">{spanishAlias(place)}</p>}
             {place.japaneseName && (
               <p className="place-detail__japanese" lang="ja">
                 {place.japaneseName}
@@ -348,7 +356,7 @@ export function PlaceDetail({
             </p>
             {isHiddenGem(place) && (
               <p className="place-detail__gem">
-                <Icon name="joya" size={16} aria-hidden="true" /> {place.hiddenGemStatus}
+                <Icon name="joya" size={16} aria-hidden="true" /> {hiddenGemLabel(place.hiddenGemStatus)}
               </p>
             )}
           </header>

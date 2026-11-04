@@ -251,7 +251,7 @@ describe("real dataset coverage/invariants (data/places.json via app/src/data/pl
       expect(place.reservation.raw.toLowerCase()).toMatch(/^s[ií]$/);
     }
     // Current audit fact, not a hardcoded product invariant elsewhere in this module.
-    expect(required.length).toBe(41);
+    expect(required.length).toBe(46);
   });
 });
 

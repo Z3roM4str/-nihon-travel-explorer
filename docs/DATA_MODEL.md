@@ -36,13 +36,69 @@ python3 scripts/validate-dataset.py data
 cp data/places.json data/nearby.json data/clusters.json data/seasonal-alerts.json app/src/data/
 ```
 
-`scripts/validate-dataset.py` checks: exactly 214 places with unique ids, valid
+`scripts/validate-dataset.py` checks: exactly 264 places with unique ids, valid
 coordinates inside Japan's bounding box, and every nearby relation (reported dynamically —
-403 today, not asserted as fixed — with no id referencing a place that doesn't exist; see
+525 today, not asserted as fixed — with no id referencing a place that doesn't exist; see
 "Transfer / logistics domain" below for the rest of its nearby-specific checks), and that the
 three Phase 2 editorial corrections
 (Okinawa region split, Naoshima region, the Tokyo Disneyland/DisneySea nearby relation)
 are present.
+
+`scripts/export-dataset.py` reads a fixed number of rows per sheet (`SHEET_RANGES`): when rows
+are appended to `Lugares`, `Clusters` or `Cercanos`, raise that sheet's limit in the same change,
+or the new rows are silently left out of the export.
+
+### Lugares nuevos JP-215–JP-265 (2026-11-03)
+
+Fifty places were appended to the workbook in two batches (JP-262 Jakotsuyu was left out: its
+official domain no longer belongs to the sento and its status could not be confirmed). Kamakura,
+Hakone, Nikko, Fuji (Chureito) and Kawagoe bring four new prefectures (Kanagawa, Tochigi,
+Saitama, Yamanashi), all with hub `Tokio`. Eleven clusters were added (CL-89–CL-99). Every new
+`Cercanos` row uses mode `Transporte local`, so none of them needs a walking route. The proposals'
+`nameEs` went to `Título mapa` (`mapTitle`), their tip went to the Feb–Mar 2027 warning, and the
+`_propuesta` blocks were not imported. `⚽ Deporte` is a new category (3 stadiums); the proposed
+`🎬 Cine/series` was folded into `🎢 Entretenimiento` (Warner Bros. Studio Tour) and
+`🧩 Extraño/peculiar/único` (Godzilla Head).
+
+Photography for these places is registered in
+`data/visual/nihon-lugares-nuevos-acquisition-plan.json`, appended at the end of the registry and
+set aside from historical baselines like Nihon fotos x4.
+
+**Photo budget (2026-11-03): 5.5 MB per city.** The 3.5 MB identity-800w budget per hub
+(`06 §6.3`) was sized for ~50 places per hub and cannot hold with 60–85 places, even at
+quality 48, without re-encoding every photo already shipped. So the cap that counts **every**
+identity photo of a city, new places included, is now **5,500,000 B**
+(`CITY_IDENTITY_BUDGET_BYTES` in `build-photography-derivatives.py`,
+`CITY_IMAGE_TOTAL_BUDGET_BYTES` in `validate-photography.py`, `HUB_BUDGET_BYTES` in
+`app/scripts/b10-performance-check.mjs`). The new-place photos are not outside the budget check.
+
+The cap is one number for all cities, not a Tokio exception: the code has a single city cap, and
+only Tokio comes near it. It was 5 MB until Tokio proved it could not fit without taking its new
+photos down to quality 36; a slightly larger payload was preferred over a second, lower floor.
+
+1. `scripts/recompress-new-places-photography.py` (run once) re-encoded only the new-place
+   1600px originals at WebP quality 75, longest side ≤ 1600 px, keeping a file only when it got
+   smaller. Alt, credit, license and source in the registry are unchanged; only their LQIP
+   was rebuilt.
+2. `build-photography-derivatives.py` fits the pre-existing identity photos under the historical
+   3.5 MB cap first (byte-identical to before), then adds the new-place photos to the same hub sum
+   and lowers **only those** (quality step 4) if the city is over 5.5 MB. Every rendition, new or
+   not, has the same floor of 48 (`DERIVATIVE_MIN_QUALITY`).
+3. `validate-photography.py` checks both: pre-existing ≤ 3.5 MB and all photos ≤ 5.5 MB per hub.
+   It stays Pillow-free, so it does not read quality; `build-photography-derivatives.py --check`
+   enforces the floor by requiring byte-identical renditions.
+
+4. No rendition may exceed 200,000 B (`DERIVATIVE_MAX_BYTES`, gate J04). Quality steps down first;
+   a file still over the cap at quality 48 then loses 40 px of width per step, never below 400 px.
+   Four portrait photos need it, all at quality 48: `sagano-scenic-railway-hotsukyo` (640 px),
+   `shimogamo-shrine-58` and `bridge-and-stream-at-shimogamo-shrine` (720 px) and
+   `heian-shrine-garden-kyoto-japan-20240820-0953-4944` (760 px). They keep the `-800w` name.
+
+Result (identity 800w per hub, all photos): Tokio 5,425,220 B, Kioto 4,463,622 B, Osaka
+4,123,674 B, Okinawa 2,980,192 B, Sapporo 166,986 B, Nagoya 69,552 B. Tokio, Kioto and Osaka are
+the only hubs with new places. No new-place photo needs the city step: the per-file 70 KB rule
+alone lands every city under the cap, so their identity 800w renditions range from quality 48
+to 72.
 
 ## Place object
 

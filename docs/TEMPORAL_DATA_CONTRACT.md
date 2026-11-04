@@ -1,5 +1,14 @@
 # Temporal data contract (Phase 3D-A)
 
+> **Nota 2026-11-03 (lugares nuevos JP-215–JP-265):** las cifras de este documento son la foto de
+> Phase 3D-A con 214 lugares. Con 264 lugares, `scripts/audit-temporal-data.py` da hoy:
+> `schedule.hours` SAFE 85 / PARTIAL 54 / OPAQUE 19 / UNKNOWN 106; `schedule.closures` 62 / 33 /
+> 83 / 86; `reservation.raw` 220 / 44 / 0 / 0; `reservation.leadTime` 168 / 22 / 74 / 0;
+> `febMar2027.status` 6 / 18 / 49 / 191; `reservation.required` True 46 / False 218, 0
+> inconsistencias. El aumento de UNKNOWN en horarios y cierres viene de 36–37 lugares nuevos con
+> «Confirmar en web oficial». El contrato y las reglas no cambian; los conteos fijados en las
+> pruebas se actualizaron a estos valores.
+
 Phase 3C ended with a user who can build a route, split it into ordinal day buckets, and anchor
 "Día 1" to a real civil date (`app/src/lib/civil-date.ts`). The next question Nihon will
 eventually need to answer is:

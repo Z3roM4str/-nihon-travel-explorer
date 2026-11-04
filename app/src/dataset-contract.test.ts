@@ -94,7 +94,7 @@ describe("the fields the application actually reads all survived", () => {
     }
   });
 
-  it("still has 214 places", () => {
-    expect(rows).toHaveLength(214);
+  it("still has 264 places", () => {
+    expect(rows).toHaveLength(264);
   });
 });

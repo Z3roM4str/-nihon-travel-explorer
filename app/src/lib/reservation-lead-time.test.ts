@@ -336,17 +336,17 @@ describe("real dataset coverage/invariants (data/places.json via app/src/data/pl
     }
   });
 
-  it("re-derives the current category counts: 128 not-applicable, 21 bare-magnitude, 65 opaque", () => {
+  it("re-derives the current category counts: 168 not-applicable, 22 bare-magnitude, 74 opaque", () => {
     const counts = { "not-applicable": 0, "bare-magnitude": 0, "opaque-entity-or-mechanism-specific": 0 };
     for (const place of places) {
       counts[interpretPlaceLeadTime(place).category] += 1;
     }
     // Current audit fact (Phase 3D-A), re-derived here, not assumed — mirrors the precedent
-    // reservation.test.ts sets for its own "required.length === 41" real-dataset assertion.
+    // reservation.test.ts sets for its own "required.length === 46" real-dataset assertion.
     expect(counts).toEqual({
-      "not-applicable": 128,
-      "bare-magnitude": 21,
-      "opaque-entity-or-mechanism-specific": 65,
+      "not-applicable": 168,
+      "bare-magnitude": 22,
+      "opaque-entity-or-mechanism-specific": 74,
     });
   });
 

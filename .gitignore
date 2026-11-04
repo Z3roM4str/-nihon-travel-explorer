@@ -146,3 +146,6 @@ vite.config.ts.timestamp-*
 __pycache__/
 *.py[cod]
 app/p06-certify-logs/
+
+# Trabajo local de Claude Code
+.claude-work/

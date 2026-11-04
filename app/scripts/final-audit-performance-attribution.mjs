@@ -8,7 +8,8 @@ import { preview } from "vite";
  *
  * El gate original conservó tres fallos en la auditoría independiente: Kioto móvil (4.132.690 B) y
  * Osaka móvil (3.589.036 B) sobre el presupuesto de 3.500.000 B, y la carga diferida de Tokio
- * móvil. Este script NO es un gate: es el instrumento que separa causa de hipótesis. Replica
+ * móvil. (Cifras históricas: el presupuesto vigente es de 5.500.000 B desde el 2026-11-03, el mismo
+ * de `b10-performance-check.mjs`; ver `docs/DATA_MODEL.md`, «Photo budget».) Este script NO es un gate: es el instrumento que separa causa de hipótesis. Replica
  * exactamente el procedimiento del gate (misma secuencia, mismos selectores, mismo scroll) y mide
  * cada imagen de dos maneras a la vez:
  *
@@ -37,7 +38,7 @@ const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
 const RUNS = Number(process.env.NIHON_RUNS ?? 3);
 const OUT = process.env.NIHON_EVIDENCE_OUT ?? null;
 const APP = fileURLToPath(new URL("..", import.meta.url));
-const BUDGET = 3_500_000;
+const BUDGET = 5_500_000; // docs/DATA_MODEL.md, Photo budget (3.500.000 B hasta el 2026-11-03)
 const VIEWPORTS = {
   movil: { label: "móvil 390×844@2", viewport: { width: 390, height: 844 }, dpr: 2 },
   escritorio: { label: "escritorio 1440×900@1", viewport: { width: 1440, height: 900 }, dpr: 1 },

@@ -50,6 +50,12 @@
   --info-600: #1b4d7e;
   --info-050: #e9eff5;
 
+  /* «Joya» (lugares poco conocidos): jade, para que se distinga de un vistazo de «★
+     Imprescindible» (tinta sobre papel) sin depender sólo del color — la joya lleva además su
+     propio icono y forma de etiqueta. Blanco sobre --gem-600: 6.4:1. */
+  --gem-600: #17665c;
+  --gem-050: #e6f3f0;
+
   /* Scrim sobre fotografía */
   --scrim-bottom: linear-gradient(
     to top,

@@ -101,6 +101,15 @@
   color: var(--ink-900);
 }
 
+/* Nombre en español (`mapTitle`) cuando aporta algo al nombre oficial. */
+.place-detail__alias {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  color: var(--ink-700);
+}
+
 .place-detail__japanese {
   margin: 0;
   font-family: var(--font-voice);
@@ -123,8 +132,15 @@
   color: var(--ink-500);
 }
 
+/* La joya se lee igual que en la tarjeta: jade, con su icono, para no confundirse con la línea
+   de categoría que tiene justo encima. */
 .place-detail__gem {
-  color: var(--ink-700);
+  align-self: flex-start;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--gem-050);
+  color: var(--gem-600);
+  font-weight: 600;
 }
 
 /* pt. 6 — primario a ancho completo y `quiet` a su lado. */

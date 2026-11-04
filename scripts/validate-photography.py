@@ -43,6 +43,8 @@ ASSET_PATH_PATTERN = re.compile(r"^images/places/(JP-\d{3})/[a-z0-9][a-z0-9-]*\.
 # that its pixels are right. `build-photography-derivatives.py --check` does that.
 DERIVATIVE_WIDTHS = (400, 800)
 CITY_IMAGE_BUDGET_BYTES = 3_500_000
+# Con las fotos de «Lugares nuevos» (JP-215–JP-265) incluidas, cada ciudad puede llegar a 5.5 MB.
+CITY_IMAGE_TOTAL_BUDGET_BYTES = 5_500_000
 SUPPORTED_ROLES = {"identity", "experience", "detail", "context", "seasonal"}
 LQIP_PREFIX = "data:image/webp;base64,"
 LQIP_MIN_BYTES = 350
@@ -463,19 +465,35 @@ def validate(data_dir=Path("data"), asset_root=DEFAULT_ASSET_ROOT, app_metadata_
     errors.extend(validate_unique_asset_bytes(metadata, asset_root))
 
     places_by_id = {place.get("id"): place for place in places if isinstance(place, dict)}
+    # «Lugares nuevos» (JP-215–JP-265): sus fotos cuentan en el tope de 5.5 MB por ciudad; las que
+    # ya existían siguen además bajo su tope histórico de 3.5 MB, igual que en
+    # scripts/build-photography-derivatives.py (docs/DATA_MODEL.md, «Lugares nuevos»).
+    new_places_plan = Path(__file__).resolve().parents[1] / "data/visual/nihon-lugares-nuevos-acquisition-plan.json"
+    new_place_titles = (
+        {entry["title"] for entry in load(new_places_plan)["entries"]} if new_places_plan.is_file() else set()
+    )
     for hub in sorted({place.get("hub") for place in places_by_id.values()}):
-        total = 0
+        existing_total = new_total = 0
         for place_id, records in images_by_place.items():
             place = places_by_id.get(place_id)
             if not place or place.get("hub") != hub or not records:
                 continue
             derivative = asset_root / derivative_path_for(records[0]["assetPath"], 800)
-            if derivative.is_file():
-                total += derivative.stat().st_size
-        if total > CITY_IMAGE_BUDGET_BYTES:
+            if not derivative.is_file():
+                continue
+            if records[0].get("originalTitle") in new_place_titles:
+                new_total += derivative.stat().st_size
+            else:
+                existing_total += derivative.stat().st_size
+        if existing_total > CITY_IMAGE_BUDGET_BYTES:
             errors.append(
-                f"hub {hub!r}: first-image 800w list payload is {total} bytes, "
-                f"above the {CITY_IMAGE_BUDGET_BYTES}-byte contract"
+                f"hub {hub!r}: first-image 800w list payload of pre-existing places is {existing_total} "
+                f"bytes, above the {CITY_IMAGE_BUDGET_BYTES}-byte contract"
+            )
+        if existing_total + new_total > CITY_IMAGE_TOTAL_BUDGET_BYTES:
+            errors.append(
+                f"hub {hub!r}: first-image 800w list payload is {existing_total + new_total} bytes, "
+                f"above the {CITY_IMAGE_TOTAL_BUDGET_BYTES}-byte city contract"
             )
 
     if app_metadata_path is not None:

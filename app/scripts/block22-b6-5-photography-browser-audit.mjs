@@ -12,7 +12,7 @@ const VIEWPORTS = {
   desktop: { width: 1440, height: 900, dpr: 1 },
 };
 const PORT = 4325;
-const MAX_HUB_BYTES = 3_500_000;
+const MAX_HUB_BYTES = 5_500_000; // docs/DATA_MODEL.md, Photo budget
 const EXPERIENCE_EXCEPTIONS = new Set([
   "JP-021", "JP-033", "JP-044", "JP-077", "JP-089", "JP-097", "JP-126", "JP-134",
   "JP-152", "JP-179", "JP-188", "JP-192", "JP-197", "JP-203", "JP-204",

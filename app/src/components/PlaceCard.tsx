@@ -4,11 +4,12 @@ import { compactPlaceLine } from "../lib/place-line";
 import { CARD_IMAGE_WIDTH, cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { interestLevelForPlace } from "../lib/interest-level";
-import { isHiddenGem, splitCategory } from "../lib/place";
+import { hiddenGemTag, isHiddenGem, spanishAlias, splitCategory } from "../lib/place";
 import { categoryPresentation } from "../lib/category-presentation";
 import { interpretPlaceReservation } from "../lib/reservation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import type { OtherPersonMarker } from "../lib/traveller-presentation";
+import { useNearScrollport } from "../lib/useNearScrollport";
 import { Icon } from "../icons/Icon";
 import { PersonToken } from "./PersonToken";
 import { PhotoPlaceholder } from "./PhotoPlaceholder";
@@ -37,6 +38,12 @@ type Props = {
    * más de una tarjeta como prioritaria a la vez.
    */
   priority?: boolean;
+  /**
+   * Superficies con muchas tarjetas (lista de ciudad, carruseles de la portada): la foto no se pide
+   * hasta que la tarjeta se acerca a la zona visible (`useNearScrollport`). La caja ya está reservada
+   * por `aspect-ratio`, así que la tarjeta no se mueve; mientras tanto se ve el esqueleto.
+   */
+  deferImage?: boolean;
 };
 
 type MediaState = "loading" | "loaded" | "error";
@@ -107,10 +114,13 @@ export function PlaceCard({
   otherPersonMarker = null,
   variant = "normal",
   priority = false,
+  deferImage = false,
 }: Props) {
   const [mediaState, setMediaState] = useState<MediaState>("loading");
   const [photoAttempt, setPhotoAttempt] = useState(0);
   const openButtonRef = useRef<HTMLButtonElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const imageNear = useNearScrollport(mediaRef, deferImage && !priority);
   const images = resolvePlaceImages(place.id, place.images);
   const image = images[0];
   /** Falls back to the original whenever no derivative exists for this URL shape. */
@@ -121,7 +131,12 @@ export function PlaceCard({
   const interest = interestLevelForPlace(place);
   const reason = reasonText(place);
   const zone = place.neighborhood || place.municipality;
-  const chip2 = variant === "normal" ? secondChip(place) : null;
+  /** La joya va sobre la foto, junto a «★ Imprescindible», para que las dos se distingan de un
+   * vistazo; así el segundo chip ya no la repite cuando es lo único que tendría que decir. */
+  const gemTag = variant === "normal" ? hiddenGemTag(place) : null;
+  const alias = variant === "normal" ? spanishAlias(place) : null;
+  const chip2Candidate = variant === "normal" ? secondChip(place) : null;
+  const chip2 = chip2Candidate?.icon === "joya" && gemTag ? null : chip2Candidate;
 
   const retryPhoto = () => {
     // The retry control temporarily disappears while the new request is in flight. Move focus
@@ -260,7 +275,7 @@ export function PlaceCard({
       aria-current={selected ? "true" : undefined}
     >
       {openButton}
-      <div className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
+      <div ref={mediaRef} className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
         {image && mediaState !== "error" ? (
           <>
             {mediaState === "loading" && <span className="place-card__skeleton" aria-hidden="true" />}
@@ -268,26 +283,28 @@ export function PlaceCard({
                 real card geometry at each breakpoint so the browser never fetches more than
                 the slot needs; `width`/`height` are declared so the box is reserved before
                 the bytes arrive and the card cannot shift under the text. */}
-            <img
-              className="place-card__image"
-              key={`${cardSrc}-${photoAttempt}`}
-              src={cardSrc}
-              width={CARD_IMAGE_WIDTH}
-              height={Math.round((CARD_IMAGE_WIDTH * 3) / 4)}
-              // Corrección de B19 (DD-016): la geometría real de la ranura en cada tramo, ahora
-              // que la lista se queda con todo el ancho que el raíl no usa (`App.css`) y decide
-              // sus columnas por el ancho de su propia región (`discovery.css`). `NavRail` mide
-              // 88px desde `md` y el raíl del mapa 480px desde `lg`; `padding`/`gap` de la
-              // rejilla son 12px. Es una pista para el selector de resolución, no un breakpoint
-              // de layout: aproximar por lo alto no rompe nada, servir de más sí.
-              sizes="(min-width: 1200px) 340px, (min-width: 840px) calc(50vw - 62px), (min-width: 600px) calc(50vw - 18px), calc(100vw - 24px)"
-              alt=""
-              {...(priority ? { fetchPriority: "high" as const } : { loading: "lazy" as const })}
-              decoding="async"
-              data-state={mediaState}
-              onLoad={() => setMediaState("loaded")}
-              onError={() => setMediaState("error")}
-            />
+            {imageNear && (
+              <img
+                className="place-card__image"
+                key={`${cardSrc}-${photoAttempt}`}
+                src={cardSrc}
+                width={CARD_IMAGE_WIDTH}
+                height={Math.round((CARD_IMAGE_WIDTH * 3) / 4)}
+                // Corrección de B19 (DD-016): la geometría real de la ranura en cada tramo, ahora
+                // que la lista se queda con todo el ancho que el raíl no usa (`App.css`) y decide
+                // sus columnas por el ancho de su propia región (`discovery.css`). `NavRail` mide
+                // 88px desde `md` y el raíl del mapa 480px desde `lg`; `padding`/`gap` de la
+                // rejilla son 12px. Es una pista para el selector de resolución, no un breakpoint
+                // de layout: aproximar por lo alto no rompe nada, servir de más sí.
+                sizes="(min-width: 1200px) 340px, (min-width: 840px) calc(50vw - 62px), (min-width: 600px) calc(50vw - 18px), calc(100vw - 24px)"
+                alt=""
+                {...(priority ? { fetchPriority: "high" as const } : { loading: "lazy" as const })}
+                decoding="async"
+                data-state={mediaState}
+                onLoad={() => setMediaState("loaded")}
+                onError={() => setMediaState("error")}
+              />
+            )}
           </>
         ) : (
           <PhotoPlaceholder place={place} variant={mediaState === "error" ? "error" : "missing"} />
@@ -306,10 +323,19 @@ export function PlaceCard({
               `--scrim-bottom` ya vale ~0.05 y sólo un `text-shadow` (prohibido por `03 §5`) lo
               sostenía. Ver `styles/discovery.css`, `.place-card__band`. */}
           <div className="place-card__band">
-            {interest.level === "imprescindible" && (
-              <span className="place-card__badge">
-                <span aria-hidden="true">★</span> Imprescindible
-              </span>
+            {(interest.level === "imprescindible" || gemTag) && (
+              <div className="place-card__tags">
+                {interest.level === "imprescindible" && (
+                  <span className="place-card__badge">
+                    <span aria-hidden="true">★</span> Imprescindible
+                  </span>
+                )}
+                {gemTag && (
+                  <span className="place-card__tag-gem">
+                    <Icon name="joya" size={16} /> {gemTag}
+                  </span>
+                )}
+              </div>
             )}
             <h3 className="place-card__heading">{nameSlot}</h3>
             <p className="place-card__where">
@@ -354,6 +380,7 @@ export function PlaceCard({
       </div>
 
       <div className="place-card__body">
+        {alias && <p className="place-card__alias">{alias}</p>}
         {reason && <p className="place-card__reason">{reason}</p>}
 
         {(durationLabel(place) || chip2) && (

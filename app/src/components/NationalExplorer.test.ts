@@ -15,8 +15,8 @@ describe("Checkpoint C — Mapa Nacional (Explorar Mapa de Japón, 05 §3)", () 
     const covered = prefectures.filter((p) => countPlacesInPrefecture(p.code) > 0);
     const empty = prefectures.filter((p) => countPlacesInPrefecture(p.code) === 0);
 
-    expect(covered.length).toBe(15);
-    expect(empty.length).toBe(32);
+    expect(covered.length).toBe(19);
+    expect(empty.length).toBe(28);
     expect(covered.length + empty.length).toBe(47);
   });
 

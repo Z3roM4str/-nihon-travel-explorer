@@ -6,6 +6,7 @@ that exercise the real CLI entry points assert that they REFUSE to run without a
 key rather than that they run.
 """
 import copy
+import hashlib
 import importlib.util
 import json
 import os
@@ -15,6 +16,9 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import nihon_fotos_x4  # noqa: E402
 
 SCRIPTS = Path(__file__).resolve().parent
 REPO = SCRIPTS.parent
@@ -704,12 +708,25 @@ class CliGuardTests(unittest.TestCase):
         for slot, value in {**frozen_digests, **live_digests}.items():
             self.assertRegex(value, r"^[0-9a-f]{64}$", str(slot))
 
-        # `nearby.json` was not touched, so its digest must still agree exactly. Only the
-        # inputs a block actually changed are allowed to drift.
+        # «Lugares nuevos» (JP-215–JP-265) appended places and their `nearby.json` rows; the
+        # walking pipeline routes none of them (no walking edges). That append is the only
+        # change allowed: the current rows between pre-existing places (numeric id <= 214),
+        # serialized the way the exporter writes the file, must still hash to the frozen
+        # digest — so any edit to an existing row still fails here.
+        nearby = json.loads((REPO / "data/nearby.json").read_text(encoding="utf-8"))
+        pre_new_places_rows = [
+            row for row in nearby
+            if int(row["Desde ID"].split("-")[1]) <= nihon_fotos_x4.LAST_PRE_NEW_PLACES_ID
+            and int(row["Hacia ID"].split("-")[1]) <= nihon_fotos_x4.LAST_PRE_NEW_PLACES_ID
+        ]
         self.assertEqual(
             frozen_digests[("datasetDigest", "nearby")],
-            live_digests[("datasetDigest", "nearby")],
+            hashlib.sha256(
+                json.dumps(pre_new_places_rows, indent=2, ensure_ascii=False).encode("utf-8")
+            ).hexdigest(),
         )
+        for place_id in common.REVALIDATION_TARGET_PLACE_IDS:
+            self.assertLessEqual(int(place_id.split("-")[1]), nihon_fotos_x4.LAST_PRE_NEW_PLACES_ID)
 
 
 if __name__ == "__main__":

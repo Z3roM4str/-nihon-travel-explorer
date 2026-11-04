@@ -26,6 +26,7 @@ Contract
   rewrites byte-identical files, which is what makes `--check` meaningful in CI.
 * **Never upscales.** An original narrower than DERIVATIVE_WIDTH is re-encoded at its own
   width rather than stretched, so a derivative is never larger than its source in pixels.
+  A `-800w` file can therefore be narrower than 800px; DERIVATIVE_MAX_BYTES can also make it so.
 * **Naming is derivable, not declared.** `<slug>.webp` → `<slug>-400w.webp` / `-800w.webp`, next to the
   original. The app computes the derivative URL from the registry path, so no metadata
   field, no second registry and no extra parity surface is introduced.
@@ -52,6 +53,15 @@ except ImportError:  # pragma: no cover - exercised only when Pillow is missing
 REPO_ROOT = Path(__file__).resolve().parents[1]
 METADATA_PATH = REPO_ROOT / "data" / "visual" / "photography-metadata.json"
 ASSET_ROOT = REPO_ROOT / "app" / "public"
+NEW_PLACES_PLAN_PATH = REPO_ROOT / "data" / "visual" / "nihon-lugares-nuevos-acquisition-plan.json"
+
+
+def new_places_titles() -> frozenset:
+    """`originalTitle` de las fotos de «Lugares nuevos» (tope de 5.5 MB por ciudad; ver rebalance)."""
+    if not NEW_PLACES_PLAN_PATH.is_file():
+        return frozenset()
+    entries = json.loads(NEW_PLACES_PLAN_PATH.read_text(encoding="utf-8"))["entries"]
+    return frozenset(entry["title"] for entry in entries)
 
 # One tier, chosen against the real card geometry rather than a round number:
 # phone card 371 CSS px, tablet two-up 390, desktop sidebar 348. At DPR 2 the largest
@@ -74,7 +84,21 @@ DERIVATIVE_METHOD = 6
 DERIVATIVE_TARGET_BYTES = {800: 70_000}
 DERIVATIVE_MIN_QUALITY = 48
 DERIVATIVE_QUALITY_STEP = 4
+# Hard per-file cap (gate J04 of `app/scripts/b10-performance-check.mjs`). A few portrait, high-detail
+# frames stay above it even at the quality floor, and that floor is not negotiable, so only those
+# step their pixel width down in fixed increments until they fit. The file keeps its `-800w` name:
+# like an original narrower than 800px, it is simply narrower than its nominal rendition. Everything
+# already under the cap at the floor stays byte-identical.
+DERIVATIVE_MAX_BYTES = 200_000
+DERIVATIVE_WIDTH_STEP = 40
+DERIVATIVE_MIN_RENDER_WIDTH = min(DERIVATIVE_WIDTHS)
 IDENTITY_HUB_BUDGET_BYTES = 3_500_000
+# «Lugares nuevos» (JP-215–JP-265): with their identity photos counted, each city's 800w list
+# payload may reach 5.5 MB. Only the new photos are lowered to fit it; the pre-existing set keeps
+# its 3.5 MB cap above (see `rebalance_identity_800` and docs/DATA_MODEL.md). One cap for every
+# city, sized for Tokio: 5 MB would need its new photos below DERIVATIVE_MIN_QUALITY, and no
+# rendition goes below that floor.
+CITY_IDENTITY_BUDGET_BYTES = 5_500_000
 LQIP_WIDTH = 20
 LQIP_MAX_DATA_URL_BYTES = 700
 LQIP_MIN_QUALITY = 20
@@ -95,18 +119,25 @@ def derivative_path_for(asset_path: str, width: int = DEFAULT_DERIVATIVE_WIDTH) 
     return asset_path[: -len(".webp")] + f"-{width}w.webp"
 
 
-def encode_derivative_at_quality(original_bytes: bytes, width: int, quality: int) -> bytes:
-    """Encode one rendition at an explicit contract-bounded WebP quality."""
+def encode_derivative_at_quality(original_bytes: bytes, width: int, quality: int, render_width: int | None = None) -> bytes:
+    """Encode one rendition at an explicit contract-bounded WebP quality.
+
+    `render_width` is the pixel width actually produced when the byte cap forces it below the
+    nominal `width`; by default they are the same.
+    """
     if width not in DERIVATIVE_WIDTHS:
         raise ValueError(f"unsupported derivative width: {width!r}")
     if not DERIVATIVE_MIN_QUALITY <= quality <= DERIVATIVE_QUALITY:
         raise ValueError(f"quality outside deterministic range: {quality!r}")
+    render_width = width if render_width is None else render_width
+    if not DERIVATIVE_MIN_RENDER_WIDTH <= render_width <= width:
+        raise ValueError(f"render width outside deterministic range: {render_width!r}")
     with Image.open(BytesIO(original_bytes)) as im:
         im.load()
         if im.mode not in ("RGB", "RGBA"):
             im = im.convert("RGB")
         source_width, source_height = im.size
-        target_width = min(source_width, width)
+        target_width = min(source_width, render_width)
         if im.size[0] > target_width:
             target_height = max(1, round(source_height * target_width / source_width))
             im = im.resize((target_width, target_height), Image.LANCZOS)
@@ -128,18 +159,99 @@ def choose_derivative_encoding(original_bytes: bytes, width: int = DEFAULT_DERIV
         quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
 
 
+def fit_byte_cap(original_bytes: bytes, width: int, quality: int, encoded: bytes):
+    """Bring a finished rendition under DERIVATIVE_MAX_BYTES; return (quality, render_width, bytes).
+
+    Quality steps down first. Only a rendition still over the cap at the quality floor then steps
+    its width down, so the floor is never crossed to meet the cap. A rendition already under the
+    cap comes back untouched, which is what keeps every other file byte-identical.
+    """
+    render_width = width
+    while len(encoded) > DERIVATIVE_MAX_BYTES:
+        if quality > DERIVATIVE_MIN_QUALITY:
+            quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
+        elif render_width > DERIVATIVE_MIN_RENDER_WIDTH:
+            render_width = max(DERIVATIVE_MIN_RENDER_WIDTH, render_width - DERIVATIVE_WIDTH_STEP)
+        else:
+            raise ValueError(
+                f"rendition stays at {len(encoded)} B, over the {DERIVATIVE_MAX_BYTES} B cap, at "
+                f"quality {quality} and width {render_width}"
+            )
+        encoded = encode_derivative_at_quality(original_bytes, width, quality, render_width)
+    return quality, render_width, encoded
+
+
 def encode_derivative(original_bytes: bytes, width: int = DEFAULT_DERIVATIVE_WIDTH) -> bytes:
-    return choose_derivative_encoding(original_bytes, width)[1]
+    quality, encoded = choose_derivative_encoding(original_bytes, width)
+    return fit_byte_cap(original_bytes, width, quality, encoded)[2]
 
 
-def rebalance_identity_800(records, originals, hub_by_place, budget=IDENTITY_HUB_BUDGET_BYTES):
-    """Fit identity card renditions under the per-hub cap without crossing quality 48.
+def _fit_hub_under_budget(hub, members, planned, qualities, originals, budget, fixed_bytes=0):
+    """Lower the highest-saving next quality step across `members` until the hub fits.
+
+    `fixed_bytes` is what the hub already spends on renditions this pass may not touch. Place id
+    and asset path are stable tie-breaks; nothing goes below DERIVATIVE_MIN_QUALITY.
+    """
+    next_encoded = {}
+    for record in members:
+        asset_path = record["assetPath"]
+        quality = qualities[asset_path]
+        if quality > DERIVATIVE_MIN_QUALITY:
+            next_quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
+            next_encoded[asset_path] = encode_derivative_at_quality(originals[asset_path], 800, next_quality)
+    total = fixed_bytes + sum(len(planned[row["assetPath"]]) for row in members)
+    while total > budget:
+        options = []
+        for record in members:
+            asset_path = record["assetPath"]
+            lowered = next_encoded.get(asset_path)
+            if lowered is None:
+                continue
+            saved = len(planned[asset_path]) - len(lowered)
+            if saved > 0:
+                next_quality = max(DERIVATIVE_MIN_QUALITY, qualities[asset_path] - DERIVATIVE_QUALITY_STEP)
+                options.append((-saved, record["placeId"], asset_path, next_quality, lowered))
+        if not options:
+            raise ValueError(
+                f"identity hub {hub} remains {total} B over the {budget} B cap at quality floor {DERIVATIVE_MIN_QUALITY}"
+            )
+        _, _, asset_path, quality, encoded = min(options)
+        total -= len(planned[asset_path]) - len(encoded)
+        planned[asset_path] = encoded
+        qualities[asset_path] = quality
+        if quality > DERIVATIVE_MIN_QUALITY:
+            next_quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
+            next_encoded[asset_path] = encode_derivative_at_quality(originals[asset_path], 800, next_quality)
+        else:
+            next_encoded.pop(asset_path, None)
+    return total
+
+
+def rebalance_identity_800(
+    records,
+    originals,
+    hub_by_place,
+    budget=IDENTITY_HUB_BUDGET_BYTES,
+    new_place_titles=frozenset(),
+    city_budget=CITY_IDENTITY_BUDGET_BYTES,
+):
+    """Fit identity card renditions under the per-hub caps without crossing their quality floor.
 
     First apply the existing deterministic per-file rule. If that leaves a hub over budget,
     lower the highest-saving next quality step across that hub, with place id and asset path as
     stable tie-breaks. Source images, 400px renditions, and non-identity roles are untouched.
+
+    Two passes, so the photos that were already shipped stay byte-identical:
+
+    1. Pre-existing identity photos keep their historical `budget` (3.5 MB per hub).
+    2. «Lugares nuevos» (JP-215–JP-265, the titles in `new_place_titles`) are then added to the
+       same hub sum, and only they are lowered until the whole city fits `city_budget` (5.5 MB),
+       down to the same DERIVATIVE_MIN_QUALITY. The 3.5 MB contract was sized for ~50 places per hub; with
+       60–85 it cannot hold even at quality 48 (see docs/DATA_MODEL.md).
+
+    Returns the renditions, their qualities and each hub's full total (both passes).
     """
-    planned, qualities, grouped = {}, {}, {}
+    planned, qualities, existing, added = {}, {}, {}, {}
     for record in records:
         if record.get("role") != "identity":
             continue
@@ -150,44 +262,17 @@ def rebalance_identity_800(records, originals, hub_by_place, budget=IDENTITY_HUB
         quality, encoded = choose_derivative_encoding(originals[asset_path], 800)
         planned[asset_path] = encoded
         qualities[asset_path] = quality
-        grouped.setdefault(hub, []).append(record)
+        group = added if record.get("originalTitle") in new_place_titles else existing
+        group.setdefault(hub, []).append(record)
 
     totals = {}
-    for hub, members in sorted(grouped.items()):
-        next_encoded = {}
-        for record in members:
-            asset_path = record["assetPath"]
-            quality = qualities[asset_path]
-            if quality > DERIVATIVE_MIN_QUALITY:
-                next_quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
-                next_encoded[asset_path] = encode_derivative_at_quality(originals[asset_path], 800, next_quality)
-        total = sum(len(planned[row["assetPath"]]) for row in members)
-        while total > budget:
-            options = []
-            for record in members:
-                asset_path = record["assetPath"]
-                lowered = next_encoded.get(asset_path)
-                if lowered is None:
-                    continue
-                saved = len(planned[asset_path]) - len(lowered)
-                if saved > 0:
-                    next_quality = max(DERIVATIVE_MIN_QUALITY, qualities[asset_path] - DERIVATIVE_QUALITY_STEP)
-                    options.append((-saved, record["placeId"], asset_path, next_quality, lowered))
-            if not options:
-                raise ValueError(
-                    f"identity hub {hub} remains {total} B over the {budget} B cap at quality floor {DERIVATIVE_MIN_QUALITY}"
-                )
-            _, _, asset_path, quality, encoded = min(options)
-            total -= len(planned[asset_path]) - len(encoded)
-            planned[asset_path] = encoded
-            qualities[asset_path] = quality
-            if quality > DERIVATIVE_MIN_QUALITY:
-                next_quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
-                next_encoded[asset_path] = encode_derivative_at_quality(originals[asset_path], 800, next_quality)
-            else:
-                next_encoded.pop(asset_path, None)
-        totals[hub] = total
-    return planned, qualities, totals
+    for hub, members in sorted(existing.items()):
+        totals[hub] = _fit_hub_under_budget(hub, members, planned, qualities, originals, budget)
+    for hub, members in sorted(added.items()):
+        totals[hub] = _fit_hub_under_budget(
+            hub, members, planned, qualities, originals, city_budget, fixed_bytes=totals.get(hub, 0)
+        )
+    return planned, qualities, dict(sorted(totals.items()))
 
 
 def encode_lqip(original_bytes: bytes) -> str:
@@ -253,8 +338,16 @@ def main() -> int:
         identity_originals[record["assetPath"]] = original.read_bytes()
     try:
         identity_800, identity_qualities, identity_hub_totals = rebalance_identity_800(
-            all_records, identity_originals, hub_by_place
+            all_records, identity_originals, hub_by_place, new_place_titles=new_places_titles()
         )
+        # After the rebalance: the cap only ever lowers a file, so no city can go back over budget.
+        hub_by_asset = {r["assetPath"]: hub_by_place[r["placeId"]] for r in all_records if r.get("role") == "identity"}
+        for asset_path, encoded in identity_800.items():
+            quality, render_width, capped = fit_byte_cap(
+                identity_originals[asset_path], 800, identity_qualities[asset_path], encoded
+            )
+            identity_hub_totals[hub_by_asset[asset_path]] -= len(encoded) - len(capped)
+            identity_800[asset_path], identity_qualities[asset_path] = capped, quality
     except ValueError as exc:
         sys.exit(f"identity 800w budget rebalance failed: {exc}")
 
@@ -329,7 +422,7 @@ def main() -> int:
     for hub, total in sorted(identity_hub_totals.items()):
         adjusted = sum(identity_qualities[row["assetPath"]] < DERIVATIVE_QUALITY for row in all_records
                        if row.get("role") == "identity" and hub_by_place.get(row["placeId"]) == hub)
-        print(f"     identity 800w {hub}: {total:,} B / {IDENTITY_HUB_BUDGET_BYTES:,} B cap ({adjusted} image(s) quality-adjusted)")
+        print(f"     identity 800w {hub}: {total:,} B / {CITY_IDENTITY_BUDGET_BYTES:,} B city cap ({adjusted} image(s) quality-adjusted)")
     return 0
 
 

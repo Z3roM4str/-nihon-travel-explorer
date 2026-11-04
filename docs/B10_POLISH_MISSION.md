@@ -79,7 +79,7 @@ botón ⓘ de la galería (`.gallery__credits`) 40 px pintado → área real 44 
 ## 3. Rendimiento e imágenes (B10.3) — gate `app/scripts/b10-performance-check.mjs`, evidencia `docs/B10_PERFORMANCE_EVIDENCE.json`
 
 Medido sobre main (no se reutilizan números históricos). Por ciudad con ≥ 10 lugares, en 390×844@2 y 1440×900@1, Chromium y WebKit: bytes de imagen al recorrer
-la ciudad completa tras abrirla (presupuesto `06 §6.3` / `08` G6 = 3,5 MB), 0 originales, 0 duplicados, 0 fallos, carga diferida
+la ciudad completa tras abrirla (presupuesto `06 §6.3` / `08` G6 = 3,5 MB en la fecha de esta misión; 5,5 MB desde el 2026-11-03), 0 originales, 0 duplicados, 0 fallos, carga diferida
 (ninguna imagen a más de tres pantallas descargada al abrir), 0 imágenes sobredimensionadas (> 2,5× su caja × DPR).
 
 | Ciudad | Imágenes | Bytes | vs 3 500 000 |

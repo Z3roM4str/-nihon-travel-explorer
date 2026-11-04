@@ -78,7 +78,8 @@ export type Place = {
     lat: number;
     lng: number;
   };
-  officialUrl: string;
+  /** `null` cuando la web oficial no responde (sin enlace oficial; ver docs/DATA_MODEL.md). */
+  officialUrl: string | null;
   googleMapsUrl: string;
   imageBrief: string;
   /** Present only once the export pipeline carries licensed assets; see `data/place-images.ts`. */
